@@ -1,0 +1,11 @@
+{
+  "mypc": 1,
+  "id": "hollowmere-lantern-road",
+  "name": "Hollowmere: The Lantern Road",
+  "description": "A 2.5D story RPG for 1 or 2 players: recover the three Embers and relight the Great Lantern",
+  "type": "game",
+  "entry": "index.html",
+  "icon": "icon.svg",
+  "version": "1.0.0",
+  "scores": true
+}
