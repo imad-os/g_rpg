@@ -11,7 +11,7 @@
  */
 window.HM_CONFIG = {
     proxyUrl: '',
-    geminiKey: '',
+    geminiKey: 'AIzaSyC6ueNqzsh3WVqNHCkX4MTmAHXrS0Pfxaw',
     model: 'gemini-3.5-flash-lite',
-    timeoutMs: 8000
+    timeoutMs: 3000
 };
