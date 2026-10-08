@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.1.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.2.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -50,7 +50,8 @@ lines. The AI is set in the **app config** (installer → this app → **Config*
 to the game as `MyPC.app_config`:
 
 ```json
-{ "proxyUrl": "https://hollowmere-ai.<you>.workers.dev", "model": "gemini-3.5-flash-lite", "timeoutMs": 8000 }
+{ "proxyUrl": "https://hollowmere-ai.<you>.workers.dev", "model": "gemini-3.5-flash-lite", "timeoutMs": 8000,
+  "tts": true, "ttsModel": "gemini-3.8-flash-lite-tts" }
 ```
 
 The app config is **not secret** (every TV downloads it), so the Gemini key never goes there or in
@@ -61,7 +62,19 @@ Get a key at https://aistudio.google.com/apikey.
 To test in a browser without My PC, add the config to the address:
 `index.html?app_config={"proxyUrl":"https://hollowmere-ai.<you>.workers.dev"}`
 
-## Character voices (optional, free, offline)
+## Spoken dialogue
+
+Every dialogue line and story page is spoken, in this order:
+
+1. a **recorded clip** from `audio/voices/<lang>/`, if one exists (free; made with the generator below);
+2. otherwise **Gemini text-to-speech** through the proxy, if `proxyUrl` is set and `tts` is not
+   `false` (this costs API usage, so record the fixed lines whenever you can);
+3. otherwise **nothing**: the text stays on screen and goes to the TV's Voice Guide.
+
+Clips are downloaded one line at a time while playing, and the music gets quieter while someone
+speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (77 lines, 2 MB).
+
+### Making the recordings (free, offline)
 
 `tools/voices/generate.py` turns every scripted line (about 230 in 4 languages) into speech with
 [Piper](https://github.com/rhasspy/piper), a free open-source voice engine that runs on your PC.

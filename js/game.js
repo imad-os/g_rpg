@@ -4,7 +4,7 @@
 (function () {
     'use strict';
     const W = 640, H = 360, TS = 32, STEP = 1000 / 60;
-    const ART = window.HM_ART, SND = window.HM_AUDIO, AI = window.HM_AI, MAPS = window.HM_MAPS, TEXT = window.HM_TEXT;
+    const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, AI = window.HM_AI, MAPS = window.HM_MAPS, TEXT = window.HM_TEXT;
     const $ = id => document.getElementById(id);
 
     let info = null, T = TEXT.en, L = 'en', tier = 'high';
@@ -257,6 +257,7 @@
 
     function openDlg() { mode = 'dialog'; $('dlg').style.display = ''; lockUntil = tick + 6; }
     function closeDlg() {
+        VOICE.stop();
         $('dlg').style.display = 'none'; D.pages = null; D.choices = null; D.wait = false; askToken++;
         if (mode === 'dialog') mode = 'play';
         lockUntil = tick + 8;
@@ -279,7 +280,11 @@
         if (lastPage && D.choices && !D.wait) {
             D.choices.forEach((c, i) => { const el = document.createElement('div'); el.className = 'ch' + (i === D.sel ? ' sel' : ''); el.textContent = c.label; box.appendChild(el); });
         }
-        if (!D.wait) MyPC.announce((who ? $('dname').textContent + ': ' : '') + pg[1] + (lastPage && D.choices ? '. ' + D.choices[D.sel].label : ''));
+        if (!D.wait) {
+            MyPC.announce((who ? $('dname').textContent + ': ' : '') + pg[1] + (lastPage && D.choices ? '. ' + D.choices[D.sel].label : ''));
+            if (pg[2] === 0) VOICE.stop(); else VOICE.say(pg[2] || null, pg[1], who);
+            if (!lastPage) VOICE.prefetch(D.pages[D.i + 1][2]);
+        } else VOICE.stop();
         SND.fx('talk');
     }
     function dlgInput(a) {
@@ -295,7 +300,8 @@
             if (!lastPage) { D.i++; renderDlg(); } else closeDlg();
         }
     }
-    const lines = (who, key, vars) => (T.lines[key] || []).map(s => [who, txt(s, vars)]);
+    // pages are [who, text, clip]: clip = recorded line name, null = none (text-to-speech may read it), 0 = silent
+    const lines = (who, key, vars) => (T.lines[key] || []).map((s, i) => [who, txt(s, vars), vars ? null : key + '-' + i]);
 
     /* ------------------------------------------------------------------ AI chat */
 
@@ -307,20 +313,21 @@
         c.push({ label: T.ui.bye, fn: closeDlg });
         return c;
     }
-    function canned(id, q) {
-        if (q === T.ui.next) return id === 'maren' ? txt(T.lines.marenIdle[0], { obj: objective(L) }) : objective(L);
-        if (q === T.topic[id][0]) return T.topic[id][1];
-        if (q === T.ui.about) return T.topic[id][2];
-        return T.ui.aiErr;
+    function canned(id, q) {          // [text, clip]
+        if (q === T.ui.next) return [id === 'maren' ? txt(T.lines.marenIdle[0], { obj: objective(L) }) : objective(L), null];
+        if (q === T.topic[id][0]) return [T.topic[id][1], 'topic-' + id + '-lore'];
+        if (q === T.ui.about) return [T.topic[id][2], 'topic-' + id + '-about'];
+        return [T.ui.aiErr, 0];
     }
     function askNpc(id, q) {
-        D.pages = [[id, '« ' + q + ' »']]; D.i = 0; D.wait = true; D.ai = false; renderDlg();
-        const finish = (text, opts, fromAI) => {
-            D.pages = [[id, text]]; D.i = 0; D.choices = chatChoices(id, opts); D.sel = 0; D.wait = false; D.ai = fromAI; renderDlg();
+        D.pages = [[id, '« ' + q + ' »', 0]]; D.i = 0; D.wait = true; D.ai = false; renderDlg();
+        const finish = (text, opts, fromAI, clip) => {
+            D.pages = [[id, text, clip === undefined ? null : clip]]; D.i = 0; D.choices = chatChoices(id, opts); D.sel = 0; D.wait = false; D.ai = fromAI; renderDlg();
         };
         if (!AI.enabled()) {
             if (info.standalone && !aiNoticeShown) { aiNoticeShown = true; toast(T.ui.aiOff); }
-            return finish(canned(id, q), defaultOpts(id), false);
+            const c = canned(id, q);
+            return finish(c[0], defaultOpts(id), false, c[1]);
         }
         const tok = ++askToken;
         const ctx2 = { stage: S.stage, lang: L, objective: objective('en'), heroes: P[1].on ? 'two young apprentices, Ash and Wren' : 'a young apprentice called Ash' };
@@ -330,7 +337,7 @@
         }).catch(() => {
             if (tok !== askToken || mode !== 'dialog') return;
             const c = canned(id, q);
-            finish(c, defaultOpts(id), false);
+            finish(c[0], defaultOpts(id), false, c[1]);
         });
     }
 
@@ -383,8 +390,8 @@
     function shop(pages) {
         const choices = [
             { label: T.ui.buy, fn: () => {
-                if (S.coins < 10) { D.pages = [['hana', T.ui.poor]]; }
-                else { S.coins -= 10; S.potions++; save(); SND.fx('coin'); D.pages = [['hana', T.ui.bought]]; }
+                if (S.coins < 10) { D.pages = [['hana', T.ui.poor, 0]]; }
+                else { S.coins -= 10; S.potions++; save(); SND.fx('coin'); D.pages = [['hana', T.ui.bought, 0]]; }
                 D.i = 0; renderDlg();
             } },
             { label: T.ui.leave, fn: closeDlg }
@@ -400,8 +407,8 @@
         });
     }
 
-    function yesNo(who, text, yes) {
-        say([[who, text]], [{ label: T.ui.yes, fn: () => { closeDlg(); yes(); } }, { label: T.ui.no, fn: closeDlg }]);
+    function yesNo(who, text, yes, clip) {
+        say([[who, text, clip]], [{ label: T.ui.yes, fn: () => { closeDlg(); yes(); } }, { label: T.ui.no, fn: closeDlg }]);
     }
 
     function bossDown(f) {
@@ -437,7 +444,7 @@
 
     const OV = { kind: '', items: null, sel: 0, slides: null, i: 0, done: null };
     function ovShow(html) { const o = $('ov'); o.textContent = ''; o.appendChild(html); o.style.display = ''; }
-    function ovHide() { $('ov').style.display = 'none'; OV.kind = ''; }
+    function ovHide() { $('ov').style.display = 'none'; OV.kind = ''; VOICE.stop(); }
     function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
 
     function showTitle() {
@@ -461,8 +468,8 @@
         ovShow(box);
         MyPC.announce(OV.head[0] + '. ' + OV.head[1] + '. ' + OV.items[OV.sel].label);
     }
-    function slides(list, done, cls) {
-        mode = 'overlay'; OV.kind = 'slides'; OV.slides = list; OV.i = 0; OV.done = done; OV.cls = cls || '';
+    function slides(list, done, cls, clips) {
+        mode = 'overlay'; OV.kind = 'slides'; OV.slides = list; OV.i = 0; OV.done = done; OV.cls = cls || ''; OV.clips = clips || [];
         setHud(false); renderSlide();
     }
     function renderSlide() {
@@ -470,6 +477,9 @@
         box.appendChild(el('div', 'stext', OV.slides[OV.i]));
         box.appendChild(el('div', 'snext', '▶ ' + T.ui.ok));
         ovShow(box); MyPC.announce(OV.slides[OV.i]);
+        const clip = OV.clips[OV.i];
+        if (clip === undefined || clip === 0) VOICE.stop(); else VOICE.say(clip, OV.slides[OV.i], null);
+        if (OV.clips[OV.i + 1]) VOICE.prefetch(OV.clips[OV.i + 1]);
     }
     function showJournal() {
         mode = 'overlay'; OV.kind = 'journal';
@@ -494,7 +504,7 @@
         ];
         if (P[1].on) c.push({ label: T.ui.mLeave, fn: () => { closeDlg(); leave2(); } });
         c.push({ label: T.ui.close, fn: closeDlg });
-        say([[null, T.ui.quest + ': ' + objective(L)]], c);
+        say([[null, T.ui.quest + ': ' + objective(L), 0]], c);
     }
     function ovInput(a) {
         if (OV.kind === 'menu') {
@@ -514,7 +524,7 @@
         S = fresh(); AI.reset(); save();
         P[0].hp = P[1].hp = maxHp(); P[0].down = P[1].down = false;
         loadZone('village'); placePlayers(S.x, S.y); P[0].fx = 0; P[0].fy = -1;
-        slides(T.intro, () => { toPlay(); banner(T.zone.village); });
+        slides(T.intro, () => { toPlay(); banner(T.zone.village); }, '', T.intro.map((s, i) => 'intro-' + i));
     }
     function continueGame() {
         S = Object.assign(fresh(), MyPC.load('save', {}));
@@ -528,7 +538,7 @@
         slides(list, () => {
             if (!S.scored) { S.scored = true; save(); MyPC.submitScore(sc, { player: 1, players: P[1].on ? 2 : 1 }); }
             toPlay(); toast(T.ui.freeRoam);
-        }, 'end');
+        }, 'end', T.ending.map((s, i) => 'ending-' + i).concat([0]));
     }
 
     /* ------------------------------------------------------------------ fade */
@@ -577,8 +587,8 @@
         }
         if (Z.lantern && dist(fx, fy, Z.lantern.cx, Z.lantern.cy) < 44) return useLantern();
         for (const b of Z.boats) if (dist(fx, fy, b.cx, b.cy) < 34) {
-            if (Z.id === 'isle') return yesNo(null, T.lines.boatBack[0], () => ferry('shore'));
-            if (S.stage >= 8) return yesNo('sela', T.lines.selaFerry[0], () => ferry('isle'));
+            if (Z.id === 'isle') return yesNo(null, T.lines.boatBack[0], () => ferry('shore'), 'boatBack-0');
+            if (S.stage >= 8) return yesNo('sela', T.lines.selaFerry[0], () => ferry('isle'), 'selaFerry-0');
             return talk('sela');
         }
         if (ahead(p, C_g)) {
@@ -1232,6 +1242,7 @@
         onInit: function (i) {
             info = i; L = TEXT[i.lang] ? i.lang : 'en'; T = TEXT[L]; tier = (i.quality && i.quality.tier) || 'high';
             document.documentElement.lang = L;
+            VOICE.setLang(L);
             document.title = T.ui.title + ': ' + T.ui.sub;
             canvas = $('c'); ctx = canvas.getContext('2d', { alpha: false });
             resize(); window.addEventListener('resize', resize);
@@ -1265,7 +1276,7 @@
         onPause: function () { stopLoop(); SND.pause(); $('paused').style.display = info.standalone ? '' : 'none'; for (const k in DEV) DEV[k] = {}; },
         onResume: function () { $('paused').style.display = 'none'; SND.resume(); startLoop(); },
         onDestroy: function () {
-            stopLoop(); AI.abort(); SND.close();
+            stopLoop(); AI.abort(); VOICE.stop(); SND.close();
             window.removeEventListener('resize', resize);
         },
         onInput: onInput,

@@ -2,7 +2,7 @@
  * Music: each zone's loop is rendered once with an OfflineAudioContext and then looped. */
 window.HM_AUDIO = (function () {
     'use strict';
-    let ac = null, master = null, music = null, sfx = null, src = null, cur = -1, vol = { music: 0.7, sfx: 0.8 };
+    let ac = null, master = null, music = null, sfx = null, voice = null, src = null, cur = -1, vol = { music: 0.7, sfx: 0.8 };
     const loops = {}, pending = {};
     // root (Hz), scale steps, chords (scale degrees), tempo (8ths per second), pad wave
     const SONGS = [
@@ -24,9 +24,10 @@ window.HM_AUDIO = (function () {
         master = ac.createGain(); master.connect(ac.destination);
         music = ac.createGain(); music.connect(master);
         sfx = ac.createGain(); sfx.connect(master);
+        voice = ac.createGain(); voice.connect(master);       // spoken dialogue follows the sound-effects volume
         setVolume(vol);
     }
-    function setVolume(v) { vol = v || vol; if (!ac) return; music.gain.value = 0.32 * vol.music; sfx.gain.value = 0.55 * vol.sfx; }
+    function setVolume(v) { vol = v || vol; if (!ac) return; music.gain.value = 0.32 * vol.music; sfx.gain.value = 0.55 * vol.sfx; voice.gain.value = 1.1 * vol.sfx; }
     function pause() { if (ac && ac.state === 'running') ac.suspend(); }
     function resume() { if (ac && ac.state === 'suspended') ac.resume(); }
     function close() { stopMusic(); if (ac) { try { ac.close(); } catch (e) {} } ac = null; }
@@ -116,5 +117,8 @@ window.HM_AUDIO = (function () {
     };
     function fx(name) { const f = FX[name]; if (f && ac) f(); }
 
-    return { start, setVolume, pause, resume, close, play, fx, prepare: render };
+    // while someone speaks, the music steps back
+    function duck(on) { if (ac && music) music.gain.setTargetAtTime((on ? 0.12 : 0.32) * vol.music, ac.currentTime, 0.15); }
+
+    return { start, setVolume, pause, resume, close, play, fx, prepare: render, duck, ctx: () => ac, voiceOut: () => voice };
 })();
