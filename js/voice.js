@@ -34,7 +34,7 @@ window.HM_VOICE = (function () {
 
     function setLang(l) {
         lang = l; index = null;
-        indexP = fetch('audio/voices/' + lang + '/index.json').then(r => r.ok ? r.json() : null)
+        indexP = fetch('audio/voices/' + lang + '/index.json?v=' + (window.HM_VERSION || '1')).then(r => r.ok ? r.json() : null)
             .then(j => { index = (j && j.clips) || {}; return index; }).catch(() => { index = {}; return index; });
     }
 
@@ -47,7 +47,7 @@ window.HM_VOICE = (function () {
         if (!clip) return null;
         if (files.has(key)) return files.get(key);
         const ac = HM_AUDIO.ctx(); if (!ac) return null;
-        const r = await fetch('audio/voices/' + lang + '/' + clip.file);
+        const r = await fetch('audio/voices/' + lang + '/' + clip.file + '?v=' + (window.HM_VERSION || '1'));
         if (!r.ok) return null;
         const buf = await ac.decodeAudioData(await r.arrayBuffer());
         keep(files, key, buf, 24);

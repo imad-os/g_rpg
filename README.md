@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.6.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.7.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -30,6 +30,9 @@ fire home and learn why it was taken.
   have defeated; **21 hidden treasures** buried around the world (your cat sniffs them out)
 - After the ending, a new mystery: something below the hill remembers the Hush
 - Hana sells small and big potions; coins come from foes, pots, chests, treasures and quests
+- **Pixel art by Kenney** (CC0): heroes are built from layers, so every helmet, armour and weapon
+  you wear shows; villagers, monsters, houses, trees, walls and floors come from Tiny Town and
+  Tiny Dungeon. Movement is animated in code (bob, tilt, lunge, hit flash).
 - Hit-pause, critical hits, sparks, slash trails, arrows, muzzle flash and smoke, rings of light,
   running dust, spinning coins that fly to you
 - The quest box folds into a small badge 10 seconds after each new step
@@ -129,7 +132,9 @@ the optional Kokoro engine.
 | `js/items.js` | gear, shops, mounts, story side quests and chests (data) |
 | `js/pool.js` | the 30 pool tasks, with their texts in 4 languages |
 | `js/rift.js` | builds each Rift floor from a seed (always fully reachable) |
-| `js/art.js` | art drawn in code (sprites cached once) |
+| `js/kenney.js`, `assets/kenney/` | the Kenney sprite sheets (21 KB) and how the game uses them |
+| `js/art.js` | art drawn in code: water, the Lantern, animals, effects, and everything if the sheets can't load |
+| `tools/release.js` | sets a new version everywhere (see below) |
 | `js/audio.js` | synthesized music and sound (Web Audio) |
 | `js/voice.js` | spoken dialogue (recordings, then Gemini TTS) |
 | `proxy/worker.js` | optional key-hiding proxy |
@@ -137,6 +142,20 @@ the optional Kokoro engine.
 
 No build step and no downloads besides the code (about 200 KB). The SDK is loaded from
 `https://imad-os.github.io/g/sdk/mypc-sdk.js`.
+
+## Releasing a new version
+
+TVs cache files, so every file the game loads carries `?v=<version>`, the same as `version` in
+`mypc-app.json`. One command updates all of it:
+
+```
+node tools/release.js 1.8.0
+```
+
+## Credits
+
+Pixel art: [Kenney](https://www.kenney.nl) (Tiny Town, Tiny Dungeon, Roguelike Characters), CC0.
+Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made for this game.
 
 ## Run and install
 

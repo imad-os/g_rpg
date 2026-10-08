@@ -4,6 +4,7 @@
 (function () {
     'use strict';
     const W = 640, H = 360, TS = 32, STEP = 1000 / 60;
+    const KN = window.HM_KN, VERSION = window.HM_VERSION || '1';
     const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, MAPS = window.HM_MAPS, TEXT = window.HM_TEXT;
     const ITEMS = window.HM_ITEMS, SLOTS = window.HM_SLOTS, SHOPS = window.HM_SHOPS, QUESTS = window.HM_QUESTS, CHESTS = window.HM_CHESTS, LOOT = window.HM_LOOT, POOL = window.HM_POOL, MOUNTS = window.HM_MOUNTS, RIFT = window.HM_RIFT;
     const $ = id => document.getElementById(id);
@@ -150,7 +151,7 @@
             }
         }
         const h = itemOf(e.head), bd = itemOf(e.body), ft = itemOf(e.feet);
-        p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : '';
+        p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : ''; p.gear.weapon = wi ? wi.id : 'stick';
         if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
     function recalcAll() { recalc(P[0]); recalc(P[1]); }
@@ -401,7 +402,7 @@
         }
         Z.rs = []; for (let y = 0; y < Z.rows; y++) Z.rs.push([]);
         Z.statics = []; Z.picks = []; Z.pots = []; Z.chests = []; Z.lights = []; Z.npcs = []; Z.boats = []; Z.lantern = null; Z.rift = null; Z.stairs = null; Z.tablet = null; Z.tre = [];
-        const sp = ART.sprites(Z.theme), mi = ART.misc();
+        const sp = ART.sprites(Z.theme), mi = ART.misc(), K = KN.ok, kt = K ? KN.trees(Z.theme) : null;
         for (const p of def.props) {
             if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) Z.block[y * Z.cols + x] = 1;
             if (p.k === 'lantern') Z.lantern = addStatic('lantern', mi.lanternOff, p.x * TS, (p.y + p.h) * TS - 150, (p.y + p.h) * TS, 64, 150, { cx: (p.x + 1) * TS, cy: (p.y + p.h) * TS });
@@ -409,35 +410,40 @@
             else if (p.k === 'bell') { Z.block[Math.floor(p.y) * Z.cols + Math.floor(p.x)] = 1; addStatic('bell', mi.bell, p.x * TS - 22, p.y * TS - 56, p.y * TS + 8, 44, 64); }
             else if (p.k === 'rift') Z.rift = addStatic('rift', null, p.x * TS - 26, p.y * TS - 22, p.y * TS - 10, 52, 34, { cx: p.x * TS, cy: p.y * TS });
             else if (p.k === 'statue') { Z.block[Math.floor(p.y) * Z.cols + Math.floor(p.x)] = 1; addStatic('statue', mi.statue, p.x * TS - 15, p.y * TS - 48, p.y * TS + 8, 30, 56); }
+            else if (K) addStatic(p.k, KN.building(p.k, p.w, p.h), p.x * TS, (p.y - 1) * TS, (p.y + p.h) * TS, p.w * TS, (p.h + 1) * TS);
             else { const img = ART.building(p.k, p.w, p.h); addStatic(p.k, img, p.x * TS, p.y * TS - 40, (p.y + p.h) * TS, p.w * TS, p.h * TS + 40); }
         }
         const isWall = (x, y) => x < 0 || y < 0 || x >= Z.cols || y >= Z.rows || def.rows[y][x] === '#' || def.rows[y][x] === 't';
         for (let ty = 0; ty < Z.rows; ty++) for (let tx = 0; tx < Z.cols; tx++) {
             const c = def.rows[ty][tx], px = tx * TS, py = ty * TS, key = id + ':' + tx + ',' + ty;
-            if (c === 'T') addStatic('tree', sp.tree[(ART.hash(tx, ty, 9) * 3) | 0], px - 10 + ((ART.hash(tx, ty, 2) * 6) | 0), py - 42, py + 30, 52, 72);
+            if (c === 'T') { if (K) addStatic('tree', kt[(ART.hash(tx, ty, 9) * 3) | 0], px - 8 + ((ART.hash(tx, ty, 2) * 4) | 0), py - 26, py + 30, 48, 56); else addStatic('tree', sp.tree[(ART.hash(tx, ty, 9) * 3) | 0], px - 10 + ((ART.hash(tx, ty, 2) * 6) | 0), py - 42, py + 30, 52, 72); }
             else if (c === '#') {
                 // walls inside a block are drawn flat into the ground; only their edges need raised sprites
                 const above = isWall(tx, ty - 1), below = isWall(tx, ty + 1);
-                if (!above || !below) addStatic('cliff', sp.cliff[below ? 0 : 1], px, py - 16, py + TS, 32, 48);
+                if (!above || !below) addStatic('cliff', K ? KN.wall(Z.theme, !below) : sp.cliff[below ? 0 : 1], px, py - 16, py + TS, 32, 48);
             }
-            else if (c === 't') { addStatic('torch', sp.torch, px, py - 16, py + TS, 32, 48); Z.lights.push(px + 16, py + 22); }
-            else if (c === 'r') addStatic('rock', sp.rock, px, py, py + 28, 32, 30);
+            else if (c === 't') { addStatic('torch', K ? KN.wall(Z.theme, true) : sp.torch, px, py - 16, py + TS, 32, 48); Z.lights.push(px + 16, py + 22); }
+            else if (c === 'r') addStatic('rock', K ? KN.prop('rock') : sp.rock, px, py, py + 28, 32, K ? 32 : 30);
             else if (c === 'b') { if (!S.cut) addStatic('bramble', sp.bramble, px - 1, py - 12, py + TS, 34, 44, { tx, ty }); }
-            else if (c === 'g') { if (!S.gate) addStatic('gate', sp.gate, px, py - 16, py + TS, 32, 48, { tx, ty }); }
+            else if (c === 'g') { if (!S.gate) addStatic('gate', K ? KN.prop('gate') : sp.gate, px, K ? py : py - 16, py + TS, 32, K ? 32 : 48, { tx, ty }); }
             else if (c === 'S') { if (!S.seal) addStatic('seal', sp.seal, px, py - 16, py + TS, 32, 48, { tx, ty }); }
-            else if (c === 'p') Z.pots.push(addStatic('pot', sp.pot, px + 3, py + 2, py + 28, 26, 30, { tx, ty, cx: px + 16, cy: py + 18 }));
+            else if (c === 'p') Z.pots.push(K ? addStatic('pot', KN.prop('pot'), px, py, py + 28, 32, 32, { tx, ty, cx: px + 16, cy: py + 18 }) : addStatic('pot', sp.pot, px + 3, py + 2, py + 28, 26, 30, { tx, ty, cx: px + 16, cy: py + 18 }));
             else if (c === 'C' || c === 'Q') {
                 const open = def.rift ? !!RIFT_OPEN[key] : !!S.opened[key], star = c === 'Q';
-                Z.chests.push(addStatic('chest', star ? (open ? sp.starOpen : sp.star) : (open ? sp.chestOpen : sp.chest), px + 1, py + 2, py + 28, 30, 28,
+                if (K) Z.chests.push(addStatic('chest', KN.prop(star ? (open ? 'starOpen' : 'star') : (open ? 'chestOpen' : 'chest')), px, py, py + 28, 32, 32,
+                    { key, star, open, cx: px + 16, cy: py + 16, img2: KN.prop(star ? 'starOpen' : 'chestOpen') }));
+                else Z.chests.push(addStatic('chest', star ? (open ? sp.starOpen : sp.star) : (open ? sp.chestOpen : sp.chest), px + 1, py + 2, py + 28, 30, 28,
                     { key, star, open, cx: px + 16, cy: py + 16, img2: star ? sp.starOpen : sp.chestOpen }));
             }
-            else if (c === 'o' && !S.picked[key]) Z.picks.push(addStatic('ore', sp.ore, px + 3, py + 8, py + 28, 26, 22, { key, cx: px + 16, cy: py + 20 }));
+            else if (c === 'o' && !S.picked[key]) Z.picks.push(K ? addStatic('ore', KN.prop('ore'), px, py, py + 28, 32, 32, { key, cx: px + 16, cy: py + 20 }) : addStatic('ore', sp.ore, px + 3, py + 8, py + 28, 26, 22, { key, cx: px + 16, cy: py + 20 }));
             else if (c === 'c' && !S.picked[key]) Z.picks.push(addStatic('cap', sp.cap, px + 6, py + 8, py + 28, 20, 22, { key, cx: px + 16, cy: py + 20 }));
         }
         if (def.stairs) Z.stairs = addStatic('stairs', null, def.stairs.x * TS - 20, def.stairs.y * TS - 18, def.stairs.y * TS - 20, 40, 36, { cx: def.stairs.x * TS, cy: def.stairs.y * TS });
-        if (def.tablet) Z.tablet = addStatic('tablet', null, def.tablet.x * TS - 12, def.tablet.y * TS - 34, def.tablet.y * TS + 6, 24, 40, { cx: def.tablet.x * TS, cy: def.tablet.y * TS });
+        if (def.tablet) Z.tablet = addStatic('tablet', K ? KN.prop('tablet') : null, def.tablet.x * TS - 12, def.tablet.y * TS - 34, def.tablet.y * TS + 6, 24, 40, { cx: def.tablet.x * TS, cy: def.tablet.y * TS });
         for (const n of def.npcs) Z.npcs.push({ id: n.id, x: n.x * TS, y: n.y * TS, hx: n.x * TS, hy: n.y * TS, kind: 2, sy: n.y * TS, walk: 0, fx: 0, fy: 1, bob: ART.hash(n.x, n.y, 4) * 6 });
-        Z.ground = ART.ground({ cols: Z.cols, rows: Z.rows, ch: (x, y) => def.rows[y][x] }, Z.theme);
+        const zg = { cols: Z.cols, rows: Z.rows, ch: (x, y) => def.rows[y][x] };
+        Z.ground = ART.ground(zg, Z.theme);
+        if (K) KN.ground(Z.ground, zg, Z.theme);
         for (const f of FOES) f.on = false;
         for (const s of SHOTS) s.on = false;
         for (const d of DROPS) d.on = false;
@@ -1699,7 +1705,7 @@
                 if (o.k === 'lantern') ctx.drawImage(S && S.lit ? mi.lanternOn : mi.lanternOff, o.dx - cx, o.dy - cy, o.dw, o.dh);
                 else if (o.k === 'rift') drawRiftPortal(o.cx - cx, o.cy - cy);
                 else if (o.k === 'stairs') drawStairs(o.cx - cx, o.cy - cy);
-                else if (o.k === 'tablet') drawTablet(o.cx - cx, o.cy - cy);
+                else if (o.k === 'tablet') { if (o.img) ctx.drawImage(o.img, o.cx - cx - 16, o.cy - cy - 30, 32, 32); else drawTablet(o.cx - cx, o.cy - cy); }
                 else {
                     if (o.k === 'cap') ctx.drawImage(mi.blueGlow, o.dx - 22 - cx, o.dy - 22 - cy, 64, 64);
                     ctx.drawImage(o.img, o.dx - cx, o.dy - cy, o.dw, o.dh);
@@ -1815,10 +1821,12 @@
             const look = LOOK[n.look || id];
             if (id === 'lira') y -= 6 + Math.sin(tick * 0.05) * 3;
             if (look.glow) ctx.drawImage(ART.misc().blueGlow, x - 28, y - 44, 56, 56);
-            ART.human(ctx, x, y, look, n.fx, n.fy, 0, false);
-            if (id === 'maren') { ctx.fillStyle = '#6b4a2e'; ctx.fillRect(x + 9, y - 30, 2, 30); ctx.fillStyle = '#ffd76a'; ctx.fillRect(x + 7, y - 33, 6, 5); }
-            if (id === 'bram') { ctx.fillStyle = '#6b4a2e'; ctx.fillRect(x - 13, y - 22, 2, 16); ctx.fillStyle = '#b8bcc4'; ctx.fillRect(x - 17, y - 24, 6, 5); }
-            if (id === 'tobin') { ctx.fillStyle = '#4a4a52'; ctx.fillRect(x + 10, y - 26, 3, 14); ctx.fillRect(x + 7, y - 28, 9, 5); }
+            if (KN.ok && KN.NPC[n.look || id] !== undefined) { if (look.glow) ctx.globalAlpha = 0.75; KN.npc(ctx, n.look || id, x, y, look.s < 0.9 ? 0.8 : 1, n.fx < 0, tick); ctx.globalAlpha = 1; }
+            else ART.human(ctx, x, y, look, n.fx, n.fy, 0, false);
+            if (KN.ok) { /* the sprites carry their own staff, apron and axe */ }
+            else if (id === 'maren') { ctx.fillStyle = '#6b4a2e'; ctx.fillRect(x + 9, y - 30, 2, 30); ctx.fillStyle = '#ffd76a'; ctx.fillRect(x + 7, y - 33, 6, 5); }
+            if (!KN.ok && id === 'bram') { ctx.fillStyle = '#6b4a2e'; ctx.fillRect(x - 13, y - 22, 2, 16); ctx.fillStyle = '#b8bcc4'; ctx.fillRect(x - 17, y - 24, 6, 5); }
+            if (!KN.ok && id === 'tobin') { ctx.fillStyle = '#4a4a52'; ctx.fillRect(x + 10, y - 26, 3, 14); ctx.fillRect(x + 7, y - 28, 9, 5); }
             if (id === 'corvin' && S.stage < 15) { ctx.fillStyle = '#5b5bd6'; ctx.fillRect(x + 9, y - 22, 5, 7); }
         }
         // markers: yellow ! for the story, green ! for a side quest, ? for a quest to hand in
@@ -1959,16 +1967,25 @@
     function drawPlayer(p, cx, cy) {
         const x = p.x - cx, y = p.y - cy;
         if (p.down) {
-            ctx.globalAlpha = 0.5; ctx.fillStyle = HERO[p.i].cloak; ctx.fillRect(x - 10, y - 6, 20, 7); ctx.globalAlpha = 1;
+            if (KN.ok) { ctx.globalAlpha = 0.6; KN.sprite(ctx, KN.hero(p.i, p.gear.weapon, p.gear.head, p.gear.body, p.gear.feet), x, y + 8, 2, false, false, 1.4); ctx.globalAlpha = 1; }
+            else { ctx.globalAlpha = 0.5; ctx.fillStyle = HERO[p.i].cloak; ctx.fillRect(x - 10, y - 6, 20, 7); ctx.globalAlpha = 1; }
             ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(NUM[Math.ceil(p.downT / 60)], x, y - 14);
             return;
         }
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
         const lean = p.lean / 8, back = p.ay < 0, ride = riding(p), hy = ride ? y - 13 : y;
         if (ride) { if (S.mount === 'horse') drawHorse(x, y, p.walk, p.lfx || 1, 1); else drawWolfMount(x, y, p.walk, p.lfx || 1, 1); }
-        if (back) drawWeapon(p, x, hy);
-        ART.human(ctx, x, hy, HERO[p.i], p.fx, p.fy, ride ? 0 : p.walk, false, p.gear, lean);
-        if (!back) drawWeapon(p, x, hy);
+        if (KN.ok) {
+            const w = ride ? 0 : p.walk, bob = w ? -Math.abs(Math.sin(w)) * 2.5 : Math.sin(tick * 0.05 + p.i) * 0.5;
+            const c = KN.hero(p.i, p.gear.weapon, p.gear.head, p.gear.body, p.gear.feet);
+            if (!ride) KN.shadow(ctx, x, y, 8);
+            KN.sprite(ctx, c, x + lean * (p.lfx || 1) * 4, hy + bob + 1, 2, (p.lfx || 1) < 0, p.inv > 50, w ? Math.sin(w) * 0.07 : lean * (p.lfx || 1) * 0.15);
+            drawWeapon(p, x, hy);
+        } else {
+            if (back) drawWeapon(p, x, hy);
+            ART.human(ctx, x, hy, HERO[p.i], p.fx, p.fy, ride ? 0 : p.walk, false, p.gear, lean);
+            if (!back) drawWeapon(p, x, hy);
+        }
         ctx.globalAlpha = 1;
         if (P[1].on) {
             ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
@@ -1979,6 +1996,7 @@
     function drawWeapon(p, x, y) {
         const st = p.st, ax = p.ax, ay = p.ay, hx = x + ax * 9, hy = y - 13 + ay * 3;
         if (st.kind === 'sword') {
+            if (KN.ok && p.swing <= 0) return;
             if (p.swing > 0) {                              // slash: a bright arc with a fading trail
                 const a = Math.atan2(ay, ax), t = p.swing / 12, from = a - 1.4, to = a - 1.4 + (1 - t) * 2.8 + 0.2;
                 for (let k = 0; k < 3; k++) {
@@ -1995,6 +2013,7 @@
             if (ax !== 0 && Math.abs(ax) >= Math.abs(ay)) ctx.fillRect(hx - (ax < 0 ? 13 : 0), hy - 1, 13, 3);
             else ctx.fillRect(hx - 1, hy - (ay < 0 ? 13 : 0), 3, 13);
         } else if (st.kind === 'bow') {
+            if (KN.ok) return;
             const a = Math.atan2(ay, ax), pull = p.swing > 6 ? (12 - p.swing) * 0.6 : 0;
             ctx.strokeStyle = st.col; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.arc(hx - ax * 3, hy - ay * 3, 9, a - 1.2, a + 1.2); ctx.stroke();
@@ -2018,6 +2037,8 @@
             if (d.it.r >= 2) { ctx.globalAlpha = 0.25 + Math.sin(tick * 0.15) * 0.1; ctx.fillStyle = col; ctx.fillRect(x - 3, y - 60, 6, 60); ctx.globalAlpha = 1; }
             ctx.globalAlpha = 0.5; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y - 4 + b, 11, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
             ctx.fillStyle = '#1b1820'; ctx.beginPath(); ctx.arc(x, y - 4 + b, 8, 0, 6.2832); ctx.fill();
+            const icon = KN.ok && KN.gearIcon(d.it.id);
+            if (icon) { ctx.drawImage(icon, x - 12, y - 16 + b, 24, 24); return; }
             ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 2;
             if (sl === 'weapon') { ctx.beginPath(); ctx.moveTo(x - 5, y + 1 + b); ctx.lineTo(x + 5, y - 9 + b); ctx.stroke(); ctx.fillRect(x - 5, y - 2 + b, 4, 2); }
             else if (sl === 'head') { ctx.beginPath(); ctx.arc(x, y - 2 + b, 5, Math.PI, 0); ctx.fill(); }
@@ -2057,6 +2078,7 @@
     }
     function drawFoeBody(f, cx, cy) {
         const x = f.x - cx, y = f.y - cy, w = f.hurt > 0 && (f.hurt & 2);
+        if (KN.ok && drawFoeK(f, x, y, w)) return;
         ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, f.r, f.r * 0.4, 0, 0, 6.2832); ctx.fill();
         switch (f.t) {
             case 'wisp': {
@@ -2167,6 +2189,21 @@
                 break;
             }
         }
+    }
+    function drawFoeK(f, x, y, w) {
+        const dir = (f.st >= 1 && f.st <= 2 && (f.t === 'wolf' || f.t === 'thornback' || f.t === 'knight')) ? (Math.sign(f.vx) || 1) : nearestDir(f);
+        let sx = x;
+        if (f.st === 1 && (f.t === 'wolf' || f.t === 'thornback' || f.t === 'knight')) sx += (tick & 2) - 1;         // trembling before a charge
+        if (f.t === 'sentinel' && f.st === 1) { ctx.globalAlpha = 0.3 + (64 - f.tm) / 100; ctx.strokeStyle = '#ff5a3c'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, 92 * (1 - f.tm / 80), 37 * (1 - f.tm / 80), 0, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1; }
+        if (f.t === 'sentinel' && f.st === 2) { ctx.strokeStyle = 'rgba(255,200,120,0.9)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.ellipse(x, y, f.ring, f.ring * 0.4, 0, 0, 6.2832); ctx.stroke(); }
+        if (f.t === 'warden' && f.st === 1) { ctx.fillStyle = 'rgba(160,140,90,0.45)'; ctx.beginPath(); ctx.arc(x, y - 30, 34 - f.tm * 0.5, 0, 6.2832); ctx.fill(); }
+        if (f.t === 'shade') ctx.globalAlpha = Math.max(0, f.alpha) * 0.9;
+        if (!KN.foe(ctx, f.t, sx, y, dir < 0, w, f.walk, 1)) { ctx.globalAlpha = 1; return false; }
+        ctx.globalAlpha = 1;
+        if (f.t === 'thornback' && f.st === 3) { ctx.fillStyle = '#ffd23f'; for (let k = 0; k < 3; k++) { const a = tick * 0.1 + k * 2.1; ctx.fillRect(x + Math.cos(a) * 18, y - 60 + Math.sin(a) * 4, 4, 4); } }
+        if (f.t === 'knight' && f.st === 1) { ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + dir * 20, y - 40 + (tick & 4), 3, 3); }
+        if (f.t === 'shade') { ctx.globalAlpha = 0.35 * Math.max(0, f.alpha); ctx.drawImage(ART.misc().blueGlow, x - 40, y - 80, 80, 80); ctx.globalAlpha = 1; }
+        return true;
     }
     function nearestDir(f) { const p = nearest(f.x, f.y); return p && p.x < f.x ? -1 : 1; }
 
@@ -2331,6 +2368,17 @@
 
     /* ------------------------------------------------------------------ lifecycle */
 
+    function finishInit() {
+        S = fresh();
+        const saved = MyPC.load('save', null);
+        if (saved) S = migrate(Object.assign(fresh(), saved));
+        recalcAll();
+        loadZone('village'); camX = 0; camY = 0;
+        refreshMenu();
+        MyPC.progress(1);
+        MyPC.ready();
+    }
+
     MyPC.init({
         onInit: function (i) {
             info = i; L = TEXT[i.lang] ? i.lang : 'en'; T = TEXT[L]; tier = (i.quality && i.quality.tier) || 'high';
@@ -2349,15 +2397,8 @@
             MyPC.progress(0.3);
             ['grass', 'forest', 'mire', 'stone', 'crypt', 'mine'].forEach(t => ART.sprites(t));
             ART.misc();
-            MyPC.progress(0.8);
-            S = fresh();
-            const saved = MyPC.load('save', null);
-            if (saved) S = migrate(Object.assign(fresh(), saved));
-            recalcAll();
-            loadZone('village'); camX = 0; camY = 0;
-            refreshMenu();
-            MyPC.progress(1);
-            MyPC.ready();
+            MyPC.progress(0.5);
+            KN.load(VERSION, p => MyPC.progress(0.5 + p * 0.4), () => finishInit());
         },
         onStart: function () {
             started = true;
