@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.4.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.5.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -10,8 +10,16 @@ fire home and learn why it was taken.
 
 - 7 areas including **2 dungeons** (the Barrow Crypt and the Deep Mine: dark halls lit by
   torches, pots to smash, chests to open), 17 story steps, 5 bosses and a full ending
-- **6 side quests** from the villagers (hunt wolves, crawlers and mites, rescue Bram's apprentice
-  from the Crypt Knight, find Pip's lost dog, dig up star iron), each paying coins and gear
+- **9 story side quests** from the villagers (hunt wolves, crawlers and mites, rescue Bram's
+  apprentice from the Crypt Knight, find Pip's lost dog, dig up star iron, and three animals)
+- **A pool of 30 more tasks**: after their own quests, Bram, Hana, Odo, Pip, Sela and Tobin each
+  hand out one task at a time, picked at random from those that fit the story so far: hunts,
+  things to collect, people to rescue, deliveries and named elite foes. Rewards (coins, iron ore,
+  often gear) grow with your level. A task can be dropped, and finished tasks come round again.
+- **A cat** (Hana's lost kitten) follows player 1: it picks up loot and fights at your side with
+  half your attack, defence and health, and runs one and a half times as fast as you
+- **Mounts:** a horse (Odo's quest, or 700 coins at Hana's store) and a wolf (Bram's quest, or
+  900 coins) that bites the foes you run into. Both heroes ride; you get down in dungeons.
 - **Gear:** swords, bows and flintlock guns; helmets, body armour and boots, bought at Tobin's
   forge or won from quests and chests, and changed on the Equipment screen (per hero in co-op)
 - Hana sells small and big potions; coins come from foes, pots, chests and quests
@@ -32,7 +40,7 @@ fire home and learn why it was taken.
 |---|---|---|---|
 | Move | arrows | arrows | stick / d-pad |
 | Talk, use, attack | OK | Enter / Space | A |
-| Quick menu (journal, equipment, potions) | hold OK | hold Enter | hold A |
+| Quick menu (journal, equipment, potions, ride / walk) | hold OK | hold Enter | hold A |
 | Pause menu | Back | Esc / P | Start |
 
 **Co-op:** a second player presses OK / A on another controller (or F with W A S D on a second
@@ -73,11 +81,11 @@ Every dialogue line and story page is spoken, in this order:
 3. otherwise **nothing**: the text stays on screen and goes to the TV's Voice Guide.
 
 Clips are downloaded one line at a time while playing, and the music gets quieter while someone
-speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (119 lines, 3.1 MB).
+speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (202 lines, 5.2 MB).
 
 ### Making the recordings (free, offline)
 
-`tools/voices/generate.py` turns every scripted line (about 230 in 4 languages) into speech with
+`tools/voices/generate.py` turns every scripted line (about 200 per language) into speech with
 [Piper](https://github.com/rhasspy/piper), a free open-source voice engine that runs on your PC.
 It gives each character its own voice and saves small Ogg/Opus clips to `audio/voices/<lang>/`
 with an `index.json` (about 1.2 MB per language).
@@ -110,8 +118,9 @@ the optional Kokoro engine.
 | `icon.svg` | icon |
 | `js/game.js` | engine: loop, players, foes, bosses, story, rendering |
 | `js/maps.js` | the seven areas, dungeons included |
-| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
-| `js/items.js` | gear, shops, side quests and chests (data) |
+| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
+| `js/items.js` | gear, shops, mounts, story side quests and chests (data) |
+| `js/pool.js` | the 30 pool tasks, with their texts in 4 languages |
 | `js/art.js` | art drawn in code (sprites cached once) |
 | `js/audio.js` | synthesized music and sound (Web Audio) |
 | `js/voice.js` | spoken dialogue (recordings, then Gemini TTS) |

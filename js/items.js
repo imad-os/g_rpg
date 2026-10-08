@@ -60,8 +60,15 @@ window.HM_QUESTS = [
     { id: 'tam',      giver: 'bram',  type: 'rescue', who: 'tam', stage: 2, after: 'wolves', reward: { coins: 90, item: 'hunter_bow' } },
     { id: 'crawlers', giver: 'hana',  type: 'kill', foe: 'crawler', n: 6, stage: 6, reward: { coins: 60, big: 2 } },
     { id: 'mites',    giver: 'odo',   type: 'kill', foe: 'mite', n: 6, stage: 11, reward: { coins: 80, item: 'iron_helm' } },
-    { id: 'stariron', giver: 'tobin', type: 'fetch', stage: 11, reward: { coins: 40, item: 'steel_sword' } }
+    { id: 'stariron', giver: 'tobin', type: 'fetch', stage: 11, reward: { coins: 40, item: 'steel_sword' } },
+    // animals: Hana's kitten becomes your cat; Odo's warhorse and a wolf pup become mounts
+    { id: 'kitten',   giver: 'hana',  type: 'rescue', who: 'kitten', stage: 6, reward: { coins: 20, pet: 'cat' } },
+    { id: 'pup',      giver: 'bram',  type: 'rescue', who: 'pup', stage: 4, after: 'tam', reward: { coins: 30, mount: 'wolf' } },
+    { id: 'bramble',  giver: 'odo',   type: 'rescue', who: 'bramble', stage: 11, after: 'mites', reward: { coins: 40, mount: 'horse' } }
 ];
+
+// mounts: speed multiplier, and the price at Hana's store (expensive on purpose: quests give them for free)
+window.HM_MOUNTS = { horse: { speed: 1.75, price: 700 }, wolf: { speed: 1.5, price: 900, bite: true } };
 
 // what the chests hold (by zone:x,y); anything not listed holds coins
 window.HM_CHESTS = {

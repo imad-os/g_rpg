@@ -714,6 +714,504 @@
    "who": "corvin",
    "dur": 10.63,
    "hash": "76564711f83f"
+  },
+  "kittenFound-0": {
+   "file": "kittenFound-0.ogg",
+   "who": "narrator",
+   "dur": 6.28,
+   "hash": "fda9572307fc"
+  },
+  "brambleFound-0": {
+   "file": "brambleFound-0.ogg",
+   "who": "bram",
+   "dur": 5.39,
+   "hash": "f6683fc2387b"
+  },
+  "pupFound-0": {
+   "file": "pupFound-0.ogg",
+   "who": "narrator",
+   "dur": 7.87,
+   "hash": "f2edd09bdb9b"
+  },
+  "pq-b1-offer-0": {
+   "file": "pq-b1-offer-0.ogg",
+   "who": "bram",
+   "dur": 10.29,
+   "hash": "0090d383d582"
+  },
+  "pq-b1-done-0": {
+   "file": "pq-b1-done-0.ogg",
+   "who": "bram",
+   "dur": 4.4,
+   "hash": "49b20c444e4d"
+  },
+  "pq-b2-offer-0": {
+   "file": "pq-b2-offer-0.ogg",
+   "who": "bram",
+   "dur": 10.4,
+   "hash": "d90226a24148"
+  },
+  "pq-b2-done-0": {
+   "file": "pq-b2-done-0.ogg",
+   "who": "bram",
+   "dur": 5.54,
+   "hash": "c5766ef66cab"
+  },
+  "pq-b3-offer-0": {
+   "file": "pq-b3-offer-0.ogg",
+   "who": "bram",
+   "dur": 11.49,
+   "hash": "0e741d5383fa"
+  },
+  "pq-b3-done-0": {
+   "file": "pq-b3-done-0.ogg",
+   "who": "bram",
+   "dur": 6.18,
+   "hash": "bb8643d76916"
+  },
+  "pq-b4-offer-0": {
+   "file": "pq-b4-offer-0.ogg",
+   "who": "bram",
+   "dur": 8.93,
+   "hash": "8930541ff6c7"
+  },
+  "pq-b4-done-0": {
+   "file": "pq-b4-done-0.ogg",
+   "who": "bram",
+   "dur": 5.5,
+   "hash": "cd666ba05436"
+  },
+  "pq-b5-offer-0": {
+   "file": "pq-b5-offer-0.ogg",
+   "who": "bram",
+   "dur": 10.58,
+   "hash": "c56235161e3b"
+  },
+  "pq-b5-done-0": {
+   "file": "pq-b5-done-0.ogg",
+   "who": "bram",
+   "dur": 6.85,
+   "hash": "8ed92409dd63"
+  },
+  "pq-h1-offer-0": {
+   "file": "pq-h1-offer-0.ogg",
+   "who": "hana",
+   "dur": 12.06,
+   "hash": "641eaf3ff8ae"
+  },
+  "pq-h1-done-0": {
+   "file": "pq-h1-done-0.ogg",
+   "who": "hana",
+   "dur": 6.98,
+   "hash": "24bb651f4206"
+  },
+  "pq-h2-offer-0": {
+   "file": "pq-h2-offer-0.ogg",
+   "who": "hana",
+   "dur": 10.81,
+   "hash": "7f839c166642"
+  },
+  "pq-h2-done-0": {
+   "file": "pq-h2-done-0.ogg",
+   "who": "hana",
+   "dur": 6.05,
+   "hash": "2af6fe4cff26"
+  },
+  "pq-h3-offer-0": {
+   "file": "pq-h3-offer-0.ogg",
+   "who": "hana",
+   "dur": 10.33,
+   "hash": "bb88922068fa"
+  },
+  "pq-h3-done-0": {
+   "file": "pq-h3-done-0.ogg",
+   "who": "hana",
+   "dur": 5.69,
+   "hash": "66d7658c79d8"
+  },
+  "pq-h3-given-0": {
+   "file": "pq-h3-given-0.ogg",
+   "who": "sela",
+   "dur": 7.25,
+   "hash": "a60b12ee4885"
+  },
+  "pq-h4-offer-0": {
+   "file": "pq-h4-offer-0.ogg",
+   "who": "hana",
+   "dur": 11.54,
+   "hash": "ecc8437ac64b"
+  },
+  "pq-h4-done-0": {
+   "file": "pq-h4-done-0.ogg",
+   "who": "hana",
+   "dur": 5.7,
+   "hash": "cd65871e5da0"
+  },
+  "pq-h5-offer-0": {
+   "file": "pq-h5-offer-0.ogg",
+   "who": "hana",
+   "dur": 9.62,
+   "hash": "69155188a5c9"
+  },
+  "pq-h5-done-0": {
+   "file": "pq-h5-done-0.ogg",
+   "who": "hana",
+   "dur": 5.52,
+   "hash": "36001b75472c"
+  },
+  "pq-o1-offer-0": {
+   "file": "pq-o1-offer-0.ogg",
+   "who": "odo",
+   "dur": 9.3,
+   "hash": "49b9db87b764"
+  },
+  "pq-o1-done-0": {
+   "file": "pq-o1-done-0.ogg",
+   "who": "odo",
+   "dur": 5.42,
+   "hash": "96999fd60be0"
+  },
+  "pq-o2-offer-0": {
+   "file": "pq-o2-offer-0.ogg",
+   "who": "odo",
+   "dur": 11.62,
+   "hash": "711973903c20"
+  },
+  "pq-o2-done-0": {
+   "file": "pq-o2-done-0.ogg",
+   "who": "odo",
+   "dur": 5.31,
+   "hash": "50c0990a5b25"
+  },
+  "pq-o3-offer-0": {
+   "file": "pq-o3-offer-0.ogg",
+   "who": "odo",
+   "dur": 12.05,
+   "hash": "99b74ba4b408"
+  },
+  "pq-o3-done-0": {
+   "file": "pq-o3-done-0.ogg",
+   "who": "odo",
+   "dur": 6.06,
+   "hash": "ed75ddfee456"
+  },
+  "pq-o3-found-0": {
+   "file": "pq-o3-found-0.ogg",
+   "who": "bram",
+   "dur": 8.64,
+   "hash": "f7d28394d175"
+  },
+  "pq-o4-offer-0": {
+   "file": "pq-o4-offer-0.ogg",
+   "who": "odo",
+   "dur": 9.22,
+   "hash": "10dcd52d1e2f"
+  },
+  "pq-o4-done-0": {
+   "file": "pq-o4-done-0.ogg",
+   "who": "odo",
+   "dur": 4.93,
+   "hash": "784b39987cd6"
+  },
+  "pq-o5-offer-0": {
+   "file": "pq-o5-offer-0.ogg",
+   "who": "odo",
+   "dur": 10.13,
+   "hash": "7d60b46dabdc"
+  },
+  "pq-o5-done-0": {
+   "file": "pq-o5-done-0.ogg",
+   "who": "odo",
+   "dur": 5.84,
+   "hash": "2a04bc9c8145"
+  },
+  "pq-o5-given-0": {
+   "file": "pq-o5-given-0.ogg",
+   "who": "tobin",
+   "dur": 9.1,
+   "hash": "4ad093921955"
+  },
+  "pq-p1-offer-0": {
+   "file": "pq-p1-offer-0.ogg",
+   "who": "pip",
+   "dur": 11.78,
+   "hash": "1bf9b6d484fa"
+  },
+  "pq-p1-done-0": {
+   "file": "pq-p1-done-0.ogg",
+   "who": "pip",
+   "dur": 7.06,
+   "hash": "84f5318a21ea"
+  },
+  "pq-p2-offer-0": {
+   "file": "pq-p2-offer-0.ogg",
+   "who": "pip",
+   "dur": 11.34,
+   "hash": "d4f92f4773f3"
+  },
+  "pq-p2-done-0": {
+   "file": "pq-p2-done-0.ogg",
+   "who": "pip",
+   "dur": 3.03,
+   "hash": "fab934ada783"
+  },
+  "pq-p2-given-0": {
+   "file": "pq-p2-given-0.ogg",
+   "who": "maren",
+   "dur": 9.7,
+   "hash": "4d47fddc486e"
+  },
+  "pq-p3-offer-0": {
+   "file": "pq-p3-offer-0.ogg",
+   "who": "pip",
+   "dur": 10.04,
+   "hash": "67644df9942a"
+  },
+  "pq-p3-done-0": {
+   "file": "pq-p3-done-0.ogg",
+   "who": "pip",
+   "dur": 5.92,
+   "hash": "c27938051755"
+  },
+  "pq-p4-offer-0": {
+   "file": "pq-p4-offer-0.ogg",
+   "who": "pip",
+   "dur": 9.39,
+   "hash": "bea710b213be"
+  },
+  "pq-p4-done-0": {
+   "file": "pq-p4-done-0.ogg",
+   "who": "pip",
+   "dur": 5.47,
+   "hash": "5c3207541980"
+  },
+  "pq-p4-found-0": {
+   "file": "pq-p4-found-0.ogg",
+   "who": "pip",
+   "dur": 8.77,
+   "hash": "47f99aaebf13"
+  },
+  "pq-p5-offer-0": {
+   "file": "pq-p5-offer-0.ogg",
+   "who": "pip",
+   "dur": 12.13,
+   "hash": "6e793a3a21e7"
+  },
+  "pq-p5-done-0": {
+   "file": "pq-p5-done-0.ogg",
+   "who": "pip",
+   "dur": 6.56,
+   "hash": "2e5a246745fb"
+  },
+  "pq-s1-offer-0": {
+   "file": "pq-s1-offer-0.ogg",
+   "who": "sela",
+   "dur": 10.04,
+   "hash": "1a9a38a0d956"
+  },
+  "pq-s1-done-0": {
+   "file": "pq-s1-done-0.ogg",
+   "who": "sela",
+   "dur": 6.93,
+   "hash": "103f3c81fb55"
+  },
+  "pq-s2-offer-0": {
+   "file": "pq-s2-offer-0.ogg",
+   "who": "sela",
+   "dur": 14.6,
+   "hash": "6df641fb3ec1"
+  },
+  "pq-s2-done-0": {
+   "file": "pq-s2-done-0.ogg",
+   "who": "sela",
+   "dur": 7.59,
+   "hash": "bab336b7ca10"
+  },
+  "pq-s3-offer-0": {
+   "file": "pq-s3-offer-0.ogg",
+   "who": "sela",
+   "dur": 15.04,
+   "hash": "1d801eac98ee"
+  },
+  "pq-s3-done-0": {
+   "file": "pq-s3-done-0.ogg",
+   "who": "sela",
+   "dur": 6.65,
+   "hash": "71f72208b2ba"
+  },
+  "pq-s4-offer-0": {
+   "file": "pq-s4-offer-0.ogg",
+   "who": "sela",
+   "dur": 10.11,
+   "hash": "62b855ac4192"
+  },
+  "pq-s4-done-0": {
+   "file": "pq-s4-done-0.ogg",
+   "who": "sela",
+   "dur": 7.85,
+   "hash": "eb318f8ad52f"
+  },
+  "pq-s4-found-0": {
+   "file": "pq-s4-found-0.ogg",
+   "who": "odo",
+   "dur": 9.78,
+   "hash": "7aa3221459ef"
+  },
+  "pq-s5-offer-0": {
+   "file": "pq-s5-offer-0.ogg",
+   "who": "sela",
+   "dur": 13.37,
+   "hash": "74dcb5bbcc7d"
+  },
+  "pq-s5-done-0": {
+   "file": "pq-s5-done-0.ogg",
+   "who": "sela",
+   "dur": 7.95,
+   "hash": "269d75e5b66c"
+  },
+  "pq-s5-given-0": {
+   "file": "pq-s5-given-0.ogg",
+   "who": "hana",
+   "dur": 7.54,
+   "hash": "421f685197d4"
+  },
+  "pq-t1-offer-0": {
+   "file": "pq-t1-offer-0.ogg",
+   "who": "tobin",
+   "dur": 10.69,
+   "hash": "844efdfd5f65"
+  },
+  "pq-t1-done-0": {
+   "file": "pq-t1-done-0.ogg",
+   "who": "tobin",
+   "dur": 5.02,
+   "hash": "7172321e4324"
+  },
+  "pq-t2-offer-0": {
+   "file": "pq-t2-offer-0.ogg",
+   "who": "tobin",
+   "dur": 11.02,
+   "hash": "e25549391d41"
+  },
+  "pq-t2-done-0": {
+   "file": "pq-t2-done-0.ogg",
+   "who": "tobin",
+   "dur": 8.03,
+   "hash": "8377e6de788a"
+  },
+  "pq-t3-offer-0": {
+   "file": "pq-t3-offer-0.ogg",
+   "who": "tobin",
+   "dur": 13.84,
+   "hash": "8e13b3173842"
+  },
+  "pq-t3-done-0": {
+   "file": "pq-t3-done-0.ogg",
+   "who": "tobin",
+   "dur": 7.5,
+   "hash": "f4834aa692da"
+  },
+  "pq-t4-offer-0": {
+   "file": "pq-t4-offer-0.ogg",
+   "who": "tobin",
+   "dur": 10.22,
+   "hash": "edb8322a29d4"
+  },
+  "pq-t4-done-0": {
+   "file": "pq-t4-done-0.ogg",
+   "who": "tobin",
+   "dur": 7.28,
+   "hash": "e895ea359bb5"
+  },
+  "pq-t4-given-0": {
+   "file": "pq-t4-given-0.ogg",
+   "who": "odo",
+   "dur": 7.3,
+   "hash": "0ecda7f0663f"
+  },
+  "pq-t5-offer-0": {
+   "file": "pq-t5-offer-0.ogg",
+   "who": "tobin",
+   "dur": 12.05,
+   "hash": "66589936a2df"
+  },
+  "pq-t5-done-0": {
+   "file": "pq-t5-done-0.ogg",
+   "who": "tobin",
+   "dur": 7.23,
+   "hash": "a4f8a274f6ea"
+  },
+  "q-kitten-offer-0": {
+   "file": "q-kitten-offer-0.ogg",
+   "who": "hana",
+   "dur": 6.96,
+   "hash": "5cf655389d4b"
+  },
+  "q-kitten-offer-1": {
+   "file": "q-kitten-offer-1.ogg",
+   "who": "hana",
+   "dur": 6.93,
+   "hash": "b2878252cb29"
+  },
+  "q-kitten-done-0": {
+   "file": "q-kitten-done-0.ogg",
+   "who": "hana",
+   "dur": 4.89,
+   "hash": "fcd0348496d6"
+  },
+  "q-kitten-done-1": {
+   "file": "q-kitten-done-1.ogg",
+   "who": "hana",
+   "dur": 6.62,
+   "hash": "94a53c909f79"
+  },
+  "q-bramble-offer-0": {
+   "file": "q-bramble-offer-0.ogg",
+   "who": "odo",
+   "dur": 7.94,
+   "hash": "84da761ee6fa"
+  },
+  "q-bramble-offer-1": {
+   "file": "q-bramble-offer-1.ogg",
+   "who": "odo",
+   "dur": 6.59,
+   "hash": "e8d620406b11"
+  },
+  "q-bramble-done-0": {
+   "file": "q-bramble-done-0.ogg",
+   "who": "odo",
+   "dur": 5.66,
+   "hash": "44c784babdd5"
+  },
+  "q-bramble-done-1": {
+   "file": "q-bramble-done-1.ogg",
+   "who": "odo",
+   "dur": 8.96,
+   "hash": "a602158673a9"
+  },
+  "q-pup-offer-0": {
+   "file": "q-pup-offer-0.ogg",
+   "who": "bram",
+   "dur": 9.01,
+   "hash": "f6f1e0bcef49"
+  },
+  "q-pup-offer-1": {
+   "file": "q-pup-offer-1.ogg",
+   "who": "bram",
+   "dur": 8.67,
+   "hash": "35f28baa5b11"
+  },
+  "q-pup-done-0": {
+   "file": "q-pup-done-0.ogg",
+   "who": "bram",
+   "dur": 3.54,
+   "hash": "d8d145f3f72b"
+  },
+  "q-pup-done-1": {
+   "file": "q-pup-done-1.ogg",
+   "who": "bram",
+   "dur": 5.3,
+   "hash": "9c879debb76b"
   }
  }
 }

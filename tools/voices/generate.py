@@ -45,6 +45,14 @@ def _js_object(path, name):
     return json5.loads(src[start:end + 2])
 
 
+def _js_array(path, name):
+    import json5
+    src = open(os.path.join(ROOT, "js", path), encoding="utf-8").read().replace("\r\n", "\n")
+    start = src.index("[", src.index(name))
+    end = src.index("\n];", start)
+    return json5.loads(src[start:end + 2])
+
+
 def load_texts():
     """js/i18n.js plus the gear / dungeon / side-quest texts of js/i18n_more.js."""
     texts = _js_object("i18n.js", "HM_TEXT")
@@ -56,10 +64,20 @@ def load_texts():
     talk = _js_object("i18n_talk.js", "HM_TEXT_TALK") if os.path.exists(os.path.join(ROOT, "js", "i18n_talk.js")) else {}
     for lang, m in talk.items():
         texts[lang]["talk"] = m.get("talk", {})
+    pets = _js_object("i18n_pets.js", "HM_TEXT_PETS") if os.path.exists(os.path.join(ROOT, "js", "i18n_pets.js")) else {}
+    for lang, m in pets.items():
+        texts[lang]["lines"].update(m.get("lines", {}))
+        texts[lang]["quests"].update(m.get("quests", {}))
+    pool = _js_array("pool.js", "HM_POOL") if os.path.exists(os.path.join(ROOT, "js", "pool.js")) else []
+    for lang in texts:
+        texts[lang]["pool"] = [{"id": q["id"], "giver": q["giver"], "to": q.get("to"), "look": (q.get("who") or {}).get("look"),
+                                "t": q["t"].get(lang, q["t"]["en"])} for q in pool]
     return texts
 
 
-QUEST_GIVER = {"biscuit": "pip", "wolves": "bram", "tam": "bram", "crawlers": "hana", "mites": "odo", "stariron": "tobin"}
+LOOK_VOICE = {"kid": "pip", "miner": "bram", "fisher": "odo"}
+QUEST_GIVER = {"biscuit": "pip", "wolves": "bram", "tam": "bram", "crawlers": "hana", "mites": "odo", "stariron": "tobin",
+               "kitten": "hana", "pup": "bram", "bramble": "odo"}
 
 
 def speaker_for(key):
@@ -94,6 +112,14 @@ def clips_for(T):
     for npc, items in T.get("talk", {}).items():         # written answers of the main characters
         for k, t in enumerate(items):
             yield "talk-%s-%d" % (npc, k), npc, t["a"]
+    for q in T.get("pool", []):                       # the quest pool: offer and thanks by the giver, the rest by who says it
+        t = q["t"]
+        yield "pq-%s-offer-0" % q["id"], q["giver"], t["offer"]
+        yield "pq-%s-done-0" % q["id"], q["giver"], t["done"]
+        if t.get("found"):
+            yield "pq-%s-found-0" % q["id"], LOOK_VOICE.get(q["look"], "narrator"), t["found"]
+        if t.get("given"):
+            yield "pq-%s-given-0" % q["id"], q["to"] or "narrator", t["given"]
     for qid, q in T.get("quests", {}).items():         # side quests: the giver speaks the offer and the thanks
         for part in ("offer", "done"):
             for i, s in enumerate(q.get(part, [])):

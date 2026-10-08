@@ -93,7 +93,7 @@ window.HM_MAPS = {
             'TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT'
         ],
         props: [],
-        npcs: [ { id: 'bram', x: 5.5, y: 10.6 }, { id: 'biscuit', x: 14.5, y: 21.5 } ],
+        npcs: [ { id: 'bram', x: 5.5, y: 10.6 }, { id: 'biscuit', x: 14.5, y: 21.5 }, { id: 'pup', x: 21.5, y: 22.4 } ],
         exits: [ { x: 0, y: 12, w: 1, h: 2, to: 'village', tx: 38, ty: 12.9 }, { x: 9, y: 26, w: 2, h: 1, to: 'barrow', tx: 20, ty: 27.4 } ],
         foes: [
             { t: 'wisp', x: 12, y: 4 }, { t: 'wisp', x: 20, y: 6 }, { t: 'wolf', x: 15, y: 9 },
@@ -130,7 +130,7 @@ window.HM_MAPS = {
             '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         ],
         props: [ { k: 'boat', x: 21, y: 18.6, w: 0, h: 0 } ],
-        npcs: [ { id: 'sela', x: 23.5, y: 15.2 } ],
+        npcs: [ { id: 'sela', x: 23.5, y: 15.2 }, { id: 'kitten', x: 6.5, y: 14.4 } ],
         exits: [ { x: 19, y: 0, w: 2, h: 1, to: 'village', tx: 22, ty: 23.8 } ],
         foes: [
             { t: 'crawler', x: 7, y: 4 }, { t: 'crawler', x: 32, y: 4 }, { t: 'wisp', x: 10, y: 9 },
@@ -210,7 +210,7 @@ window.HM_MAPS = {
         ],
         props: [ { k: 'statue', x: 12, y: 12.6, w: 0, h: 0 }, { k: 'statue', x: 28, y: 12.6, w: 0, h: 0 },
                  { k: 'statue', x: 13, y: 4.6, w: 0, h: 0 }, { k: 'statue', x: 27, y: 4.6, w: 0, h: 0 } ],
-        npcs: [],
+        npcs: [ { id: 'bramble', x: 32.5, y: 16.4 } ],
         exits: [ { x: 19, y: 25, w: 2, h: 1, to: 'village', tx: 9, ty: 2.6 }, { x: 19, y: 0, w: 2, h: 1, to: 'mine', tx: 20, ty: 29.4 } ],
         foes: [ { t: 'mite', x: 9, y: 13 }, { t: 'mite', x: 31, y: 13 }, { t: 'mite', x: 10, y: 18 },
                 { t: 'mite', x: 30, y: 18 }, { t: 'mite', x: 20, y: 9 } ]
