@@ -3,7 +3,18 @@
  * character, knowing exactly what has happened so far, and suggests the next lines to choose. */
 window.HM_AI = (function () {
     'use strict';
-    const cfg = window.HM_CONFIG || {};
+    // settings come from the owner's app config in the My PC installer (MyPC.app_config), never from
+    // the code. It is not secret, so it holds the address of a proxy that keeps the Gemini key:
+    //   { "proxyUrl": "https://....workers.dev", "model": "gemini-3.5-flash-lite", "timeoutMs": 8000 }
+    function cfg() {
+        const c = (window.MyPC && MyPC.app_config) || {};
+        const url = typeof c.proxyUrl === 'string' && c.proxyUrl.indexOf('https://') === 0 ? c.proxyUrl : '';
+        return {
+            proxyUrl: url,
+            model: typeof c.model === 'string' && c.model ? c.model : 'gemini-3.5-flash-lite',
+            timeoutMs: Math.max(2000, Math.min(20000, +c.timeoutMs || 8000))
+        };
+    }
     const LANG = { en: 'English', fr: 'French', es: 'Spanish', ar: 'Modern Standard Arabic' };
     let thinkingOk = true, ctrl = null;
     const history = {};                       // npc id -> [{role, text}]
@@ -35,7 +46,7 @@ window.HM_AI = (function () {
         [17, 'The heroes relit the Great Lantern. The Hush is gone and colour has returned.']
     ];
 
-    function enabled() { return !!(cfg.proxyUrl || cfg.geminiKey); }
+    function enabled() { return !!cfg().proxyUrl; }
 
     function system(npc, ctx) {
         const known = [];
@@ -56,16 +67,13 @@ window.HM_AI = (function () {
 
     async function call(body) {
         abort();
-        ctrl = new AbortController();
-        const c = ctrl, timer = setTimeout(() => c.abort(), cfg.timeoutMs || 8000);
+        const c = cfg(), ac = new AbortController();
+        ctrl = ac;
+        const timer = setTimeout(() => ac.abort(), c.timeoutMs);
         try {
-            const model = cfg.model || 'gemini-3.5-flash-lite';
-            const url = cfg.proxyUrl ? cfg.proxyUrl : 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
-            const headers = { 'Content-Type': 'application/json' };
-            if (!cfg.proxyUrl) headers['x-goog-api-key'] = cfg.geminiKey;
-            const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cfg.proxyUrl ? Object.assign({ model }, body) : body), signal: c.signal });
-            return res;
-        } finally { clearTimeout(timer); if (ctrl === c) ctrl = null; }
+            return await fetch(c.proxyUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({ model: c.model }, body)), signal: ac.signal });
+        } finally { clearTimeout(timer); if (ctrl === ac) ctrl = null; }
     }
 
     // returns { reply, options } or throws

@@ -5,7 +5,8 @@
  *   2. Settings -> Variables and secrets:
  *        GEMINI_KEY      (secret)  your key from https://aistudio.google.com/apikey
  *        ALLOWED_ORIGIN  (text)    https://<your-user>.github.io
- *   3. Deploy, then put the worker address in config.js -> proxyUrl.
+ *   3. Deploy, then in the My PC installer open this app's Config and set
+ *        { "proxyUrl": "https://<worker-name>.<you>.workers.dev" }
  *
  * The game sends the normal Gemini generateContent body plus a "model" field. Only the
  * allowed model is accepted and the answer length is capped, so the key can't be abused

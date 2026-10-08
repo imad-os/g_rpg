@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.0.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.1.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -43,17 +43,23 @@ The quest is one chain, and every step can always be finished:
 - The AI only adds conversation. It is told exactly what has happened so far and the current
   goal, and is not allowed to invent quests, items or spoilers. Quest progress is always scripted.
 
-## AI voices (optional)
+## AI conversations (optional)
 
 The game is fully playable without AI: the main characters then answer from a set of written
-lines. To turn the AI on, edit `config.js`:
+lines. The AI is set in the **app config** (installer → this app → **Config**), which My PC hands
+to the game as `MyPC.app_config`:
 
-- **Recommended:** deploy `proxy/worker.js` as a free Cloudflare Worker (instructions inside the
-  file) with your Gemini key as a secret, then set `proxyUrl` to its address.
-- **Quick test:** set `geminiKey`. The key is then public, so restrict it to your Pages address
-  (HTTP referrer) and the Generative Language API, and give it a low quota.
+```json
+{ "proxyUrl": "https://hollowmere-ai.<you>.workers.dev", "model": "gemini-3.5-flash-lite", "timeoutMs": 8000 }
+```
 
+The app config is **not secret** (every TV downloads it), so the Gemini key never goes there or in
+this repository. It lives in a small free proxy, `proxy/worker.js` (a Cloudflare Worker, set-up
+steps inside the file), that adds the key and only answers requests from this game's site.
 Get a key at https://aistudio.google.com/apikey.
+
+To test in a browser without My PC, add the config to the address:
+`index.html?app_config={"proxyUrl":"https://hollowmere-ai.<you>.workers.dev"}`
 
 ## Character voices (optional, free, offline)
 
@@ -88,7 +94,6 @@ the optional Kokoro engine.
 | `index.html` | page, styles, HUD and dialog layout |
 | `mypc-app.json` | My PC manifest (`id: hollowmere-lantern-road`) |
 | `icon.svg` | icon |
-| `config.js` | AI settings |
 | `js/game.js` | engine: loop, players, foes, bosses, story, rendering |
 | `js/maps.js` | the five areas |
 | `js/i18n.js` | all texts in 4 languages |
