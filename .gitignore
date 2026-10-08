@@ -1,2 +1,4 @@
 .claude/
 node_modules/
+tools/voices/models/
+__pycache__/

@@ -1,0 +1,6 @@
+piper-tts>=1.2
+numpy
+soundfile
+json5
+# optional, more natural English/Spanish/French voices (large: installs PyTorch):
+# kokoro>=0.9

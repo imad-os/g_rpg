@@ -55,6 +55,32 @@ lines. To turn the AI on, edit `config.js`:
 
 Get a key at https://aistudio.google.com/apikey.
 
+## Character voices (optional, free, offline)
+
+`tools/voices/generate.py` turns every scripted line (about 230 in 4 languages) into speech with
+[Piper](https://github.com/rhasspy/piper), a free open-source voice engine that runs on your PC.
+It gives each character its own voice and saves small Ogg/Opus clips to `audio/voices/<lang>/`
+with an `index.json` (about 1.2 MB per language). Live AI replies are not voiced.
+
+Needs **64-bit** Python 3.9 or newer (the speech engine has no 32-bit build). ffmpeg is used if
+installed.
+
+```
+py -3.13 -m venv .venv
+.venv\Scriptsctivate
+pip install -r tools/voices/requirements.txt
+python tools/voices/generate.py                 # everything (downloads each voice once, 20-60 MB each)
+python tools/voices/generate.py --lang en       # one language
+python tools/voices/generate.py --only maren0   # try one line
+python tools/voices/generate.py --list          # who says what
+```
+
+Change who speaks with which voice in `tools/voices/voices.json` (voices listed at
+https://huggingface.co/rhasspy/piper-voices). Running it again only redoes lines whose text or
+voice changed. Arabic has a single free Piper voice (male), so every Arabic character shares it
+with a different speed. For more natural English, Spanish and French, voices can be switched to
+the optional Kokoro engine.
+
 ## Files
 
 | File | What |
@@ -70,6 +96,7 @@ Get a key at https://aistudio.google.com/apikey.
 | `js/audio.js` | synthesized music and sound (Web Audio) |
 | `js/ai.js` | Gemini conversations |
 | `proxy/worker.js` | optional key-hiding proxy |
+| `tools/voices/` | voice generator (Python, not loaded by the game) |
 
 No build step and no downloads besides the code (about 200 KB). The SDK is loaded from
 `https://imad-os.github.io/g/sdk/mypc-sdk.js`.

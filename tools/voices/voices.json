@@ -1,0 +1,51 @@
+{
+  "_help": "Who speaks with which voice. engine: piper (default, light, all 4 languages) or kokoro (more natural, en/es/fr only, needs PyTorch). model: a Piper voice name from https://huggingface.co/rhasspy/piper-voices (downloaded automatically). speaker: number for multi-speaker models. speed: 1 = normal, 1.15 = 15% slower. Listen to a few clips with --only and adjust freely.",
+  "en": {
+    "narrator": { "engine": "piper", "model": "en_GB-alan-medium", "speed": 1.1 },
+    "maren":    { "engine": "piper", "model": "en_GB-cori-medium", "speed": 1.12 },
+    "tobin":    { "engine": "piper", "model": "en_GB-northern_english_male-medium", "speed": 1.05 },
+    "sela":     { "engine": "piper", "model": "en_GB-southern_english_female-low", "speed": 1.1 },
+    "corvin":   { "engine": "piper", "model": "en_US-ryan-medium", "speed": 1.05 },
+    "lira":     { "engine": "piper", "model": "en_US-amy-medium", "speed": 1.0 },
+    "hana":     { "engine": "piper", "model": "en_US-kristin-medium", "speed": 0.95 },
+    "pip":      { "engine": "piper", "model": "en_US-hfc_female-medium", "speed": 0.9 },
+    "bram":     { "engine": "piper", "model": "en_US-joe-medium", "speed": 1.05 },
+    "odo":      { "engine": "piper", "model": "en_US-john-medium", "speed": 1.0 }
+  },
+  "fr": {
+    "narrator": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.1 },
+    "maren":    { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 1.12 },
+    "tobin":    { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.05 },
+    "sela":     { "engine": "piper", "model": "fr_FR-upmc-medium", "speaker": 0, "speed": 1.1 },
+    "corvin":   { "engine": "piper", "model": "fr_FR-upmc-medium", "speaker": 1, "speed": 1.05 },
+    "lira":     { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 0.95 },
+    "hana":     { "engine": "piper", "model": "fr_FR-upmc-medium", "speaker": 0, "speed": 0.95 },
+    "pip":      { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 0.88 },
+    "bram":     { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.0 },
+    "odo":      { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.0 }
+  },
+  "es": {
+    "narrator": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.1 },
+    "maren":    { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.12 },
+    "tobin":    { "engine": "piper", "model": "es_ES-carlfm-x_low", "speed": 1.05 },
+    "sela":     { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.05 },
+    "corvin":   { "engine": "piper", "model": "es_MX-ald-medium", "speed": 1.05 },
+    "lira":     { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 0.95 },
+    "hana":     { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 0.95 },
+    "pip":      { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 0.88 },
+    "bram":     { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 0, "speed": 1.0 },
+    "odo":      { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.0 }
+  },
+  "ar": {
+    "narrator": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.1 },
+    "maren":    { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.15 },
+    "tobin":    { "engine": "piper", "model": "ar_JO-kareem-low", "speed": 1.05 },
+    "sela":     { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.1 },
+    "corvin":   { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.0 },
+    "lira":     { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 0.95 },
+    "hana":     { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 0.95 },
+    "pip":      { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 0.88 },
+    "bram":     { "engine": "piper", "model": "ar_JO-kareem-low", "speed": 1.0 },
+    "odo":      { "engine": "piper", "model": "ar_JO-kareem-low", "speed": 1.0 }
+  }
+}
