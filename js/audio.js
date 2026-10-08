@@ -12,7 +12,9 @@ window.HM_AUDIO = (function () {
         { root: 146.8, scale: [0, 3, 5, 6, 7, 10, 12, 15], chords: [0, 3, 1, 4], rate: 3, wave: 'sine' },       // isle
         { root: 185.0, scale: [0, 2, 3, 5, 7, 9, 10, 12], chords: [0, 3, 4, 3], rate: 3.5, wave: 'triangle' },  // quarry
         { root: 220.0, scale: [0, 2, 4, 7, 9, 12, 14, 16], chords: [0, 4, 3, 4], rate: 4, wave: 'triangle' },   // village, Lantern lit
-        { root: 130.8, scale: [0, 1, 3, 6, 7, 8, 11, 12], chords: [0, 1, 0, 4], rate: 5, wave: 'sawtooth' }     // boss
+        { root: 130.8, scale: [0, 1, 3, 6, 7, 8, 11, 12], chords: [0, 1, 0, 4], rate: 5, wave: 'sawtooth' },    // boss
+        { root: 138.6, scale: [0, 1, 3, 5, 7, 8, 10, 12], chords: [0, 5, 1, 4], rate: 2.5, wave: 'sine' },     // the Barrow Crypt
+        { root: 155.6, scale: [0, 2, 3, 5, 7, 8, 11, 12], chords: [0, 3, 5, 4], rate: 3, wave: 'triangle' }    // the Deep Mine
     ];
 
     function start(v) {
@@ -113,7 +115,14 @@ window.HM_AUDIO = (function () {
         shoot: () => tone(500, 200, 0.18, 'sine', 0.12),
         slam: () => { tone(80, 30, 0.5, 'sine', 0.4); hiss(0.4, 0.3, 300); },
         door: () => { tone(120, 90, 0.6, 'sawtooth', 0.12); hiss(0.5, 0.15, 500); },
-        heal: () => { tone(500, 1000, 0.3, 'sine', 0.18); }
+        heal: () => { tone(500, 1000, 0.3, 'sine', 0.18); },
+        bow: () => { tone(900, 300, 0.12, 'triangle', 0.18); hiss(0.1, 0.2, 4000); },
+        gun: () => { hiss(0.35, 0.6, 700); tone(160, 40, 0.3, 'square', 0.25); },
+        pot: () => { hiss(0.18, 0.4, 2500); tone(700, 200, 0.1, 'square', 0.08); },
+        chest: () => { tone(300, 200, 0.2, 'sawtooth', 0.1); [523, 784, 1047].forEach((f, i) => tone(f, 0, 0.3, 'triangle', 0.14, 0.15 + i * 0.08)); },
+        crit: () => { tone(1200, 400, 0.15, 'square', 0.12); hiss(0.12, 0.35, 3000); },
+        buy: () => { tone(880, 0, 0.08, 'square', 0.08); tone(1320, 0, 0.15, 'square', 0.08, 0.08); },
+        equip: () => { hiss(0.1, 0.25, 1500); tone(400, 600, 0.12, 'triangle', 0.12); }
     };
     function fx(name) { const f = FX[name]; if (f && ac) f(); }
 

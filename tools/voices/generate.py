@@ -36,16 +36,31 @@ PIPER_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main/{fam}/{cod
 
 # ---------------------------------------------------------------- texts
 
-def load_texts():
+def _js_object(path, name):
     import json5
-    src = open(os.path.join(ROOT, "js", "i18n.js"), encoding="utf-8").read()
-    start = src.index("{", src.index("HM_TEXT"))
-    end = src.rindex("}")
-    return json5.loads(src[start:end + 1])
+    src = open(os.path.join(ROOT, "js", path), encoding="utf-8").read()
+    start = src.index("{", src.index(name))
+    end = src.replace("\r\n", "\n").index("\n};", start)   # the object ends at the first top-level "};"
+    src = src.replace("\r\n", "\n")
+    return json5.loads(src[start:end + 2])
+
+
+def load_texts():
+    """js/i18n.js plus the gear / dungeon / side-quest texts of js/i18n_more.js."""
+    texts = _js_object("i18n.js", "HM_TEXT")
+    more = _js_object("i18n_more.js", "HM_TEXT_MORE") if os.path.exists(os.path.join(ROOT, "js", "i18n_more.js")) else {}
+    for lang, m in more.items():
+        t = texts[lang]
+        t["lines"].update(m.get("lines", {}))
+        t["quests"] = m.get("quests", {})
+    return texts
+
+
+QUEST_GIVER = {"biscuit": "pip", "wolves": "bram", "tam": "bram", "crawlers": "hana", "mites": "odo", "stariron": "tobin"}
 
 
 def speaker_for(key):
-    for who in ("lira", "corvin", "maren", "tobin", "sela", "hana", "pip", "bram", "odo"):
+    for who in ("lira", "corvin", "maren", "tobin", "sela", "hana", "pip", "bram", "odo", "tam", "biscuit"):
         if key.startswith(who):
             return who
     if key == "journalPage":
@@ -73,6 +88,10 @@ def clips_for(T):
     for npc, (label, lore, about) in T["topic"].items():
         yield "topic-%s-lore" % npc, npc, lore
         yield "topic-%s-about" % npc, npc, about
+    for qid, q in T.get("quests", {}).items():         # side quests: the giver speaks the offer and the thanks
+        for part in ("offer", "done"):
+            for i, s in enumerate(q.get(part, [])):
+                yield "q-%s-%s-%d" % (qid, part, i), QUEST_GIVER.get(qid, "narrator"), s
 
 
 # ---------------------------------------------------------------- engines

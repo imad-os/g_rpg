@@ -364,8 +364,8 @@
   "hana-0": {
    "file": "hana-0.ogg",
    "who": "hana",
-   "dur": 7.6,
-   "hash": "83ee9da5702e"
+   "dur": 9.61,
+   "hash": "1f1af77393d5"
   },
   "pip-0": {
    "file": "pip-0.ogg",
@@ -462,6 +462,186 @@
    "who": "corvin",
    "dur": 6.28,
    "hash": "33e93f20f5c1"
+  },
+  "tamFound-0": {
+   "file": "tamFound-0.ogg",
+   "who": "tam",
+   "dur": 7.76,
+   "hash": "0b00924a0747"
+  },
+  "tamFound-1": {
+   "file": "tamFound-1.ogg",
+   "who": "tam",
+   "dur": 6.06,
+   "hash": "263b0dde45a9"
+  },
+  "biscuitFound-0": {
+   "file": "biscuitFound-0.ogg",
+   "who": "biscuit",
+   "dur": 5.73,
+   "hash": "8de0a1f12114"
+  },
+  "tamHome-0": {
+   "file": "tamHome-0.ogg",
+   "who": "tam",
+   "dur": 4.86,
+   "hash": "58d92cf5cb4b"
+  },
+  "biscuitHome-0": {
+   "file": "biscuitHome-0.ogg",
+   "who": "biscuit",
+   "dur": 0.57,
+   "hash": "c169b9ab60fa"
+  },
+  "knightDown-0": {
+   "file": "knightDown-0.ogg",
+   "who": "narrator",
+   "dur": 6.3,
+   "hash": "a3a3b4b2fe2d"
+  },
+  "starFound-0": {
+   "file": "starFound-0.ogg",
+   "who": "narrator",
+   "dur": 9.55,
+   "hash": "03909eede51f"
+  },
+  "q-biscuit-offer-0": {
+   "file": "q-biscuit-offer-0.ogg",
+   "who": "pip",
+   "dur": 5.7,
+   "hash": "389f7ad93e7c"
+  },
+  "q-biscuit-offer-1": {
+   "file": "q-biscuit-offer-1.ogg",
+   "who": "pip",
+   "dur": 6.73,
+   "hash": "b0a41adb096f"
+  },
+  "q-biscuit-done-0": {
+   "file": "q-biscuit-done-0.ogg",
+   "who": "pip",
+   "dur": 6.1,
+   "hash": "779b1d15ffd4"
+  },
+  "q-biscuit-done-1": {
+   "file": "q-biscuit-done-1.ogg",
+   "who": "pip",
+   "dur": 7.1,
+   "hash": "b35520ab4c28"
+  },
+  "q-wolves-offer-0": {
+   "file": "q-wolves-offer-0.ogg",
+   "who": "bram",
+   "dur": 7.42,
+   "hash": "639a172b5ba0"
+  },
+  "q-wolves-offer-1": {
+   "file": "q-wolves-offer-1.ogg",
+   "who": "bram",
+   "dur": 7.04,
+   "hash": "fce719cf84fa"
+  },
+  "q-wolves-done-0": {
+   "file": "q-wolves-done-0.ogg",
+   "who": "bram",
+   "dur": 4.38,
+   "hash": "304e6fca9386"
+  },
+  "q-wolves-done-1": {
+   "file": "q-wolves-done-1.ogg",
+   "who": "bram",
+   "dur": 5.12,
+   "hash": "c232c99bfe30"
+  },
+  "q-tam-offer-0": {
+   "file": "q-tam-offer-0.ogg",
+   "who": "bram",
+   "dur": 7.09,
+   "hash": "c2545ebe11b9"
+  },
+  "q-tam-offer-1": {
+   "file": "q-tam-offer-1.ogg",
+   "who": "bram",
+   "dur": 9.04,
+   "hash": "9d034bb45ebb"
+  },
+  "q-tam-done-0": {
+   "file": "q-tam-done-0.ogg",
+   "who": "bram",
+   "dur": 9.01,
+   "hash": "ba3304125234"
+  },
+  "q-tam-done-1": {
+   "file": "q-tam-done-1.ogg",
+   "who": "bram",
+   "dur": 7.62,
+   "hash": "54c1e581dc74"
+  },
+  "q-crawlers-offer-0": {
+   "file": "q-crawlers-offer-0.ogg",
+   "who": "hana",
+   "dur": 5.64,
+   "hash": "f5ef00fd39b3"
+  },
+  "q-crawlers-offer-1": {
+   "file": "q-crawlers-offer-1.ogg",
+   "who": "hana",
+   "dur": 7.02,
+   "hash": "256446033d14"
+  },
+  "q-crawlers-done-0": {
+   "file": "q-crawlers-done-0.ogg",
+   "who": "hana",
+   "dur": 5.35,
+   "hash": "a0f573628f51"
+  },
+  "q-crawlers-done-1": {
+   "file": "q-crawlers-done-1.ogg",
+   "who": "hana",
+   "dur": 7.31,
+   "hash": "0802bf095f50"
+  },
+  "q-mites-offer-0": {
+   "file": "q-mites-offer-0.ogg",
+   "who": "odo",
+   "dur": 4.66,
+   "hash": "1242239edc5a"
+  },
+  "q-mites-offer-1": {
+   "file": "q-mites-offer-1.ogg",
+   "who": "odo",
+   "dur": 8.93,
+   "hash": "3c7c5c462567"
+  },
+  "q-mites-done-0": {
+   "file": "q-mites-done-0.ogg",
+   "who": "odo",
+   "dur": 6.93,
+   "hash": "ed1f934b93d3"
+  },
+  "q-stariron-offer-0": {
+   "file": "q-stariron-offer-0.ogg",
+   "who": "tobin",
+   "dur": 12.75,
+   "hash": "c0753f4aadf9"
+  },
+  "q-stariron-offer-1": {
+   "file": "q-stariron-offer-1.ogg",
+   "who": "tobin",
+   "dur": 4.94,
+   "hash": "b9300e078ac1"
+  },
+  "q-stariron-done-0": {
+   "file": "q-stariron-done-0.ogg",
+   "who": "tobin",
+   "dur": 5.46,
+   "hash": "cdeeabf84eaa"
+  },
+  "q-stariron-done-1": {
+   "file": "q-stariron-done-1.ogg",
+   "who": "tobin",
+   "dur": 5.9,
+   "hash": "7e507101f8be"
   }
  }
 }

@@ -7,7 +7,9 @@ window.HM_ART = (function () {
         grass:  { g: ['#5d8a3c', '#64923f', '#57833a'], path: '#a98a5c', leaf: ['#2f6b3a', '#3b7d43', '#4a9150'], trunk: '#5b3b24', cliffTop: '#7d8a5a', cliffFront: '#6b5a44', rock: '#8c8a80' },
         forest: { g: ['#3e6a3a', '#43703c', '#3a6336'], path: '#7f6a48', leaf: ['#1f4a35', '#28583d', '#346846'], trunk: '#4a3020', cliffTop: '#5b6b48', cliffFront: '#4d3f30', rock: '#77756c' },
         mire:   { g: ['#54663f', '#5a6c42', '#4e5f3a'], path: '#8a7a55', leaf: ['#2c4a3c', '#355648', '#3f6250'], trunk: '#3d3024', cliffTop: '#6f7378', cliffFront: '#4f5258', rock: '#6d6f68' },
-        stone:  { g: ['#8a8074', '#837a6e', '#90867a'], path: '#a49884', leaf: ['#3b5a3a', '#466a45', '#4f744d'], trunk: '#4a3a2a', cliffTop: '#9a9083', cliffFront: '#6e6458', rock: '#9b958a' }
+        stone:  { g: ['#8a8074', '#837a6e', '#90867a'], path: '#a49884', leaf: ['#3b5a3a', '#466a45', '#4f744d'], trunk: '#4a3a2a', cliffTop: '#9a9083', cliffFront: '#6e6458', rock: '#9b958a' },
+        crypt:  { g: ['#5a5c68', '#555763', '#5f616d'], path: '#4a4c58', leaf: ['#2c4a3c', '#355648', '#3f6250'], trunk: '#3d3024', cliffTop: '#3a3b47', cliffFront: '#26262f', rock: '#6d6f78', floor: true },
+        mine:   { g: ['#6a5644', '#64513f', '#705b48'], path: '#7a6650', leaf: ['#2c4a3c', '#355648', '#3f6250'], trunk: '#4a3020', cliffTop: '#4a3a2c', cliffFront: '#2e241b', rock: '#7d6e5e', floor: true }
     };
 
     function mk(w, h, fn) {
@@ -79,6 +81,26 @@ window.HM_ART = (function () {
             circ(c, 7, 8, 1.5, '#c8f0ff'); circ(c, 12, 6, 1.5, '#c8f0ff');
         });
         s.flower = mk(10, 8, c => { circ(c, 3, 3, 2, '#f2d14a'); circ(c, 7, 5, 2, '#e86f8a'); });
+        s.pot = mk(26, 30, c => {
+            ell(c, 13, 27, 10, 3, 'rgba(0,0,0,0.3)');
+            c.fillStyle = '#9a5a3a'; c.beginPath(); c.moveTo(7, 6); c.quadraticCurveTo(0, 18, 7, 27); c.lineTo(19, 27); c.quadraticCurveTo(26, 18, 19, 6); c.closePath(); c.fill();
+            c.fillStyle = '#7a4228'; c.fillRect(7, 3, 12, 5); c.fillStyle = '#c8865a'; c.fillRect(6, 14, 14, 3);
+            c.fillStyle = 'rgba(255,255,255,0.18)'; c.fillRect(8, 9, 3, 12);
+        });
+        const chest = (open, star) => mk(30, 28, c => {
+            ell(c, 15, 25, 13, 3, 'rgba(0,0,0,0.3)');
+            c.fillStyle = star ? '#3a3f6a' : '#7a4a2a'; c.fillRect(2, 10, 26, 15);
+            c.fillStyle = star ? '#c8d0ff' : '#c9a43a'; c.fillRect(2, 15, 26, 2); c.fillRect(13, 12, 4, 6);
+            if (open) { c.fillStyle = '#2a1a10'; c.fillRect(3, 6, 24, 5); c.fillStyle = star ? '#4a508a' : '#8a5a34'; c.fillRect(2, 0, 26, 7); }
+            else { c.fillStyle = star ? '#4a508a' : '#8a5a34'; c.fillRect(2, 4, 26, 7); c.fillStyle = 'rgba(255,255,255,0.15)'; c.fillRect(4, 5, 22, 2); }
+        });
+        s.chest = chest(false, false); s.chestOpen = chest(true, false); s.star = chest(false, true); s.starOpen = chest(true, true);
+        s.torch = mk(32, 48, c => {
+            c.fillStyle = th.cliffTop; c.fillRect(0, 0, 32, 32);
+            c.fillStyle = th.cliffFront; c.fillRect(0, 32, 32, 16);
+            c.fillStyle = 'rgba(0,0,0,0.25)'; c.fillRect(0, 32, 32, 2);
+            c.fillStyle = '#3a2a1e'; c.fillRect(14, 34, 4, 12); c.fillStyle = '#5a5a60'; c.fillRect(11, 32, 10, 3);
+        });
         cache[themeName] = s;
         return s;
     }
@@ -166,6 +188,21 @@ window.HM_ART = (function () {
             c.fillStyle = g; c.fillRect(0, 0, 64, 64);
         });
         m.lanternOff = lantern(false); m.lanternOn = lantern(true);
+        m.light = mk(128, 128, c => {                // cuts holes in the darkness (destination-out)
+            const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+            g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.55, 'rgba(0,0,0,0.85)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+            c.fillStyle = g; c.fillRect(0, 0, 128, 128);
+        });
+        m.fire = mk(64, 64, c => {
+            const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+            g.addColorStop(0, 'rgba(255,190,90,0.45)'); g.addColorStop(1, 'rgba(255,140,40,0)');
+            c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+        });
+        m.flash = mk(32, 32, c => {
+            c.fillStyle = '#fff6c8'; c.beginPath();
+            for (let i = 0; i < 16; i++) { const r = i % 2 ? 6 : 15, an = i * Math.PI / 8; c.lineTo(16 + Math.cos(an) * r, 16 + Math.sin(an) * r); }
+            c.closePath(); c.fill(); circ(c, 16, 16, 5, '#ffffff');
+        });
         cache.misc = m;
         return m;
     }
@@ -193,7 +230,20 @@ window.HM_ART = (function () {
             else if (ch === 'm') base = '#4a3f2c';
             else if (ch === 'x') base = '#7c7a80';
             else if (ch === '~' || ch === 'w') base = '#25506e';
+            else if (ch === '#' || ch === 't') base = th.cliffTop;
             x.fillStyle = base; x.fillRect(px, py, TS, TS);
+            if (ch === '#' || ch === 't') { x.fillStyle = 'rgba(255,255,255,0.05)'; x.fillRect(px + 2, py + 2, 13, 13); x.fillRect(px + 17, py + 17, 13, 13); continue; }
+            if (ch === 'D') {
+                const g = x.createLinearGradient(0, py, 0, py + TS); g.addColorStop(0, '#000'); g.addColorStop(1, 'rgba(0,0,0,0.35)');
+                x.fillStyle = g; x.fillRect(px, py, TS, TS); x.fillStyle = '#6a5a48'; x.fillRect(px, py, 2, TS); x.fillRect(px + TS - 2, py, 2, TS);
+                continue;
+            }
+            if (th.floor && ch !== 'x' && ch !== '=') {          // dungeon flagstones
+                x.fillStyle = 'rgba(0,0,0,0.22)'; x.fillRect(px, py + 15, TS, 2); x.fillRect(px + ((ty & 1) ? 8 : 22), py, 2, 15); x.fillRect(px + ((ty & 1) ? 22 : 8), py + 17, 2, 15);
+                x.fillStyle = 'rgba(255,255,255,0.04)'; x.fillRect(px + 2, py + 2, 10, 4);
+                if (h > 0.85) { x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(px + 12, py + 6, 6, 2); x.fillRect(px + 16, py + 8, 2, 5); }
+                continue;
+            }
             if (ch === '~' || ch === 'w') {
                 x.fillStyle = 'rgba(255,255,255,0.06)'; x.fillRect(px + (h * 20) | 0, py + 8, 10, 2); x.fillRect(px + 4, py + 22, 8, 2);
                 // foam where water meets land
@@ -225,22 +275,45 @@ window.HM_ART = (function () {
 
     /* ---------- live characters ---------- */
     // look: { cloak, trim, skin, hair, style: 0 short, 1 long, 2 bald, 3 hat, s: scale, glow }
-    function human(c, x, y, look, fx, fy, walk, flash) {
-        const s = look.s || 1, bob = walk ? Math.abs(Math.sin(walk)) * 1.5 : 0;
+    // gear (heroes): { head, body, feet } item ids; lean: 0..1 forward lunge while attacking
+    function human(c, x, y, look, fx, fy, walk, flash, gear, lean) {
+        const s = look.s || 1, run = walk ? Math.sin(walk) : 0, bob = walk ? Math.abs(run) * 1.6 : 0;
+        const I = window.HM_ITEMS || {}, hd = gear && I[gear.head], bd = gear && I[gear.body], ft = gear && I[gear.feet];
+        x += (lean || 0) * fx * 3; y += (lean || 0) * fy * 2;
         c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(x, y, 9 * s, 3.5 * s, 0, 0, 6.2832); c.fill();
         if (look.glow) c.globalAlpha = 0.75;
-        const legA = walk ? Math.sin(walk) * 3 : 0;
-        c.fillStyle = '#2b2730'; c.fillRect(x - 4 * s, y - 7 * s + legA * 0.3, 3 * s, 7 * s); c.fillRect(x + 1 * s, y - 7 * s - legA * 0.3, 3 * s, 7 * s);
+        const legA = run * 3;
+        c.fillStyle = ft ? ft.col : '#2b2730';
+        c.fillRect(x - 4 * s, y - 7 * s + legA * 0.4, 3 * s, 7 * s - legA * 0.4); c.fillRect(x + 1 * s, y - 7 * s - legA * 0.4, 3 * s, 7 * s + legA * 0.4);
+        if (ft && gear.feet === 'swift_boots') { c.fillStyle = '#e8f0ff'; c.fillRect(x - 6 * s, y - 5 * s, 2 * s, 2 * s); c.fillRect(x + 4 * s, y - 5 * s, 2 * s, 2 * s); }
         const by = y - 7 * s - bob;
+        // arms swing against the legs
+        const armA = -run * 3;
+        c.fillStyle = flash ? '#ffffff' : (bd ? bd.col : look.cloak);
+        c.fillRect(x - 9 * s, by - 12 * s + armA, 3 * s, 8 * s); c.fillRect(x + 6 * s, by - 12 * s - armA, 3 * s, 8 * s);
+        c.fillStyle = look.skin; c.fillRect(x - 9 * s, by - 5 * s + armA, 3 * s, 2 * s); c.fillRect(x + 6 * s, by - 5 * s - armA, 3 * s, 2 * s);
         c.fillStyle = flash ? '#ffffff' : look.cloak;
         c.beginPath(); c.moveTo(x - 8 * s, by); c.lineTo(x - 6 * s, by - 14 * s); c.lineTo(x + 6 * s, by - 14 * s); c.lineTo(x + 8 * s, by); c.closePath(); c.fill();
+        if (bd && !flash) {
+            c.fillStyle = bd.col; c.fillRect(x - 6 * s, by - 14 * s, 12 * s, 10 * s);
+            if (gear.body === 'chainmail') { c.fillStyle = 'rgba(0,0,0,0.25)'; for (let i = 0; i < 4; i++) c.fillRect(x - 5 * s + i * 3 * s, by - 12 * s, 1, 7 * s); }
+            if (gear.body === 'plate_armor') { c.fillStyle = 'rgba(255,255,255,0.5)'; c.fillRect(x - 4 * s, by - 13 * s, 2 * s, 7 * s); c.fillStyle = bd.col2; c.fillRect(x - 6 * s, by - 5 * s, 12 * s, 1.5 * s); }
+            if (gear.body === 'padded_vest') { c.fillStyle = 'rgba(0,0,0,0.18)'; c.fillRect(x - 6 * s, by - 10 * s, 12 * s, 1); c.fillRect(x - 6 * s, by - 7 * s, 12 * s, 1); }
+        }
         if (look.trim) { c.fillStyle = look.trim; c.fillRect(x - 7 * s, by - 3 * s, 14 * s, 3 * s); }
         const hy = by - 19 * s;
         c.fillStyle = flash ? '#ffffff' : look.skin; c.beginPath(); c.arc(x, hy, 6 * s, 0, 6.2832); c.fill();
-        c.fillStyle = look.hair;
-        if (look.style === 0) { c.beginPath(); c.arc(x, hy - 1 * s, 6.3 * s, 3.3, 6.1); c.fill(); }
-        else if (look.style === 1) { c.beginPath(); c.arc(x, hy - 1 * s, 6.5 * s, 3.0, 6.4); c.fill(); if (fy <= 0 || fx) c.fillRect(x - 6.5 * s, hy - 1 * s, 13 * s, 8 * s); }
-        else if (look.style === 3) { c.fillRect(x - 9 * s, hy - 4 * s, 18 * s, 3 * s); c.fillRect(x - 5 * s, hy - 10 * s, 10 * s, 7 * s); }
+        if (hd && !flash) {
+            c.fillStyle = hd.col; c.beginPath(); c.arc(x, hy - 1 * s, 6.8 * s, 3.1, 6.33); c.fill();
+            c.fillRect(x - 6.8 * s, hy - 1 * s, 13.6 * s, 2 * s);
+            if (gear.head !== 'leather_cap' && fy >= 0) { c.fillStyle = 'rgba(0,0,0,0.35)'; c.fillRect(x - 0.8 * s + fx * 2 * s, hy - 1 * s, 1.6 * s, 5 * s); }
+            if (gear.head === 'knight_helm') { c.fillStyle = hd.col2; c.fillRect(x - 1.5 * s, hy - 12 * s, 3 * s, 6 * s); c.fillRect(x - 1.5 * s - fx * 3 * s, hy - 13 * s, 3 * s, 3 * s); }
+        } else {
+            c.fillStyle = look.hair;
+            if (look.style === 0) { c.beginPath(); c.arc(x, hy - 1 * s, 6.3 * s, 3.3, 6.1); c.fill(); }
+            else if (look.style === 1) { c.beginPath(); c.arc(x, hy - 1 * s, 6.5 * s, 3.0, 6.4); c.fill(); if (fy <= 0 || fx) c.fillRect(x - 6.5 * s, hy - 1 * s, 13 * s, 8 * s); }
+            else if (look.style === 3) { c.fillRect(x - 9 * s, hy - 4 * s, 18 * s, 3 * s); c.fillRect(x - 5 * s, hy - 10 * s, 10 * s, 7 * s); }
+        }
         if (fy >= 0 || fx) {                                     // eyes, unless facing away
             c.fillStyle = '#1b1820';
             const ex = x + fx * 2.5 * s;

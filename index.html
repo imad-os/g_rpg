@@ -18,6 +18,14 @@
               border-radius: calc(var(--u) * 1); padding: calc(var(--u) * 1) calc(var(--u) * 1.6); }
   #questLbl { font-size: calc(var(--u) * 2.6); font-weight: 800; color: #ffd23f; text-transform: uppercase; letter-spacing: 0.05em; }
   #questTxt { font-size: calc(var(--u) * 3.2); font-weight: 600; line-height: 1.25; }
+  /* after 10 s the quest box folds into a small badge (it opens again for every new step) */
+  #questBox { transition: padding 0.3s, max-width 0.3s; }
+  #questBox.mini { padding: calc(var(--u) * 0.5) calc(var(--u) * 1.2); max-width: 30%; border-width: calc(var(--u) * 0.25); }
+  #questBox.mini #questTxt { display: none; }
+  #questBox.mini #questLbl { font-size: calc(var(--u) * 2.4); }
+  #questBox.mini #questLbl::before { content: '◆ '; }
+  #questBox.mini #embers { display: inline-flex; margin: 0 0 0 calc(var(--u) * 1); vertical-align: middle; }
+  #questBox.mini #questLbl { display: inline-block; }
   #embers { margin-top: calc(var(--u) * 0.6); display: flex; gap: calc(var(--u) * 0.8); }
   .em { width: calc(var(--u) * 2.2); height: calc(var(--u) * 2.2); transform: rotate(45deg); border: calc(var(--u) * 0.3) solid #000; background: #2a2d36; opacity: 0.8; }
   .em.r.on { background: #ff6a3a; box-shadow: 0 0 calc(var(--u) * 1.2) #ff6a3a; }
@@ -35,7 +43,7 @@
   #bossBox { position: absolute; bottom: 14%; left: 22%; right: 22%; text-align: center; }
   #bossName { font-size: calc(var(--u) * 3.4); font-weight: 800; color: #ffd0a0; }
   #bossBox .bar { height: calc(var(--u) * 2); } #bossBox .bar i { background: linear-gradient(#c89cff, #6a3ad6); }
-  #toast { position: absolute; top: 26%; left: 15%; right: 15%; text-align: center; font-size: calc(var(--u) * 3.6); font-weight: 800; color: #fff;
+  #toast { z-index: 5; pointer-events: none; position: absolute; top: 26%; left: 15%; right: 15%; text-align: center; font-size: calc(var(--u) * 3.6); font-weight: 800; color: #fff;
            background: rgba(10,12,20,0.82); border: calc(var(--u) * 0.3) solid #ffd23f; border-radius: calc(var(--u) * 1.2); padding: calc(var(--u) * 1.2);
            opacity: 0; transition: opacity 0.25s; }
   #toast.show, #banner.show { opacity: 1; }
@@ -79,6 +87,25 @@
   .jem { color: #666a78; } .jem.on.r { color: #ff8a5a; } .jem.on.b { color: #5ab8ff; } .jem.on.s { color: #d8c49a; }
   .jpage { font-size: calc(var(--u) * 2.6); font-style: italic; color: #c8bfa8; margin: calc(var(--u) * 1.4) 0; }
   .journal .mi { margin-top: calc(var(--u) * 2); }
+  /* list screens: forge, potions, equipment */
+  .listbox { background: rgba(14,12,20,0.96); border: calc(var(--u) * 0.5) solid #e9d8a6; border-radius: calc(var(--u) * 2); width: 80%; max-height: 86%;
+             display: flex; flex-direction: column; padding: calc(var(--u) * 2) calc(var(--u) * 3); }
+  .lhead { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--u) * 2); }
+  .ltitle { font-size: calc(var(--u) * 4.6); font-weight: 900; color: #ffd76a; }
+  .linfo { font-size: calc(var(--u) * 3.2); font-weight: 800; color: #ffd23f; white-space: nowrap; }
+  .ltabs { font-size: calc(var(--u) * 2.8); color: #ffb38a; margin-top: calc(var(--u) * 0.6); }
+  .lrows { overflow: hidden; margin-top: calc(var(--u) * 1.4); display: flex; flex-direction: column; gap: calc(var(--u) * 0.8); position: relative; }
+  .li { display: flex; justify-content: space-between; align-items: center; gap: calc(var(--u) * 2); padding: calc(var(--u) * 0.8) calc(var(--u) * 1.6);
+        border: calc(var(--u) * 0.45) solid transparent; border-radius: calc(var(--u) * 1); background: rgba(255,255,255,0.06); }
+  .li.sel { border-color: #ffd23f; background: rgba(255,210,63,0.22); transform: scale(1.02); box-shadow: 0 0 calc(var(--u) * 1.6) rgba(255,210,63,0.55); }
+  .li.dim .lname, .li.dim .lr { opacity: 0.5; }
+  .li.mark .lr { color: #7ef0a0; }
+  .lname { font-size: calc(var(--u) * 3.3); font-weight: 800; }
+  .lsub { font-size: calc(var(--u) * 2.5); color: #b8c0d0; }
+  .lr { font-size: calc(var(--u) * 3); font-weight: 800; color: #ffd23f; white-space: nowrap; }
+  .jsub { font-size: calc(var(--u) * 3); font-weight: 900; color: #7ef0a0; margin-top: calc(var(--u) * 1.4); }
+  .jq { font-size: calc(var(--u) * 2.8); margin: calc(var(--u) * 0.5) 0; }
+  .jq.ready { color: #7ef0a0; }
   #paused { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: calc(var(--u) * 12); font-weight: 900; color: #fff; }
 </style>
 </head>
@@ -96,15 +123,17 @@
     <div id="join" style="display:none"></div>
     <div id="hint"></div>
     <div id="bossBox" style="display:none"><div id="bossName"></div><div class="bar"><i id="bossFill"></i></div></div>
-    <div id="toast"></div>
     <div id="banner"></div>
   </div>
   <div id="dlg" style="display:none"><div id="dname"></div><div id="dai" style="display:none"></div><div id="dtext"></div><div id="dchoices"></div><div id="dmore">▼</div></div>
   <div id="ov" style="display:none"></div>
+  <div id="toast"></div>
   <div id="paused" style="display:none">II</div>
 </div>
 <script src="https://imad-os.github.io/g/sdk/mypc-sdk.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/i18n_more.js"></script>
+<script src="js/items.js"></script>
 <script src="js/maps.js"></script>
 <script src="js/art.js"></script>
 <script src="js/audio.js"></script>
