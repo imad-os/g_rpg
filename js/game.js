@@ -4,8 +4,8 @@
 (function () {
     'use strict';
     const W = 640, H = 360, TS = 32, STEP = 1000 / 60;
-    const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, AI = window.HM_AI, MAPS = window.HM_MAPS, TEXT = window.HM_TEXT;
-    const ITEMS = window.HM_ITEMS, SLOTS = window.HM_SLOTS, SHOPS = window.HM_SHOPS, QUESTS = window.HM_QUESTS, CHESTS = window.HM_CHESTS;
+    const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, MAPS = window.HM_MAPS, TEXT = window.HM_TEXT;
+    const ITEMS = window.HM_ITEMS, SLOTS = window.HM_SLOTS, SHOPS = window.HM_SHOPS, QUESTS = window.HM_QUESTS, CHESTS = window.HM_CHESTS, LOOT = window.HM_LOOT;
     const $ = id => document.getElementById(id);
 
     let info = null, T = TEXT.en, L = 'en', tier = 'high';
@@ -34,7 +34,7 @@
         { cloak: '#2a9d8f', trim: '#f4d35e', skin: '#e9c39b', hair: '#2b1d14', style: 0, s: 1 },
         { cloak: '#e76f51', trim: '#f4d35e', skin: '#d9a77c', hair: '#c0582e', style: 1, s: 1 }
     ];
-    const AI_NPC = { maren: 1, tobin: 1, sela: 1, corvin: 1 };
+    const TALKER = { maren: 1, tobin: 1, sela: 1, corvin: 1 };      // they answer questions from a written list
     const FOE = {
         wisp:      { hp: 2,  dmg: 1, spd: 0.9, r: 9,  xp: 2,  coin: 2 },
         wolf:      { hp: 4,  dmg: 2, spd: 1.1, r: 11, xp: 4,  coin: 4 },
@@ -54,17 +54,31 @@
     const NUM = []; for (let i = 0; i < 200; i++) NUM.push(String(i));
 
     function fresh() {
-        return { v: 2, stage: 0, ore: 0, caps: 0, sword: false, key: false, gate: false, seal: false, hearth: false, tide: false, stone: false,
+        return { v: 3, stage: 0, ore: 0, caps: 0, sword: false, key: false, gate: false, seal: false, hearth: false, tide: false, stone: false,
                  heart: false, page: false, lit: false, picked: {}, cut: false, coins: 0, potions: 1, big: 0, xp: 0, lvl: 1,
                  zone: 'village', x: 21.5, y: 10.5, kills: 0, time: 0, scored: false,
-                 inv: ['stick'], eq: [{ weapon: 'stick', head: '', body: '', feet: '' }, { weapon: 'stick', head: '', body: '', feet: '' }],
+                 bag: [{ u: 1, id: 'stick', r: 0, up: 0, b: [] }], uid: 1, iron: 0,
+                 eq: [{ weapon: 1, head: 0, body: 0, feet: 0 }, { weapon: 1, head: 0, body: 0, feet: 0 }],
                  sq: {}, sqc: {}, opened: {}, star: false, crypt: false, qdone: 0 };
     }
-    // older saves: give back the iron sword that Tobin forged, as real gear
+    // older saves: their gear (a list of names) becomes items in the bag, and Tobin's sword is never lost
     function migrate(s) {
-        if (!Array.isArray(s.inv)) s.inv = ['stick'];
-        if (!Array.isArray(s.eq) || s.eq.length < 2) s.eq = fresh().eq;
-        if (s.sword && s.inv.indexOf('iron_sword') < 0) { s.inv.push('iron_sword'); for (const e of s.eq) if (e.weapon === 'stick') e.weapon = 'iron_sword'; }
+        if ((s.v || 1) < 3) {
+            const names = Array.isArray(s.inv) ? s.inv.slice() : ['stick'];
+            if (names.indexOf('stick') < 0) names.unshift('stick');
+            if (s.sword && names.indexOf('iron_sword') < 0) names.push('iron_sword');
+            s.bag = []; s.uid = 0;
+            const uidOf = {};
+            for (const id of names) if (window.HM_ITEMS[id]) { s.bag.push({ u: ++s.uid, id, r: 0, up: 0, b: [] }); uidOf[id] = s.uid; }
+            const old = Array.isArray(s.eq) ? s.eq : [];
+            s.eq = [0, 1].map(i => {
+                const e = old[i] || {}, out = { weapon: uidOf.stick, head: 0, body: 0, feet: 0 };
+                for (const sl of ['weapon', 'head', 'body', 'feet']) if (e[sl] && uidOf[e[sl]]) out[sl] = uidOf[e[sl]];
+                if (s.sword && (!e.weapon || e.weapon === 'stick')) out.weapon = uidOf.iron_sword;
+                return out;
+            });
+            delete s.inv; s.iron = s.iron || 0; s.v = 3;
+        }
         return s;
     }
     function save() { MyPC.save('save', S); }
@@ -73,7 +87,7 @@
     function npcName(id) { id = baseId(id); return L === 'ar' ? NAME_AR[id] : NAME[id]; }
     function heroName(i) { return i ? T.ui.hero2 : T.ui.hero1; }
     function itemName(id) { return (T.items && T.items[id]) || id; }
-    function maxHp() { return 10 + 3 * (S.lvl - 1); }
+    function maxHp(p) { return 10 + 3 * (S.lvl - 1) + (p ? p.st.hp : 0); }
     function need(l) { return 5 * l * (l + 1); }
     function embers() { return (S.hearth ? 1 : 0) + (S.tide ? 1 : 0) + (S.stone ? 1 : 0); }
 
@@ -88,13 +102,13 @@
 
     const P = [0, 1].map(i => ({ i, on: i === 0, dev: '', x: 0, y: 0, fx: 0, fy: 1, ax: 0, ay: 1, hp: 10, atk: 0, swing: 0, inv: 0,
         down: false, downT: 0, walk: 0, kx: 0, ky: 0, hold: 0, moving: false, r: 7, sy: 0, kind: 3, lean: 0, flash: 0, anim: 'sword',
-        st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
+        st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
     const FOES = []; for (let i = 0; i < 36; i++) FOES.push({ on: false, kind: 4, t: '', d: null, x: 0, y: 0, hx: 0, hy: 0, hp: 0, max: 0, st: 0, tm: 0, cd: 0,
         vx: 0, vy: 0, kx: 0, ky: 0, hurt: 0, r: 10, sy: 0, active: false, minion: false, mask: 0, ring: 0, alpha: 1, wt: 0, sum: 0, pt: 0, walk: 0, side: 0, sdx: 0, sdy: 0 });
     // k: 0 mud, 1 rock, 2 orb, 3 bone (hurt heroes) | 10 arrow, 11 bullet (hurt foes)
     const SHOTS = []; for (let i = 0; i < 64; i++) SHOTS.push({ on: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, dmg: 0, r: 5, k: 0, pierce: 0, owner: 0, hit: null });
     const PARTS = []; for (let i = 0; i < 260; i++) PARTS.push({ on: false, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, life: 0, max: 1, col: '#fff', sz: 2, g: 0.15 });
-    const DROPS = []; for (let i = 0; i < 32; i++) DROPS.push({ on: false, kind: 5, k: 0, x: 0, y: 0, z: 0, vz: 0, vx: 0, vy: 0, t: 0, v: 0, sy: 0 });
+    const DROPS = []; for (let i = 0; i < 32; i++) DROPS.push({ on: false, kind: 5, k: 0, x: 0, y: 0, z: 0, vz: 0, vx: 0, vy: 0, t: 0, v: 0, sy: 0, it: null });
     const FLOATS = []; for (let i = 0; i < 28; i++) FLOATS.push({ on: false, x: 0, y: 0, t: 0, s: '', col: '#fff', big: false });
     const RINGS = []; for (let i = 0; i < 16; i++) RINGS.push({ on: false, x: 0, y: 0, r: 0, max: 0, col: '#fff', w: 3 });
     const DL = new Array(1800); let dlN = 0;
@@ -102,32 +116,76 @@
 
     /* ------------------------------------------------------------------ gear */
 
+    // every piece of gear is its own item: { u, id, r: rarity 0-3, up: +0..+5, b: [[bonus, value]] }
+    function itemOf(u) { if (!u) return null; for (const it of S.bag) if (it.u === u) return it; return null; }
+    function newItem(id, r, b) { return { u: ++S.uid, id, r: r || 0, up: 0, b: b || [] }; }
+    function upStep(base) { return base.kind === 'gun' ? 2 : 1; }
     function recalc(p) {
-        const e = S.eq[p.i], w = ITEMS[e.weapon] || ITEMS.stick, st = p.st;
-        st.atk = w.atk; st.cd = w.cd; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e';
-        st.def = 0; st.spd = 0;
-        for (let k = 1; k < SLOTS.length; k++) { const it = ITEMS[e[SLOTS[k]]]; if (it) { st.def += it.def || 0; st.spd += it.spd || 0; } }
-        p.gear.head = e.head; p.gear.body = e.body; p.gear.feet = e.feet;
+        const e = S.eq[p.i], wi = itemOf(e.weapon), w = ITEMS[wi ? wi.id : 'stick'], st = p.st;
+        st.atk = w.atk + (wi ? wi.up * upStep(w) : 0); st.cd = w.cd; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e';
+        st.def = 0; st.spd = 0; st.crit = w.kind === 'gun' ? 18 : 10; st.hp = 0; st.gold = 0;
+        for (let k = 0; k < SLOTS.length; k++) {
+            const it = itemOf(e[SLOTS[k]]); if (!it) continue;
+            const base = ITEMS[it.id];
+            if (k > 0) { st.def += (base.def || 0) + it.up; st.spd += base.spd || 0; }
+            for (const b of it.b) {
+                if (b[0] === 'a') st.atk += b[1]; else if (b[0] === 'd') st.def += b[1]; else if (b[0] === 'c') st.crit += b[1];
+                else if (b[0] === 's') st.spd += b[1] / 100; else if (b[0] === 'h') st.hp += b[1]; else if (b[0] === 'g') st.gold += b[1];
+            }
+        }
+        const h = itemOf(e.head), bd = itemOf(e.body), ft = itemOf(e.feet);
+        p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : '';
+        if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
     function recalcAll() { recalc(P[0]); recalc(P[1]); }
-    function owns(id) { return S.inv.indexOf(id) >= 0; }
-    function giveItem(id, quiet) {
-        if (!ITEMS[id]) return;
-        if (owns(id)) { const c = Math.max(15, (ITEMS[id].price || 60) >> 1); S.coins += c; if (!quiet) toast(txt(T.ui.gotCoins, { n: c })); return; }
-        S.inv.push(id);
-        // wear it right away if that slot was empty (or still holds the stick)
-        for (let i = 0; i < 2; i++) { const e = S.eq[i], sl = ITEMS[id].slot; if (!e[sl] || e[sl] === 'stick') e[sl] = id; }
-        recalcAll();
-        if (!quiet) { toast(txt(T.ui.gotItem, { item: itemName(id) })); SND.fx('equip'); }
+    function rollBonuses(id, r) {
+        const base = ITEMS[id], pool = LOOT.bonuses[base.slot === 'weapon' ? 'weapon' : 'armour'].slice(), out = [], t = Math.max(1, base.tier || 1);
+        for (let k = 0; k < r && pool.length; k++) {
+            const type = pool.splice((Math.random() * pool.length) | 0, 1)[0];
+            const v = type === 'a' || type === 'd' ? t + ((Math.random() * (t + 1)) | 0) : type === 'c' ? 3 + r + ((Math.random() * 5) | 0)
+                : type === 's' ? 4 + ((Math.random() * 7) | 0) : type === 'h' ? 2 * t + ((Math.random() * 4) | 0) : 10 + ((Math.random() * 21) | 0);
+            out.push([type, v]);
+        }
+        return out;
     }
-    function statLine(id) {
-        const it = ITEMS[id]; if (!it) return '';
+    // a random piece of gear for this area: better areas drop better gear; minR = lowest rarity (bosses: rare)
+    function rollItem(tier, minR) {
+        const ids = [];
+        for (const id in ITEMS) { const t = ITEMS[id].tier; if (t >= 1 && t <= tier && t >= tier - 1) ids.push(id); }
+        const id = ids[(Math.random() * ids.length) | 0], c = LOOT.chance, x = Math.random();
+        let r = x < c[3] ? 3 : x < c[3] + c[2] ? 2 : x < c[3] + c[2] + c[1] ? 1 : 0;
+        r = Math.max(r, minR || 0);
+        return newItem(id, r, rollBonuses(id, r));
+    }
+    function zoneTier() { return Math.min(3, Math.max(LOOT.zoneTier[Z.id] || 2, S.lvl >= 9 ? 3 : S.lvl >= 5 ? 2 : 1)); }
+    function sellPrice(it) { return Math.max(5, (ITEMS[it.id].price || 60) >> 2) * (1 + it.r) + it.up * 15; }
+    function addToBag(it, quiet) {
+        if (S.bag.length >= LOOT.bagSize) { const c = sellPrice(it); S.coins += c; toast(txt(T.ui.bagFull, { n: c })); save(); return; }
+        S.bag.push(it);
+        // wear it right away if that slot is empty (or still holds the stick)
+        const sl = ITEMS[it.id].slot;
+        for (let i = 0; i < 2; i++) { const cur = itemOf(S.eq[i][sl]); if (!cur || cur.id === 'stick') S.eq[i][sl] = it.u; }
+        recalcAll();
+        if (!quiet) { toast(txt(T.ui.gotItem, { item: itemLabel(it) })); SND.fx(it.r >= 2 ? 'level' : 'equip'); }
+        save();
+    }
+    function giveItem(id, quiet, r) { if (ITEMS[id]) addToBag(newItem(id, r || 0, r ? rollBonuses(id, r) : []), quiet); }
+    function itemLabel(it) {
+        const n = itemName(it.id) + (it.up ? ' +' + it.up : '');
+        return it.r ? txt(T.ui.rarityFmt, { item: n, r: T.ui['rar' + it.r] }) : n;
+    }
+    function statLine(it) {
+        const base = ITEMS[it.id]; if (!base) return '';
         let s = '';
-        if (it.atk) s += T.ui.atk + ' ' + it.atk + (it.kind !== 'sword' ? ' · ' + T.ui[it.kind] : '');
-        if (it.def) s += (s ? '  ' : '') + T.ui.def + ' ' + it.def;
-        if (it.spd) s += (s ? '  ' : '') + T.ui.spd + ' ' + (it.spd > 0 ? '+' : '') + Math.round(it.spd * 100) + '%';
+        if (base.slot === 'weapon') s = T.ui.atk + ' ' + (base.atk + it.up * upStep(base)) + (base.kind !== 'sword' ? ' · ' + T.ui[base.kind] : '');
+        else { const d = (base.def || 0) + it.up; if (d) s = T.ui.def + ' ' + d; }
+        if (base.spd) s += (s ? '  ' : '') + T.ui.spd + ' ' + (base.spd > 0 ? '+' : '') + Math.round(base.spd * 100) + '%';
+        for (const b of it.b) s += (s ? '  ' : '') + txt(T.ui['b_' + b[0]], { n: b[1] });
         return s;
     }
+    // worn by hero 1, or by hero 2 while they play (hero 2's slots fall back to nothing if it was sold)
+    function worn(u) { return !!u && (S.eq[0].weapon === u || S.eq[0].head === u || S.eq[0].body === u || S.eq[0].feet === u ||
+        (P[1].on && (S.eq[1].weapon === u || S.eq[1].head === u || S.eq[1].body === u || S.eq[1].feet === u))); }
 
     /* ------------------------------------------------------------------ side quests */
 
@@ -160,7 +218,7 @@
         const r = q.reward;
         S.sq[q.id] = 3; S.qdone++;
         S.coins += r.coins || 0; S.big += r.big || 0;
-        if (r.item) giveItem(r.item, true);
+        if (r.item) giveItem(r.item, true, 1);
         SND.fx('level'); ringFx(P[0].x, P[0].y - 10, 60, '#ffd23f');
         save();
         return txt(T.ui.qReward, { r: rewardText(r) });
@@ -307,6 +365,14 @@
             d.on = true; d.k = k; d.v = v; d.x = x; d.y = y; d.vx = Math.cos(a) * s; d.vy = Math.sin(a) * s * 0.6; d.z = 6; d.vz = 2.5 + Math.random() * 1.5; d.t = 720; d.sy = y; return;
         }
     }
+    function dropGear(x, y, it) {
+        for (const d of DROPS) if (!d.on) {
+            d.on = true; d.k = 2; d.v = 0; d.it = it; d.x = x; d.y = y; d.vx = (Math.random() - 0.5) * 1.5; d.vy = (Math.random() - 0.5); d.z = 10; d.vz = 3.5; d.t = 3600; d.sy = y;
+            if (it.r >= 2) { ringFx(x, y, 60, LOOT.colors[it.r]); SND.fx('chest'); }
+            return;
+        }
+        addToBag(it);                                       // no room on the ground: straight into the bag
+    }
     function coins(x, y, total) { while (total > 0) { const v = total >= 10 ? 5 : 1; drop(x, y, 0, v); total -= v; } }
     function shot(x, y, vx, vy, dmg, r, k, owner) {
         for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : 240; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; return s; }
@@ -346,9 +412,9 @@
         const pk = S.potions * 100 + S.big;
         if (pk !== hudLast.pot) { hudLast.pot = pk; $('stPot').textContent = '♥ ' + S.potions + (S.big ? '  ✚ ' + S.big : ''); refreshMenu(); }
         if (S.lvl !== hudLast.lvl) { hudLast.lvl = S.lvl; $('stLv').textContent = T.ui.lv + ' ' + S.lvl; }
-        const mh = maxHp();
-        if (P[0].hp !== hudLast.hp0 || mh !== hudLast.max) { hudLast.hp0 = P[0].hp; $('hp0').style.width = (100 * P[0].hp / mh) + '%'; }
-        if (P[1].hp !== hudLast.hp1 || mh !== hudLast.max) { hudLast.hp1 = P[1].hp; $('hp1').style.width = (100 * P[1].hp / mh) + '%'; }
+        const m0 = maxHp(P[0]), m1 = maxHp(P[1]), mh = m0 * 1000 + m1;
+        if (P[0].hp !== hudLast.hp0 || mh !== hudLast.max) { hudLast.hp0 = P[0].hp; $('hp0').style.width = (100 * P[0].hp / m0) + '%'; }
+        if (P[1].hp !== hudLast.hp1 || mh !== hudLast.max) { hudLast.hp1 = P[1].hp; $('hp1').style.width = (100 * P[1].hp / m1) + '%'; }
         hudLast.max = mh;
         if (P[1].on !== hudLast.on1) { hudLast.on1 = P[1].on; $('pb1').style.display = P[1].on ? '' : 'none'; refreshMenu(); }
         const j = joinSeen && !P[1].on;
@@ -423,9 +489,8 @@
     const lines = (who, key, vars) => (T.lines[key] || []).map((s, i) => [who, txt(s, vars), vars ? null : key + '-' + i]);
     const qlines = (who, id, part) => (T.quests[id][part] || []).map((s, i) => [who, s, 'q-' + id + '-' + part + '-' + i]);
 
-    /* ------------------------------------------------------------------ AI chat */
+    /* ------------------------------------------------------------------ questions and answers */
 
-    function defaultOpts(id) { return [T.ui.next, T.topic[id][0], T.ui.about]; }
     // the extra things an NPC can do for you: ferry, forge, potions, a side quest
     function extras(id) {
         const c = [];
@@ -436,38 +501,24 @@
         if (q) c.push({ label: T.ui.askWork, fn: () => offer(id, q) });
         return c;
     }
-    function chatChoices(id, opts) {
+    // every question shown has a written answer; more questions open up as the story goes on
+    function talkChoices(id) {
         const c = extras(id);
-        for (const o of opts) c.push({ label: o, fn: () => askNpc(id, o) });
+        c.push({ label: T.ui.next, fn: () => answer(id, id === 'maren' ? txt(T.lines.marenIdle[0], { obj: objective(L) }) : objective(L), null) });
+        const tp = T.topic[id];
+        if (tp) {
+            c.push({ label: tp[0], fn: () => answer(id, tp[1], 'topic-' + id + '-lore') });
+            c.push({ label: T.ui.about, fn: () => answer(id, tp[2], 'topic-' + id + '-about') });
+        }
+        const list = (T.talk && T.talk[id]) || [];
+        list.forEach((t, k) => { if (S.stage >= t.s && (t.e === undefined || S.stage <= t.e)) c.push({ label: t.q, fn: () => answer(id, t.a, 'talk-' + id + '-' + k) }); });
         c.push({ label: T.ui.bye, fn: closeDlg });
         return c;
     }
-    function canned(id, q) {          // [text, clip]
-        if (q === T.ui.next) return [id === 'maren' ? txt(T.lines.marenIdle[0], { obj: objective(L) }) : objective(L), null];
-        if (q === T.topic[id][0]) return [T.topic[id][1], 'topic-' + id + '-lore'];
-        if (q === T.ui.about) return [T.topic[id][2], 'topic-' + id + '-about'];
-        return [T.ui.aiErr, 0];
-    }
-    function askNpc(id, q) {
-        D.pages = [[id, '« ' + q + ' »', 0]]; D.i = 0; D.wait = true; D.ai = false; renderDlg();
-        const finish = (text, opts, fromAI, clip) => {
-            D.pages = [[id, text, clip === undefined ? null : clip]]; D.i = 0; D.choices = chatChoices(id, opts); D.sel = 0; D.wait = false; D.ai = fromAI; renderDlg();
-        };
-        if (!AI.enabled()) {
-            if (info.standalone && !aiNoticeShown) { aiNoticeShown = true; toast(T.ui.aiOff); }
-            const c = canned(id, q);
-            return finish(c[0], defaultOpts(id), false, c[1]);
-        }
-        const tok = ++askToken;
-        const ctx2 = { stage: S.stage, lang: L, objective: objective('en'), heroes: P[1].on ? 'two young apprentices, Ash and Wren' : 'a young apprentice called Ash' };
-        AI.ask(id, q, ctx2).then(r => {
-            if (tok !== askToken || mode !== 'dialog') return;
-            finish(r.reply, r.options.length ? r.options : defaultOpts(id), true);
-        }).catch(() => {
-            if (tok !== askToken || mode !== 'dialog') return;
-            const c = canned(id, q);
-            finish(c[0], defaultOpts(id), false, c[1]);
-        });
+    function answer(id, text, clip) {
+        const sel = D.sel;
+        D.pages = [[id, text, clip]]; D.i = 0; D.choices = talkChoices(id); D.sel = Math.min(sel, D.choices.length - 1); D.wait = false; D.ai = false;
+        renderDlg();
     }
 
     /* ------------------------------------------------------------------ story */
@@ -522,7 +573,7 @@
                 bram: S.hearth ? 'bramPost' : 'bram', odo: S.key ? 'odoKey' : 'odo', tamHome: 'tamHome', biscuitHome: 'biscuitHome' }[id];
             pages = lines(baseId(id), idle);
         }
-        if (AI_NPC[id]) return say(pages, chatChoices(id, defaultOpts(id)));
+        if (TALKER[id]) return say(pages, talkChoices(id));
         const ex = extras(id);
         if (ex.length) { ex.push({ label: T.ui.bye, fn: closeDlg }); return say(pages, ex); }
         say(pages);
@@ -586,8 +637,8 @@
         for (let i = 0; i < 16; i++) part(c.cx, c.cy - 4, 10, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1.2, 2 + Math.random() * 2, 40, '#ffe9a8', 2);
         const k = CHESTS[c.key];
         if (k && k.star) { S.star = true; if (qState('stariron') === 1) S.sq.stariron = 2; say(lines(null, 'starFound')); }
-        else if (k && k.item) giveItem(k.item);
-        else { const n = (k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0); coins(c.cx, c.cy, n); toast(txt(T.ui.gotCoins, { n })); }
+        else if (k && k.item) giveItem(k.item, false, 1);
+        else { const n = (k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0); coins(c.cx, c.cy, n); S.iron += 2; toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); }
         save();
     }
     function breakPot(s) {
@@ -677,7 +728,7 @@
         const list = el('div', 'lrows');
         rows.forEach((r, i) => {
             const row = el('div', 'li' + (i === OV.sel ? ' sel' : '') + (r.dim ? ' dim' : '') + (r.mark ? ' mark' : ''));
-            const left = el('div', 'll'); left.appendChild(el('div', 'lname', r.label)); if (r.sub) left.appendChild(el('div', 'lsub', r.sub));
+            const left = el('div', 'll'); left.appendChild(el('div', 'lname' + (r.cls ? ' ' + r.cls : ''), r.label)); if (r.sub) left.appendChild(el('div', 'lsub', r.sub));
             row.appendChild(left); if (r.right) row.appendChild(el('div', 'lr', r.right));
             list.appendChild(row);
         });
@@ -696,21 +747,70 @@
 
     function forgeScreen() {
         listScreen({
-            title: () => T.ui.forge, info: () => '● ' + S.coins,
+            title: () => T.ui.forge, info: () => '● ' + S.coins + '   ⛏ ' + S.iron,
+            rows: () => [
+                { label: T.ui.fBuy, sub: T.ui.fBuySub, fn: buyScreen },
+                { label: T.ui.fUp, sub: T.ui.fUpSub, fn: upScreen },
+                { label: T.ui.fSell, sub: T.ui.fSellSub, fn: sellScreen },
+                { label: T.ui.leave, fn: closeList }]
+        });
+    }
+    function buyScreen() {
+        listScreen({
+            title: () => T.ui.fBuy, info: () => '● ' + S.coins,
             rows: () => SHOPS.forge.map(id => {
-                const it = ITEMS[id], have = owns(id);
-                return { label: itemName(id), sub: T.ui['slot_' + it.slot] + ' · ' + statLine(id), right: have ? '✓ ' + T.ui.owned : txt(T.ui.nCoins, { n: it.price }),
-                    dim: !have && S.coins < it.price, mark: have, fn: () => buyItem(id) };
-            }).concat([{ label: T.ui.leave, fn: closeList }])
+                const it = ITEMS[id];
+                return { label: itemName(id), sub: T.ui['slot_' + it.slot] + ' · ' + statLine({ id, up: 0, b: [] }), right: txt(T.ui.nCoins, { n: it.price }),
+                    dim: S.coins < it.price, fn: () => buyItem(id) };
+            }).concat([{ label: T.ui.back, fn: () => { forgeScreen(); OV.sel = 0; renderList(); } }])
         });
     }
     function buyItem(id) {
-        const it = ITEMS[id];
-        if (owns(id)) { toast(T.ui.owned); return; }
-        if (S.coins < it.price) { toast(T.ui.poor); return; }
-        S.coins -= it.price; S.inv.push(id);
-        const e = S.eq[0]; e[it.slot] = id; recalcAll();        // wear it straight away (hero 1); change it in Equipment
+        const base = ITEMS[id];
+        if (S.coins < base.price) { toast(T.ui.poor); return; }
+        if (S.bag.length >= LOOT.bagSize) { toast(T.ui.bagFullShort); return; }
+        S.coins -= base.price;
+        const it = newItem(id, 0, []); S.bag.push(it);
+        S.eq[0][base.slot] = it.u; recalcAll();             // wear it straight away (hero 1); change it in Equipment
         SND.fx('buy'); toast(txt(T.ui.bought2, { item: itemName(id) })); save(); renderList();
+    }
+    function gearList(filter) {
+        const list = S.bag.filter(it => it.id !== 'stick' && filter(it));
+        list.sort((a, b) => (worn(b.u) ? 1 : 0) - (worn(a.u) ? 1 : 0) || b.r - a.r || ITEMS[b.id].tier - ITEMS[a.id].tier);
+        return list;
+    }
+    function upCost(it) { return { c: 20 * (it.up + 1) * (ITEMS[it.id].tier + 1), o: it.up + 1 }; }
+    function upScreen() {
+        listScreen({
+            title: () => T.ui.fUp, info: () => '● ' + S.coins + '   ⛏ ' + S.iron,
+            rows: () => gearList(() => true).map(it => {
+                const max = it.up >= LOOT.maxUp, cost = upCost(it);
+                return { label: itemLabel(it), cls: 'r' + it.r, sub: statLine(it) + (worn(it.u) ? '   ✓ ' + T.ui.equipped : ''),
+                    right: max ? T.ui.max : cost.c + ' ●  ' + cost.o + ' ⛏', dim: max || S.coins < cost.c || S.iron < cost.o, fn: () => upgrade(it) };
+            }).concat([{ label: T.ui.back, fn: () => { forgeScreen(); OV.sel = 1; renderList(); } }])
+        });
+    }
+    function upgrade(it) {
+        if (it.up >= LOOT.maxUp) return toast(T.ui.max);
+        const cost = upCost(it);
+        if (S.coins < cost.c) return toast(T.ui.poor);
+        if (S.iron < cost.o) return toast(T.ui.needOre);
+        S.coins -= cost.c; S.iron -= cost.o; it.up++; recalcAll();
+        SND.fx('level'); toast(txt(T.ui.upgraded, { item: itemLabel(it) })); save(); renderList();
+    }
+    let sellArm = 0;
+    function sellScreen() {
+        sellArm = 0;
+        listScreen({
+            title: () => T.ui.fSell, info: () => '● ' + S.coins,
+            rows: () => gearList(it => !worn(it.u)).map(it => ({ label: itemLabel(it), cls: 'r' + it.r, sub: sellArm === it.u ? T.ui.sellAgain : statLine(it),
+                right: '+' + txt(T.ui.nCoins, { n: sellPrice(it) }), mark: sellArm === it.u,
+                fn: () => {
+                    if (sellArm !== it.u) { sellArm = it.u; renderList(); return; }     // press OK twice to sell
+                    const c = sellPrice(it); S.bag.splice(S.bag.indexOf(it), 1); S.coins += c; sellArm = 0;
+                    SND.fx('coin'); toast(txt(T.ui.sold, { n: c })); save(); renderList();
+                } })).concat([{ label: T.ui.back, fn: () => { forgeScreen(); OV.sel = 2; renderList(); } }])
+        });
     }
     function potionScreen() {
         listScreen({
@@ -737,12 +837,13 @@
             side: P[1].on ? dir => { if (!EQ.slot) { EQ.hero = (EQ.hero + 2 + dir) % 2; } } : null,
             rows: () => {
                 const e = S.eq[EQ.hero];
-                if (!EQ.slot) return SLOTS.map(sl => ({ label: T.ui['slot_' + sl] + ': ' + (e[sl] ? itemName(e[sl]) : T.ui.none), sub: e[sl] ? statLine(e[sl]) : '',
-                    fn: () => { EQ.slot = sl; OV.sel = 0; renderList(); } })).concat([{ label: T.ui.close, fn: closeList }]);
-                const list = S.inv.filter(id => ITEMS[id] && ITEMS[id].slot === EQ.slot);
-                const rows = list.map(id => ({ label: itemName(id), sub: statLine(id), right: e[EQ.slot] === id ? '✓ ' + T.ui.equipped : '', mark: e[EQ.slot] === id,
-                    fn: () => { e[EQ.slot] = id; recalcAll(); SND.fx('equip'); save(); EQ.slot = ''; OV.sel = 0; renderList(); } }));
-                if (EQ.slot !== 'weapon') rows.push({ label: T.ui.none, right: !e[EQ.slot] ? '✓' : '', fn: () => { e[EQ.slot] = ''; recalcAll(); save(); EQ.slot = ''; OV.sel = 0; renderList(); } });
+                if (!EQ.slot) return SLOTS.map(sl => { const cur = itemOf(e[sl]); return { label: T.ui['slot_' + sl] + ': ' + (cur ? itemLabel(cur) : T.ui.none), cls: cur ? 'r' + cur.r : '', sub: cur ? statLine(cur) : '',
+                    fn: () => { EQ.slot = sl; OV.sel = 0; renderList(); } }; }).concat([{ label: T.ui.close, fn: closeList }]);
+                const list = S.bag.filter(it => ITEMS[it.id] && ITEMS[it.id].slot === EQ.slot);
+                list.sort((a, b) => (e[EQ.slot] === b.u ? 1 : 0) - (e[EQ.slot] === a.u ? 1 : 0) || b.r - a.r || ITEMS[b.id].tier - ITEMS[a.id].tier || b.up - a.up);
+                const rows = list.map(it => ({ label: itemLabel(it), cls: 'r' + it.r, sub: statLine(it), right: e[EQ.slot] === it.u ? '✓ ' + T.ui.equipped : '', mark: e[EQ.slot] === it.u,
+                    fn: () => { e[EQ.slot] = it.u; recalcAll(); SND.fx('equip'); save(); EQ.slot = ''; OV.sel = 0; renderList(); } }));
+                if (EQ.slot !== 'weapon') rows.push({ label: T.ui.none, right: !e[EQ.slot] ? '✓' : '', fn: () => { e[EQ.slot] = 0; recalcAll(); save(); EQ.slot = ''; OV.sel = 0; renderList(); } });
                 rows.push({ label: T.ui.back, fn: () => { const s = SLOTS.indexOf(EQ.slot); EQ.slot = ''; OV.sel = s; renderList(); } });
                 return rows;
             }
@@ -775,15 +876,15 @@
     function toPlay() { mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
 
     function newGame() {
-        S = fresh(); AI.reset(); recalcAll(); save();
-        P[0].hp = P[1].hp = maxHp(); P[0].down = P[1].down = false;
+        S = fresh(); recalcAll(); save();
+        P[0].hp = maxHp(P[0]); P[1].hp = maxHp(P[1]); P[0].down = P[1].down = false;
         loadZone('village'); placePlayers(S.x, S.y); P[0].fx = 0; P[0].fy = -1;
         slides(T.intro, () => { toPlay(); banner(T.zone.village); }, '', T.intro.map((s, i) => 'intro-' + i));
     }
     function continueGame() {
         S = migrate(Object.assign(fresh(), MyPC.load('save', {})));
         recalcAll();
-        P[0].hp = P[1].hp = maxHp(); P[0].down = P[1].down = false;
+        P[0].hp = maxHp(P[0]); P[1].hp = maxHp(P[1]); P[0].down = P[1].down = false;
         loadZone(S.zone); placePlayers(S.x, S.y);
         ovHide(); toPlay(); banner(T.zone[S.zone]);
     }
@@ -820,13 +921,13 @@
         let p = P[0];
         if (P[1].on && (P[0].down || (!P[1].down && P[1].hp < P[0].hp))) p = P[1];
         if (big) S.big--; else S.potions--;
-        p.hp = Math.min(maxHp(), p.hp + (big ? 99 : 8)); if (p.down) { p.down = false; p.inv = 90; }
+        p.hp = Math.min(maxHp(p), p.hp + (big ? 99 : 8)); if (p.down) { p.down = false; p.inv = 90; }
         SND.fx('heal'); burst(p.x, p.y - 10, 16, '#ff7a9a', 1.5); ringFx(p.x, p.y - 8, 34, '#ff7a9a');
         toast(txt(T.ui.healed, { name: heroName(p.i) })); save();
     }
     function join(dev) {
         const p = P[1];
-        p.on = true; p.dev = dev; p.hp = maxHp(); p.down = false; p.x = P[0].x; p.y = P[0].y; p.inv = 90;
+        p.on = true; p.dev = dev; p.hp = maxHp(p); p.down = false; p.x = P[0].x; p.y = P[0].y; p.inv = 90;
         for (const o of [[18, 0], [-18, 0], [0, 18], [0, -18]]) if (!feetSolid(P[0].x + o[0], P[0].y + o[1])) { p.x = P[0].x + o[0]; p.y = P[0].y + o[1]; break; }
         recalc(p); ringFx(p.x, p.y - 10, 40, '#ffb38a');
         toast(txt(T.ui.p2joined, { name: heroName(1) })); SND.fx('ok');
@@ -915,7 +1016,7 @@
 
     function hitFoe(f, p, dmg, dx, dy) {
         if (!f.active && f.d.boss) activate(f);
-        const crit = Math.random() < (p.st.kind === 'gun' ? 0.2 : 0.12);
+        const crit = Math.random() * 100 < p.st.crit;
         if (crit) dmg *= 2;
         if (f.t === 'thornback' && f.st === 3) dmg *= 2;
         f.hp -= dmg; f.hurt = 8;
@@ -935,6 +1036,8 @@
         ringFx(f.x, f.y - 6, f.d.boss ? 90 : 26, f.d.boss ? '#ffe9a8' : '#ffffff');
         coins(f.x, f.y, f.d.coin);
         if (!f.d.boss && Math.random() < 0.15) drop(f.x, f.y, 1, 3);
+        if (f.d.boss || Math.random() < LOOT.foeDrop) dropGear(f.x, f.y, rollItem(zoneTier(), f.d.boss ? 1 : 0));
+        if (Math.random() < (LOOT.oreDrop[f.t] || 0)) drop(f.x, f.y, 3, f.d.boss ? 3 : 1);
         addXp(f.d.xp);
         countKill(f.t);
         if (f.d.boss) bossDown(f);
@@ -943,7 +1046,7 @@
         S.xp += n;
         while (S.lvl < 12 && S.xp >= need(S.lvl)) {
             S.lvl++;
-            for (const p of P) if (p.on) { p.hp = maxHp(); p.down = false; burst(p.x, p.y - 10, 20, '#ffe66a', 2); ringFx(p.x, p.y - 8, 60, '#ffe66a'); }
+            for (const p of P) if (p.on) { p.hp = maxHp(p); p.down = false; burst(p.x, p.y - 10, 20, '#ffe66a', 2); ringFx(p.x, p.y - 8, 60, '#ffe66a'); }
             SND.fx('level'); toast(txt(T.ui.lvup, { n: S.lvl }));
         }
     }
@@ -967,7 +1070,7 @@
             S.coins = Math.floor(S.coins * 0.9);
             loadZone(Z.id);
             const sp = Z.def.spawn; placePlayers(sp[0], sp[1]);
-            for (const p of P) { p.hp = maxHp(); p.down = false; }
+            for (const p of P) { p.hp = maxHp(p); p.down = false; }
             save();
         });
     }
@@ -980,7 +1083,7 @@
         if (p.flash > 0) p.flash--;
         if (p.down) {
             const other = P[1 - p.i];
-            if (--p.downT <= 0 && other.on && !other.down) { p.down = false; p.hp = Math.ceil(maxHp() / 2); p.inv = 120; p.x = other.x; p.y = other.y; toast(txt(T.ui.revived, { name: heroName(p.i) })); }
+            if (--p.downT <= 0 && other.on && !other.down) { p.down = false; p.hp = Math.ceil(maxHp(p) / 2); p.inv = 120; p.x = other.x; p.y = other.y; toast(txt(T.ui.revived, { name: heroName(p.i) })); }
             return;
         }
         const dx = (held(p, 'right') ? 1 : 0) - (held(p, 'left') ? 1 : 0);
@@ -1016,11 +1119,13 @@
         for (const d of DROPS) {
             if (!d.on || d.z > 2) continue;
             const dd = dist(p.x, p.y, d.x, d.y);
-            if (dd < 40 && d.k === 0) { d.x += (p.x - d.x) * 0.15; d.y += (p.y - d.y) * 0.15; }   // coins fly to you
+            if (dd < 40 && (d.k === 0 || d.k === 3)) { d.x += (p.x - d.x) * 0.15; d.y += (p.y - d.y) * 0.15; }   // coins fly to you
             if (dd < 14) {
                 d.on = false;
-                if (d.k === 0) { S.coins += d.v; SND.fx('coin'); part(d.x, d.y, 6, 0, 0, 1.2, 16, '#ffe66a', 2, 0); }
-                else { p.hp = Math.min(maxHp(), p.hp + d.v); SND.fx('heal'); }
+                if (d.k === 0) { S.coins += d.v + (p.st.gold && Math.random() * 100 < p.st.gold ? 1 : 0); SND.fx('coin'); part(d.x, d.y, 6, 0, 0, 1.2, 16, '#ffe66a', 2, 0); }
+                else if (d.k === 1) { p.hp = Math.min(maxHp(p), p.hp + d.v); SND.fx('heal'); }
+                else if (d.k === 2) { const it = d.it; d.it = null; addToBag(it); burst(d.x, d.y - 6, 14, LOOT.colors[it.r], 1.5); }
+                else { S.iron += d.v; SND.fx('pick'); toast(txt(T.ui.gotIron, { n: d.v })); }
             }
         }
         for (const e of Z.def.exits) {
@@ -1194,7 +1299,7 @@
             if (d.z <= 0) { d.z = 0; d.vz = d.vz < -1.5 ? -d.vz * 0.4 : 0; d.vx *= 0.8; d.vy *= 0.8; }
             if (d.vx || d.vy) { if (!solidAt(d.x + d.vx, d.y)) d.x += d.vx; if (!solidAt(d.x, d.y + d.vy)) d.y += d.vy; }
             d.sy = d.y;
-            if (--d.t <= 0) d.on = false;
+            if (--d.t <= 0) { d.on = false; d.it = null; }
         }
     }
 
@@ -1399,7 +1504,7 @@
             ctx.fillStyle = news(n.id) ? '#ffd23f' : ready ? '#7ef0a0' : '#5ad07a';
             if (ready && !news(n.id)) { ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', x, by + 4); }
             else { ctx.fillRect(x - 3, by - 12, 7, 11); ctx.fillRect(x - 3, by + 1, 7, 3); }
-        } else if (AI_NPC[n.id] && npcTalkable(n.id) && dist(P[0].x, P[0].y, n.x, n.y) < 70) {
+        } else if (TALKER[n.id] && npcTalkable(n.id) && dist(P[0].x, P[0].y, n.x, n.y) < 70) {
             const b2 = y - 42 * s;
             ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.ellipse(x, b2, 9, 6, 0, 0, 6.2832); ctx.fill();
             ctx.fillStyle = '#334'; ctx.fillRect(x - 5, b2 - 1, 2, 2); ctx.fillRect(x - 1, b2 - 1, 2, 2); ctx.fillRect(x + 3, b2 - 1, 2, 2);
@@ -1480,6 +1585,23 @@
         const x = d.x - cx, y = d.y - cy - d.z - 4 + (d.z === 0 ? Math.sin(tick * 0.15 + d.x) * 1.5 : 0);
         if (d.t < 120 && (d.t & 8)) return;
         ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(d.x - cx - 4, d.y - cy, 8, 2);
+        if (d.k === 2) {                                   // gear: an icon in its rarity colour, epic and legendary send up a beam
+            const col = LOOT.colors[d.it.r], sl = ITEMS[d.it.id].slot, b = Math.sin(tick * 0.1 + d.x) * 2;
+            if (d.it.r >= 2) { ctx.globalAlpha = 0.25 + Math.sin(tick * 0.15) * 0.1; ctx.fillStyle = col; ctx.fillRect(x - 3, y - 60, 6, 60); ctx.globalAlpha = 1; }
+            ctx.globalAlpha = 0.5; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y - 4 + b, 11, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
+            ctx.fillStyle = '#1b1820'; ctx.beginPath(); ctx.arc(x, y - 4 + b, 8, 0, 6.2832); ctx.fill();
+            ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 2;
+            if (sl === 'weapon') { ctx.beginPath(); ctx.moveTo(x - 5, y + 1 + b); ctx.lineTo(x + 5, y - 9 + b); ctx.stroke(); ctx.fillRect(x - 5, y - 2 + b, 4, 2); }
+            else if (sl === 'head') { ctx.beginPath(); ctx.arc(x, y - 2 + b, 5, Math.PI, 0); ctx.fill(); }
+            else if (sl === 'body') ctx.fillRect(x - 4, y - 9 + b, 8, 9);
+            else { ctx.fillRect(x - 4, y - 9 + b, 3, 8); ctx.fillRect(x - 4, y - 2 + b, 7, 3); }
+            return;
+        }
+        if (d.k === 3) {                                   // iron ore
+            ctx.fillStyle = '#6f6a62'; ctx.beginPath(); ctx.moveTo(x - 6, y + 3); ctx.lineTo(x - 4, y - 4); ctx.lineTo(x + 2, y - 6); ctx.lineTo(x + 6, y + 3); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#e6eef7'; ctx.fillRect(x - 2, y - 3, 2, 2); ctx.fillRect(x + 2, y - 1, 2, 2);
+            return;
+        }
         if (d.k === 0) {
             const w = Math.abs(Math.sin(tick * 0.12 + d.x));          // spinning coin
             const r = d.v > 1 ? 6 : 4;
@@ -1797,7 +1919,7 @@
         onPause: function () { stopLoop(); SND.pause(); $('paused').style.display = info.standalone ? '' : 'none'; for (const k in DEV) DEV[k] = {}; },
         onResume: function () { $('paused').style.display = 'none'; SND.resume(); startLoop(); },
         onDestroy: function () {
-            stopLoop(); AI.abort(); VOICE.stop(); SND.close();
+            stopLoop(); VOICE.stop(); SND.close();
             window.removeEventListener('resize', resize);
         },
         onInput: onInput,

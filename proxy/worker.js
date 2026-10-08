@@ -8,13 +8,10 @@
  *   3. Deploy, then in the My PC installer open this app's Config and set
  *        { "proxyUrl": "https://<worker-name>.<you>.workers.dev" }
  *
- * Two kinds of requests:
- *   - chat: the normal Gemini generateContent body plus a "model" field (answer length capped);
- *   - { kind: "tts", model, text, voice, style }: speech for one dialogue line, answered as
- *     { audio: "<base64 WAV>" }. Text is capped at 600 characters.
- * Only the models below are accepted, so the key can't be used for anything else.
+ * The game asks for speech for one dialogue line: { kind: "tts", model, text, voice, style },
+ * answered as { audio: "<base64 WAV>" }. Text is capped at 600 characters, and only the
+ * text-to-speech models below are accepted, so the key can't be used for anything else.
  */
-const MODEL = 'gemini-3.5-flash-lite';
 const TTS_MODELS = ['gemini-3.8-flash-lite-tts', 'gemini-3.8-flash-tts'];
 const API = 'https://generativelanguage.googleapis.com/v1beta/';
 
@@ -59,11 +56,6 @@ export default {
             return audio ? json({ audio }) : json({ error: 'no audio' }, 502);
         }
 
-        if (body.model && body.model !== MODEL) return new Response('Model not allowed', { status: 400, headers: cors });
-        delete body.model;
-        body.generationConfig = Object.assign({}, body.generationConfig, { maxOutputTokens: 300 });
-
-        const res = await fetch(API + 'models/' + MODEL + ':generateContent', { method: 'POST', headers, body: JSON.stringify(body) });
-        return new Response(res.body, { status: res.status, headers: Object.assign({ 'Content-Type': 'application/json' }, cors) });
+        return json({ error: 'unknown request' }, 400);
     }
 };

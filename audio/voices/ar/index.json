@@ -642,6 +642,78 @@
    "who": "tobin",
    "dur": 5.9,
    "hash": "7e507101f8be"
+  },
+  "talk-maren-0": {
+   "file": "talk-maren-0.ogg",
+   "who": "maren",
+   "dur": 16.25,
+   "hash": "a6adfef3e86f"
+  },
+  "talk-maren-1": {
+   "file": "talk-maren-1.ogg",
+   "who": "maren",
+   "dur": 12.16,
+   "hash": "1bdf106bb974"
+  },
+  "talk-maren-2": {
+   "file": "talk-maren-2.ogg",
+   "who": "maren",
+   "dur": 14.7,
+   "hash": "59a3e2b8a00b"
+  },
+  "talk-maren-3": {
+   "file": "talk-maren-3.ogg",
+   "who": "maren",
+   "dur": 12.97,
+   "hash": "82adc4a04443"
+  },
+  "talk-tobin-0": {
+   "file": "talk-tobin-0.ogg",
+   "who": "tobin",
+   "dur": 16.86,
+   "hash": "b1343d1c206a"
+  },
+  "talk-tobin-1": {
+   "file": "talk-tobin-1.ogg",
+   "who": "tobin",
+   "dur": 16.22,
+   "hash": "5aec40d5366c"
+  },
+  "talk-tobin-2": {
+   "file": "talk-tobin-2.ogg",
+   "who": "tobin",
+   "dur": 10.5,
+   "hash": "0dcf099d1cf9"
+  },
+  "talk-sela-0": {
+   "file": "talk-sela-0.ogg",
+   "who": "sela",
+   "dur": 9.63,
+   "hash": "f3d54e158ee7"
+  },
+  "talk-sela-1": {
+   "file": "talk-sela-1.ogg",
+   "who": "sela",
+   "dur": 12.68,
+   "hash": "b6195aeaeb4b"
+  },
+  "talk-sela-2": {
+   "file": "talk-sela-2.ogg",
+   "who": "sela",
+   "dur": 10.47,
+   "hash": "7dcfcc7fff57"
+  },
+  "talk-corvin-0": {
+   "file": "talk-corvin-0.ogg",
+   "who": "corvin",
+   "dur": 6.44,
+   "hash": "358026c94b2a"
+  },
+  "talk-corvin-1": {
+   "file": "talk-corvin-1.ogg",
+   "who": "corvin",
+   "dur": 10.63,
+   "hash": "76564711f83f"
   }
  }
 }

@@ -6,12 +6,10 @@
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scores": true,
   "config": {
     "proxyUrl": "",
-    "model": "gemini-3.5-flash-lite",
-    "timeoutMs": 8000,
     "tts": true,
     "ttsModel": "gemini-3.8-flash-lite-tts"
   }

@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.3.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.4.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -18,8 +18,11 @@ fire home and learn why it was taken.
 - Hit-pause, critical hits, sparks, slash trails, arrows, muzzle flash and smoke, rings of light,
   running dust, spinning coins that fly to you
 - The quest box folds into a small badge 10 seconds after each new step
-- The main characters (**Maren, Tobin, Sela, Corvin**) talk freely through AI
-  (Gemini `gemini-3.5-flash-lite`). The other villagers have scripted lines.
+- **Loot:** common, rare, epic and legendary gear with random bonuses (attack, defence, crit,
+  speed, health, extra coins); Tobin upgrades any piece from +1 to +5 with coins and iron ore,
+  and buys what you don't need
+- The main characters (**Maren, Tobin, Sela, Corvin**) answer your questions; new questions
+  open up as the story goes on, and every question shown always has an answer
 - English, French, Spanish and Arabic (right to left)
 - Saves on every step, top-10 scores at the end, Voice Guide support
 
@@ -53,27 +56,6 @@ The quest is one chain, and every step can always be finished:
   health, foes and pots come back, and you can level up, buy potions or better gear before trying again.
 - Side quests are optional and can't get stuck: kill counts can always be finished (foes come back
   when you re-enter an area), and finding Tam, Biscuit or the star iron counts even before anyone asks.
-- The AI only adds conversation. It is told exactly what has happened so far and the current
-  goal, and is not allowed to invent quests, items or spoilers. Quest progress is always scripted.
-
-## AI conversations (optional)
-
-The game is fully playable without AI: the main characters then answer from a set of written
-lines. The AI is set in the **app config** (installer → this app → **Config**), which My PC hands
-to the game as `MyPC.app_config`:
-
-```json
-{ "proxyUrl": "https://hollowmere-ai.<you>.workers.dev", "model": "gemini-3.5-flash-lite", "timeoutMs": 8000,
-  "tts": true, "ttsModel": "gemini-3.8-flash-lite-tts" }
-```
-
-The app config is **not secret** (every TV downloads it), so the Gemini key never goes there or in
-this repository. It lives in a small free proxy, `proxy/worker.js` (a Cloudflare Worker, set-up
-steps inside the file), that adds the key and only answers requests from this game's site.
-Get a key at https://aistudio.google.com/apikey.
-
-To test in a browser without My PC, add the config to the address:
-`index.html?app_config={"proxyUrl":"https://hollowmere-ai.<you>.workers.dev"}`
 
 ## Spoken dialogue
 
@@ -82,17 +64,23 @@ Every dialogue line and story page is spoken, in this order:
 1. a **recorded clip** from `audio/voices/<lang>/`, if one exists (free; made with the generator below);
 2. otherwise **Gemini text-to-speech** through the proxy, if `proxyUrl` is set and `tts` is not
    `false` (this costs API usage, so record the fixed lines whenever you can);
+
+   It is set in the **app config** (installer → this app → **Config**), which My PC hands to the
+   game as `MyPC.app_config`:
+   `{ "proxyUrl": "https://hollowmere-voice.<you>.workers.dev", "tts": true, "ttsModel": "gemini-3.8-flash-lite-tts" }`.
+   The app config is not secret, so the Gemini key only lives in the proxy (`proxy/worker.js`,
+   a free Cloudflare Worker; set-up steps inside the file);
 3. otherwise **nothing**: the text stays on screen and goes to the TV's Voice Guide.
 
 Clips are downloaded one line at a time while playing, and the music gets quieter while someone
-speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (107 lines, 2.6 MB).
+speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (119 lines, 3.1 MB).
 
 ### Making the recordings (free, offline)
 
 `tools/voices/generate.py` turns every scripted line (about 230 in 4 languages) into speech with
 [Piper](https://github.com/rhasspy/piper), a free open-source voice engine that runs on your PC.
 It gives each character its own voice and saves small Ogg/Opus clips to `audio/voices/<lang>/`
-with an `index.json` (about 1.2 MB per language). Live AI replies are not voiced.
+with an `index.json` (about 1.2 MB per language).
 
 Needs **64-bit** Python 3.9 or newer (the speech engine has no 32-bit build). ffmpeg is used if
 installed.
@@ -122,11 +110,10 @@ the optional Kokoro engine.
 | `icon.svg` | icon |
 | `js/game.js` | engine: loop, players, foes, bosses, story, rendering |
 | `js/maps.js` | the seven areas, dungeons included |
-| `js/i18n.js`, `js/i18n_more.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
+| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
 | `js/items.js` | gear, shops, side quests and chests (data) |
 | `js/art.js` | art drawn in code (sprites cached once) |
 | `js/audio.js` | synthesized music and sound (Web Audio) |
-| `js/ai.js` | Gemini conversations |
 | `js/voice.js` | spoken dialogue (recordings, then Gemini TTS) |
 | `proxy/worker.js` | optional key-hiding proxy |
 | `tools/voices/` | voice generator (Python, not loaded by the game) |

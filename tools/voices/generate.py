@@ -53,6 +53,9 @@ def load_texts():
         t = texts[lang]
         t["lines"].update(m.get("lines", {}))
         t["quests"] = m.get("quests", {})
+    talk = _js_object("i18n_talk.js", "HM_TEXT_TALK") if os.path.exists(os.path.join(ROOT, "js", "i18n_talk.js")) else {}
+    for lang, m in talk.items():
+        texts[lang]["talk"] = m.get("talk", {})
     return texts
 
 
@@ -88,6 +91,9 @@ def clips_for(T):
     for npc, (label, lore, about) in T["topic"].items():
         yield "topic-%s-lore" % npc, npc, lore
         yield "topic-%s-about" % npc, npc, about
+    for npc, items in T.get("talk", {}).items():         # written answers of the main characters
+        for k, t in enumerate(items):
+            yield "talk-%s-%d" % (npc, k), npc, t["a"]
     for qid, q in T.get("quests", {}).items():         # side quests: the giver speaks the offer and the thanks
         for part in ("offer", "done"):
             for i, s in enumerate(q.get(part, [])):
