@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.5.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.6.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -22,7 +22,14 @@ fire home and learn why it was taken.
   900 coins) that bites the foes you run into. Both heroes ride; you get down in dungeons.
 - **Gear:** swords, bows and flintlock guns; helmets, body armour and boots, bought at Tobin's
   forge or won from quests and chests, and changed on the Equipment screen (per hero in co-op)
-- Hana sells small and big potions; coins come from foes, pots, chests and quests
+- **The Rift**: an endless dungeon under the hill, opened at level 6 (or after the ending). Every
+  floor is generated anew: clear it to open the stairs down; every fifth floor has a guardian and
+  an old stone tablet that tells a little more of what lies below. You can start again from every
+  fifth floor you have reached. **Your deepest floor is your score on My PC's top-10 table.**
+- **Bestiary** (hold OK menu): every creature you meet, with its picture, a note and how many you
+  have defeated; **21 hidden treasures** buried around the world (your cat sniffs them out)
+- After the ending, a new mystery: something below the hill remembers the Hush
+- Hana sells small and big potions; coins come from foes, pots, chests, treasures and quests
 - Hit-pause, critical hits, sparks, slash trails, arrows, muzzle flash and smoke, rings of light,
   running dust, spinning coins that fly to you
 - The quest box folds into a small badge 10 seconds after each new step
@@ -32,7 +39,7 @@ fire home and learn why it was taken.
 - The main characters (**Maren, Tobin, Sela, Corvin**) answer your questions; new questions
   open up as the story goes on, and every question shown always has an answer
 - English, French, Spanish and Arabic (right to left)
-- Saves on every step, top-10 scores at the end, Voice Guide support
+- Saves on every step, top-10 table for the Rift, Voice Guide support
 
 ## Controls
 
@@ -40,7 +47,7 @@ fire home and learn why it was taken.
 |---|---|---|---|
 | Move | arrows | arrows | stick / d-pad |
 | Talk, use, attack | OK | Enter / Space | A |
-| Quick menu (journal, equipment, potions, ride / walk) | hold OK | hold Enter | hold A |
+| Quick menu (journal, equipment, bestiary, potions, ride / walk) | hold OK | hold Enter | hold A |
 | Pause menu | Back | Esc / P | Start |
 
 **Co-op:** a second player presses OK / A on another controller (or F with W A S D on a second
@@ -81,7 +88,7 @@ Every dialogue line and story page is spoken, in this order:
 3. otherwise **nothing**: the text stays on screen and goes to the TV's Voice Guide.
 
 Clips are downloaded one line at a time while playing, and the music gets quieter while someone
-speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (202 lines, 5.2 MB).
+speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (209 lines, 5.4 MB).
 
 ### Making the recordings (free, offline)
 
@@ -118,9 +125,10 @@ the optional Kokoro engine.
 | `icon.svg` | icon |
 | `js/game.js` | engine: loop, players, foes, bosses, story, rendering |
 | `js/maps.js` | the seven areas, dungeons included |
-| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
+| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js`, `js/i18n_rift.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
 | `js/items.js` | gear, shops, mounts, story side quests and chests (data) |
 | `js/pool.js` | the 30 pool tasks, with their texts in 4 languages |
+| `js/rift.js` | builds each Rift floor from a seed (always fully reachable) |
 | `js/art.js` | art drawn in code (sprites cached once) |
 | `js/audio.js` | synthesized music and sound (Web Audio) |
 | `js/voice.js` | spoken dialogue (recordings, then Gemini TTS) |

@@ -1212,6 +1212,48 @@
    "who": "bram",
    "dur": 5.3,
    "hash": "9c879debb76b"
+  },
+  "hookMaren-0": {
+   "file": "hookMaren-0.ogg",
+   "who": "maren",
+   "dur": 7.36,
+   "hash": "e2a2f75ca4b7"
+  },
+  "hookMaren-1": {
+   "file": "hookMaren-1.ogg",
+   "who": "maren",
+   "dur": 10.85,
+   "hash": "b3d2a0c3dfa4"
+  },
+  "tablet5-0": {
+   "file": "tablet5-0.ogg",
+   "who": "narrator",
+   "dur": 10.88,
+   "hash": "ec86967b1305"
+  },
+  "tablet10-0": {
+   "file": "tablet10-0.ogg",
+   "who": "narrator",
+   "dur": 8.91,
+   "hash": "33717f4377c6"
+  },
+  "tablet15-0": {
+   "file": "tablet15-0.ogg",
+   "who": "narrator",
+   "dur": 12.06,
+   "hash": "067622de0ee0"
+  },
+  "tablet20-0": {
+   "file": "tablet20-0.ogg",
+   "who": "narrator",
+   "dur": 10.98,
+   "hash": "6f7d1bd4cb03"
+  },
+  "tablet25-0": {
+   "file": "tablet25-0.ogg",
+   "who": "narrator",
+   "dur": 9.32,
+   "hash": "e874da31ba80"
   }
  }
 }

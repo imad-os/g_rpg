@@ -41,7 +41,8 @@ window.HM_MAPS = {
             { k: 'forge', x: 3, y: 9, w: 4, h: 3 },
             { k: 'shop', x: 27, y: 9, w: 4, h: 3 },
             { k: 'house', x: 4, y: 15, w: 4, h: 3 },
-            { k: 'house', x: 29, y: 16, w: 4, h: 3 }
+            { k: 'house', x: 29, y: 16, w: 4, h: 3 },
+            { k: 'rift', x: 12.5, y: 4.6, w: 0, h: 0 }
         ],
         npcs: [
             { id: 'maren', x: 24.5, y: 5.2 },

@@ -68,6 +68,9 @@ def load_texts():
     for lang, m in pets.items():
         texts[lang]["lines"].update(m.get("lines", {}))
         texts[lang]["quests"].update(m.get("quests", {}))
+    rift = _js_object("i18n_rift.js", "HM_TEXT_RIFT") if os.path.exists(os.path.join(ROOT, "js", "i18n_rift.js")) else {}
+    for lang, m in rift.items():
+        texts[lang]["lines"].update(m.get("lines", {}))
     pool = _js_array("pool.js", "HM_POOL") if os.path.exists(os.path.join(ROOT, "js", "pool.js")) else []
     for lang in texts:
         texts[lang]["pool"] = [{"id": q["id"], "giver": q["giver"], "to": q.get("to"), "look": (q.get("who") or {}).get("look"),
@@ -86,6 +89,8 @@ def speaker_for(key):
             return who
     if key == "journalPage":
         return "corvin"
+    if key.startswith("hook"):
+        return "maren"
     return "narrator"   # boss defeats, the seal, the Lantern, the boat
 
 
