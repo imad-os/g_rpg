@@ -1,12 +1,12 @@
 {
   "mypc": 1,
   "id": "hollowmere-lantern-road",
-  "name": "Hollowmere: The Lantern Road",
-  "description": "A 2.5D co-op RPG: dungeons, side quests and gear; recover the three Embers and relight the Great Lantern",
+  "name": "Hollowmere",
+  "description": "A 2.5D co-op RPG in chapters. Chapter 1: The Lantern Road. Chapter 2: The Sunken Lantern.",
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "1.8.1",
+  "version": "2.0.0",
   "scores": true,
   "config": {
     "proxyUrl": "",
@@ -16,6 +16,7 @@
     "gearDrops": 0.5,
     "mountSpeed": 1,
     "petSpeed": 1.5,
-    "enemyDifficulty": 1.3
+    "enemyDifficulty": 1.3,
+    "chapters": "ch2"
   }
 }

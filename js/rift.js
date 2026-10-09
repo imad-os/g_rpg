@@ -1,4 +1,4 @@
-/* Hollowmere: the Rift, an endless dungeon under the hill. Each floor is built from a seed:
+/* Hollowmere: the Rift, ten floors under the hill. Each floor is built from a seed:
  * nine rooms on a 3 x 3 grid, joined by a random tree of corridors (so every room can be reached),
  * plus a shortcut or two. You start in the bottom middle room, next to the way out; the stairs
  * down are in the room farthest from you. Every fifth floor has a guardian and an old tablet. */
@@ -20,6 +20,9 @@ window.HM_RIFT = (function () {
         const list = ['wisp', 'wolf', 'bat'];
         if (floor >= 3) list.push('crawler', 'bones');
         if (floor >= 5) list.push('mite');
+        if (floor >= 3) list.push('archer');
+        if (floor >= 5) list.push('gunner');
+        if (floor >= 7) list.push('hexer', 'archer');
         if (floor >= 8) list.push('bones', 'mite');
         return list;
     }

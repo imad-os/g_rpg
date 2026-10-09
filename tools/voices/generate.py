@@ -38,7 +38,7 @@ PIPER_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main/{fam}/{cod
 
 def _js_object(path, name):
     import json5
-    src = open(os.path.join(ROOT, "js", path), encoding="utf-8").read()
+    src = open(os.path.join(ROOT, path if "/" in path else os.path.join("js", path)), encoding="utf-8").read()
     start = src.index("{", src.index(name))
     end = src.replace("\r\n", "\n").index("\n};", start)   # the object ends at the first top-level "};"
     src = src.replace("\r\n", "\n")
@@ -47,7 +47,7 @@ def _js_object(path, name):
 
 def _js_array(path, name):
     import json5
-    src = open(os.path.join(ROOT, "js", path), encoding="utf-8").read().replace("\r\n", "\n")
+    src = open(os.path.join(ROOT, path if "/" in path else os.path.join("js", path)), encoding="utf-8").read().replace("\r\n", "\n")
     start = src.index("[", src.index(name))
     end = src.index("\n];", start)
     return json5.loads(src[start:end + 2])
@@ -72,18 +72,37 @@ def load_texts():
     for lang, m in rift.items():
         texts[lang]["lines"].update(m.get("lines", {}))
     pool = _js_array("pool.js", "HM_POOL") if os.path.exists(os.path.join(ROOT, "js", "pool.js")) else []
+    # chapter 2 (chapters/ch2/text.js): its lines, quests, questions, ending and tasks
+    c2 = os.path.join(ROOT, "chapters", "ch2", "text.js")
+    if os.path.exists(c2):
+        ch2 = _js_object("chapters/ch2/text.js", "HM_C2_TEXT")
+        for lang, m in ch2.items():
+            t = texts[lang]
+            t["lines"].update(m.get("lines", {})); t["quests"].update(m.get("quests", {}))
+            t["topic"].update(m.get("topic", {})); t.setdefault("talk", {}).update(m.get("talk", {}))
+            t["c2ending"] = m.get("c2ending", [])
+        pool = pool + _js_array("chapters/ch2/text.js", "HM_C2_POOL")
     for lang in texts:
         texts[lang]["pool"] = [{"id": q["id"], "giver": q["giver"], "to": q.get("to"), "look": (q.get("who") or {}).get("look"),
                                 "t": q["t"].get(lang, q["t"]["en"])} for q in pool]
     return texts
 
 
-LOOK_VOICE = {"kid": "pip", "miner": "bram", "fisher": "odo"}
+LOOK_VOICE = {"kid": "pip", "miner": "bram", "fisher": "odo", "lostkid": "nell"}
 QUEST_GIVER = {"biscuit": "pip", "wolves": "bram", "tam": "bram", "crawlers": "hana", "mites": "odo", "stariron": "tobin",
-               "kitten": "hana", "pup": "bram", "bramble": "odo"}
+               "kitten": "hana", "pup": "bram", "bramble": "odo",
+               "c2_crabs": "bo", "finn": "nell", "c2_boars": "ada", "c2_imps": "gus", "c2_hexers": "juna"}
+# chapter 2 lines: who speaks each key (by its start)
+C2_SPEAKER = [("c2arrive", "sela2"), ("c2hello", "odile"), ("c2odile", "odile"), ("c2rise", "odile"), ("c2lit", "odile"), ("c2ada", "ada"),
+              ("c2rook", "rook"), ("c2mirelle", "mirelle"), ("c2marta", "marta"), ("c2witch", "witch"), ("c2choir", "choir"), ("c2gus", "gus"),
+              ("c2juna", "juna"), ("c2bo", "bo"), ("c2nell", "nell"), ("c2tuck", "tuck"), ("c2pell", "pell"), ("c2sela", "sela2"),
+              ("c2folk1", "folk1"), ("c2folk2", "folk2"), ("c2folkLit", "folk1"), ("c2finnHome", "finn"), ("finnFound", "finn")]
 
 
 def speaker_for(key):
+    for start, who in C2_SPEAKER:
+        if key.startswith(start):
+            return who
     for who in ("lira", "corvin", "maren", "tobin", "sela", "hana", "pip", "bram", "odo", "tam", "biscuit"):
         if key.startswith(who):
             return who
@@ -106,6 +125,8 @@ def clips_for(T):
         yield "intro-%d" % i, "narrator", s
     for i, s in enumerate(T["ending"]):
         yield "ending-%d" % i, "narrator", s
+    for i, s in enumerate(T.get("c2ending", [])):
+        yield "c2ending-%d" % i, "narrator", s
     for key, pages in T["lines"].items():
         for i, s in enumerate(pages):
             if "{" in s:

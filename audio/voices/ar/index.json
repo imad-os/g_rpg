@@ -4,320 +4,320 @@
   "intro-0": {
    "file": "intro-0.ogg",
    "who": "narrator",
-   "dur": 10.66,
-   "hash": "b39d536b0025"
+   "dur": 12.26,
+   "hash": "dfff9af03796"
   },
   "intro-1": {
    "file": "intro-1.ogg",
    "who": "narrator",
-   "dur": 10.03,
-   "hash": "b6e126bae351"
+   "dur": 12.66,
+   "hash": "ce404b3f095c"
   },
   "intro-2": {
    "file": "intro-2.ogg",
    "who": "narrator",
-   "dur": 9.12,
-   "hash": "055a738f1260"
+   "dur": 9.66,
+   "hash": "4ecc120c1328"
   },
   "intro-3": {
    "file": "intro-3.ogg",
    "who": "narrator",
-   "dur": 8.64,
-   "hash": "34e6ff00456f"
+   "dur": 7.53,
+   "hash": "2938ff7e5d1b"
   },
   "ending-0": {
    "file": "ending-0.ogg",
    "who": "narrator",
-   "dur": 7.92,
-   "hash": "5ef1d754dd87"
+   "dur": 9.85,
+   "hash": "ba5476c3def1"
   },
   "ending-1": {
    "file": "ending-1.ogg",
    "who": "narrator",
-   "dur": 7.63,
-   "hash": "2a64575ad881"
+   "dur": 8.97,
+   "hash": "84bb5fe967da"
   },
   "ending-2": {
    "file": "ending-2.ogg",
    "who": "narrator",
-   "dur": 1.53,
-   "hash": "3c3ac5ec6e75"
+   "dur": 2.06,
+   "hash": "7e687231c082"
   },
   "maren0-0": {
    "file": "maren0-0.ogg",
    "who": "maren",
-   "dur": 6.53,
-   "hash": "3bd78f620641"
+   "dur": 7.73,
+   "hash": "bb648a2fb0e6"
   },
   "maren0-1": {
    "file": "maren0-1.ogg",
    "who": "maren",
-   "dur": 14.75,
-   "hash": "e738530e3b96"
+   "dur": 17.74,
+   "hash": "55e7f48815d2"
   },
   "maren0-2": {
    "file": "maren0-2.ogg",
    "who": "maren",
-   "dur": 17.1,
-   "hash": "f1006e13d0a7"
+   "dur": 13.11,
+   "hash": "1b2ddb6af2ad"
   },
   "tobin1-0": {
    "file": "tobin1-0.ogg",
    "who": "tobin",
-   "dur": 6.62,
-   "hash": "ccb41d5470b8"
+   "dur": 6.93,
+   "hash": "5fe783710284"
   },
   "tobin1-1": {
    "file": "tobin1-1.ogg",
    "who": "tobin",
-   "dur": 15.14,
-   "hash": "209e850536b8"
+   "dur": 13.57,
+   "hash": "acdd48c95cdd"
   },
   "tobin1-2": {
    "file": "tobin1-2.ogg",
    "who": "tobin",
-   "dur": 7.97,
-   "hash": "5d9ee5eca2bd"
+   "dur": 7.5,
+   "hash": "c41ffd00cc77"
   },
   "tobin2b-0": {
    "file": "tobin2b-0.ogg",
    "who": "tobin",
-   "dur": 6.5,
-   "hash": "2307b82ea60c"
+   "dur": 5.46,
+   "hash": "b1f911a015f5"
   },
   "tobin2b-1": {
    "file": "tobin2b-1.ogg",
    "who": "tobin",
-   "dur": 4.22,
-   "hash": "56c5988f285f"
+   "dur": 3.82,
+   "hash": "56ae1c6ea231"
   },
   "tobin2b-2": {
    "file": "tobin2b-2.ogg",
    "who": "tobin",
-   "dur": 12.94,
-   "hash": "36b87335f8e1"
+   "dur": 12.77,
+   "hash": "4d63241792d2"
   },
   "tobinIdle-0": {
    "file": "tobinIdle-0.ogg",
    "who": "tobin",
-   "dur": 5.78,
-   "hash": "35dc3483a86f"
+   "dur": 3.31,
+   "hash": "24c0dc45a14c"
   },
   "bram-0": {
    "file": "bram-0.ogg",
    "who": "bram",
-   "dur": 9.58,
-   "hash": "3fe0eedffcf4"
+   "dur": 9.3,
+   "hash": "52ce090162e2"
   },
   "bram-1": {
    "file": "bram-1.ogg",
    "who": "bram",
-   "dur": 8.98,
-   "hash": "a7d97b45618e"
+   "dur": 9.65,
+   "hash": "02dade3ff6d8"
   },
   "bramPost-0": {
    "file": "bramPost-0.ogg",
    "who": "bram",
-   "dur": 5.86,
-   "hash": "78563e3de31b"
+   "dur": 4.62,
+   "hash": "45fd6feddd79"
   },
   "maren5-0": {
    "file": "maren5-0.ogg",
    "who": "maren",
-   "dur": 7.14,
-   "hash": "1037fc16cc8f"
+   "dur": 6.28,
+   "hash": "c51bdf3af3f5"
   },
   "maren5-1": {
    "file": "maren5-1.ogg",
    "who": "maren",
-   "dur": 10.03,
-   "hash": "306920253e0d"
+   "dur": 11.24,
+   "hash": "7dbf1bb39f39"
   },
   "maren5-2": {
    "file": "maren5-2.ogg",
    "who": "maren",
-   "dur": 13.0,
-   "hash": "8f5c379fcfd0"
+   "dur": 9.48,
+   "hash": "19ee46c1d480"
   },
   "sela6-0": {
    "file": "sela6-0.ogg",
    "who": "sela",
-   "dur": 10.24,
-   "hash": "63ad129bcd7d"
+   "dur": 9.46,
+   "hash": "cabd5a3f04d8"
   },
   "sela6-1": {
    "file": "sela6-1.ogg",
    "who": "sela",
-   "dur": 16.96,
-   "hash": "e580fc217303"
+   "dur": 12.93,
+   "hash": "ca999b6e7fbf"
   },
   "sela7b-0": {
    "file": "sela7b-0.ogg",
    "who": "sela",
-   "dur": 4.34,
-   "hash": "2a2835fa1fac"
+   "dur": 3.61,
+   "hash": "110f56112c50"
   },
   "sela7b-1": {
    "file": "sela7b-1.ogg",
    "who": "sela",
-   "dur": 10.05,
-   "hash": "3f375954d9e5"
+   "dur": 9.48,
+   "hash": "71040b89612e"
   },
   "selaFerry-0": {
    "file": "selaFerry-0.ogg",
    "who": "sela",
-   "dur": 3.38,
-   "hash": "c8c8a22440f4"
+   "dur": 3.5,
+   "hash": "a1c066283cb6"
   },
   "boatBack-0": {
    "file": "boatBack-0.ogg",
    "who": "narrator",
-   "dur": 3.31,
-   "hash": "6e57ef906267"
+   "dur": 2.99,
+   "hash": "0defa87c23d1"
   },
   "selaIdle-0": {
    "file": "selaIdle-0.ogg",
    "who": "sela",
-   "dur": 5.8,
-   "hash": "1c663c76ffd1"
+   "dur": 5.41,
+   "hash": "16942c615208"
   },
   "maren9-0": {
    "file": "maren9-0.ogg",
    "who": "maren",
-   "dur": 4.1,
-   "hash": "6db506bdde3a"
+   "dur": 4.26,
+   "hash": "e4e6fbadd683"
   },
   "maren9-1": {
    "file": "maren9-1.ogg",
    "who": "maren",
-   "dur": 18.03,
-   "hash": "a5c9aafc1f07"
+   "dur": 17.32,
+   "hash": "8ee503441148"
   },
   "maren9-2": {
    "file": "maren9-2.ogg",
    "who": "maren",
-   "dur": 15.11,
-   "hash": "d5e92a5e4dcf"
+   "dur": 14.28,
+   "hash": "19c7540af975"
   },
   "tobin10-0": {
    "file": "tobin10-0.ogg",
    "who": "tobin",
-   "dur": 5.52,
-   "hash": "bc1e67a075c2"
+   "dur": 5.36,
+   "hash": "09c86505cbf8"
   },
   "tobin10-1": {
    "file": "tobin10-1.ogg",
    "who": "tobin",
-   "dur": 6.46,
-   "hash": "b8eeafd562cb"
+   "dur": 6.03,
+   "hash": "b219c54ec4a3"
   },
   "tobin10-2": {
    "file": "tobin10-2.ogg",
    "who": "tobin",
-   "dur": 7.07,
-   "hash": "73293641e4d8"
+   "dur": 7.65,
+   "hash": "394b8ec71dcd"
   },
   "odo-0": {
    "file": "odo-0.ogg",
    "who": "odo",
-   "dur": 7.1,
-   "hash": "ccdfd4e4f8de"
+   "dur": 7.5,
+   "hash": "73add21b8c4a"
   },
   "odoKey-0": {
    "file": "odoKey-0.ogg",
    "who": "odo",
-   "dur": 5.79,
-   "hash": "27328961843c"
+   "dur": 5.74,
+   "hash": "4a362b535399"
   },
   "maren12-0": {
    "file": "maren12-0.ogg",
    "who": "maren",
-   "dur": 5.52,
-   "hash": "95e5667a6b60"
+   "dur": 5.2,
+   "hash": "ca6d05c3151f"
   },
   "maren12-1": {
    "file": "maren12-1.ogg",
    "who": "maren",
-   "dur": 18.06,
-   "hash": "204b331ee57d"
+   "dur": 16.96,
+   "hash": "4e9da88e27d5"
   },
   "maren12-2": {
    "file": "maren12-2.ogg",
    "who": "maren",
-   "dur": 10.35,
-   "hash": "ef6631826ba9"
+   "dur": 9.53,
+   "hash": "ec41ab0a4013"
   },
   "sealNeed-0": {
    "file": "sealNeed-0.ogg",
    "who": "narrator",
-   "dur": 8.03,
-   "hash": "17fcaad15b36"
+   "dur": 7.53,
+   "hash": "8d26a677ab5d"
   },
   "sealOpen-0": {
    "file": "sealOpen-0.ogg",
    "who": "narrator",
-   "dur": 6.38,
-   "hash": "74ec975ea029"
+   "dur": 5.29,
+   "hash": "333b6e716b4e"
   },
   "corvin13-0": {
    "file": "corvin13-0.ogg",
    "who": "corvin",
-   "dur": 6.06,
-   "hash": "3e969cfa59ed"
+   "dur": 5.66,
+   "hash": "938f1dc9f59e"
   },
   "corvin13-1": {
    "file": "corvin13-1.ogg",
    "who": "corvin",
-   "dur": 7.21,
-   "hash": "d8f7510c21df"
+   "dur": 7.02,
+   "hash": "b977b945a0de"
   },
   "corvin13-2": {
    "file": "corvin13-2.ogg",
    "who": "corvin",
-   "dur": 3.72,
-   "hash": "b1d2e9f765ee"
+   "dur": 3.55,
+   "hash": "b4ab06412665"
   },
   "lira1-0": {
    "file": "lira1-0.ogg",
    "who": "lira",
-   "dur": 8.19,
-   "hash": "9ac92fd035e0"
+   "dur": 6.77,
+   "hash": "88da97c9d7a2"
   },
   "lira2-0": {
    "file": "lira2-0.ogg",
    "who": "lira",
-   "dur": 5.7,
-   "hash": "8f99ae17ca24"
+   "dur": 5.79,
+   "hash": "6fe442cd0c3e"
   },
   "corvin1-0": {
    "file": "corvin1-0.ogg",
    "who": "corvin",
-   "dur": 4.99,
-   "hash": "dabd304eb12e"
+   "dur": 4.48,
+   "hash": "c0f162924143"
   },
   "lira3-0": {
    "file": "lira3-0.ogg",
    "who": "lira",
-   "dur": 5.59,
-   "hash": "e702c1789e58"
+   "dur": 4.92,
+   "hash": "98cbba4d6e04"
   },
   "corvin2-0": {
    "file": "corvin2-0.ogg",
    "who": "corvin",
-   "dur": 9.38,
-   "hash": "95d187757574"
+   "dur": 9.12,
+   "hash": "fbc928e3d69f"
   },
   "liraIdle-0": {
    "file": "liraIdle-0.ogg",
    "who": "lira",
-   "dur": 3.99,
-   "hash": "6f5f77610acf"
+   "dur": 4.22,
+   "hash": "99b83f28e81c"
   },
   "corvinIdle-0": {
    "file": "corvinIdle-0.ogg",
    "who": "corvin",
-   "dur": 6.3,
-   "hash": "a274a5864dfd"
+   "dur": 5.94,
+   "hash": "3df4b0902819"
   },
   "maren15-0": {
    "file": "maren15-0.ogg",
@@ -328,44 +328,44 @@
   "maren15-1": {
    "file": "maren15-1.ogg",
    "who": "maren",
-   "dur": 7.33,
-   "hash": "1fa6c16b0902"
+   "dur": 7.4,
+   "hash": "125d4c2384c3"
   },
   "maren15-2": {
    "file": "maren15-2.ogg",
    "who": "maren",
-   "dur": 5.43,
-   "hash": "98be2fdc40fb"
+   "dur": 5.62,
+   "hash": "415057982ff6"
   },
   "marenEnd-0": {
    "file": "marenEnd-0.ogg",
    "who": "maren",
-   "dur": 10.68,
-   "hash": "b8fdc5c75f33"
+   "dur": 11.62,
+   "hash": "4531611f9a3e"
   },
   "lanternCold-0": {
    "file": "lanternCold-0.ogg",
    "who": "narrator",
-   "dur": 6.16,
-   "hash": "26f5b7e97063"
+   "dur": 5.85,
+   "hash": "6a59c48d16c7"
   },
   "lanternLit-0": {
    "file": "lanternLit-0.ogg",
    "who": "narrator",
-   "dur": 12.51,
-   "hash": "a6b8a5cd29a8"
+   "dur": 13.0,
+   "hash": "4cb123b74127"
   },
   "lanternOn-0": {
    "file": "lanternOn-0.ogg",
    "who": "narrator",
-   "dur": 4.53,
-   "hash": "347b77ae2f13"
+   "dur": 3.71,
+   "hash": "78ecd9d6eeb3"
   },
   "hana-0": {
    "file": "hana-0.ogg",
    "who": "hana",
-   "dur": 9.61,
-   "hash": "1f1af77393d5"
+   "dur": 9.56,
+   "hash": "f76515a6bcf4"
   },
   "pip-0": {
    "file": "pip-0.ogg",
@@ -376,116 +376,116 @@
   "pip-1": {
    "file": "pip-1.ogg",
    "who": "pip",
-   "dur": 6.32,
-   "hash": "a06a3267114e"
+   "dur": 5.84,
+   "hash": "0efc6f8246a0"
   },
   "pipPost-0": {
    "file": "pipPost-0.ogg",
    "who": "pip",
-   "dur": 6.56,
-   "hash": "159bda82e20d"
+   "dur": 7.09,
+   "hash": "dde94520c204"
   },
   "thornbackDown-0": {
    "file": "thornbackDown-0.ogg",
    "who": "narrator",
-   "dur": 8.31,
-   "hash": "96b53887bb01"
+   "dur": 8.12,
+   "hash": "8db357724cbf"
   },
   "wardenDown-0": {
    "file": "wardenDown-0.ogg",
    "who": "narrator",
-   "dur": 14.0,
-   "hash": "aa07c0baff90"
+   "dur": 12.92,
+   "hash": "bea4a8146c6e"
   },
   "journalPage-0": {
    "file": "journalPage-0.ogg",
    "who": "corvin",
-   "dur": 17.47,
-   "hash": "2b22a675b13a"
+   "dur": 16.66,
+   "hash": "4d17edbec0c5"
   },
   "sentinelDown-0": {
    "file": "sentinelDown-0.ogg",
    "who": "narrator",
-   "dur": 7.25,
-   "hash": "618329de30fd"
+   "dur": 7.85,
+   "hash": "a31cff2b7621"
   },
   "shadeDown-0": {
    "file": "shadeDown-0.ogg",
    "who": "narrator",
-   "dur": 9.33,
-   "hash": "48ea734f37ca"
+   "dur": 9.76,
+   "hash": "55c64be5236d"
   },
   "topic-maren-lore": {
    "file": "topic-maren-lore.ogg",
    "who": "maren",
-   "dur": 14.29,
-   "hash": "85de64d74bb2"
+   "dur": 15.85,
+   "hash": "e01330247f73"
   },
   "topic-maren-about": {
    "file": "topic-maren-about.ogg",
    "who": "maren",
-   "dur": 9.6,
-   "hash": "0de2d0b8f120"
+   "dur": 10.69,
+   "hash": "79d6c97b6b3d"
   },
   "topic-tobin-lore": {
    "file": "topic-tobin-lore.ogg",
    "who": "tobin",
-   "dur": 9.7,
-   "hash": "9251571990a8"
+   "dur": 9.74,
+   "hash": "f86b0c6b4eef"
   },
   "topic-tobin-about": {
    "file": "topic-tobin-about.ogg",
    "who": "tobin",
-   "dur": 10.34,
-   "hash": "c5499f770177"
+   "dur": 9.31,
+   "hash": "82ffcb0a7338"
   },
   "topic-sela-lore": {
    "file": "topic-sela-lore.ogg",
    "who": "sela",
-   "dur": 10.68,
-   "hash": "bda922d9d08a"
+   "dur": 10.46,
+   "hash": "1815b91f162c"
   },
   "topic-sela-about": {
    "file": "topic-sela-about.ogg",
    "who": "sela",
-   "dur": 9.19,
-   "hash": "dedd25ff00d6"
+   "dur": 9.22,
+   "hash": "e0381dc851a1"
   },
   "topic-corvin-lore": {
    "file": "topic-corvin-lore.ogg",
    "who": "corvin",
    "dur": 7.28,
-   "hash": "19e734761d73"
+   "hash": "cc7c86c9a461"
   },
   "topic-corvin-about": {
    "file": "topic-corvin-about.ogg",
    "who": "corvin",
-   "dur": 6.28,
-   "hash": "33e93f20f5c1"
+   "dur": 6.03,
+   "hash": "74a255b4b9d5"
   },
   "tamFound-0": {
    "file": "tamFound-0.ogg",
    "who": "tam",
-   "dur": 7.76,
-   "hash": "0b00924a0747"
+   "dur": 7.49,
+   "hash": "adab36e92a6e"
   },
   "tamFound-1": {
    "file": "tamFound-1.ogg",
    "who": "tam",
-   "dur": 6.06,
-   "hash": "263b0dde45a9"
+   "dur": 5.83,
+   "hash": "144a2cac6474"
   },
   "biscuitFound-0": {
    "file": "biscuitFound-0.ogg",
    "who": "biscuit",
-   "dur": 5.73,
-   "hash": "8de0a1f12114"
+   "dur": 5.08,
+   "hash": "6fdcb09b070d"
   },
   "tamHome-0": {
    "file": "tamHome-0.ogg",
    "who": "tam",
-   "dur": 4.86,
-   "hash": "58d92cf5cb4b"
+   "dur": 4.58,
+   "hash": "ada4e961dcb3"
   },
   "biscuitHome-0": {
    "file": "biscuitHome-0.ogg",
@@ -496,764 +496,1406 @@
   "knightDown-0": {
    "file": "knightDown-0.ogg",
    "who": "narrator",
-   "dur": 6.3,
-   "hash": "a3a3b4b2fe2d"
+   "dur": 5.05,
+   "hash": "1f2a12bffbb9"
   },
   "starFound-0": {
    "file": "starFound-0.ogg",
    "who": "narrator",
-   "dur": 9.55,
-   "hash": "03909eede51f"
+   "dur": 8.15,
+   "hash": "92fc5d59c829"
   },
   "q-biscuit-offer-0": {
    "file": "q-biscuit-offer-0.ogg",
    "who": "pip",
-   "dur": 5.7,
-   "hash": "389f7ad93e7c"
+   "dur": 5.69,
+   "hash": "37ba924b67ea"
   },
   "q-biscuit-offer-1": {
    "file": "q-biscuit-offer-1.ogg",
    "who": "pip",
-   "dur": 6.73,
-   "hash": "b0a41adb096f"
+   "dur": 7.28,
+   "hash": "73cbcb790ff0"
   },
   "q-biscuit-done-0": {
    "file": "q-biscuit-done-0.ogg",
    "who": "pip",
-   "dur": 6.1,
-   "hash": "779b1d15ffd4"
+   "dur": 5.66,
+   "hash": "27fd59aaf556"
   },
   "q-biscuit-done-1": {
    "file": "q-biscuit-done-1.ogg",
    "who": "pip",
-   "dur": 7.1,
-   "hash": "b35520ab4c28"
+   "dur": 7.22,
+   "hash": "1ecada286a91"
   },
   "q-wolves-offer-0": {
    "file": "q-wolves-offer-0.ogg",
    "who": "bram",
-   "dur": 7.42,
-   "hash": "639a172b5ba0"
+   "dur": 5.58,
+   "hash": "e753db8c8511"
   },
   "q-wolves-offer-1": {
    "file": "q-wolves-offer-1.ogg",
    "who": "bram",
-   "dur": 7.04,
-   "hash": "fce719cf84fa"
+   "dur": 6.43,
+   "hash": "cc58316c4adb"
   },
   "q-wolves-done-0": {
    "file": "q-wolves-done-0.ogg",
    "who": "bram",
-   "dur": 4.38,
-   "hash": "304e6fca9386"
+   "dur": 3.47,
+   "hash": "dcc426842e05"
   },
   "q-wolves-done-1": {
    "file": "q-wolves-done-1.ogg",
    "who": "bram",
-   "dur": 5.12,
-   "hash": "c232c99bfe30"
+   "dur": 5.76,
+   "hash": "894d01aa6090"
   },
   "q-tam-offer-0": {
    "file": "q-tam-offer-0.ogg",
    "who": "bram",
-   "dur": 7.09,
-   "hash": "c2545ebe11b9"
+   "dur": 7.17,
+   "hash": "aef6ee8e1e2a"
   },
   "q-tam-offer-1": {
    "file": "q-tam-offer-1.ogg",
    "who": "bram",
-   "dur": 9.04,
-   "hash": "9d034bb45ebb"
+   "dur": 8.02,
+   "hash": "b9e2e58bd436"
   },
   "q-tam-done-0": {
    "file": "q-tam-done-0.ogg",
    "who": "bram",
-   "dur": 9.01,
-   "hash": "ba3304125234"
+   "dur": 7.26,
+   "hash": "497976d89b68"
   },
   "q-tam-done-1": {
    "file": "q-tam-done-1.ogg",
    "who": "bram",
-   "dur": 7.62,
-   "hash": "54c1e581dc74"
+   "dur": 5.86,
+   "hash": "b855bc0ec4ef"
   },
   "q-crawlers-offer-0": {
    "file": "q-crawlers-offer-0.ogg",
    "who": "hana",
-   "dur": 5.64,
-   "hash": "f5ef00fd39b3"
+   "dur": 6.01,
+   "hash": "d4384c69ef75"
   },
   "q-crawlers-offer-1": {
    "file": "q-crawlers-offer-1.ogg",
    "who": "hana",
-   "dur": 7.02,
-   "hash": "256446033d14"
+   "dur": 6.1,
+   "hash": "1a46d723e86b"
   },
   "q-crawlers-done-0": {
    "file": "q-crawlers-done-0.ogg",
    "who": "hana",
-   "dur": 5.35,
-   "hash": "a0f573628f51"
+   "dur": 4.13,
+   "hash": "b11265772aad"
   },
   "q-crawlers-done-1": {
    "file": "q-crawlers-done-1.ogg",
    "who": "hana",
-   "dur": 7.31,
-   "hash": "0802bf095f50"
+   "dur": 7.16,
+   "hash": "91aa65c53a5a"
   },
   "q-mites-offer-0": {
    "file": "q-mites-offer-0.ogg",
    "who": "odo",
-   "dur": 4.66,
-   "hash": "1242239edc5a"
+   "dur": 4.9,
+   "hash": "bd5e799922c7"
   },
   "q-mites-offer-1": {
    "file": "q-mites-offer-1.ogg",
    "who": "odo",
-   "dur": 8.93,
-   "hash": "3c7c5c462567"
+   "dur": 7.98,
+   "hash": "1bc35db22eba"
   },
   "q-mites-done-0": {
    "file": "q-mites-done-0.ogg",
    "who": "odo",
-   "dur": 6.93,
-   "hash": "ed1f934b93d3"
+   "dur": 6.82,
+   "hash": "b83eff77a6ae"
   },
   "q-stariron-offer-0": {
    "file": "q-stariron-offer-0.ogg",
    "who": "tobin",
-   "dur": 12.75,
-   "hash": "c0753f4aadf9"
+   "dur": 12.32,
+   "hash": "c44d0ed86212"
   },
   "q-stariron-offer-1": {
    "file": "q-stariron-offer-1.ogg",
    "who": "tobin",
-   "dur": 4.94,
-   "hash": "b9300e078ac1"
+   "dur": 4.05,
+   "hash": "9bc42d4e87b3"
   },
   "q-stariron-done-0": {
    "file": "q-stariron-done-0.ogg",
    "who": "tobin",
-   "dur": 5.46,
-   "hash": "cdeeabf84eaa"
+   "dur": 5.31,
+   "hash": "cb866de70cb7"
   },
   "q-stariron-done-1": {
    "file": "q-stariron-done-1.ogg",
    "who": "tobin",
-   "dur": 5.9,
-   "hash": "7e507101f8be"
+   "dur": 4.94,
+   "hash": "d61aa8fbcf42"
   },
   "talk-maren-0": {
    "file": "talk-maren-0.ogg",
    "who": "maren",
-   "dur": 16.25,
-   "hash": "a6adfef3e86f"
+   "dur": 16.97,
+   "hash": "177eb6d7b98d"
   },
   "talk-maren-1": {
    "file": "talk-maren-1.ogg",
    "who": "maren",
-   "dur": 12.16,
-   "hash": "1bdf106bb974"
+   "dur": 13.22,
+   "hash": "e2526bd131f6"
   },
   "talk-maren-2": {
    "file": "talk-maren-2.ogg",
    "who": "maren",
-   "dur": 14.7,
-   "hash": "59a3e2b8a00b"
+   "dur": 14.71,
+   "hash": "75c0cfa673e6"
   },
   "talk-maren-3": {
    "file": "talk-maren-3.ogg",
    "who": "maren",
-   "dur": 12.97,
-   "hash": "82adc4a04443"
+   "dur": 11.96,
+   "hash": "1957c0300a77"
   },
   "talk-tobin-0": {
    "file": "talk-tobin-0.ogg",
    "who": "tobin",
-   "dur": 16.86,
-   "hash": "b1343d1c206a"
+   "dur": 16.35,
+   "hash": "e5f663e6e00b"
   },
   "talk-tobin-1": {
    "file": "talk-tobin-1.ogg",
    "who": "tobin",
-   "dur": 16.22,
-   "hash": "5aec40d5366c"
+   "dur": 12.46,
+   "hash": "81b1e3d050d4"
   },
   "talk-tobin-2": {
    "file": "talk-tobin-2.ogg",
    "who": "tobin",
-   "dur": 10.5,
-   "hash": "0dcf099d1cf9"
+   "dur": 11.65,
+   "hash": "8822af09e6ce"
   },
   "talk-sela-0": {
    "file": "talk-sela-0.ogg",
    "who": "sela",
-   "dur": 9.63,
-   "hash": "f3d54e158ee7"
+   "dur": 10.49,
+   "hash": "1f3875fcf4ca"
   },
   "talk-sela-1": {
    "file": "talk-sela-1.ogg",
    "who": "sela",
-   "dur": 12.68,
-   "hash": "b6195aeaeb4b"
+   "dur": 11.9,
+   "hash": "054b174701d5"
   },
   "talk-sela-2": {
    "file": "talk-sela-2.ogg",
    "who": "sela",
-   "dur": 10.47,
-   "hash": "7dcfcc7fff57"
+   "dur": 12.0,
+   "hash": "0c263ba40f22"
   },
   "talk-corvin-0": {
    "file": "talk-corvin-0.ogg",
    "who": "corvin",
-   "dur": 6.44,
-   "hash": "358026c94b2a"
+   "dur": 6.22,
+   "hash": "3125d14a2400"
   },
   "talk-corvin-1": {
    "file": "talk-corvin-1.ogg",
    "who": "corvin",
-   "dur": 10.63,
-   "hash": "76564711f83f"
+   "dur": 8.57,
+   "hash": "884b1c213054"
   },
   "kittenFound-0": {
    "file": "kittenFound-0.ogg",
    "who": "narrator",
-   "dur": 6.28,
-   "hash": "fda9572307fc"
+   "dur": 7.0,
+   "hash": "f2e88089568e"
   },
   "brambleFound-0": {
    "file": "brambleFound-0.ogg",
    "who": "bram",
-   "dur": 5.39,
-   "hash": "f6683fc2387b"
+   "dur": 4.69,
+   "hash": "d3a563b4005e"
   },
   "pupFound-0": {
    "file": "pupFound-0.ogg",
    "who": "narrator",
-   "dur": 7.87,
-   "hash": "f2edd09bdb9b"
+   "dur": 8.04,
+   "hash": "b11d40c27492"
   },
   "pq-b1-offer-0": {
    "file": "pq-b1-offer-0.ogg",
    "who": "bram",
-   "dur": 10.29,
-   "hash": "0090d383d582"
+   "dur": 8.9,
+   "hash": "513e74399761"
   },
   "pq-b1-done-0": {
    "file": "pq-b1-done-0.ogg",
    "who": "bram",
-   "dur": 4.4,
-   "hash": "49b20c444e4d"
+   "dur": 4.43,
+   "hash": "86a11abbf991"
   },
   "pq-b2-offer-0": {
    "file": "pq-b2-offer-0.ogg",
    "who": "bram",
-   "dur": 10.4,
-   "hash": "d90226a24148"
+   "dur": 10.98,
+   "hash": "1b097e79464c"
   },
   "pq-b2-done-0": {
    "file": "pq-b2-done-0.ogg",
    "who": "bram",
-   "dur": 5.54,
-   "hash": "c5766ef66cab"
+   "dur": 5.55,
+   "hash": "eec081220c10"
   },
   "pq-b3-offer-0": {
    "file": "pq-b3-offer-0.ogg",
    "who": "bram",
-   "dur": 11.49,
-   "hash": "0e741d5383fa"
+   "dur": 10.9,
+   "hash": "5d49cad786b4"
   },
   "pq-b3-done-0": {
    "file": "pq-b3-done-0.ogg",
    "who": "bram",
-   "dur": 6.18,
-   "hash": "bb8643d76916"
+   "dur": 5.73,
+   "hash": "f43f3b54299b"
   },
   "pq-b4-offer-0": {
    "file": "pq-b4-offer-0.ogg",
    "who": "bram",
-   "dur": 8.93,
-   "hash": "8930541ff6c7"
+   "dur": 8.98,
+   "hash": "395d16cd4e0f"
   },
   "pq-b4-done-0": {
    "file": "pq-b4-done-0.ogg",
    "who": "bram",
-   "dur": 5.5,
-   "hash": "cd666ba05436"
+   "dur": 4.99,
+   "hash": "c89318100211"
   },
   "pq-b5-offer-0": {
    "file": "pq-b5-offer-0.ogg",
    "who": "bram",
-   "dur": 10.58,
-   "hash": "c56235161e3b"
+   "dur": 10.94,
+   "hash": "70600bae0e0e"
   },
   "pq-b5-done-0": {
    "file": "pq-b5-done-0.ogg",
    "who": "bram",
-   "dur": 6.85,
-   "hash": "8ed92409dd63"
+   "dur": 7.17,
+   "hash": "8bef6f686a66"
   },
   "pq-h1-offer-0": {
    "file": "pq-h1-offer-0.ogg",
    "who": "hana",
-   "dur": 12.06,
-   "hash": "641eaf3ff8ae"
+   "dur": 11.56,
+   "hash": "37f1d758c48f"
   },
   "pq-h1-done-0": {
    "file": "pq-h1-done-0.ogg",
    "who": "hana",
-   "dur": 6.98,
-   "hash": "24bb651f4206"
+   "dur": 4.66,
+   "hash": "b4ab1b52257d"
   },
   "pq-h2-offer-0": {
    "file": "pq-h2-offer-0.ogg",
    "who": "hana",
-   "dur": 10.81,
-   "hash": "7f839c166642"
+   "dur": 8.75,
+   "hash": "3b06d81628ee"
   },
   "pq-h2-done-0": {
    "file": "pq-h2-done-0.ogg",
    "who": "hana",
-   "dur": 6.05,
-   "hash": "2af6fe4cff26"
+   "dur": 6.08,
+   "hash": "a2b1095c3628"
   },
   "pq-h3-offer-0": {
    "file": "pq-h3-offer-0.ogg",
    "who": "hana",
-   "dur": 10.33,
-   "hash": "bb88922068fa"
+   "dur": 7.31,
+   "hash": "f630bd0be114"
   },
   "pq-h3-done-0": {
    "file": "pq-h3-done-0.ogg",
    "who": "hana",
-   "dur": 5.69,
-   "hash": "66d7658c79d8"
+   "dur": 4.44,
+   "hash": "9fdef7e9a879"
   },
   "pq-h3-given-0": {
    "file": "pq-h3-given-0.ogg",
    "who": "sela",
-   "dur": 7.25,
-   "hash": "a60b12ee4885"
+   "dur": 6.0,
+   "hash": "aba714ace681"
   },
   "pq-h4-offer-0": {
    "file": "pq-h4-offer-0.ogg",
    "who": "hana",
-   "dur": 11.54,
-   "hash": "ecc8437ac64b"
+   "dur": 10.91,
+   "hash": "b9d9c8613951"
   },
   "pq-h4-done-0": {
    "file": "pq-h4-done-0.ogg",
    "who": "hana",
-   "dur": 5.7,
-   "hash": "cd65871e5da0"
+   "dur": 5.35,
+   "hash": "bcdb8b06cec2"
   },
   "pq-h5-offer-0": {
    "file": "pq-h5-offer-0.ogg",
    "who": "hana",
-   "dur": 9.62,
-   "hash": "69155188a5c9"
+   "dur": 12.11,
+   "hash": "a7056703eb0c"
   },
   "pq-h5-done-0": {
    "file": "pq-h5-done-0.ogg",
    "who": "hana",
-   "dur": 5.52,
-   "hash": "36001b75472c"
+   "dur": 5.87,
+   "hash": "4eb68ddac3b1"
   },
   "pq-o1-offer-0": {
    "file": "pq-o1-offer-0.ogg",
    "who": "odo",
-   "dur": 9.3,
-   "hash": "49b9db87b764"
+   "dur": 10.18,
+   "hash": "a206068e7b0a"
   },
   "pq-o1-done-0": {
    "file": "pq-o1-done-0.ogg",
    "who": "odo",
-   "dur": 5.42,
-   "hash": "96999fd60be0"
+   "dur": 6.46,
+   "hash": "714e3b12e0d1"
   },
   "pq-o2-offer-0": {
    "file": "pq-o2-offer-0.ogg",
    "who": "odo",
-   "dur": 11.62,
-   "hash": "711973903c20"
+   "dur": 8.72,
+   "hash": "da7b2786c16f"
   },
   "pq-o2-done-0": {
    "file": "pq-o2-done-0.ogg",
    "who": "odo",
-   "dur": 5.31,
-   "hash": "50c0990a5b25"
+   "dur": 6.69,
+   "hash": "ce8eb6076a7e"
   },
   "pq-o3-offer-0": {
    "file": "pq-o3-offer-0.ogg",
    "who": "odo",
-   "dur": 12.05,
-   "hash": "99b74ba4b408"
+   "dur": 11.02,
+   "hash": "4ea9c009474e"
   },
   "pq-o3-done-0": {
    "file": "pq-o3-done-0.ogg",
    "who": "odo",
-   "dur": 6.06,
-   "hash": "ed75ddfee456"
+   "dur": 6.61,
+   "hash": "c89f558fc615"
   },
   "pq-o3-found-0": {
    "file": "pq-o3-found-0.ogg",
    "who": "bram",
-   "dur": 8.64,
-   "hash": "f7d28394d175"
+   "dur": 8.56,
+   "hash": "a070af2c6958"
   },
   "pq-o4-offer-0": {
    "file": "pq-o4-offer-0.ogg",
    "who": "odo",
-   "dur": 9.22,
-   "hash": "10dcd52d1e2f"
+   "dur": 10.34,
+   "hash": "6900d4f75972"
   },
   "pq-o4-done-0": {
    "file": "pq-o4-done-0.ogg",
    "who": "odo",
-   "dur": 4.93,
-   "hash": "784b39987cd6"
+   "dur": 4.64,
+   "hash": "8dd183eeb9d6"
   },
   "pq-o5-offer-0": {
    "file": "pq-o5-offer-0.ogg",
    "who": "odo",
-   "dur": 10.13,
-   "hash": "7d60b46dabdc"
+   "dur": 10.18,
+   "hash": "8a42eeac371c"
   },
   "pq-o5-done-0": {
    "file": "pq-o5-done-0.ogg",
    "who": "odo",
-   "dur": 5.84,
-   "hash": "2a04bc9c8145"
+   "dur": 5.82,
+   "hash": "75ec3f92fa97"
   },
   "pq-o5-given-0": {
    "file": "pq-o5-given-0.ogg",
    "who": "tobin",
-   "dur": 9.1,
-   "hash": "4ad093921955"
+   "dur": 6.96,
+   "hash": "1de9fc6254c4"
   },
   "pq-p1-offer-0": {
    "file": "pq-p1-offer-0.ogg",
    "who": "pip",
-   "dur": 11.78,
-   "hash": "1bf9b6d484fa"
+   "dur": 11.42,
+   "hash": "413ca59ef6f0"
   },
   "pq-p1-done-0": {
    "file": "pq-p1-done-0.ogg",
    "who": "pip",
-   "dur": 7.06,
-   "hash": "84f5318a21ea"
+   "dur": 6.74,
+   "hash": "8011a0cdbaf1"
   },
   "pq-p2-offer-0": {
    "file": "pq-p2-offer-0.ogg",
    "who": "pip",
-   "dur": 11.34,
-   "hash": "d4f92f4773f3"
+   "dur": 10.66,
+   "hash": "d799ca6a63b9"
   },
   "pq-p2-done-0": {
    "file": "pq-p2-done-0.ogg",
    "who": "pip",
-   "dur": 3.03,
-   "hash": "fab934ada783"
+   "dur": 3.48,
+   "hash": "3b86d681eba5"
   },
   "pq-p2-given-0": {
    "file": "pq-p2-given-0.ogg",
    "who": "maren",
-   "dur": 9.7,
-   "hash": "4d47fddc486e"
+   "dur": 8.54,
+   "hash": "2b252199d65a"
   },
   "pq-p3-offer-0": {
    "file": "pq-p3-offer-0.ogg",
    "who": "pip",
-   "dur": 10.04,
-   "hash": "67644df9942a"
+   "dur": 10.4,
+   "hash": "9f9647d848f6"
   },
   "pq-p3-done-0": {
    "file": "pq-p3-done-0.ogg",
    "who": "pip",
-   "dur": 5.92,
-   "hash": "c27938051755"
+   "dur": 5.74,
+   "hash": "a538c366581d"
   },
   "pq-p4-offer-0": {
    "file": "pq-p4-offer-0.ogg",
    "who": "pip",
-   "dur": 9.39,
-   "hash": "bea710b213be"
+   "dur": 9.56,
+   "hash": "6eb961dc6492"
   },
   "pq-p4-done-0": {
    "file": "pq-p4-done-0.ogg",
    "who": "pip",
-   "dur": 5.47,
-   "hash": "5c3207541980"
+   "dur": 4.84,
+   "hash": "d55e821aaf1e"
   },
   "pq-p4-found-0": {
    "file": "pq-p4-found-0.ogg",
    "who": "pip",
-   "dur": 8.77,
-   "hash": "47f99aaebf13"
+   "dur": 8.53,
+   "hash": "f2e44c145d37"
   },
   "pq-p5-offer-0": {
    "file": "pq-p5-offer-0.ogg",
    "who": "pip",
-   "dur": 12.13,
-   "hash": "6e793a3a21e7"
+   "dur": 9.78,
+   "hash": "f1df539a0bac"
   },
   "pq-p5-done-0": {
    "file": "pq-p5-done-0.ogg",
    "who": "pip",
-   "dur": 6.56,
-   "hash": "2e5a246745fb"
+   "dur": 6.72,
+   "hash": "aaeef4595090"
   },
   "pq-s1-offer-0": {
    "file": "pq-s1-offer-0.ogg",
    "who": "sela",
-   "dur": 10.04,
-   "hash": "1a9a38a0d956"
+   "dur": 9.75,
+   "hash": "4c40c280e05b"
   },
   "pq-s1-done-0": {
    "file": "pq-s1-done-0.ogg",
    "who": "sela",
-   "dur": 6.93,
-   "hash": "103f3c81fb55"
+   "dur": 7.15,
+   "hash": "7415ce68268f"
   },
   "pq-s2-offer-0": {
    "file": "pq-s2-offer-0.ogg",
    "who": "sela",
-   "dur": 14.6,
-   "hash": "6df641fb3ec1"
+   "dur": 13.77,
+   "hash": "e077105bca72"
   },
   "pq-s2-done-0": {
    "file": "pq-s2-done-0.ogg",
    "who": "sela",
-   "dur": 7.59,
-   "hash": "bab336b7ca10"
+   "dur": 7.52,
+   "hash": "ca67a3afd8d5"
   },
   "pq-s3-offer-0": {
    "file": "pq-s3-offer-0.ogg",
    "who": "sela",
-   "dur": 15.04,
-   "hash": "1d801eac98ee"
+   "dur": 14.6,
+   "hash": "a07d97f01f19"
   },
   "pq-s3-done-0": {
    "file": "pq-s3-done-0.ogg",
    "who": "sela",
-   "dur": 6.65,
-   "hash": "71f72208b2ba"
+   "dur": 5.71,
+   "hash": "6cdee85560e1"
   },
   "pq-s4-offer-0": {
    "file": "pq-s4-offer-0.ogg",
    "who": "sela",
-   "dur": 10.11,
-   "hash": "62b855ac4192"
+   "dur": 9.06,
+   "hash": "cf302f024ba8"
   },
   "pq-s4-done-0": {
    "file": "pq-s4-done-0.ogg",
    "who": "sela",
-   "dur": 7.85,
-   "hash": "eb318f8ad52f"
+   "dur": 7.11,
+   "hash": "beaaf102e134"
   },
   "pq-s4-found-0": {
    "file": "pq-s4-found-0.ogg",
    "who": "odo",
-   "dur": 9.78,
-   "hash": "7aa3221459ef"
+   "dur": 9.41,
+   "hash": "df4f60e27933"
   },
   "pq-s5-offer-0": {
    "file": "pq-s5-offer-0.ogg",
    "who": "sela",
-   "dur": 13.37,
-   "hash": "74dcb5bbcc7d"
+   "dur": 13.77,
+   "hash": "54158bdb9166"
   },
   "pq-s5-done-0": {
    "file": "pq-s5-done-0.ogg",
    "who": "sela",
-   "dur": 7.95,
-   "hash": "269d75e5b66c"
+   "dur": 3.54,
+   "hash": "52634ebc5ef8"
   },
   "pq-s5-given-0": {
    "file": "pq-s5-given-0.ogg",
    "who": "hana",
-   "dur": 7.54,
-   "hash": "421f685197d4"
+   "dur": 7.14,
+   "hash": "2745feafaaf6"
   },
   "pq-t1-offer-0": {
    "file": "pq-t1-offer-0.ogg",
    "who": "tobin",
-   "dur": 10.69,
-   "hash": "844efdfd5f65"
+   "dur": 9.02,
+   "hash": "1d5a4ec15597"
   },
   "pq-t1-done-0": {
    "file": "pq-t1-done-0.ogg",
    "who": "tobin",
-   "dur": 5.02,
-   "hash": "7172321e4324"
+   "dur": 5.94,
+   "hash": "8c1e160fb6c0"
   },
   "pq-t2-offer-0": {
    "file": "pq-t2-offer-0.ogg",
    "who": "tobin",
-   "dur": 11.02,
-   "hash": "e25549391d41"
+   "dur": 10.45,
+   "hash": "f828cdbf1362"
   },
   "pq-t2-done-0": {
    "file": "pq-t2-done-0.ogg",
    "who": "tobin",
-   "dur": 8.03,
-   "hash": "8377e6de788a"
+   "dur": 7.3,
+   "hash": "7ab5c4a10a2b"
   },
   "pq-t3-offer-0": {
    "file": "pq-t3-offer-0.ogg",
    "who": "tobin",
-   "dur": 13.84,
-   "hash": "8e13b3173842"
+   "dur": 12.99,
+   "hash": "527ec19dc34f"
   },
   "pq-t3-done-0": {
    "file": "pq-t3-done-0.ogg",
    "who": "tobin",
-   "dur": 7.5,
-   "hash": "f4834aa692da"
+   "dur": 5.39,
+   "hash": "2e777b8baaca"
   },
   "pq-t4-offer-0": {
    "file": "pq-t4-offer-0.ogg",
    "who": "tobin",
-   "dur": 10.22,
-   "hash": "edb8322a29d4"
+   "dur": 10.72,
+   "hash": "aa2700eb4292"
   },
   "pq-t4-done-0": {
    "file": "pq-t4-done-0.ogg",
    "who": "tobin",
-   "dur": 7.28,
-   "hash": "e895ea359bb5"
+   "dur": 7.06,
+   "hash": "7c2d54b4c523"
   },
   "pq-t4-given-0": {
    "file": "pq-t4-given-0.ogg",
    "who": "odo",
-   "dur": 7.3,
-   "hash": "0ecda7f0663f"
+   "dur": 6.21,
+   "hash": "ba92005e1527"
   },
   "pq-t5-offer-0": {
    "file": "pq-t5-offer-0.ogg",
    "who": "tobin",
-   "dur": 12.05,
-   "hash": "66589936a2df"
+   "dur": 12.45,
+   "hash": "fb53953ba78e"
   },
   "pq-t5-done-0": {
    "file": "pq-t5-done-0.ogg",
    "who": "tobin",
    "dur": 7.23,
-   "hash": "a4f8a274f6ea"
+   "hash": "f3024ad9cc8c"
   },
   "q-kitten-offer-0": {
    "file": "q-kitten-offer-0.ogg",
    "who": "hana",
-   "dur": 6.96,
-   "hash": "5cf655389d4b"
+   "dur": 6.99,
+   "hash": "1983a7a8f89b"
   },
   "q-kitten-offer-1": {
    "file": "q-kitten-offer-1.ogg",
    "who": "hana",
-   "dur": 6.93,
-   "hash": "b2878252cb29"
+   "dur": 4.42,
+   "hash": "817d1594bff8"
   },
   "q-kitten-done-0": {
    "file": "q-kitten-done-0.ogg",
    "who": "hana",
-   "dur": 4.89,
-   "hash": "fcd0348496d6"
+   "dur": 4.69,
+   "hash": "f35172f643e7"
   },
   "q-kitten-done-1": {
    "file": "q-kitten-done-1.ogg",
    "who": "hana",
-   "dur": 6.62,
-   "hash": "94a53c909f79"
+   "dur": 6.49,
+   "hash": "478f8f6d1949"
   },
   "q-bramble-offer-0": {
    "file": "q-bramble-offer-0.ogg",
    "who": "odo",
-   "dur": 7.94,
-   "hash": "84da761ee6fa"
+   "dur": 7.66,
+   "hash": "221989fb3f86"
   },
   "q-bramble-offer-1": {
    "file": "q-bramble-offer-1.ogg",
    "who": "odo",
-   "dur": 6.59,
-   "hash": "e8d620406b11"
+   "dur": 4.85,
+   "hash": "f313bd8714fc"
   },
   "q-bramble-done-0": {
    "file": "q-bramble-done-0.ogg",
    "who": "odo",
-   "dur": 5.66,
-   "hash": "44c784babdd5"
+   "dur": 4.61,
+   "hash": "750368fcbbe0"
   },
   "q-bramble-done-1": {
    "file": "q-bramble-done-1.ogg",
    "who": "odo",
-   "dur": 8.96,
-   "hash": "a602158673a9"
+   "dur": 7.47,
+   "hash": "6a4aae0719ae"
   },
   "q-pup-offer-0": {
    "file": "q-pup-offer-0.ogg",
    "who": "bram",
-   "dur": 9.01,
-   "hash": "f6f1e0bcef49"
+   "dur": 8.64,
+   "hash": "f36847e10091"
   },
   "q-pup-offer-1": {
    "file": "q-pup-offer-1.ogg",
    "who": "bram",
-   "dur": 8.67,
-   "hash": "35f28baa5b11"
+   "dur": 7.98,
+   "hash": "3425cbf5ef25"
   },
   "q-pup-done-0": {
    "file": "q-pup-done-0.ogg",
    "who": "bram",
-   "dur": 3.54,
-   "hash": "d8d145f3f72b"
+   "dur": 3.46,
+   "hash": "8b6d76f07acc"
   },
   "q-pup-done-1": {
    "file": "q-pup-done-1.ogg",
    "who": "bram",
-   "dur": 5.3,
-   "hash": "9c879debb76b"
+   "dur": 5.57,
+   "hash": "c4e63f4759d7"
   },
   "hookMaren-0": {
    "file": "hookMaren-0.ogg",
    "who": "maren",
-   "dur": 7.36,
-   "hash": "e2a2f75ca4b7"
+   "dur": 7.38,
+   "hash": "15913c1209d3"
   },
   "hookMaren-1": {
    "file": "hookMaren-1.ogg",
    "who": "maren",
-   "dur": 10.85,
-   "hash": "b3d2a0c3dfa4"
+   "dur": 10.57,
+   "hash": "bc06ee1a10e8"
   },
   "tablet5-0": {
    "file": "tablet5-0.ogg",
    "who": "narrator",
-   "dur": 10.88,
-   "hash": "ec86967b1305"
+   "dur": 11.24,
+   "hash": "109fffcbb86f"
   },
   "tablet10-0": {
    "file": "tablet10-0.ogg",
    "who": "narrator",
-   "dur": 8.91,
-   "hash": "33717f4377c6"
+   "dur": 6.48,
+   "hash": "c918220f0ff0"
   },
   "tablet15-0": {
    "file": "tablet15-0.ogg",
    "who": "narrator",
-   "dur": 12.06,
-   "hash": "067622de0ee0"
+   "dur": 7.87,
+   "hash": "8af7086846c8"
   },
   "tablet20-0": {
    "file": "tablet20-0.ogg",
    "who": "narrator",
-   "dur": 10.98,
-   "hash": "6f7d1bd4cb03"
+   "dur": 9.91,
+   "hash": "d238d1fcac1d"
   },
   "tablet25-0": {
    "file": "tablet25-0.ogg",
    "who": "narrator",
-   "dur": 9.32,
-   "hash": "e874da31ba80"
+   "dur": 9.38,
+   "hash": "aeefd8a6f756"
+  },
+  "c2ending-0": {
+   "file": "c2ending-0.ogg",
+   "who": "narrator",
+   "dur": 9.22,
+   "hash": "79a5fc06410c"
+  },
+  "c2ending-1": {
+   "file": "c2ending-1.ogg",
+   "who": "narrator",
+   "dur": 8.41,
+   "hash": "b2a23335a7df"
+  },
+  "c2ending-2": {
+   "file": "c2ending-2.ogg",
+   "who": "narrator",
+   "dur": 6.59,
+   "hash": "fcbb1d892fde"
+  },
+  "tablet10-1": {
+   "file": "tablet10-1.ogg",
+   "who": "narrator",
+   "dur": 14.54,
+   "hash": "f778eaa1d37d"
+  },
+  "c2arrive-0": {
+   "file": "c2arrive-0.ogg",
+   "who": "sela2",
+   "dur": 7.54,
+   "hash": "99ab0d6299e8"
+  },
+  "c2arrive-1": {
+   "file": "c2arrive-1.ogg",
+   "who": "sela2",
+   "dur": 4.97,
+   "hash": "5401de4d0f5d"
+  },
+  "c2hello-0": {
+   "file": "c2hello-0.ogg",
+   "who": "odile",
+   "dur": 6.27,
+   "hash": "6eb0fbf7ec98"
+  },
+  "c2hello-1": {
+   "file": "c2hello-1.ogg",
+   "who": "odile",
+   "dur": 8.97,
+   "hash": "8acb424308ec"
+  },
+  "c2odile0-0": {
+   "file": "c2odile0-0.ogg",
+   "who": "odile",
+   "dur": 11.38,
+   "hash": "2d9681077779"
+  },
+  "c2odile0-1": {
+   "file": "c2odile0-1.ogg",
+   "who": "odile",
+   "dur": 10.52,
+   "hash": "9a51bd938b8e"
+  },
+  "c2odile0-2": {
+   "file": "c2odile0-2.ogg",
+   "who": "odile",
+   "dur": 10.68,
+   "hash": "933c5d25016b"
+  },
+  "c2odile0-3": {
+   "file": "c2odile0-3.ogg",
+   "who": "odile",
+   "dur": 10.6,
+   "hash": "dabd8318a950"
+  },
+  "c2odile4-0": {
+   "file": "c2odile4-0.ogg",
+   "who": "odile",
+   "dur": 5.34,
+   "hash": "e44027e35418"
+  },
+  "c2odile4-1": {
+   "file": "c2odile4-1.ogg",
+   "who": "odile",
+   "dur": 11.21,
+   "hash": "d75c5a168151"
+  },
+  "c2odileEnd-0": {
+   "file": "c2odileEnd-0.ogg",
+   "who": "odile",
+   "dur": 6.5,
+   "hash": "fa5c89de67d8"
+  },
+  "c2ada1-0": {
+   "file": "c2ada1-0.ogg",
+   "who": "ada",
+   "dur": 3.43,
+   "hash": "4cbe510e9efb"
+  },
+  "c2ada1-1": {
+   "file": "c2ada1-1.ogg",
+   "who": "ada",
+   "dur": 7.58,
+   "hash": "47783c9de96c"
+  },
+  "c2ada1-2": {
+   "file": "c2ada1-2.ogg",
+   "who": "ada",
+   "dur": 5.34,
+   "hash": "d2560b6337d8"
+  },
+  "c2adaIdle-0": {
+   "file": "c2adaIdle-0.ogg",
+   "who": "ada",
+   "dur": 6.55,
+   "hash": "7d4850ab1652"
+  },
+  "c2adaAfter-0": {
+   "file": "c2adaAfter-0.ogg",
+   "who": "ada",
+   "dur": 6.0,
+   "hash": "482cd80dbb9d"
+  },
+  "c2fled-0": {
+   "file": "c2fled-0.ogg",
+   "who": "narrator",
+   "dur": 9.36,
+   "hash": "f4e56d19aa99"
+  },
+  "c2rookHi-0": {
+   "file": "c2rookHi-0.ogg",
+   "who": "rook",
+   "dur": 7.31,
+   "hash": "3aae9cd9bbf9"
+  },
+  "c2rookHi-1": {
+   "file": "c2rookHi-1.ogg",
+   "who": "rook",
+   "dur": 3.68,
+   "hash": "32aebc7a8151"
+  },
+  "c2rookDown-0": {
+   "file": "c2rookDown-0.ogg",
+   "who": "rook",
+   "dur": 6.4,
+   "hash": "8357e8775cdc"
+  },
+  "c2mirelle5-0": {
+   "file": "c2mirelle5-0.ogg",
+   "who": "mirelle",
+   "dur": 4.97,
+   "hash": "6d6a8edf2e64"
+  },
+  "c2mirelle5-1": {
+   "file": "c2mirelle5-1.ogg",
+   "who": "mirelle",
+   "dur": 11.29,
+   "hash": "bb821c10ad0b"
+  },
+  "c2mirelle5-2": {
+   "file": "c2mirelle5-2.ogg",
+   "who": "mirelle",
+   "dur": 7.76,
+   "hash": "f0f2c7568675"
+  },
+  "c2mirelleIdle-0": {
+   "file": "c2mirelleIdle-0.ogg",
+   "who": "mirelle",
+   "dur": 6.88,
+   "hash": "93a8bb2121eb"
+  },
+  "c2mirelle7-0": {
+   "file": "c2mirelle7-0.ogg",
+   "who": "mirelle",
+   "dur": 5.58,
+   "hash": "e9c254562963"
+  },
+  "c2mirelle7-1": {
+   "file": "c2mirelle7-1.ogg",
+   "who": "mirelle",
+   "dur": 4.15,
+   "hash": "e7621e29a232"
+  },
+  "c2tide-0": {
+   "file": "c2tide-0.ogg",
+   "who": "narrator",
+   "dur": 8.58,
+   "hash": "cc49566671b5"
+  },
+  "c2mirelleAsk-0": {
+   "file": "c2mirelleAsk-0.ogg",
+   "who": "mirelle",
+   "dur": 7.67,
+   "hash": "0dc548be30bb"
+  },
+  "c2mirelleAsk-1": {
+   "file": "c2mirelleAsk-1.ogg",
+   "who": "mirelle",
+   "dur": 6.48,
+   "hash": "ac452052eacc"
+  },
+  "c2mirelleLetter-0": {
+   "file": "c2mirelleLetter-0.ogg",
+   "who": "mirelle",
+   "dur": 4.22,
+   "hash": "9309d35a20ff"
+  },
+  "c2mirelleLetter-1": {
+   "file": "c2mirelleLetter-1.ogg",
+   "who": "mirelle",
+   "dur": 5.41,
+   "hash": "8b2cd761108c"
+  },
+  "c2martaShut-0": {
+   "file": "c2martaShut-0.ogg",
+   "who": "marta",
+   "dur": 5.31,
+   "hash": "4b1662b14958"
+  },
+  "c2martaOpen-0": {
+   "file": "c2martaOpen-0.ogg",
+   "who": "marta",
+   "dur": 6.54,
+   "hash": "d349c1043580"
+  },
+  "c2witchHi-0": {
+   "file": "c2witchHi-0.ogg",
+   "who": "witch",
+   "dur": 4.5,
+   "hash": "f4836a9c8d27"
+  },
+  "c2witchHi-1": {
+   "file": "c2witchHi-1.ogg",
+   "who": "witch",
+   "dur": 2.61,
+   "hash": "71b1184c63f4"
+  },
+  "c2witchDown-0": {
+   "file": "c2witchDown-0.ogg",
+   "who": "witch",
+   "dur": 3.09,
+   "hash": "1936a94a5930"
+  },
+  "c2choirHi-0": {
+   "file": "c2choirHi-0.ogg",
+   "who": "choir",
+   "dur": 2.3,
+   "hash": "77209d98f40b"
+  },
+  "c2choirHi-1": {
+   "file": "c2choirHi-1.ogg",
+   "who": "choir",
+   "dur": 5.3,
+   "hash": "57927485f92e"
+  },
+  "c2choirDown-0": {
+   "file": "c2choirDown-0.ogg",
+   "who": "choir",
+   "dur": 8.22,
+   "hash": "681af3e489d8"
+  },
+  "c2rise-0": {
+   "file": "c2rise-0.ogg",
+   "who": "odile",
+   "dur": 4.05,
+   "hash": "a6dd450195f5"
+  },
+  "c2rise-1": {
+   "file": "c2rise-1.ogg",
+   "who": "odile",
+   "dur": 3.23,
+   "hash": "8708d478ec71"
+  },
+  "c2lit-0": {
+   "file": "c2lit-0.ogg",
+   "who": "odile",
+   "dur": 6.71,
+   "hash": "4129425e1f4c"
+  },
+  "c2lit-1": {
+   "file": "c2lit-1.ogg",
+   "who": "odile",
+   "dur": 4.77,
+   "hash": "61c6e571a5f6"
+  },
+  "c2pedestal-0": {
+   "file": "c2pedestal-0.ogg",
+   "who": "narrator",
+   "dur": 5.34,
+   "hash": "bca577f0f53d"
+  },
+  "c2lanternOn-0": {
+   "file": "c2lanternOn-0.ogg",
+   "who": "narrator",
+   "dur": 3.93,
+   "hash": "fb2b49e019c3"
+  },
+  "c2gus-0": {
+   "file": "c2gus-0.ogg",
+   "who": "gus",
+   "dur": 6.99,
+   "hash": "8bb6ec114a23"
+  },
+  "c2gus-1": {
+   "file": "c2gus-1.ogg",
+   "who": "gus",
+   "dur": 3.81,
+   "hash": "b2d6cbf839cf"
+  },
+  "c2juna-0": {
+   "file": "c2juna-0.ogg",
+   "who": "juna",
+   "dur": 5.79,
+   "hash": "199ae966ebde"
+  },
+  "c2bo-0": {
+   "file": "c2bo-0.ogg",
+   "who": "bo",
+   "dur": 7.54,
+   "hash": "0d0aff431815"
+  },
+  "c2nell-0": {
+   "file": "c2nell-0.ogg",
+   "who": "nell",
+   "dur": 3.78,
+   "hash": "9e5e249deebc"
+  },
+  "c2tuck-0": {
+   "file": "c2tuck-0.ogg",
+   "who": "tuck",
+   "dur": 5.71,
+   "hash": "31cbe1089639"
+  },
+  "c2pell-0": {
+   "file": "c2pell-0.ogg",
+   "who": "pell",
+   "dur": 6.43,
+   "hash": "cf794c6c4433"
+  },
+  "c2pell-1": {
+   "file": "c2pell-1.ogg",
+   "who": "pell",
+   "dur": 6.07,
+   "hash": "757502cda7af"
+  },
+  "c2pellLit-0": {
+   "file": "c2pellLit-0.ogg",
+   "who": "pell",
+   "dur": 8.7,
+   "hash": "7300a0589760"
+  },
+  "c2sela-0": {
+   "file": "c2sela-0.ogg",
+   "who": "sela2",
+   "dur": 5.26,
+   "hash": "d83fa7402b50"
+  },
+  "c2folk1-0": {
+   "file": "c2folk1-0.ogg",
+   "who": "folk1",
+   "dur": 6.17,
+   "hash": "d10ed1cc33c7"
+  },
+  "c2folk2-0": {
+   "file": "c2folk2-0.ogg",
+   "who": "folk2",
+   "dur": 6.94,
+   "hash": "e7c9de74d16d"
+  },
+  "c2folkLit-0": {
+   "file": "c2folkLit-0.ogg",
+   "who": "folk1",
+   "dur": 5.66,
+   "hash": "1002b3feeebc"
+  },
+  "c2finnHome-0": {
+   "file": "c2finnHome-0.ogg",
+   "who": "finn",
+   "dur": 5.85,
+   "hash": "10800cda03e1"
+  },
+  "finnFound-0": {
+   "file": "finnFound-0.ogg",
+   "who": "finn",
+   "dur": 5.42,
+   "hash": "a8ffeb29b379"
+  },
+  "finnFound-1": {
+   "file": "finnFound-1.ogg",
+   "who": "finn",
+   "dur": 4.08,
+   "hash": "dee5eb104fbf"
+  },
+  "topic-odile-lore": {
+   "file": "topic-odile-lore.ogg",
+   "who": "odile",
+   "dur": 9.63,
+   "hash": "4483b054bf0d"
+  },
+  "topic-odile-about": {
+   "file": "topic-odile-about.ogg",
+   "who": "odile",
+   "dur": 6.02,
+   "hash": "986bc7e12769"
+  },
+  "topic-mirelle-lore": {
+   "file": "topic-mirelle-lore.ogg",
+   "who": "mirelle",
+   "dur": 11.08,
+   "hash": "a6a13fb694a5"
+  },
+  "topic-mirelle-about": {
+   "file": "topic-mirelle-about.ogg",
+   "who": "mirelle",
+   "dur": 7.24,
+   "hash": "221f1141b3ff"
+  },
+  "talk-odile-0": {
+   "file": "talk-odile-0.ogg",
+   "who": "odile",
+   "dur": 11.36,
+   "hash": "0bc38197ff66"
+  },
+  "talk-odile-1": {
+   "file": "talk-odile-1.ogg",
+   "who": "odile",
+   "dur": 8.68,
+   "hash": "1f660d1dc6ff"
+  },
+  "talk-mirelle-0": {
+   "file": "talk-mirelle-0.ogg",
+   "who": "mirelle",
+   "dur": 8.21,
+   "hash": "d6bfe81c6eb9"
+  },
+  "talk-mirelle-1": {
+   "file": "talk-mirelle-1.ogg",
+   "who": "mirelle",
+   "dur": 8.25,
+   "hash": "e8e564a2394b"
+  },
+  "pq-c2p1-offer-0": {
+   "file": "pq-c2p1-offer-0.ogg",
+   "who": "bo",
+   "dur": 7.84,
+   "hash": "29371d92aaa0"
+  },
+  "pq-c2p1-done-0": {
+   "file": "pq-c2p1-done-0.ogg",
+   "who": "bo",
+   "dur": 3.78,
+   "hash": "e1e3c8236ada"
+  },
+  "pq-c2p2-offer-0": {
+   "file": "pq-c2p2-offer-0.ogg",
+   "who": "bo",
+   "dur": 6.54,
+   "hash": "dab8c402596a"
+  },
+  "pq-c2p2-done-0": {
+   "file": "pq-c2p2-done-0.ogg",
+   "who": "bo",
+   "dur": 3.04,
+   "hash": "0eb9d7f41c98"
+  },
+  "pq-c2p3-offer-0": {
+   "file": "pq-c2p3-offer-0.ogg",
+   "who": "ada",
+   "dur": 6.21,
+   "hash": "560eb9d7639d"
+  },
+  "pq-c2p3-done-0": {
+   "file": "pq-c2p3-done-0.ogg",
+   "who": "ada",
+   "dur": 5.23,
+   "hash": "a41d96fe70b0"
+  },
+  "pq-c2p4-offer-0": {
+   "file": "pq-c2p4-offer-0.ogg",
+   "who": "ada",
+   "dur": 5.78,
+   "hash": "22c7f8f97088"
+  },
+  "pq-c2p4-done-0": {
+   "file": "pq-c2p4-done-0.ogg",
+   "who": "ada",
+   "dur": 3.2,
+   "hash": "155d46368d76"
+  },
+  "pq-c2p5-offer-0": {
+   "file": "pq-c2p5-offer-0.ogg",
+   "who": "gus",
+   "dur": 7.54,
+   "hash": "988b138825c2"
+  },
+  "pq-c2p5-done-0": {
+   "file": "pq-c2p5-done-0.ogg",
+   "who": "gus",
+   "dur": 4.18,
+   "hash": "ae273df7dff5"
+  },
+  "pq-c2p6-offer-0": {
+   "file": "pq-c2p6-offer-0.ogg",
+   "who": "gus",
+   "dur": 7.7,
+   "hash": "2e02b49865f7"
+  },
+  "pq-c2p6-done-0": {
+   "file": "pq-c2p6-done-0.ogg",
+   "who": "gus",
+   "dur": 4.11,
+   "hash": "26cb9e9fb750"
+  },
+  "pq-c2p7-offer-0": {
+   "file": "pq-c2p7-offer-0.ogg",
+   "who": "juna",
+   "dur": 6.28,
+   "hash": "348522538e3b"
+  },
+  "pq-c2p7-done-0": {
+   "file": "pq-c2p7-done-0.ogg",
+   "who": "juna",
+   "dur": 4.35,
+   "hash": "a75173a3b244"
+  },
+  "pq-c2p8-offer-0": {
+   "file": "pq-c2p8-offer-0.ogg",
+   "who": "tuck",
+   "dur": 7.98,
+   "hash": "c6f08d80c6a4"
+  },
+  "pq-c2p8-done-0": {
+   "file": "pq-c2p8-done-0.ogg",
+   "who": "tuck",
+   "dur": 4.46,
+   "hash": "5ec0158eeef4"
+  },
+  "pq-c2p8-given-0": {
+   "file": "pq-c2p8-given-0.ogg",
+   "who": "pell",
+   "dur": 6.07,
+   "hash": "0b251a238198"
+  },
+  "pq-c2p9-offer-0": {
+   "file": "pq-c2p9-offer-0.ogg",
+   "who": "nell",
+   "dur": 5.62,
+   "hash": "83b0dbf3302c"
+  },
+  "pq-c2p9-done-0": {
+   "file": "pq-c2p9-done-0.ogg",
+   "who": "nell",
+   "dur": 5.11,
+   "hash": "8bd4a92242e5"
+  },
+  "pq-c2p9-found-0": {
+   "file": "pq-c2p9-found-0.ogg",
+   "who": "nell",
+   "dur": 5.41,
+   "hash": "9974a86a616d"
+  },
+  "pq-c2p10-offer-0": {
+   "file": "pq-c2p10-offer-0.ogg",
+   "who": "tuck",
+   "dur": 7.28,
+   "hash": "64c9de615e23"
+  },
+  "pq-c2p10-done-0": {
+   "file": "pq-c2p10-done-0.ogg",
+   "who": "tuck",
+   "dur": 3.6,
+   "hash": "8b755f783fd9"
+  },
+  "pq-c2p11-offer-0": {
+   "file": "pq-c2p11-offer-0.ogg",
+   "who": "juna",
+   "dur": 7.02,
+   "hash": "f51e232aa86c"
+  },
+  "pq-c2p11-done-0": {
+   "file": "pq-c2p11-done-0.ogg",
+   "who": "juna",
+   "dur": 3.72,
+   "hash": "405ea2c5f199"
+  },
+  "q-c2_crabs-offer-0": {
+   "file": "q-c2_crabs-offer-0.ogg",
+   "who": "bo",
+   "dur": 7.26,
+   "hash": "082422cd06d2"
+  },
+  "q-c2_crabs-done-0": {
+   "file": "q-c2_crabs-done-0.ogg",
+   "who": "bo",
+   "dur": 6.27,
+   "hash": "b48100a5ee45"
+  },
+  "q-finn-offer-0": {
+   "file": "q-finn-offer-0.ogg",
+   "who": "nell",
+   "dur": 7.45,
+   "hash": "2d2d4cfd49af"
+  },
+  "q-finn-done-0": {
+   "file": "q-finn-done-0.ogg",
+   "who": "nell",
+   "dur": 5.98,
+   "hash": "6f0af3a579fd"
+  },
+  "q-c2_boars-offer-0": {
+   "file": "q-c2_boars-offer-0.ogg",
+   "who": "ada",
+   "dur": 7.2,
+   "hash": "3b6ac825d1f0"
+  },
+  "q-c2_boars-done-0": {
+   "file": "q-c2_boars-done-0.ogg",
+   "who": "ada",
+   "dur": 6.99,
+   "hash": "32f84c16dd13"
+  },
+  "q-c2_imps-offer-0": {
+   "file": "q-c2_imps-offer-0.ogg",
+   "who": "gus",
+   "dur": 7.1,
+   "hash": "4be726b5cbbb"
+  },
+  "q-c2_imps-done-0": {
+   "file": "q-c2_imps-done-0.ogg",
+   "who": "gus",
+   "dur": 6.54,
+   "hash": "51478dd8433c"
+  },
+  "q-c2_hexers-offer-0": {
+   "file": "q-c2_hexers-offer-0.ogg",
+   "who": "juna",
+   "dur": 9.13,
+   "hash": "a788b6754c3a"
+  },
+  "q-c2_hexers-done-0": {
+   "file": "q-c2_hexers-done-0.ogg",
+   "who": "juna",
+   "dur": 6.67,
+   "hash": "278ee1438ced"
   }
  }
 }

@@ -1,57 +1,70 @@
-# Hollowmere: The Lantern Road
+# Hollowmere
 
-**Version 1.8.1** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 2.0.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
-A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
-kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
-Lantern went dark and its three Embers were stolen. As the old lamplighter's apprentices, you
-cross the Greywood, the Mirefen and the Old Quarry, and down into the Deep Mine, to bring the
-fire home and learn why it was taken.
+A 2.5D story RPG for **1 or 2 players**, told in chapters.
 
-- 7 areas including **2 dungeons** (the Barrow Crypt and the Deep Mine: dark halls lit by
-  torches, pots to smash, chests to open), 17 story steps, 5 bosses and a full ending
-- **9 story side quests** from the villagers (hunt wolves, crawlers and mites, rescue Bram's
-  apprentice from the Crypt Knight, find Pip's lost dog, dig up star iron, and three animals)
-- **A pool of 30 more tasks**: after their own quests, Bram, Hana, Odo, Pip, Sela and Tobin each
-  hand out one task at a time, picked at random from those that fit the story so far: hunts,
-  things to collect, people to rescue, deliveries and named elite foes. Rewards (coins, iron ore,
-  often gear) grow with your level. A task can be dropped, and finished tasks come round again.
-- **A cat** (Hana's lost kitten) follows player 1: it picks up loot and fights at your side with
-  half your attack, defence and health, and runs one and a half times as fast as you
-- **Mounts:** a horse (Odo's quest, or 700 coins at Hana's store) and a wolf (Bram's quest, or
-  900 coins) that bites the foes you run into. Both heroes ride; you get down in dungeons.
-- **Gear:** swords, bows and flintlock guns; helmets, body armour and boots, bought at Tobin's
-  forge or won from quests and chests, and changed on the Equipment screen (per hero in co-op)
-- **The Rift**: an endless dungeon under the hill, opened at level 6 (or after the ending). Every
-  floor is generated anew: clear it to open the stairs down; every fifth floor has a guardian and
-  an old stone tablet that tells a little more of what lies below. You can start again from every
-  fifth floor you have reached. **Your deepest floor is your score on My PC's top-10 table.**
-- **Bestiary** (hold OK menu): every creature you meet, with its picture, a note and how many you
-  have defeated; **21 hidden treasures** buried around the world (your cat sniffs them out)
-- After the ending, a new mystery: something below the hill remembers the Hush
-- Hana sells small and big potions; coins come from foes, pots, chests, treasures and quests
-- **Pixel art by Kenney** (CC0): heroes are built from layers, so every helmet, armour and weapon
-  you wear shows; villagers, monsters, houses, trees, walls and floors come from Tiny Town and
-  Tiny Dungeon. Movement is animated in code (bob, tilt, lunge, hit flash).
-- **Abilities:** Healing (20% of your health, 10 s cooldown), Power attack (a ground slam that
-  hits everything around you) and Distant attack (a bolt of light that goes through every foe in a
-  line). They burn **stamina**, the blue bar under your health, which fills as you defeat foes
-  (bosses and named elites give more). Each ability box on the screen darkens while it cools down.
-- **Equipment screen** with pictures: a box for every piece (its name on top, rarity colour, +level,
-  a tick on what you wear), tabs for weapon, head, body and feet, and a details panel that compares
-  the chosen piece with what you wear (▲ better, ▼ worse)
-- **Mounts screen** to switch between walking, the horse and the wolf
-- **Settings:** voice speed (0.75× to 2×, the pitch stays natural) and button mapping
-- Hit-pause, critical hits, sparks, slash trails, arrows, muzzle flash and smoke, rings of light,
-  running dust, spinning coins that fly to you
-- The quest box folds into a small badge 10 seconds after each new step
-- **Loot:** common, rare, epic and legendary gear with random bonuses (attack, defence, crit,
-  speed, health, extra coins); Tobin upgrades any piece from +1 to +5 with coins and iron ore,
-  and buys what you don't need
-- The main characters (**Maren, Tobin, Sela, Corvin**) answer your questions; new questions
-  open up as the story goes on, and every question shown always has an answer
-- English, French, Spanish and Arabic (right to left)
-- Saves on every step, top-10 table for the Rift, Voice Guide support
+## Chapter 1: The Lantern Road
+
+For three hundred years the Great Lantern of Hollowmere kept the Hush, a grey fog that eats
+sound, colour and memory, beyond the trees. Last night the Lantern went dark and its three Embers
+were stolen. As the old lamplighter's apprentices, you cross the Greywood, the Mirefen and the Old
+Quarry, and down into the Deep Mine, to bring the fire home and learn why it was taken.
+
+- 7 areas including **2 dungeons**, 17 story steps, 5 bosses and a full ending
+- **9 story side quests** and **a pool of 30 more tasks** (hunts, things to collect, people to rescue,
+  deliveries, named elite foes), handed out one at a time by the villagers
+- **The Rift** under the hill (level 6, or after the ending): **ten floors**, each generated anew and
+  tougher than the last, with archers, musketeers and hexers from floor 3; guardians on floors 5 and 10.
+  Conquer all ten for a legendary piece of gear. Your run goes to My PC's top-10 table.
+
+## Chapter 2: The Sunken Lantern
+
+After the ending, Sela can sail you across the lake to **Larkspur Bay**. A hundred years ago its own
+Lantern sank into the sea with the old lighthouse; now masked raiders, the **Grey Choir**, rob its
+farms for the Hush. Win back the Lantern's **Lens** from Captain Rook, its **Flame** from the
+Cinder Witch, ring the tide bell, and go down into the Sunken Lighthouse to face the Choirmaster.
+
+- **A new look with depth:** raised cliffs and walls with shadows, layered trees, houses with sloped
+  roofs, animated water, lava and windmill, light weather in every place (sea spray, pollen, embers,
+  dark motes), all drawn in code
+- 4 areas: the harbour town of **Larkspur** (13 townsfolk, a market, a fountain, a quiet melody),
+  the **Sunpetal Fields** (farm, river, beach, raider camp and fort), **Cinder Ridge** (lava, ash,
+  dead pines) and the dark **Sunken Lighthouse**, each with its own music
+- **Three bosses with real patterns:** Rook dashes along a red line (dazed if he hits a wall), throws
+  bombs and whistles for archers; the Witch spins fire spirals, burns circles under you, makes mirror
+  images and hides behind a shield held by three crystals; the Choirmaster sends rings of sound
+  with one gap, turns a beam around the hall and calls hexers
+- Cut-scenes at the big moments (arrival, the bosses, the tide going out, the Lantern rising)
+- 5 side quests and 11 tasks, tier 4 gear (sea steel) at Gus's forge, warm bread at Tuck's bakery,
+  and one quest that sends a letter back to Maren in Hollowmere
+- The horse sails with you; the wolf stays home in the Greywood
+
+## In both chapters
+
+- **Heroes drawn in clothes:** tunic, belt, boots and cape, and every helmet, armour and pair of boots
+  you wear changes how you look (leather, chainmail, plate, tide mail, a mage robe); 4 directions,
+  walking legs; epic and legendary weapons shine in your hand
+- **Weapons:** swords, bows, flintlock guns and **magic staffs** (a glowing bolt that bends toward
+  foes). **Attacks aim themselves** at the nearest foe in reach.
+- **Abilities:** Healing (20% of your health, 10 s), Power attack (a ground slam) and Distant attack
+  (a bolt through every foe in a line), fuelled by **stamina** that fills as you defeat foes
+- **Armed foes:** archers and musketeers aim with a warning (a drawn bow, a red line), hexers throw
+  homing orbs and vanish when you get close, raiders shake before they lunge, boars charge
+- **A cat** that wanders near you, sits when you stop, picks up loot, fights at your side and hides
+  behind you when hurt; **mounts** (a horse, and a wolf in chapter 1) with hoof sounds
+- Gear with rarities and random bonuses, upgrades from +1 to +5, an **Equipment screen** with
+  pictures and a details panel, a **Mounts screen**, **Settings** (voice speed, button mapping, Return)
+- Each hero cries out when hit; hit-pause, critical hits, sparks, slash trails, rings of light
+- English, French, Spanish and Arabic (right to left; the Arabic is written in plain, simple words)
+- Saves on every step, Voice Guide support, recorded Arabic voices
+
+## Chapters (app config)
+
+Each chapter is loaded only while you are in it: travelling to chapter 2 loads its pack and lets go
+of chapter 1's maps, music and code, and the other way round. The owner chooses the chapters with the
+app config key `chapters` (default `"ch2"`; `""` or `"none"` keeps only chapter 1). How to add a
+chapter: **[docs/CHAPTER_API.md](docs/CHAPTER_API.md)**.
 
 ## Controls
 
@@ -64,7 +77,8 @@ fire home and learn why it was taken.
 | Healing | (quick menu) | Backspace | B |
 | Quick menu (journal, abilities, potions, equipment, mounts, bestiary, settings) | hold OK | hold Enter | hold A |
 | Return: close a menu, end a conversation | hold OK (in menus) | hold Enter | hold A |
-| Pause menu | Back | Esc / P | Start |
+| Pause menu | Back | Esc / P | hold Start |
+| Quick menu (also) | | | Start |
 
 Those are the default buttons. In **Settings** each action (attack, quick menu, healing, power
 attack, distant attack, potion, ride / walk) can be put on OK, OK twice, hold OK, the run button,
@@ -126,7 +140,7 @@ Every dialogue line and story page is spoken, in this order:
 3. otherwise **nothing**: the text stays on screen and goes to the TV's Voice Guide.
 
 Clips are downloaded one line at a time while playing, and the music gets quieter while someone
-speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic** (209 lines, 5.4 MB).
+speaks. Voices follow the sound-effects volume in My PC. Recorded so far: **Arabic**, both chapters (316 lines).
 
 ### Making the recordings (free, offline)
 
@@ -161,11 +175,16 @@ the optional Kokoro engine.
 | `index.html` | page, styles, HUD and dialog layout |
 | `mypc-app.json` | My PC manifest (`id: hollowmere-lantern-road`) |
 | `icon.svg` | icon |
-| `js/game.js` | engine: loop, players, foes, bosses, story, rendering |
-| `js/maps.js` | the seven areas, dungeons included |
-| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js`, `js/i18n_rift.js`, `js/i18n_play.js` | all texts in 4 languages (story; gear, dungeons, side quests; abilities and settings) |
-| `js/items.js` | gear, shops, mounts, story side quests and chests (data) |
-| `js/pool.js` | the 30 pool tasks, with their texts in 4 languages |
+| `js/game.js` | the engine: loop, players, foes, combat, screens, the chapter interface (`API`) |
+| `js/chapters.js` | the list of chapters and the loader |
+| `js/hero.js` | people drawn in code, in clothes (heroes, Chapter 2 townsfolk, armed foes) |
+| `chapters/ch1/story.js` | Chapter 1's story, people and world (uses `js/maps.js`, `js/pool.js`, `js/rift.js`) |
+| `chapters/ch2/` | Chapter 2: `text.js` (4 languages, tasks), `maps.js`, `art.js` (2.5D art in code), `chapter.js` |
+| `docs/CHAPTER_API.md` | how to add a chapter |
+| `js/maps.js` | Chapter 1's seven areas, dungeons included |
+| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js`, `js/i18n_rift.js`, `js/i18n_play.js` | texts in 4 languages (shared menus, Chapter 1's story, abilities and settings) |
+| `js/items.js` | gear (tiers 1 to 4, staffs), shops, mounts, Chapter 1's side quests and chests |
+| `js/pool.js` | Chapter 1's 30 tasks, with their texts in 4 languages |
 | `js/rift.js` | builds each Rift floor from a seed (always fully reachable) |
 | `js/kenney.js`, `assets/kenney/` | the Kenney sprite sheets (21 KB) and how the game uses them |
 | `js/art.js` | art drawn in code: water, the Lantern, animals, effects, and everything if the sheets can't load |
@@ -184,7 +203,7 @@ TVs cache files, so every file the game loads carries `?v=<version>`, the same a
 `mypc-app.json`. One command updates all of it:
 
 ```
-node tools/release.js 1.8.0
+node tools/release.js 2.0.0
 ```
 
 ## Credits

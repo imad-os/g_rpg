@@ -47,7 +47,8 @@ window.HM_KN = (function () {
         // helmets, body armour, boots
         leather_cap: 137, iron_helm: 82, knight_helm: 28,
         padded_vest: 338, chainmail: 284, plate_armor: 226,
-        leather_boots: 58, swift_boots: 220, iron_greaves: 112
+        leather_boots: 58, swift_boots: 220, iron_greaves: 112,
+        tide_blade: 530, gale_bow: 106, coral_helm: 28, tide_mail: 226, wave_boots: 220, mage_robe: 14
     };
     function hero(i, weapon, head, body, feet) {
         const key = 'h' + i + weapon + head + body + feet;

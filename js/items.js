@@ -4,7 +4,7 @@
  * flintlock guns (slow to reload, hit hard, go through one foe).
  *   atk: damage   cd: frames between attacks   def: armour (6% less damage per point)
  *   spd: extra walking speed (0.1 = 10%)       price: coins at the forge (0 = not sold)
- *   tier: 1-3, which areas drop it (and how much upgrades and bonuses are worth)
+ *   tier: 1-4 (4: chapter 2), which areas drop it (and how much upgrades and bonuses are worth)
  */
 window.HM_ITEMS = {
     stick:        { slot: 'weapon', tier: 0, kind: 'sword', atk: 1, cd: 20, price: 0,   col: '#a07a4a', col2: '#6b4a2e' },
@@ -23,7 +23,20 @@ window.HM_ITEMS = {
     plate_armor:  { slot: 'body', tier: 3, def: 5, spd: -0.08, price: 380, col: '#d0d8e4', col2: '#c9a43a' },
     leather_boots:{ slot: 'feet', tier: 1, def: 0, spd: 0.1,  price: 35,  col: '#6b4a2e' },
     swift_boots:  { slot: 'feet', tier: 2, def: 1, spd: 0.2,  price: 160, col: '#3a8a5a' },
-    iron_greaves: { slot: 'feet', tier: 2, def: 2, spd: 0,    price: 130, col: '#9aa2ae' }
+    iron_greaves: { slot: 'feet', tier: 2, def: 2, spd: 0,    price: 130, col: '#9aa2ae' },
+    // magic staffs: a glowing bolt that bends toward foes
+    oak_staff:    { slot: 'weapon', tier: 1, kind: 'staff', atk: 2, cd: 28, price: 90,  col: '#7fd8ff', col2: '#6b4a2e' },
+    ember_staff:  { slot: 'weapon', tier: 2, kind: 'staff', atk: 4, cd: 26, price: 230, col: '#ff8a3a', col2: '#5a3418' },
+    star_staff:   { slot: 'weapon', tier: 3, kind: 'staff', atk: 7, cd: 24, price: 390, col: '#c77dff', col2: '#3a2a4a' },
+    mage_robe:    { slot: 'body', tier: 3, def: 2, spd: 0.05, price: 240, col: '#a8322e' },
+    // chapter 2 (Larkspur Bay): tier 4
+    tide_blade:   { slot: 'weapon', tier: 4, kind: 'sword', atk: 11, cd: 18, price: 620, col: '#bff6ff', col2: '#1d6668' },
+    gale_bow:     { slot: 'weapon', tier: 4, kind: 'bow',   atk: 7, cd: 21, price: 580, col: '#3a8a8a', col2: '#e8f6ff' },
+    storm_musket: { slot: 'weapon', tier: 4, kind: 'gun',   atk: 15, cd: 74, price: 740, col: '#4a5a6a', col2: '#2a3a4a' },
+    tide_staff:   { slot: 'weapon', tier: 4, kind: 'staff', atk: 10, cd: 22, price: 700, col: '#5affd8', col2: '#1d4a5a' },
+    coral_helm:   { slot: 'head', tier: 4, def: 4, price: 430, col: '#3fb0a6' },
+    tide_mail:    { slot: 'body', tier: 4, def: 7, price: 690, col: '#2f9c9a' },
+    wave_boots:   { slot: 'feet', tier: 4, def: 2, spd: 0.22, price: 490, col: '#1d6668' }
 };
 window.HM_SLOTS = ['weapon', 'head', 'body', 'feet'];
 
@@ -43,7 +56,7 @@ window.HM_LOOT = {
 
 // what each shop sells, in order. Tobin's forge opens once he has forged your first sword.
 window.HM_SHOPS = {
-    forge: ['steel_sword', 'knight_blade', 'hunter_bow', 'long_bow', 'flintlock', 'musket',
+    forge: ['steel_sword', 'knight_blade', 'hunter_bow', 'long_bow', 'flintlock', 'musket', 'oak_staff', 'ember_staff', 'star_staff', 'mage_robe',
             'leather_cap', 'iron_helm', 'knight_helm', 'padded_vest', 'chainmail', 'plate_armor',
             'leather_boots', 'swift_boots', 'iron_greaves'],
     potions: [{ id: 'small', price: 8, heal: 8 }, { id: 'big', price: 20, heal: 99 }]

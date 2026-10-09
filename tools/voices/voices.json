@@ -29,7 +29,7 @@
     "lira": {
       "engine": "piper",
       "model": "en_US-amy-medium",
-      "speed": 1.0
+      "speed": 1
     },
     "hana": {
       "engine": "piper",
@@ -49,7 +49,7 @@
     "odo": {
       "engine": "piper",
       "model": "en_US-john-medium",
-      "speed": 1.0
+      "speed": 1
     },
     "tam": {
       "engine": "piper",
@@ -60,6 +60,91 @@
       "engine": "piper",
       "model": "en_US-hfc_female-medium",
       "speed": 0.85
+    },
+    "odile": {
+      "engine": "piper",
+      "model": "en_GB-southern_english_female-low",
+      "speed": 1.1
+    },
+    "mirelle": {
+      "engine": "piper",
+      "model": "en_GB-cori-medium",
+      "speed": 1.12
+    },
+    "gus": {
+      "engine": "piper",
+      "model": "en_GB-northern_english_male-medium",
+      "speed": 1.05
+    },
+    "juna": {
+      "engine": "piper",
+      "model": "en_US-kristin-medium",
+      "speed": 0.95
+    },
+    "bo": {
+      "engine": "piper",
+      "model": "en_US-john-medium",
+      "speed": 1
+    },
+    "nell": {
+      "engine": "piper",
+      "model": "en_US-hfc_female-medium",
+      "speed": 0.9
+    },
+    "tuck": {
+      "engine": "piper",
+      "model": "en_US-joe-medium",
+      "speed": 1.05
+    },
+    "pell": {
+      "engine": "piper",
+      "model": "en_US-ryan-medium",
+      "speed": 1.1
+    },
+    "marta": {
+      "engine": "piper",
+      "model": "en_US-john-medium",
+      "speed": 1.05
+    },
+    "sela2": {
+      "engine": "piper",
+      "model": "en_GB-southern_english_female-low",
+      "speed": 1.1
+    },
+    "folk1": {
+      "engine": "piper",
+      "model": "en_US-kristin-medium",
+      "speed": 1
+    },
+    "folk2": {
+      "engine": "piper",
+      "model": "en_US-joe-medium",
+      "speed": 1.1
+    },
+    "ada": {
+      "engine": "piper",
+      "model": "en_US-kristin-medium",
+      "speed": 0.93
+    },
+    "finn": {
+      "engine": "piper",
+      "model": "en_US-hfc_female-medium",
+      "speed": 0.95
+    },
+    "rook": {
+      "engine": "piper",
+      "model": "en_US-joe-medium",
+      "speed": 1
+    },
+    "witch": {
+      "engine": "piper",
+      "model": "en_US-amy-medium",
+      "speed": 1.08
+    },
+    "choir": {
+      "engine": "piper",
+      "model": "en_US-ryan-medium",
+      "speed": 0.95
     }
   },
   "fr": {
@@ -109,12 +194,12 @@
     "bram": {
       "engine": "piper",
       "model": "fr_FR-gilles-low",
-      "speed": 1.0
+      "speed": 1
     },
     "odo": {
       "engine": "piper",
       "model": "fr_FR-tom-medium",
-      "speed": 1.0
+      "speed": 1
     },
     "tam": {
       "engine": "piper",
@@ -125,6 +210,98 @@
       "engine": "piper",
       "model": "fr_FR-siwis-medium",
       "speed": 0.85
+    },
+    "odile": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 0,
+      "speed": 1.1
+    },
+    "mirelle": {
+      "engine": "piper",
+      "model": "fr_FR-siwis-medium",
+      "speed": 1.12
+    },
+    "gus": {
+      "engine": "piper",
+      "model": "fr_FR-gilles-low",
+      "speed": 1.05
+    },
+    "juna": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 0,
+      "speed": 0.95
+    },
+    "bo": {
+      "engine": "piper",
+      "model": "fr_FR-tom-medium",
+      "speed": 1
+    },
+    "nell": {
+      "engine": "piper",
+      "model": "fr_FR-siwis-medium",
+      "speed": 0.88
+    },
+    "tuck": {
+      "engine": "piper",
+      "model": "fr_FR-gilles-low",
+      "speed": 1
+    },
+    "pell": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 1,
+      "speed": 1.1
+    },
+    "marta": {
+      "engine": "piper",
+      "model": "fr_FR-tom-medium",
+      "speed": 1.05
+    },
+    "sela2": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 0,
+      "speed": 1.1
+    },
+    "folk1": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 0,
+      "speed": 1
+    },
+    "folk2": {
+      "engine": "piper",
+      "model": "fr_FR-gilles-low",
+      "speed": 1.05
+    },
+    "ada": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 0,
+      "speed": 0.93
+    },
+    "finn": {
+      "engine": "piper",
+      "model": "fr_FR-siwis-medium",
+      "speed": 0.95
+    },
+    "rook": {
+      "engine": "piper",
+      "model": "fr_FR-gilles-low",
+      "speed": 0.95
+    },
+    "witch": {
+      "engine": "piper",
+      "model": "fr_FR-siwis-medium",
+      "speed": 1.03
+    },
+    "choir": {
+      "engine": "piper",
+      "model": "fr_FR-upmc-medium",
+      "speaker": 1,
+      "speed": 0.95
     }
   },
   "es": {
@@ -177,12 +354,12 @@
       "engine": "piper",
       "model": "es_ES-sharvard-medium",
       "speaker": 0,
-      "speed": 1.0
+      "speed": 1
     },
     "odo": {
       "engine": "piper",
       "model": "es_ES-davefx-medium",
-      "speed": 1.0
+      "speed": 1
     },
     "tam": {
       "engine": "piper",
@@ -195,6 +372,103 @@
       "model": "es_ES-sharvard-medium",
       "speaker": 1,
       "speed": 0.85
+    },
+    "odile": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 1.05
+    },
+    "mirelle": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 1.12
+    },
+    "gus": {
+      "engine": "piper",
+      "model": "es_ES-carlfm-x_low",
+      "speed": 1.05
+    },
+    "juna": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 0.95
+    },
+    "bo": {
+      "engine": "piper",
+      "model": "es_ES-davefx-medium",
+      "speed": 1
+    },
+    "nell": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 0.88
+    },
+    "tuck": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 0,
+      "speed": 1
+    },
+    "pell": {
+      "engine": "piper",
+      "model": "es_MX-ald-medium",
+      "speed": 1.1
+    },
+    "marta": {
+      "engine": "piper",
+      "model": "es_ES-davefx-medium",
+      "speed": 1.05
+    },
+    "sela2": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 1.05
+    },
+    "folk1": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 1
+    },
+    "folk2": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 0,
+      "speed": 1.05
+    },
+    "ada": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 0.93
+    },
+    "finn": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 0.95
+    },
+    "rook": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 0,
+      "speed": 0.95
+    },
+    "witch": {
+      "engine": "piper",
+      "model": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "speed": 1.03
+    },
+    "choir": {
+      "engine": "piper",
+      "model": "es_MX-ald-medium",
+      "speed": 0.95
     }
   },
   "ar": {
@@ -221,7 +495,7 @@
     "corvin": {
       "engine": "piper",
       "model": "ar_JO-kareem-medium",
-      "speed": 1.0
+      "speed": 1
     },
     "lira": {
       "engine": "piper",
@@ -241,12 +515,12 @@
     "bram": {
       "engine": "piper",
       "model": "ar_JO-kareem-low",
-      "speed": 1.0
+      "speed": 1
     },
     "odo": {
       "engine": "piper",
       "model": "ar_JO-kareem-low",
-      "speed": 1.0
+      "speed": 1
     },
     "tam": {
       "engine": "piper",
@@ -257,6 +531,91 @@
       "engine": "piper",
       "model": "ar_JO-kareem-medium",
       "speed": 0.85
+    },
+    "odile": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 1.1
+    },
+    "mirelle": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 1.15
+    },
+    "gus": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-low",
+      "speed": 1.05
+    },
+    "juna": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 0.95
+    },
+    "bo": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-low",
+      "speed": 1
+    },
+    "nell": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 0.88
+    },
+    "tuck": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-low",
+      "speed": 1
+    },
+    "pell": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 1.05
+    },
+    "marta": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-low",
+      "speed": 1.05
+    },
+    "sela2": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 1.1
+    },
+    "folk1": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 1
+    },
+    "folk2": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-low",
+      "speed": 1.05
+    },
+    "ada": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 0.93
+    },
+    "finn": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 0.95
+    },
+    "rook": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-low",
+      "speed": 0.95
+    },
+    "witch": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 1.03
+    },
+    "choir": {
+      "engine": "piper",
+      "model": "ar_JO-kareem-medium",
+      "speed": 0.9
     }
   }
 }

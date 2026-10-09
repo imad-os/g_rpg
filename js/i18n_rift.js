@@ -25,7 +25,7 @@ en: {
     lines: {
         hookMaren: ['Did you feel that? Cold air, rising from the crack beside the Lantern.', 'The Hush did not come from nowhere. Something below remembers it. If you go down, go carefully, and come back up.'],
         tablet5: ['"We built the Lantern to remember. But a light needs a shadow, and we buried ours below." (the rest is worn away)'],
-        tablet10: ['"The Hush is not a fog. It is a forgetting that learned to move. We sealed its heart in the deep."'],
+        tablet10: ['"The Hush is not a fog. It is a forgetting that learned to move."', '"Every Lantern burns somewhere. Hollowmere\'s was the first, not the only. Another one sank long ago, across the lake."'],
         tablet15: ['"Every Lantern burns somewhere. Hollowmere\'s was the first, not the only. The others went dark long ago."'],
         tablet20: ['"If you read this, the seal is thin. The heart is waking. It remembers your name, Lamplighter."'],
         tablet25: ['(The tablet is blank, but warm, as if someone has only just stopped writing on it. To be continued...)']
@@ -57,7 +57,7 @@ fr: {
     lines: {
         hookMaren: ['Vous avez senti ? De l\'air froid qui monte de la fissure près de la Lanterne.', 'Le Silence n\'est pas venu de nulle part. Quelque chose, en bas, s\'en souvient. Si vous descendez, soyez prudents, et remontez.'],
         tablet5: ['« Nous avons bâti la Lanterne pour nous souvenir. Mais une lumière a besoin d\'une ombre, et nous avons enterré la nôtre en bas. » (la suite est effacée)'],
-        tablet10: ['« Le Silence n\'est pas un brouillard. C\'est un oubli qui a appris à bouger. Nous avons scellé son cœur dans les profondeurs. »'],
+        tablet10: ['« Le Silence n\'est pas un brouillard. C\'est un oubli qui a appris à bouger. »', '« Chaque Lanterne brûle quelque part. Celle de Hollowmere fut la première, pas la seule. Une autre a sombré il y a longtemps, de l\'autre côté du lac. »'],
         tablet15: ['« Chaque Lanterne brûle quelque part. Celle de Hollowmere fut la première, pas la seule. Les autres se sont éteintes il y a longtemps. »'],
         tablet20: ['« Si vous lisez ceci, le sceau s\'amincit. Le cœur s\'éveille. Il se souvient de votre nom, Allumeur. »'],
         tablet25: ['(La tablette est vierge, mais tiède, comme si quelqu\'un venait juste d\'arrêter d\'y écrire. À suivre...)']
@@ -89,7 +89,7 @@ es: {
     lines: {
         hookMaren: ['¿Lo has notado? Aire frío, subiendo de la grieta junto al Farol.', 'El Silencio no salió de la nada. Algo, abajo, lo recuerda. Si bajas, ten cuidado, y vuelve a subir.'],
         tablet5: ['«Construimos el Farol para recordar. Pero una luz necesita una sombra, y enterramos la nuestra abajo.» (el resto está borrado)'],
-        tablet10: ['«El Silencio no es una niebla. Es un olvido que aprendió a moverse. Sellamos su corazón en las profundidades.»'],
+        tablet10: ['«El Silencio no es una niebla. Es un olvido que aprendió a moverse.»', '«Cada Farol arde en algún lugar. El de Hollowmere fue el primero, no el único. Otro se hundió hace mucho, al otro lado del lago.»'],
         tablet15: ['«Cada Farol arde en algún lugar. El de Hollowmere fue el primero, no el único. Los demás se apagaron hace mucho.»'],
         tablet20: ['«Si lees esto, el sello es débil. El corazón despierta. Recuerda tu nombre, Farolero.»'],
         tablet25: ['(La tablilla está en blanco, pero tibia, como si alguien acabara de dejar de escribir en ella. Continuará...)']
@@ -98,36 +98,37 @@ es: {
 },
 ar: {
     ui: {
-        bestiary: 'سجلّ المخلوقات', unknown: '؟؟؟', defeated: 'المهزومون: {n}', treasures: 'كنوز مخفية', treasureFound: 'كنز مخفي!',
-        catSniff: 'قطّتكم تتشمّم شيئًا مدفونًا قريبًا...', riftName: 'الصدع', riftStart: 'النزول إلى الطابق 1', riftFrom: 'النزول إلى الطابق {n}',
-        riftFloor: 'الصدع · الطابق {n}', riftCleared: 'تم تطهير الطابق! الدرج إلى الأسفل مفتوح.', riftRun: 'تصعدون من الصدع. أعمق طابق: {n}. النقاط: {s}.',
-        riftFell: 'الصدع يقذفكم إلى الخارج... أعمق طابق: {n}. النقاط: {s}.', riftLocked: 'الشقّ بارد وصامت. (سيفتح للأبطال من المستوى 6.)',
-        riftBest: 'أعمق طابق بلغتموه: {n}', riftIntro: 'يتنفّس هواء بارد من الشقّ، وفي الأسفل البعيد، شيء يطنّ.', mBestiary: 'سجلّ المخلوقات',
-        tablet: 'لوح حجري قديم', progress: 'المخلوقات {a}/{b}   ·   الكنوز المخفية {c}/{d}   ·   أعمق طابق في الصدع {e}'
+        bestiary: 'دفتر الوحوش', unknown: '؟؟؟', defeated: 'هزمت: {n}', treasures: 'كنوز مخفية', treasureFound: 'كنز مخفي!',
+        catSniff: 'قطتك تشمّ شيئًا مدفونًا قريبًا...', riftName: 'الشق', riftStart: 'انزل إلى الطابق 1', riftFrom: 'انزل إلى الطابق {n}',
+        riftFloor: 'الشق · الطابق {n}', riftCleared: 'نظّفت الطابق! الدرج إلى الأسفل مفتوح.', riftRun: 'خرجت من الشق. أعمق طابق: {n}. النقاط: {s}.',
+        riftFell: 'الشق رماك إلى الخارج... أعمق طابق: {n}. النقاط: {s}.', riftLocked: 'الشق بارد وهادئ. (يُفتح للأبطال من المستوى 6.)',
+        riftBest: 'أعمق طابق وصلت إليه: {n}', riftIntro: 'هواء بارد يخرج من الشق، وفي الأسفل البعيد، صوت شيء يطنّ.', mBestiary: 'دفتر الوحوش',
+        tablet: 'لوح حجري قديم', progress: 'الوحوش {a}/{b}   ·   الكنوز {c}/{d}   ·   أعمق طابق في الشق {e}'
     },
     foes: {
-        wisp: ['طيف السكون', 'قطعة من السكون نسيت ما كانت. تنجرف نحو الدفء.'],
-        wolf: ['ذئب رمادي', 'صار جريئًا منذ انطفأ الفانوس. احذروا حين ينحني قبل أن يقفز.'],
-        crawler: ['زاحف المستنقع', 'بطيء ولزج وجائع دائمًا. يأكل الأعشاب والأحذية والصبر.'],
-        mite: ['سوس الصخر', 'خنفساء من صخر حيّ تقضم البوابات. في درعها خام حديد.'],
-        bones: ['عظام بلا راحة', 'عظام قديمة جعلها السكون تمشي. من بعيد، ترمي قطعًا من نفسها.'],
-        bat: ['خفّاش الكهوف', 'يطير متعرّجًا. ضعيف، لكنه لا يبقى وحيدًا طويلًا.'],
-        thornback: ['ذو الأشواك', 'خنزير برّي ضخم غذّاه السكون. حين تعلق أنيابه في شجرة، اضربوا.'],
-        warden: ['حارس المستنقع', 'وحل ميرفن وقد صار جائعًا. يبصق ويستدعي الزواحف.'],
-        knight: ['فارس السرداب', 'درع ما زال يحرس سيّدًا منسيًّا. يندفع بنصله.'],
-        sentinel: ['الحارس الحجري', 'حارس لعمّال المناجم أفسده السكون. اخرجوا من حلقته الحمراء.'],
-        shade: ['ظلّ السكون', 'حزن كورفين وقد شكّله الضباب. يتلاشى ثم يعود.']
+        wisp: ['شبح الضباب', 'قطعة صغيرة من الضباب نسيت ما كانت. تطير نحو الدفء.'],
+        wolf: ['ذئب رمادي', 'صار جريئًا منذ انطفأ الفانوس. عندما ينخفض، سيقفز عليك!'],
+        crawler: ['دودة المستنقع', 'بطيئة ولزجة وجائعة دائمًا. تأكل الأعشاب والأحذية.'],
+        mite: ['حشرة الصخر', 'حشرة من صخر تأكل البوابات. في ظهرها حجر حديد.'],
+        bones: ['هيكل عظمي', 'عظام قديمة جعلها الضباب تمشي. من بعيد ترمي عظامها عليك.'],
+        bat: ['خفاش الكهف', 'يطير يمينًا ويسارًا. ضعيف، لكنه يأتي مع أصحابه.'],
+        thornback: ['الخنزير الشوكي', 'خنزير كبير جدًا. عندما تعلق أنيابه في شجرة، اضربه.'],
+        warden: ['وحش المستنقع', 'طين المستنقع صار وحشًا جائعًا. يبصق ويستدعي الديدان.'],
+        knight: ['فارس السرداب', 'درع قديم ما زال يحرس المكان. يهجم بسيفه بسرعة.'],
+        sentinel: ['الحارس الحجري', 'حارس المنجم أفسده الضباب. اخرج من الدائرة الحمراء.'],
+        shade: ['ظل الضباب', 'حزن كورفين صار شكلًا من الضباب. يختفي ثم يرجع.']
     },
     lines: {
-        hookMaren: ['هل شعرتم بذلك؟ هواء بارد يصعد من الشقّ بجانب الفانوس.', 'السكون لم يأتِ من العدم. شيء في الأسفل يتذكّره. إن نزلتم، فانزلوا بحذر، واصعدوا من جديد.'],
-        tablet5: ['«بنينا الفانوس لنتذكّر. لكن النور يحتاج إلى ظلّ، فدفنّا ظلّنا في الأسفل.» (الباقي ممحوّ)'],
-        tablet10: ['«السكون ليس ضبابًا. إنه نسيان تعلّم أن يتحرّك. ختمنا قلبه في الأعماق.»'],
-        tablet15: ['«كل فانوس يشتعل في مكان ما. فانوس هولومير كان الأول، لا الوحيد. الفوانيس الأخرى انطفأت منذ زمن بعيد.»'],
-        tablet20: ['«إن كنتم تقرؤون هذا، فالختم رقيق. القلب يستيقظ. إنه يتذكّر اسمك، يا حارس الفانوس.»'],
-        tablet25: ['(اللوح فارغ، لكنه دافئ، كأن أحدًا توقّف للتوّ عن الكتابة عليه. يتبع...)']
+        hookMaren: ['هل شعرت بهذا؟ هواء بارد يخرج من الشق بجانب الفانوس.', 'الضباب لم يأتِ من لا شيء. شيء في الأسفل يتذكره. إذا نزلت، فانزل بحذر، واصعد سالمًا.'],
+        tablet5: ['«صنعنا الفانوس لكي نتذكر. لكن كل نور يحتاج ظلًا، فدفنّا ظلّنا في الأسفل.» (الباقي ممسوح)'],
+        tablet10: ['«الضباب ليس ضبابًا عاديًا. إنه نسيان تعلّم أن يمشي.»', '«كل فانوس يضيء في مكان ما. فانوس هولومير كان الأول، وليس الوحيد. هناك فانوس آخر وراء البحيرة، غرق منذ زمن بعيد.»'],
+        tablet15: ['«كل فانوس يضيء في مكان ما. فانوس هولومير كان الأول، وليس الوحيد.»'],
+        tablet20: ['«إذا كنت تقرأ هذا، فالباب ضعيف. القلب يستيقظ. وهو يعرف اسمك، يا حارس الفانوس.»'],
+        tablet25: ['(اللوح فارغ، لكنه دافئ، كأن أحدًا انتهى من الكتابة عليه الآن. يتبع...)']
     },
-    obj17: 'شيء يتحرّك تحت التلّ. انزلوا إلى الصدع بجانب الفانوس.'
+    obj17: 'شيء يتحرك تحت التلّ. انزل إلى الشق بجانب الفانوس.'
 }
+
 };
 (function () {
     const T = window.HM_TEXT, M = window.HM_TEXT_RIFT;
