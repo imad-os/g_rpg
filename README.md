@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.7.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.8.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -33,6 +33,15 @@ fire home and learn why it was taken.
 - **Pixel art by Kenney** (CC0): heroes are built from layers, so every helmet, armour and weapon
   you wear shows; villagers, monsters, houses, trees, walls and floors come from Tiny Town and
   Tiny Dungeon. Movement is animated in code (bob, tilt, lunge, hit flash).
+- **Abilities:** Healing (20% of your health, 10 s cooldown), Power attack (a ground slam that
+  hits everything around you) and Distant attack (a bolt of light that goes through every foe in a
+  line). They burn **stamina**, the blue bar under your health, which fills as you defeat foes
+  (bosses and named elites give more). Each ability box on the screen darkens while it cools down.
+- **Equipment screen** with pictures: a box for every piece (its name on top, rarity colour, +level,
+  a tick on what you wear), tabs for weapon, head, body and feet, and a details panel that compares
+  the chosen piece with what you wear (▲ better, ▼ worse)
+- **Mounts screen** to switch between walking, the horse and the wolf
+- **Settings:** voice speed (0.75× to 2×, the pitch stays natural) and button mapping
 - Hit-pause, critical hits, sparks, slash trails, arrows, muzzle flash and smoke, rings of light,
   running dust, spinning coins that fly to you
 - The quest box folds into a small badge 10 seconds after each new step
@@ -50,16 +59,39 @@ fire home and learn why it was taken.
 |---|---|---|---|
 | Move | arrows | arrows | stick / d-pad |
 | Talk, use, attack | OK | Enter / Space | A |
-| Quick menu (journal, equipment, bestiary, potions, ride / walk) | hold OK | hold Enter | hold A |
+| Power attack | OK twice | Enter twice | A twice |
+| Distant attack | (quick menu) | Shift / X | run button |
+| Healing | (quick menu) | Backspace | B |
+| Quick menu (journal, abilities, potions, equipment, mounts, bestiary, settings) | hold OK | hold Enter | hold A |
 | Pause menu | Back | Esc / P | Start |
+
+Those are the default buttons. In **Settings** each action (attack, quick menu, healing, power
+attack, distant attack, potion, ride / walk) can be put on OK, OK twice, hold OK, the run button,
+the cancel button, or the menu only. The quick menu and attacking always stay on the remote's OK,
+and OK always talks, opens and reads first, so nothing can be locked away.
 
 **Co-op:** a second player presses OK / A on another controller (or F with W A S D on a second
 keyboard inside My PC) to join, and can leave from the pause menu. Both heroes share the quest,
 coins and level, and a fallen partner gets back up after a few seconds.
 
 Everything works with the arrows and OK only. A yellow arrow always points to the next goal and
-follows the corridors in dungeons. In the shop and Equipment screens, up/down choose and OK
-buys or wears; in co-op, left/right switch hero.
+follows the corridors in dungeons. In the shops, up/down choose and OK buys. On the Equipment
+screen the arrows move between the boxes, up from the top row reaches the tabs, and OK wears or
+takes off; in co-op a tab switches hero.
+
+## Balance (app config)
+
+The owner can tune the game without changing code, with these optional keys in My PC's app config
+(`MyPC.app_config`; the defaults are in `mypc-app.json` and in the code). Every key is a
+multiplier; numbers out of range are clamped.
+
+| Key | Default | What it does |
+|---|---|---|
+| `coinDrops` | 0.6 | coins from foes, pots, chests, treasures and quest rewards (1 = version 1.7, 0 = none) |
+| `gearDrops` | 0.5 | chance that foes and pool quests give gear (bosses and elites always do) |
+| `enemyDifficulty` | 1.3 | foes' attack and health (1 = version 1.7, 2 = twice as tough) |
+| `mountSpeed` | 1 | how much faster the horse and the wolf are than walking |
+| `petSpeed` | 1.5 | the cat's speed, times the hero's |
 
 ## Story design (no dead ends)
 
@@ -128,7 +160,7 @@ the optional Kokoro engine.
 | `icon.svg` | icon |
 | `js/game.js` | engine: loop, players, foes, bosses, story, rendering |
 | `js/maps.js` | the seven areas, dungeons included |
-| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js`, `js/i18n_rift.js` | all texts in 4 languages (story; gear, dungeons, side quests) |
+| `js/i18n.js`, `js/i18n_more.js`, `js/i18n_talk.js`, `js/i18n_pets.js`, `js/i18n_rift.js`, `js/i18n_play.js` | all texts in 4 languages (story; gear, dungeons, side quests; abilities and settings) |
 | `js/items.js` | gear, shops, mounts, story side quests and chests (data) |
 | `js/pool.js` | the 30 pool tasks, with their texts in 4 languages |
 | `js/rift.js` | builds each Rift floor from a seed (always fully reachable) |

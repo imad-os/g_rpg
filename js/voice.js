@@ -2,7 +2,8 @@
  *   1. a recorded clip from audio/voices/<lang>/ (made by tools/voices/generate.py), if there is one;
  *   2. otherwise Gemini text-to-speech through the owner's proxy (MyPC.app_config.proxyUrl);
  *   3. otherwise nothing (the text is still on screen and goes to the TV's Voice Guide).
- * Clips are fetched one line at a time, so nothing is downloaded up front. */
+ * Clips are fetched one line at a time, so nothing is downloaded up front. They play through one
+ * <audio> element (routed into the game's voice volume), so the speed setting keeps voices at their pitch. */
 window.HM_VOICE = (function () {
     'use strict';
     // a voice and a speaking style per character for Gemini TTS
@@ -18,8 +19,8 @@ window.HM_VOICE = (function () {
         bram: ['Orus', 'plain-spoken woodcutter'],
         odo: ['Alnilam', 'steady village guard']
     };
-    let lang = 'en', index = null, indexP = null, src = null, token = 0, ttsOff = false;
-    const files = new Map(), speech = new Map();      // decoded clips: key -> AudioBuffer, text -> AudioBuffer
+    let lang = 'en', index = null, indexP = null, token = 0, ttsOff = false, rate = 1, player = null, playerCtx = null, playing = false;
+    const files = new Map(), speech = new Map();      // clips as blob: URLs: key -> url, text -> url
 
     function cfg() {
         const c = (window.MyPC && MyPC.app_config) || {};
@@ -38,7 +39,17 @@ window.HM_VOICE = (function () {
             .then(j => { index = (j && j.clips) || {}; return index; }).catch(() => { index = {}; return index; });
     }
 
-    function keep(map, k, v, max) { map.set(k, v); if (map.size > max) map.delete(map.keys().next().value); }
+    function keep(map, k, v, max) { map.set(k, v); if (map.size > max) { const old = map.keys().next().value; URL.revokeObjectURL(map.get(old)); map.delete(old); } }
+    // the one <audio> element, connected to the voice volume of the current AudioContext
+    function out() {
+        const ac = HM_AUDIO.ctx(); if (!ac) return null;
+        if (!player || playerCtx !== ac) {
+            player = new Audio(); player.preservesPitch = true; playerCtx = ac;
+            try { ac.createMediaElementSource(player).connect(HM_AUDIO.voiceOut()); } catch (e) {}
+            player.onended = () => { playing = false; HM_AUDIO.duck(false); };
+        }
+        return player;
+    }
 
     async function fromFile(key) {
         if (!key) return null;
@@ -46,19 +57,17 @@ window.HM_VOICE = (function () {
         const clip = idx && idx[key];
         if (!clip) return null;
         if (files.has(key)) return files.get(key);
-        const ac = HM_AUDIO.ctx(); if (!ac) return null;
         const r = await fetch('audio/voices/' + lang + '/' + clip.file + '?v=' + (window.HM_VERSION || '1'));
         if (!r.ok) return null;
-        const buf = await ac.decodeAudioData(await r.arrayBuffer());
-        keep(files, key, buf, 24);
-        return buf;
+        const url = URL.createObjectURL(await r.blob());
+        keep(files, key, url, 24);
+        return url;
     }
 
     async function fromTts(text, who) {
         const c = cfg();
         if (!c.proxyUrl || !c.tts || !text) return null;
         if (speech.has(text)) return speech.get(text);
-        const ac = HM_AUDIO.ctx(); if (!ac) return null;
         const v = TTS_VOICE[who] || TTS_VOICE.narrator;
         const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), c.timeoutMs);
         try {
@@ -70,9 +79,9 @@ window.HM_VOICE = (function () {
             if (!j || !j.audio) return null;
             const bin = atob(j.audio), bytes = new Uint8Array(bin.length);
             for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-            const buf = await ac.decodeAudioData(bytes.buffer);
-            keep(speech, text, buf, 16);
-            return buf;
+            const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+            keep(speech, text, url, 16);
+            return url;
         } finally { clearTimeout(timer); }
     }
 
@@ -82,13 +91,11 @@ window.HM_VOICE = (function () {
         const t = token;
         fromFile(key).catch(() => null)
             .then(buf => buf || fromTts(text, who || 'narrator').catch(() => null))
-            .then(buf => {
-                const ac = HM_AUDIO.ctx();
-                if (!buf || t !== token || !ac) return;
-                src = ac.createBufferSource(); src.buffer = buf; src.connect(HM_AUDIO.voiceOut());
-                const me = src;
-                src.onended = () => { if (src === me) { src = null; HM_AUDIO.duck(false); } };
-                HM_AUDIO.duck(true); src.start();
+            .then(url => {
+                const p = out();
+                if (!url || t !== token || !p) return;
+                p.src = url; p.playbackRate = rate; playing = true; HM_AUDIO.duck(true);
+                p.play().catch(() => { playing = false; HM_AUDIO.duck(false); });
             });
     }
     // warm up the next recorded line (never TTS: that would cost money for lines nobody reaches)
@@ -96,8 +103,10 @@ window.HM_VOICE = (function () {
 
     function stop() {
         token++;
-        if (src) { try { src.stop(); } catch (e) {} src.disconnect(); src = null; HM_AUDIO.duck(false); }
+        if (player && playing) { player.pause(); playing = false; HM_AUDIO.duck(false); }
     }
+    // voice speed from the settings: 0.75 to 2
+    function setRate(r) { rate = Math.max(0.5, Math.min(2, +r || 1)); if (player) player.playbackRate = rate; }
 
-    return { setLang, say, prefetch, stop };
+    return { setLang, say, prefetch, stop, setRate };
 })();

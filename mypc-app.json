@@ -6,11 +6,16 @@
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "scores": true,
   "config": {
     "proxyUrl": "",
     "tts": true,
-    "ttsModel": "gemini-3.8-flash-lite-tts"
+    "ttsModel": "gemini-3.8-flash-lite-tts",
+    "coinDrops": 0.6,
+    "gearDrops": 0.5,
+    "mountSpeed": 1,
+    "petSpeed": 1.5,
+    "enemyDifficulty": 1.3
   }
 }

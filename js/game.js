@@ -61,6 +61,37 @@
     const RIFT_OPEN = {};                         // chests opened on the current Rift floor (not saved)
     let riftClear = false;
 
+    // balance, set by the owner in MyPC.app_config (all optional; 1 = the 1.7.0 game, which was too generous)
+    const TUNE = { coinDrops: 0.6, gearDrops: 0.5, mountSpeed: 1, petSpeed: 1.5, enemyDifficulty: 1.3 };
+    const TUNE_MAX = { coinDrops: 5, gearDrops: 10, mountSpeed: 3, petSpeed: 4, enemyDifficulty: 5 };
+    function readTune() {
+        const c = (window.MyPC && MyPC.app_config) || {};
+        for (const k in TUNE) { const v = +c[k]; if (c[k] !== undefined && c[k] !== '' && isFinite(v)) TUNE[k] = Math.max(k === 'coinDrops' || k === 'gearDrops' ? 0 : 0.2, Math.min(TUNE_MAX[k], v)); }
+    }
+    function loot(n) { return n > 0 && TUNE.coinDrops > 0 ? Math.max(1, Math.round(n * TUNE.coinDrops)) : 0; }
+
+    // abilities: they burn stamina (filled by defeating foes) and then wait for their cooldown (frames)
+    const ABIL = { heal: { cost: 25, cd: 600, icon: '✚' }, power: { cost: 35, cd: 300, icon: '✸' }, distant: { cost: 20, cd: 180, icon: '➶' } };
+    const STA_MAX = 100, STA_KILL = 8, STA_BIG = 25;
+    // what each OK gesture or extra button does (the player can change it in Settings)
+    const FNS = ['attack', 'menu', 'heal', 'power', 'distant', 'potion', 'mount'];
+    const GESTURES = ['tap', 'double', 'hold', 'run', 'cancel', 'none'];
+    const OK_G = { tap: 1, double: 1, hold: 1 };
+    const BTN_DEFAULT = { attack: 'tap', menu: 'hold', heal: 'cancel', power: 'double', distant: 'run', potion: 'none', mount: 'none' };
+    const VOICE_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2];
+    const SET = { voice: 1, btn: Object.assign({}, BTN_DEFAULT) };
+    function loadSettings() {
+        const s = MyPC.load('settings', null);
+        if (s && typeof s === 'object') {
+            if (VOICE_RATES.indexOf(s.voice) >= 0) SET.voice = s.voice;
+            if (s.btn) for (const f of FNS) if (GESTURES.indexOf(s.btn[f]) >= 0) SET.btn[f] = s.btn[f];
+            if (!OK_G[SET.btn.menu] || SET.btn.attack === 'none') SET.btn = Object.assign({}, BTN_DEFAULT);
+        }
+        VOICE.setRate(SET.voice);
+    }
+    function saveSettings() { MyPC.save('settings', SET); }
+    function fnOf(g) { for (const f in SET.btn) if (SET.btn[f] === g) return f; return ''; }
+
     function fresh() {
         return { v: 3, stage: 0, ore: 0, caps: 0, sword: false, key: false, gate: false, seal: false, hearth: false, tide: false, stone: false,
                  heart: false, page: false, lit: false, picked: {}, cut: false, coins: 0, potions: 1, big: 0, xp: 0, lvl: 1,
@@ -117,6 +148,7 @@
 
     const P = [0, 1].map(i => ({ i, on: i === 0, dev: '', x: 0, y: 0, fx: 0, fy: 1, ax: 0, ay: 1, hp: 10, atk: 0, swing: 0, inv: 0,
         down: false, downT: 0, walk: 0, kx: 0, ky: 0, hold: 0, moving: false, r: 7, sy: 0, kind: 3, lean: 0, flash: 0, anim: 'sword', bite: 0, lfx: 1,
+        sta: 50, cdHeal: 0, cdPower: 0, cdDistant: 0, tapT: -99, aura: 0, auraCol: '#fff',
         st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
     const FOES = []; for (let i = 0; i < 36; i++) FOES.push({ on: false, kind: 4, t: '', d: null, x: 0, y: 0, hx: 0, hy: 0, hp: 0, max: 0, st: 0, tm: 0, cd: 0,
         vx: 0, vy: 0, kx: 0, ky: 0, hurt: 0, r: 10, sy: 0, active: false, minion: false, mask: 0, ring: 0, alpha: 1, wt: 0, sum: 0, pt: 0, walk: 0, side: 0, sdx: 0, sdy: 0, elite: '', ename: '', bonus: 0 });
@@ -226,7 +258,7 @@
     function questReady(q) { S.sq[q.id] = 2; SND.fx('quest'); toast(txt(T.ui.qDoneGo, { name: T.quests[q.id].title, npc: npcName(q.giver) })); save(); }
     function rewardText(r) {
         const parts = [];
-        if (r.coins) parts.push(txt(T.ui.nCoins, { n: r.coins }));
+        if (r.coins) parts.push(txt(T.ui.nCoins, { n: loot(r.coins) }));
         if (r.item) parts.push(itemName(r.item));
         if (r.big) parts.push(r.big + ' × ' + T.ui.potB);
         if (r.pet) parts.push(T.ui.catName);
@@ -236,7 +268,7 @@
     function handIn(q) {
         const r = q.reward;
         S.sq[q.id] = 3; S.qdone++;
-        S.coins += r.coins || 0; S.big += r.big || 0;
+        S.coins += loot(r.coins || 0); S.big += r.big || 0;
         if (r.item) giveItem(r.item, true, 1);
         if (r.pet && !S.pet) { S.pet = r.pet; PET.x = P[0].x - 20; PET.y = P[0].y + 6; PET.hp = 99; PET.down = 0; setTimeout(() => toast(T.ui.gotPet), 2600); }
         if (r.mount && S.mounts.indexOf(r.mount) < 0) { S.mounts.push(r.mount); if (!S.mount) S.mount = r.mount; refreshMenu(); setTimeout(() => toast(txt(T.ui.gotMount, { m: mountName(r.mount) })), 2600); }
@@ -263,8 +295,8 @@
     }
     function poolReward(d) {
         const n = d.n || 1;
-        return { coins: 20 + S.lvl * 6 + (d.type === 'elite' ? 40 : d.type === 'kill' ? n * 3 : d.type === 'collect' ? n * 4 : 15),
-                 ore: d.type === 'elite' ? 3 : 1, gear: d.type === 'elite' || ART.hash(d.id.charCodeAt(0), d.id.charCodeAt(1), 5) < 0.5 };
+        return { coins: loot(20 + S.lvl * 6 + (d.type === 'elite' ? 40 : d.type === 'kill' ? n * 3 : d.type === 'collect' ? n * 4 : 15)),
+                 ore: d.type === 'elite' ? 3 : 1, gear: d.type === 'elite' || ART.hash(d.id.charCodeAt(0), d.id.charCodeAt(1), 5) < 0.5 * Math.min(2, TUNE.gearDrops) };
     }
     function poolRewardText(rw) {
         const parts = [txt(T.ui.nCoins, { n: rw.coins }), txt(T.ui.ironReward, { n: rw.ore })];
@@ -342,7 +374,7 @@
                 if (!have) { const p = spot(seed, 0); Z.npcs.push({ id: 'q:' + npc, look: d.who.look, x: p[0], y: p[1], hx: p[0], hy: p[1], kind: 2, sy: p[1], walk: 0, fx: 0, fy: 1, bob: 2 }); }
             } else if (d.type === 'elite') {
                 const p = spot(seed, 0), f = spawnFoe(d.foe, p[0], p[1], false);
-                if (f) { f.elite = npc; f.ename = d.name[L] || d.name.en; f.max = f.hp = f.d.hp * 5 + S.lvl * 3; f.r = Math.round(f.d.r * 1.35); f.bonus = 1; }
+                if (f) { f.elite = npc; f.ename = d.name[L] || d.name.en; f.max = f.hp = Math.round((f.d.hp * 5 + S.lvl * 3) * TUNE.enemyDifficulty); f.r = Math.round(f.d.r * 1.35); f.bonus = 1; }
             }
         }
     }
@@ -489,7 +521,7 @@
         for (const f of FOES) if (!f.on) {
             const d = FOE[t];
             f.on = true; f.t = t; f.d = d; f.x = f.hx = x; f.y = f.hy = y; f.r = d.r;
-            f.max = f.hp = Math.round(d.hp * (d.boss && P[1].on ? 1.5 : 1));
+            f.max = f.hp = Math.max(1, Math.round(d.hp * (d.boss && P[1].on ? 1.5 : 1) * TUNE.enemyDifficulty));
             f.st = 0; f.tm = 0; f.cd = 60; f.vx = f.vy = f.kx = f.ky = 0; f.hurt = 0; f.minion = minion; f.mask = 0; f.ring = 0;
             f.alpha = 1; f.wt = 0; f.sum = 0; f.pt = 0; f.side = 0; f.elite = ''; f.ename = ''; f.bonus = 0; f.active = !d.boss; f.walk = Math.random() * 6; f.sy = y;
             return f;
@@ -521,7 +553,7 @@
     }
     function coins(x, y, total) { while (total > 0) { const v = total >= 10 ? 5 : 1; drop(x, y, 0, v); total -= v; } }
     function shot(x, y, vx, vy, dmg, r, k, owner) {
-        for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : 240; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; return s; }
+        for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : k === 12 ? 70 : 240; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; return s; }
         return null;
     }
     function nearest(x, y) {
@@ -565,7 +597,25 @@
         if (P[1].on !== hudLast.on1) { hudLast.on1 = P[1].on; $('pb1').style.display = P[1].on ? '' : 'none'; refreshMenu(); }
         const j = joinSeen && !P[1].on;
         if (j !== hudLast.join) { hudLast.join = j; $('join').style.display = j ? '' : 'none'; }
+        hudAbil();
         if (boss && boss.active && boss.on && boss.hp !== hudLast.boss) { hudLast.boss = boss.hp; $('bossFill').style.width = (100 * Math.max(0, boss.hp) / boss.max) + '%'; }
+    }
+    // stamina bars and the three ability boxes (dark part = cooldown left), changed only when they change
+    const AB_EL = [], AB_LAST = new Int32Array(6).fill(-1), STA_LAST = new Int32Array(2).fill(-1), AB_IDS = ['heal', 'power', 'distant'], AB_CH = ['h', 'p', 'd'];
+    function hudAbil() {
+        if (!AB_EL.length) for (let i = 0; i < 6; i++) { const e = $('ab' + ((i / 3) | 0) + AB_CH[i % 3]); AB_EL.push({ e, b: e.firstElementChild, u: e.lastElementChild }); }
+        for (let i = 0; i < 2; i++) {
+            const p = P[i]; if (!p.on) continue;
+            const sv = Math.round(p.sta); if (sv !== STA_LAST[i]) { STA_LAST[i] = sv; $('sp' + i).style.width = (100 * sv / STA_MAX) + '%'; }
+            for (let k = 0; k < 3; k++) {
+                const a = AB_IDS[k], cd = p[CD_KEY[a]], ok = p.sta >= ABIL[a].cost, pc = Math.ceil(20 * cd / ABIL[a].cd);
+                const key = pc * 4 + (ok ? 2 : 0) + (cd > 0 ? 1 : 0) + Math.ceil(cd / 60) * 100, n = i * 3 + k;
+                if (key === AB_LAST[n]) continue;
+                AB_LAST[n] = key; const o = AB_EL[n];
+                o.b.style.height = (pc * 5) + '%'; o.u.textContent = cd > 0 ? NUM[Math.ceil(cd / 60)] : '';
+                o.e.className = 'ab' + (cd <= 0 && ok ? ' ready' : '') + (!ok ? ' low' : '');
+            }
+        }
     }
     function showBoss(f) { $('bossName').textContent = T.boss[f.t]; $('bossBox').style.display = ''; hudLast.boss = -1; MyPC.announce(T.boss[f.t]); }
     function hideBoss() { $('bossBox').style.display = 'none'; }
@@ -574,9 +624,10 @@
     let menuKey = '';
     function refreshMenu() {
         if (!S) return;
-        const items = [{ id: 'journal', label: T.ui.mJournal }, { id: 'equip', label: T.ui.mEquip },
-            { id: 'potion', label: txt(T.ui.mPotionS, { n: S.potions }) }, { id: 'big', label: txt(T.ui.mPotionB, { n: S.big }) }];
-        if (S.mounts.length) items.push({ id: 'mount', label: S.mount ? T.ui.mWalk : txt(T.ui.mRide, { m: mountName(S.mounts[0]) }) });
+        // My PC's pause menu holds 6 at most; the rest is in the quick menu
+        const items = [{ id: 'journal', label: T.ui.mJournal }, { id: 'equip', label: T.ui.mEquip }, { id: 'settings', label: T.ui.mSettings },
+            { id: 'potion', label: txt(T.ui.mPotionS, { n: S.potions }) }];
+        if (S.mounts.length) items.push({ id: 'mount', label: T.ui.mMounts });
         if (P[1].on) items.push({ id: 'leave2', label: T.ui.mLeave });
         const k = items.map(i => i.label).join('|');
         if (k !== menuKey) { menuKey = k; MyPC.setMenu(items); }
@@ -780,7 +831,7 @@
         t.found = true; S.tre[t.key] = true;
         SND.fx('chest'); ringFx(t.x, t.y, 60, '#ffd23f'); shake = 4;
         for (let i = 0; i < 18; i++) part(t.x, t.y, 4, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 2, 2 + Math.random() * 2.5, 40, i & 1 ? '#8a6a44' : '#ffe9a8', 3);
-        coins(t.x, t.y, 40 + zoneTier() * 20); S.iron += 2;
+        coins(t.x, t.y, loot(40 + zoneTier() * 20)); S.iron += 2;
         if (Math.random() < 0.6) dropGear(t.x, t.y, rollItem(zoneTier(), Math.random() < 0.15 ? 2 : 1));
         toast(T.ui.treasureFound + '   ' + txt(T.ui.gotIron, { n: 2 })); save();
     }
@@ -848,14 +899,14 @@
         const k = CHESTS[c.key];
         if (k && k.star) { S.star = true; if (qState('stariron') === 1) S.sq.stariron = 2; say(lines(null, 'starFound')); }
         else if (k && k.item) giveItem(k.item, false, 1);
-        else { const n = (k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0); coins(c.cx, c.cy, n); S.iron += 2; toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); }
+        else { const n = loot((k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0)); coins(c.cx, c.cy, n); S.iron += 2; toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); }
         save();
     }
     function breakPot(s) {
         s.on = false; Z.tiles[s.ty * Z.cols + s.tx] = C_dot; SND.fx('pot');
         for (let i = 0; i < 10; i++) part(s.cx, s.cy, 8, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 2, 1 + Math.random() * 2.5, 40, i & 1 ? '#9a5a3a' : '#c8865a', 3);
         const r = ART.hash(s.tx, s.ty, tick & 7);
-        coins(s.cx, s.cy, 1 + ((r * 4) | 0));
+        if (Math.random() < TUNE.coinDrops) coins(s.cx, s.cy, 1 + ((r * 3) | 0));
         if (r > 0.85) drop(s.cx, s.cy, 1, 3);
     }
 
@@ -1046,26 +1097,207 @@
                 } }))).concat([{ label: T.ui.leave, fn: closeList }])
         });
     }
-    // equipment: pick a slot, then pick what to wear in it; left/right switches hero in co-op
-    const EQ = { hero: 0, slot: '' };
-    function equipScreen() {
-        EQ.hero = 0; EQ.slot = '';
+    // equipment: boxes with pictures (name on top), tabs for the slots, and the details of the chosen piece
+    const EQ = { hero: 0, si: 0, focus: 'grid', ti: 0, gi: 0 };
+    const GCOLS = 5;
+    function rtl() { return document.documentElement.dir === 'rtl'; }
+    function gearImg(id) {
+        const c = document.createElement('canvas'); c.width = c.height = 32;
+        const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+        const icon = KN.ok && KN.gearIcon(id), base = ITEMS[id];
+        if (icon) { x.drawImage(icon, 0, 0, 32, 32); return c; }
+        x.fillStyle = base.col; x.strokeStyle = base.col; x.lineWidth = 3;
+        if (base.kind === 'gun') {                             // a flintlock: wooden stock, dark barrel
+            x.fillStyle = base.col2 || '#6b4a2e'; x.beginPath(); x.moveTo(4, 22); x.lineTo(13, 15); x.lineTo(15, 19); x.lineTo(8, 27); x.closePath(); x.fill();
+            x.fillStyle = '#8a8f9a'; x.fillRect(12, 13, 17, 4); x.fillStyle = '#c9a43a'; x.fillRect(12, 17, 4, 3); x.fillStyle = '#ffffff'; x.fillRect(26, 13, 3, 1);
+        } else if (base.slot === 'weapon') { x.beginPath(); x.moveTo(7, 25); x.lineTo(25, 7); x.stroke(); x.fillStyle = base.col2 || '#6b4a2e'; x.fillRect(5, 21, 8, 3); }
+        else if (base.slot === 'head') { x.beginPath(); x.arc(16, 20, 10, Math.PI, 0); x.fill(); x.fillRect(5, 20, 22, 3); }
+        else if (base.slot === 'body') { x.fillRect(8, 8, 16, 18); x.fillRect(4, 8, 5, 9); x.fillRect(23, 8, 5, 9); }
+        else { x.fillRect(7, 8, 6, 16); x.fillRect(7, 21, 11, 5); x.fillRect(19, 8, 6, 16); x.fillRect(19, 21, 11, 5); }
+        return c;
+    }
+    function itemStats(it) {
+        const o = { atk: 0, def: 0, spd: 0, crit: 0, hp: 0, gold: 0 };
+        if (!it) return o;
+        const base = ITEMS[it.id];
+        if (base.slot === 'weapon') o.atk = base.atk + it.up * upStep(base); else o.def = (base.def || 0) + it.up;
+        o.spd = Math.round((base.spd || 0) * 100);
+        for (const b of it.b) { if (b[0] === 'a') o.atk += b[1]; else if (b[0] === 'd') o.def += b[1]; else if (b[0] === 'c') o.crit += b[1]; else if (b[0] === 's') o.spd += b[1]; else if (b[0] === 'h') o.hp += b[1]; else if (b[0] === 'g') o.gold += b[1]; }
+        return o;
+    }
+    function gearItems() {
+        const e = S.eq[EQ.hero], sl = SLOTS[EQ.si];
+        const list = S.bag.filter(it => ITEMS[it.id] && ITEMS[it.id].slot === sl);
+        list.sort((a, b) => (e[sl] === b.u ? 1 : 0) - (e[sl] === a.u ? 1 : 0) || b.r - a.r || ITEMS[b.id].tier - ITEMS[a.id].tier || b.up - a.up);
+        if (sl !== 'weapon') list.push(null);             // the last box takes the piece off
+        return list;
+    }
+    function gearTabs() { const t = SLOTS.slice(); if (P[1].on) t.push('hero'); t.push('close'); return t; }
+    function equipScreen() { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = 0; EQ.si = 0; EQ.focus = 'grid'; EQ.ti = 0; EQ.gi = 0; renderGear(); }
+    function renderGear() {
+        const e = S.eq[EQ.hero], sl = SLOTS[EQ.si], items = gearItems(), tabs = gearTabs();
+        if (EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
+        const box = el('div', 'gearbox'), head = el('div', 'lhead'), st = P[EQ.hero].st;
+        head.appendChild(el('div', 'ltitle', T.ui.equip + (P[1].on ? ': ' + heroName(EQ.hero) : '')));
+        head.appendChild(el('div', 'linfo', T.ui.atk + ' ' + (st.atk + ((S.lvl - 1) >> 1)) + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'));
+        box.appendChild(head);
+        const tb = el('div', 'gtabs');
+        tabs.forEach((t, i) => tb.appendChild(el('div', 'gt' + (i === EQ.si && i < 4 ? ' cur' : '') + (EQ.focus === 'tabs' && i === EQ.ti ? ' sel' : ''),
+            t === 'hero' ? '⇄ ' + heroName(1 - EQ.hero) : t === 'close' ? T.ui.close : T.ui['slot_' + t])));
+        box.appendChild(tb);
+        const main = el('div', 'gmain'), grid = el('div', 'ggrid');
+        items.forEach((it, i) => {
+            const sel = EQ.focus === 'grid' && i === EQ.gi;
+            if (!it) { grid.appendChild(el('div', 'gi empty' + (sel ? ' sel' : '') + (!e[sl] ? ' worn' : ''), T.ui.takeOff)); return; }
+            const g = el('div', 'gi r' + it.r + (sel ? ' sel' : '') + (e[sl] === it.u ? ' worn' : ''));
+            g.appendChild(el('div', 'gn r' + it.r, itemName(it.id)));
+            g.appendChild(gearImg(it.id));
+            if (it.up) g.appendChild(el('div', 'gup', '+' + it.up));
+            grid.appendChild(g);
+        });
+        main.appendChild(grid);
+        // details: the chosen box, or what is worn in this slot while the tabs have the focus
+        const det = el('div', 'gdet'), cur = itemOf(e[sl]);
+        const it = EQ.focus === 'grid' ? items[EQ.gi] : cur;
+        if (it) {
+            const base = ITEMS[it.id];
+            det.appendChild(el('div', 'gdn r' + it.r, itemLabel(it)));
+            det.appendChild(el('div', 'gdk', T.ui['slot_' + base.slot] + (base.slot === 'weapon' ? ' · ' + T.ui[base.kind] : '') + ' · ' + txt(T.ui.tier, { n: base.tier || 0 })));
+            det.appendChild(gearImg(it.id));
+            const a = itemStats(it), b = itemStats(cur), same = cur === it;
+            const rows = [['atk', T.ui.atk, ''], ['def', T.ui.def, ''], ['spd', T.ui.spd, '%'], ['crit', T.ui.critL, '%'], ['hp', T.ui.hpL, ''], ['gold', T.ui.goldL, '%']];
+            for (const r of rows) {
+                if (!a[r[0]] && !b[r[0]]) continue;
+                const row = el('div', 'gds'); row.appendChild(el('span', '', r[1]));
+                const v = el('span', '', (a[r[0]] > 0 && r[2] ? '+' : '') + a[r[0]] + r[2]);
+                const d = a[r[0]] - b[r[0]];
+                if (!same && d) v.appendChild(el('span', d > 0 ? 'up' : 'dn', '  ' + (d > 0 ? '▲' : '▼') + Math.abs(d)));
+                row.appendChild(v); det.appendChild(row);
+            }
+            if (it.up) det.appendChild(el('div', 'gds', txt(T.ui.upgradeLv, { n: it.up })));
+            const who = [0, 1].filter(i => (i === 0 || P[1].on) && S.eq[i][base.slot] === it.u).map(heroName).join(', ');
+            det.appendChild(el('div', 'gdh', who ? txt(T.ui.worn, { name: who }) : cur ? T.ui.compare : T.ui.noneWorn));
+        } else det.appendChild(el('div', 'gdk', EQ.focus === 'grid' ? T.ui.takeOff : T.ui.noneWorn));
+        det.appendChild(el('div', 'ghelp', EQ.focus === 'grid' ? T.ui.gearHelp : T.ui.gearHelpTabs));
+        main.appendChild(det);
+        box.appendChild(main);
+        ovShow(box);
+        const selEl = EQ.focus === 'grid' ? grid.children[EQ.gi] : null;
+        if (selEl) grid.scrollTop = Math.max(0, selEl.offsetTop - grid.clientHeight / 2 + selEl.offsetHeight / 2);
+        MyPC.announce(EQ.focus === 'grid' ? (it ? itemLabel(it) + '. ' + statLine(it) : T.ui.takeOff) : tb.children[EQ.ti].textContent);
+    }
+    function gearInput(a) {
+        const items = gearItems(), tabs = gearTabs(), e = S.eq[EQ.hero], sl = SLOTS[EQ.si];
+        const dx = a === 'left' ? -1 : a === 'right' ? 1 : 0, h = rtl() ? -dx : dx;    // in Arabic the boxes run right to left
+        if (EQ.focus === 'tabs') {
+            if (h) { EQ.ti = (EQ.ti + h + tabs.length) % tabs.length; if (EQ.ti < 4) { EQ.si = EQ.ti; EQ.gi = 0; } }
+            else if (a === 'down') { if (EQ.ti >= 4) EQ.ti = EQ.si; EQ.focus = 'grid'; EQ.gi = 0; }
+            else if (a === 'confirm') {
+                const t = tabs[EQ.ti]; SND.fx('ok');
+                if (t === 'close') return closeList();
+                if (t === 'hero') EQ.hero = 1 - EQ.hero; else { EQ.si = EQ.ti; EQ.focus = 'grid'; EQ.gi = 0; }
+            } else return;
+        } else {
+            if (h) EQ.gi = Math.max(0, Math.min(items.length - 1, EQ.gi + h));
+            else if (a === 'down') { if (EQ.gi + GCOLS < items.length) EQ.gi += GCOLS; else if (((EQ.gi / GCOLS) | 0) < (((items.length - 1) / GCOLS) | 0)) EQ.gi = items.length - 1; }
+            else if (a === 'up') { if (EQ.gi >= GCOLS) EQ.gi -= GCOLS; else { EQ.focus = 'tabs'; EQ.ti = EQ.si; } }
+            else if (a === 'confirm') {
+                const it = items[EQ.gi];
+                if (!it || (e[sl] === it.u && sl !== 'weapon')) e[sl] = 0; else e[sl] = it.u;
+                recalcAll(); SND.fx('equip'); save();
+            } else return;
+        }
+        if (a !== 'confirm') SND.fx('move');
+        renderGear();
+    }
+
+    // mounts: walk, or ride one you own (the others say where to get them)
+    const MICONS = {};
+    function mountIcon(m) {
+        if (MICONS[m]) return MICONS[m];
+        const c = document.createElement('canvas'); c.width = c.height = 96;
+        const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+        try {
+            if (m === 'horse') drawHorse(44, 80, 0, 1, 1.7); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
+            else if (KN.ok) KN.sprite(ctx, KN.hero(0, P[0].gear.weapon, P[0].gear.head, P[0].gear.body, P[0].gear.feet), 48, 84, 4, false, false, 0);
+        } catch (e) {}
+        ctx = saved; if (m) MICONS[m] = c;
+        return c;
+    }
+    function mountScreen() {
         listScreen({
-            title: () => T.ui.equip + (P[1].on ? ': ' + heroName(EQ.hero) : ''),
-            info: () => { const st = P[EQ.hero].st; return T.ui.atk + ' ' + (st.atk + ((S.lvl - 1) >> 1)) + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'; },
-            tabs: P[1].on ? () => '◀ ' + heroName(0) + ' · ' + heroName(1) + ' ▶' : null,
-            side: P[1].on ? dir => { if (!EQ.slot) { EQ.hero = (EQ.hero + 2 + dir) % 2; } } : null,
+            title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
+            rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
+                .concat(['horse', 'wolf'].map(m => {
+                    const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100;
+                    return { label: mountName(m), sub: (m === 'horse' ? T.ui.horseSub : T.ui.wolfSub) + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own, mark: S.mount === m,
+                        right: !own ? T.ui.notOwned : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(T.ui.notOwnedLong); if (S.mount !== m) setMount(m); renderList(); } };
+                }))
+                .concat([{ label: T.ui.close, fn: closeList }])
+        });
+    }
+
+    // settings: voice speed and what each button does
+    function fnLabel(f) { return f === 'attack' ? T.ui.attack : f === 'menu' ? T.ui.menuF : f === 'mount' ? T.ui.mountF : f === 'potion' ? T.ui.potionF : ABIL[f].icon + ' ' + T.ui[f]; }
+    function canSet(f, g) {
+        const cur = SET.btn[f], o = g === 'none' ? '' : fnOf(g);
+        if (f === 'menu' && !OK_G[g]) return false;              // the menu must stay on the remote's OK
+        if (f === 'attack' && g === 'none') return false;
+        if (o && o !== f && ((o === 'menu' && !OK_G[cur]) || (o === 'attack' && cur === 'none'))) return false;
+        return true;
+    }
+    function cycleBtn(f, dir) {
+        const cur = SET.btn[f]; let i = GESTURES.indexOf(cur);
+        for (let n = 0; n < GESTURES.length; n++) {
+            i = (i + dir + GESTURES.length) % GESTURES.length;
+            const g = GESTURES[i]; if (g === cur) return;
+            if (!canSet(f, g)) continue;
+            const o = g === 'none' ? '' : fnOf(g);
+            if (o) SET.btn[o] = cur;                               // the one that had it gets this one's old button
+            SET.btn[f] = g; saveSettings(); refreshHint(); return;
+        }
+    }
+    function cycleVoice(dir) {
+        const i = Math.max(0, Math.min(VOICE_RATES.length - 1, VOICE_RATES.indexOf(SET.voice) + dir));
+        SET.voice = VOICE_RATES[i]; VOICE.setRate(SET.voice); saveSettings();
+        VOICE.say('intro-0', T.intro[0], null);                  // a sample at the new speed
+    }
+    function settingsScreen() {
+        listScreen({
+            title: () => T.ui.settings, info: () => '', tabs: () => T.ui.remoteNote,
+            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r <= FNS.length) cycleBtn(FNS[r - 1], rtl() ? -dir : dir); },
+            rows: () => [{ label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) }]
+                .concat(FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]],
+                    fn: () => { cycleBtn(f, 1); renderList(); } })))
+                .concat([{ label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); saveSettings(); refreshHint(); renderList(); } },
+                         { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } }])
+        });
+    }
+    function refreshHint() { $('hint').textContent = T.ui['g_' + SET.btn.menu] + ': ' + T.ui.menuF; }
+
+    // the quick menu (hold OK with the default buttons): everything is reachable from here with arrows and OK
+    let qmP = null;
+    function quickMenu(p) {
+        qmP = p || P[0];
+        const go = fn => () => { closeList(); fn(); };
+        listScreen({
+            title: () => T.ui.menuF + (P[1].on ? ': ' + heroName(qmP.i) : ''), info: () => T.ui.stamina + ' ' + Math.round(qmP.sta) + ' / ' + STA_MAX,
             rows: () => {
-                const e = S.eq[EQ.hero];
-                if (!EQ.slot) return SLOTS.map(sl => { const cur = itemOf(e[sl]); return { label: T.ui['slot_' + sl] + ': ' + (cur ? itemLabel(cur) : T.ui.none), cls: cur ? 'r' + cur.r : '', sub: cur ? statLine(cur) : '',
-                    fn: () => { EQ.slot = sl; OV.sel = 0; renderList(); } }; }).concat([{ label: T.ui.close, fn: closeList }]);
-                const list = S.bag.filter(it => ITEMS[it.id] && ITEMS[it.id].slot === EQ.slot);
-                list.sort((a, b) => (e[EQ.slot] === b.u ? 1 : 0) - (e[EQ.slot] === a.u ? 1 : 0) || b.r - a.r || ITEMS[b.id].tier - ITEMS[a.id].tier || b.up - a.up);
-                const rows = list.map(it => ({ label: itemLabel(it), cls: 'r' + it.r, sub: statLine(it), right: e[EQ.slot] === it.u ? '✓ ' + T.ui.equipped : '', mark: e[EQ.slot] === it.u,
-                    fn: () => { e[EQ.slot] = it.u; recalcAll(); SND.fx('equip'); save(); EQ.slot = ''; OV.sel = 0; renderList(); } }));
-                if (EQ.slot !== 'weapon') rows.push({ label: T.ui.none, right: !e[EQ.slot] ? '✓' : '', fn: () => { e[EQ.slot] = 0; recalcAll(); save(); EQ.slot = ''; OV.sel = 0; renderList(); } });
-                rows.push({ label: T.ui.back, fn: () => { const s = SLOTS.indexOf(EQ.slot); EQ.slot = ''; OV.sel = s; renderList(); } });
-                return rows;
+                const r = [{ label: T.ui.mJournal, sub: objective(L), fn: () => { ovHide(); showJournal(); } }];
+                for (const a of AB_IDS) {
+                    const cd = qmP[CD_KEY[a]];
+                    r.push({ label: ABIL[a].icon + ' ' + T.ui[a], sub: txt(T.ui.abilityInfo, { a: T.ui[a + 'Sub'], s: ABIL[a].cost, c: ABIL[a].cd / 60 }),
+                        right: cd > 0 ? Math.ceil(cd / 60) + ' s' : qmP.sta < ABIL[a].cost ? '' : '✓', dim: cd > 0 || qmP.sta < ABIL[a].cost, fn: go(() => ability(qmP, a)) });
+                }
+                r.push({ label: txt(T.ui.mPotionS, { n: S.potions }), dim: S.potions <= 0, fn: go(() => drink(false)) },
+                       { label: txt(T.ui.mPotionB, { n: S.big }), dim: S.big <= 0, fn: go(() => drink(true)) },
+                       { label: T.ui.mEquip, fn: () => { ovHide(); equipScreen(); } },
+                       { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
+                       { label: T.ui.mBestiary, fn: bestiaryScreen },
+                       { label: T.ui.mSettings, fn: settingsScreen });
+                if (P[1].on) r.push({ label: T.ui.mLeave, fn: go(leave2) });
+                r.push({ label: T.ui.close, fn: closeList });
+                return r;
             }
         });
     }
@@ -1089,20 +1321,6 @@
                                                    : { label: T.ui.unknown, sub: '', dim: true, fn: () => {} }).concat([{ label: T.ui.close, fn: closeList }])
         });
     }
-    function quickMenu() {
-        const c = [
-            { label: T.ui.mJournal, fn: () => { closeDlg(); showJournal(); } },
-            { label: T.ui.mEquip, fn: () => { closeDlg(); equipScreen(); } },
-            { label: T.ui.mBestiary, fn: () => { closeDlg(); bestiaryScreen(); } },
-            { label: txt(T.ui.mPotionS, { n: S.potions }), fn: () => { closeDlg(); drink(false); } },
-            { label: txt(T.ui.mPotionB, { n: S.big }), fn: () => { closeDlg(); drink(true); } }
-        ];
-        for (const m of S.mounts) if (S.mount !== m) c.push({ label: m === 'horse' ? T.ui.rideHorse : T.ui.rideWolf, fn: () => { closeDlg(); setMount(m); } });
-        if (S.mount) c.push({ label: T.ui.walk, fn: () => { closeDlg(); setMount(''); } });
-        if (P[1].on) c.push({ label: T.ui.mLeave, fn: () => { closeDlg(); leave2(); } });
-        c.push({ label: T.ui.close, fn: closeDlg });
-        say([[null, T.ui.quest + ': ' + objective(L), 0]], c);
-    }
     function ovInput(a) {
         if (OV.kind === 'menu') {
             if (a === 'up' || a === 'down') {
@@ -1115,6 +1333,7 @@
             if (++OV.i < OV.slides.length) renderSlide(); else { ovHide(); const d = OV.done; d(); }
         } else if (OV.kind === 'journal' && a === 'confirm') { ovHide(); toPlay(); }
         else if (OV.kind === 'list') listInput(a);
+        else if (OV.kind === 'gear') gearInput(a);
     }
     function toPlay() { mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
 
@@ -1177,13 +1396,13 @@
         toast(txt(T.ui.p2joined, { name: heroName(1) })); SND.fx('ok');
     }
     function setMount(m) {
-        S.mount = m; save(); refreshMenu();
+        S.mount = m; if (m) S.lastMount = m; save(); refreshMenu();
         if (m && Z.def.dark) toast(T.ui.noRideDark);
         for (const p of P) if (p.on) { burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
         SND.fx(m ? 'equip' : 'move');
     }
     function riding(p) { return !!S.mount && !Z.def.dark && !p.down; }
-    function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? MOUNTS[S.mount].speed : 1); }
+    function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
     function leave2() { P[1].on = false; toast(txt(T.ui.p2left, { name: heroName(1) })); }
 
     function frontX(p, d) { return p.x + p.ax * d; }
@@ -1198,35 +1417,37 @@
         return true;
     }
 
-    function act(p) {
-        if (p.down) return;
+    // talking, doors, chests, the Rift...: true when OK did one of them
+    function interact(p) {
+        if (p.down) return true;
         const fx = frontX(p, 18), fy = frontY(p, 18);
         for (const n of Z.npcs) {
             if (!npcVisible(n.id) || (n.id === 'corvin' && S.stage < 15)) continue;
-            if (dist(fx, fy, n.x, n.y - 6) < 34 || dist(p.x, p.y, n.x, n.y) < 46) { n.fx = Math.sign(p.x - n.x); n.fy = n.fx ? 0 : Math.sign(p.y - n.y); return talk(n.id); }
+            if (dist(fx, fy, n.x, n.y - 6) < 34 || dist(p.x, p.y, n.x, n.y) < 46) { n.fx = Math.sign(p.x - n.x); n.fy = n.fx ? 0 : Math.sign(p.y - n.y); talk(n.id); return true; }
         }
-        if (Z.lantern && dist(fx, fy, Z.lantern.cx, Z.lantern.cy) < 44) return useLantern();
-        if (Z.rift && (dist(fx, fy, Z.rift.cx, Z.rift.cy) < 40 || dist(p.x, p.y, Z.rift.cx, Z.rift.cy) < 40)) return riftMenu();
-        if (Z.tablet && dist(fx, fy, Z.tablet.cx, Z.tablet.cy) < 36) return readTablet();
-        for (const t of Z.tre) if (!t.found && (dist(fx, fy, t.x, t.y) < 30 || dist(p.x, p.y, t.x, t.y) < 26)) return dig(t);
+        if (Z.lantern && dist(fx, fy, Z.lantern.cx, Z.lantern.cy) < 44) { useLantern(); return true; }
+        if (Z.rift && (dist(fx, fy, Z.rift.cx, Z.rift.cy) < 40 || dist(p.x, p.y, Z.rift.cx, Z.rift.cy) < 40)) { riftMenu(); return true; }
+        if (Z.tablet && dist(fx, fy, Z.tablet.cx, Z.tablet.cy) < 36) { readTablet(); return true; }
+        for (const t of Z.tre) if (!t.found && (dist(fx, fy, t.x, t.y) < 30 || dist(p.x, p.y, t.x, t.y) < 26)) { dig(t); return true; }
         for (const b of Z.boats) if (dist(fx, fy, b.cx, b.cy) < 34) {
-            if (Z.id === 'isle') return yesNo(null, T.lines.boatBack[0], () => ferry('shore'), 'boatBack-0');
-            if (S.stage >= 8) return yesNo('sela', T.lines.selaFerry[0], () => ferry('isle'), 'selaFerry-0');
-            return talk('sela');
+            if (Z.id === 'isle') { yesNo(null, T.lines.boatBack[0], () => ferry('shore'), 'boatBack-0'); return true; }
+            if (S.stage >= 8) { yesNo('sela', T.lines.selaFerry[0], () => ferry('isle'), 'selaFerry-0'); return true; }
+            talk('sela'); return true;
         }
-        for (const c of Z.chests) if (!c.open && dist(fx, fy, c.cx, c.cy) < 30) return openChest(c);
+        for (const c of Z.chests) if (!c.open && dist(fx, fy, c.cx, c.cy) < 30) { openChest(c); return true; }
         if (ahead(p, C_g)) {
             if (S.key) { S.gate = true; openTiles(C_g, 61, 'gate'); SND.fx('door'); toast(T.ui.gateOpen); save(); }
             else toast(T.ui.gateLocked);
-            return;
+            return true;
         }
         if (ahead(p, C_S)) {
             if (embers() === 3) { S.seal = true; openTiles(C_S, 120, 'seal'); SND.fx('door'); shake = 12; say(lines(null, 'sealOpen')); save(); }
             else say(lines(null, 'sealNeed'));
-            return;
+            return true;
         }
-        if (p.atk <= 0) attack(p);                       // only attacking waits for the weapon to be ready
+        return false;
     }
+    function act(p) { if (!interact(p) && p.atk <= 0) attack(p); }     // OK with the default buttons
     function ahead(p, code) { for (let d = 12; d <= 28; d += 8) if (codeAt(frontX(p, d), frontY(p, d) + 4) === code) return true; return false; }
     function openTiles(code, to, k) {
         for (let i = 0; i < Z.tiles.length; i++) if (Z.tiles[i] === code) Z.tiles[i] = to;
@@ -1270,6 +1491,67 @@
         }
     }
 
+    /* ---------- abilities: heal, power attack (a ground slam), distant attack (a piercing bolt) ---------- */
+    const CD_KEY = { heal: 'cdHeal', power: 'cdPower', distant: 'cdDistant' };
+    // quiet: say nothing when it cannot be used (OK twice then just attacks again)
+    function ability(p, a, quiet) {
+        if (!p.on || p.down || mode !== 'play') return false;
+        const ab = ABIL[a], k = CD_KEY[a];
+        let why = p[k] > 0 ? T.ui[a] + ': ' + T.ui.cooling + ' ' + Math.ceil(p[k] / 60) + ' s' : p.sta < ab.cost ? T.ui.noStamina : a === 'heal' && p.hp >= maxHp(p) ? T.ui.healFullHp : '';
+        if (why) { if (!quiet) { SND.fx('move'); if (toastT < 100) toast(why); } return false; }
+        p.sta -= ab.cost; p[k] = ab.cd; p.aura = 30;
+        if (a === 'heal') {
+            const n = Math.max(1, Math.ceil(maxHp(p) * 0.2));
+            p.hp = Math.min(maxHp(p), p.hp + n); p.auraCol = '#7ef0a0';
+            SND.fx('heal'); SND.fx('level');
+            floater(p.x, p.y - 34, n, '#7ef0a0', true);
+            ringFx(p.x, p.y - 4, 50, '#7ef0a0'); ringFx(p.x, p.y - 4, 30, '#d8ffe0');
+            for (let i = 0; i < 26; i++) part(p.x + (Math.random() - 0.5) * 26, p.y - Math.random() * 10, 2, (Math.random() - 0.5) * 0.4, 0, 1 + Math.random() * 1.6, 50 + Math.random() * 20, i & 1 ? '#7ef0a0' : '#ffffff', 3, -0.01);
+        } else if (a === 'power') {
+            p.auraCol = '#ffb040'; p.swing = 16; p.lean = 10; p.anim = 'sword'; p.atk = Math.max(p.atk, 16);
+            SND.fx('slam'); SND.fx('crit');
+            shake = 16; freeze = 6; flashT = 4;
+            ringFx(p.x, p.y, 84, '#ffb040'); ringFx(p.x, p.y, 60, '#fff2c0'); ringFx(p.x, p.y, 34, '#ff6a3a');
+            for (let i = 0; i < 36; i++) { const an = i / 36 * 6.2832, s = 2.5 + Math.random() * 2.5; part(p.x, p.y - 2, 2, Math.cos(an) * s, Math.sin(an) * s * 0.55, 1.5 + Math.random() * 2.5, 30 + Math.random() * 15, i % 3 ? Z.dust : '#ffb040', 3 + (i & 1)); }
+            const dmg = damage(p) * 3;
+            for (const f of FOES) {
+                if (!f.on || f.alpha < 0.5) continue;
+                const d = dist(p.x, p.y, f.x, f.y);
+                if (d < 84 + f.r) { const ux = (f.x - p.x) / (d || 1), uy = (f.y - p.y) / (d || 1); hitFoe(f, p, dmg, ux, uy); if (f.on && !f.d.boss) { f.kx = ux * 12; f.ky = uy * 12; } }
+            }
+            for (const s of Z.pots) if (s.on && dist(p.x, p.y, s.cx, s.cy) < 80) breakPot(s);
+        } else {
+            p.auraCol = '#7ad8ff'; p.swing = 10; p.lean = 6;
+            SND.fx('shoot'); SND.fx('bow'); flashT = 2; shake = Math.max(shake, 5);
+            const s = shot(p.x + p.ax * 14, p.y - 10 + p.ay * 6, p.ax * 7, p.ay * 7, Math.round(damage(p) * 2.5), 11, 12, p.i + 1);
+            if (s) s.pierce = 99;
+            ringFx(p.x + p.ax * 14, p.y - 6 + p.ay * 6, 26, '#7ad8ff');
+            sparks(p.x + p.ax * 16, p.y - 10 + p.ay * 6, p.ax, p.ay, 10, '#bff0ff');
+            p.kx -= p.ax * 3; p.ky -= p.ay * 3;
+        }
+        return true;
+    }
+    function gainStamina(n) { for (const p of P) if (p.on && !p.down) p.sta = Math.min(STA_MAX, p.sta + n); }
+    function potion(p) {                                   // the mapped potion button: a small one, else a big one
+        if (S.potions > 0) drink(false); else if (S.big > 0) drink(true); else toast(T.ui.noPotion);
+    }
+    function toggleMount() {
+        if (!S.mounts.length) return toast(T.ui.noMount);
+        setMount(S.mount ? '' : (S.mounts.indexOf(S.lastMount) >= 0 ? S.lastMount : S.mounts[0]));
+    }
+    // a gesture (tap, double, hold, run, cancel) from hero p: do what the player mapped to it
+    function gesture(p, g) {
+        if (p.down) return;
+        const f = fnOf(g);
+        if (!f && g === 'double') return gesture(p, 'tap');               // nothing on "OK twice": it is just another OK
+        if ((g === 'tap' || g === 'double') && interact(p)) return;        // OK always talks, opens and reads first
+        if (f === 'attack') { if (p.atk <= 0) attack(p); }
+        else if (f === 'menu') quickMenu(p);
+        else if (f === 'potion') potion(p);
+        else if (f === 'mount') toggleMount();
+        else if (!ability(p, f, g === 'double') && g === 'double') gesture(p, 'tap');
+    }
+
     function hitFoe(f, p, dmg, dx, dy) {
         if (!f.active && f.d.boss) activate(f);
         const crit = Math.random() * 100 < p.st.crit;
@@ -1286,14 +1568,15 @@
     }
     function killFoe(f) {
         f.on = false; S.kills++; S.seen[f.t] = (S.seen[f.t] || 0) + 1; SND.fx('die');
+        gainStamina(f.d.boss || f.elite ? STA_BIG : STA_KILL);
         const col = f.t === 'shade' || f.t === 'wisp' ? '#c9cfdc' : f.t === 'bones' || f.t === 'knight' ? '#e8e4d8' : f.t === 'bat' ? '#5a4a6a' : '#a08a6a';
         burst(f.x, f.y - 8, f.d.boss || f.elite ? 40 : 14, col, f.d.boss || f.elite ? 3 : 2);
         for (let i = 0; i < (f.d.boss ? 10 : 3); i++) part(f.x + (Math.random() - 0.5) * 10, f.y - 10, 10, 0, 0, 0.6 + Math.random() * 0.6, 50, '#e8ecff', 2, -0.01);
         ringFx(f.x, f.y - 6, f.d.boss ? 90 : 26, f.d.boss ? '#ffe9a8' : '#ffffff');
-        coins(f.x, f.y, f.d.coin * (f.elite ? 5 : 1));
+        coins(f.x, f.y, loot(f.d.coin * (f.elite ? 5 : 1)));
         if (f.elite) { const g2 = f.elite; f.elite = ''; poolReady(g2); dropGear(f.x, f.y, rollItem(zoneTier(), 1)); }
         if (!f.d.boss && Math.random() < 0.15) drop(f.x, f.y, 1, 3);
-        if (f.d.boss || Math.random() < LOOT.foeDrop * (Z.def.rift ? 2 : 1)) dropGear(f.x, f.y, rollItem(zoneTier(), f.d.boss ? 1 : 0));
+        if (f.d.boss || Math.random() < LOOT.foeDrop * TUNE.gearDrops * (Z.def.rift ? 2 : 1)) dropGear(f.x, f.y, rollItem(zoneTier(), f.d.boss ? 1 : 0));
         if (Math.random() < (LOOT.oreDrop[f.t] || 0)) drop(f.x, f.y, 3, f.d.boss ? 3 : 1);
         addXp(f.d.xp);
         countKill(f.t);
@@ -1309,7 +1592,7 @@
     }
     function hurt(p, dmg, sx, sy) {
         if (!p.on || p.inv > 0 || p.down || mode !== 'play') return;
-        dmg = Math.max(1, Math.round(dmg * (1 - Math.min(0.6, p.st.def * 0.06))));
+        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - Math.min(0.6, p.st.def * 0.06))));
         p.hp = Math.max(0, p.hp - dmg); p.inv = 60; SND.fx('hurt'); shake = 6; freeze = 3;
         const d = dist(p.x, p.y, sx, sy) || 1; p.kx = (p.x - sx) / d * 5; p.ky = (p.y - sy) / d * 5;
         floater(p.x, p.y - 30, dmg, '#ff5a5a');
@@ -1373,7 +1656,7 @@
         const stop = foe ? foe.r + 8 : loot ? 2 : 14;
         if (dist(pet.x, pet.y, p.x, p.y) > 420) { pet.x = p.x; pet.y = p.y + 6; }        // left far behind: catch up at once
         else if (dd > stop) {
-            const s = Math.min(playerSpeed(p) * 1.5, dd - stop + 0.5), ox = pet.x, oy = pet.y;
+            const s = Math.min(playerSpeed(p) * TUNE.petSpeed, dd - stop + 0.5), ox = pet.x, oy = pet.y;
             moveEnt(pet, dx / dd * s, dy / dd * s, 4, 3);
             if (pet.x === ox && pet.y === oy) { pet.x += dx / dd * s; pet.y += dy / dd * s; }   // cats squeeze through anything
             pet.walk += 0.4; pet.fx = dx < 0 ? -1 : 1;
@@ -1384,7 +1667,7 @@
     }
     function petHurt(dmg, sx, sy) {
         const pet = PET; if (!pet.on || pet.down || pet.inv > 0) return;
-        dmg = Math.max(1, Math.round(dmg * (1 - Math.min(0.6, (P[0].st.def / 2) * 0.06))));
+        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - Math.min(0.6, (P[0].st.def / 2) * 0.06))));
         pet.hp -= dmg; pet.inv = 50; pet.hurt = 8; floater(pet.x, pet.y - 20, dmg, '#ff9a9a');
         const d = dist(pet.x, pet.y, sx, sy) || 1; moveEnt(pet, (pet.x - sx) / d * 8, (pet.y - sy) / d * 8, 4, 3);
         if (pet.hp <= 0) { pet.hp = 0; pet.down = 600; burst(pet.x, pet.y - 6, 10, '#c9cfdc', 1.5); toast(T.ui.petDown); }
@@ -1396,6 +1679,8 @@
         if (p.swing > 0) p.swing--;
         if (p.lean > 0) p.lean--;
         if (p.flash > 0) p.flash--;
+        if (p.aura > 0) p.aura--;
+        if (p.cdHeal > 0) p.cdHeal--; if (p.cdPower > 0) p.cdPower--; if (p.cdDistant > 0) p.cdDistant--;
         if (p.down) {
             const other = P[1 - p.i];
             if (--p.downT <= 0 && other.on && !other.down) { p.down = false; p.hp = Math.ceil(maxHp(p) / 2); p.inv = 120; p.x = other.x; p.y = other.y; toast(txt(T.ui.revived, { name: heroName(p.i) })); }
@@ -1404,8 +1689,8 @@
         const dx = (held(p, 'right') ? 1 : 0) - (held(p, 'left') ? 1 : 0);
         const dy = (held(p, 'down') ? 1 : 0) - (held(p, 'up') ? 1 : 0);
         p.moving = !!(dx || dy);
-        // long press OK (without moving) opens the quick menu: journal, equipment, potions
-        if (held(p, 'jump') && !p.moving) { if (++p.hold === 50) { p.hold = 0; quickMenu(); return; } } else p.hold = 0;
+        // long press OK (without moving): the quick menu with the default buttons
+        if (held(p, 'jump') && !p.moving) { if (++p.hold === 50) { p.hold = 0; gesture(p, 'hold'); if (mode !== 'play') return; } } else p.hold = 0;
         if (p.moving) {
             const n = dx && dy ? 0.7071 : 1;
             p.ax = dx * n; p.ay = dy * n; p.fx = dx; p.fy = dy;
@@ -1587,8 +1872,9 @@
                 for (const pt of Z.pots) if (pt.on && Math.floor(s.x / TS) === pt.tx && Math.floor(s.y / TS) === pt.ty) breakPot(pt);
                 s.on = false; continue;
             }
-            if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) { s.on = false; burst(s.x, s.y, 3, s.k === 2 ? '#8a8fb8' : s.k === 11 ? '#ffd76a' : '#6a5a40', 1); continue; }
+            if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) { s.on = false; if (s.k === 12) { burst(s.x, s.y, 16, '#7ad8ff', 2.2); ringFx(s.x, s.y + 8, 30, '#7ad8ff'); } else burst(s.x, s.y, 3, s.k === 2 ? '#8a8fb8' : s.k === 11 ? '#ffd76a' : '#6a5a40', 1); continue; }
             if (s.k === 11 && (tick & 1)) part(s.x, s.y, 10, 0, 0, 0, 10, '#ffe9a8', 2, 0);
+            else if (s.k === 12) { part(s.x + (Math.random() - 0.5) * 8, s.y + (Math.random() - 0.5) * 8, 10, -s.vx * 0.1, -s.vy * 0.1, 0.2, 18, tick & 1 ? '#7ad8ff' : '#ffffff', 3, 0); }
             if (s.owner) {
                 for (const f of FOES) {
                     if (!f.on || f.alpha < 0.5 || f === s.hit) continue;
@@ -1773,7 +2059,7 @@
             dctx.drawImage(mi.light, x - 110 - fl / 2, y - 100 - fl / 2, 220 + fl, 200 + fl);
         }
         for (const p of P) if (p.on) { const r = p.flash > 0 ? 300 : 230; dctx.drawImage(mi.light, p.x - cx - r / 2, p.y - cy - 12 - r / 2, r, r); }
-        for (const s of SHOTS) if (s.on && s.k === 11) dctx.drawImage(mi.light, s.x - cx - 40, s.y - cy - 40, 80, 80);
+        for (const s of SHOTS) if (s.on && (s.k === 11 || s.k === 12)) dctx.drawImage(mi.light, s.x - cx - 40, s.y - cy - 40, 80, 80);
         dctx.globalCompositeOperation = 'source-over';
         ctx.globalAlpha = 0.9; ctx.drawImage(darkC, 0, 0, W, H); ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = 'lighter';
@@ -1797,6 +2083,11 @@
             } else if (s.k === 11) {                           // bullet
                 ctx.strokeStyle = '#ffe9a8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - s.vx * 1.6, y - s.vy * 1.6); ctx.lineTo(x, y); ctx.stroke();
                 ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 2, y - 2, 4, 4);
+            } else if (s.k === 12) {                           // the distant attack: a bolt of blue light
+                const pulse = 1 + Math.sin(tick * 0.6) * 0.15;
+                ctx.globalAlpha = 0.35; ctx.fillStyle = '#7ad8ff'; ctx.beginPath(); ctx.arc(x, y, 16 * pulse, 0, 6.2832); ctx.fill();
+                ctx.globalAlpha = 0.5; ctx.strokeStyle = '#bff0ff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x - s.vx * 3, y - s.vy * 3); ctx.lineTo(x, y); ctx.stroke();
+                ctx.globalAlpha = 1; ctx.fillStyle = '#e8fbff'; ctx.beginPath(); ctx.arc(x, y, 6 * pulse, 0, 6.2832); ctx.fill();
             } else if (s.k === 3) {                            // thrown bone
                 const a = tick * 0.4;
                 ctx.save(); ctx.translate(x, y); ctx.rotate(a);
@@ -1971,6 +2262,12 @@
             else { ctx.globalAlpha = 0.5; ctx.fillStyle = HERO[p.i].cloak; ctx.fillRect(x - 10, y - 6, 20, 7); ctx.globalAlpha = 1; }
             ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(NUM[Math.ceil(p.downT / 60)], x, y - 14);
             return;
+        }
+        if (p.aura > 0) {                                  // an ability was just used: a glow around the hero
+            const k = p.aura / 30;
+            ctx.globalAlpha = 0.45 * k; ctx.fillStyle = p.auraCol; ctx.beginPath(); ctx.ellipse(x, y - 14, 22 + (1 - k) * 14, 26 + (1 - k) * 14, 0, 0, 6.2832); ctx.fill();
+            ctx.globalAlpha = 0.9 * k; ctx.strokeStyle = p.auraCol; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y, 16 + (1 - k) * 20, 7 + (1 - k) * 9, 0, 0, 6.2832); ctx.stroke();
+            ctx.globalAlpha = 1;
         }
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
         const lean = p.lean / 8, back = p.ay < 0, ride = riding(p), hy = ride ? y - 13 : y;
@@ -2355,20 +2652,22 @@
         if (mode === 'overlay') { if (a !== 'jump') ovInput(a); return; }
         if (mode === 'dialog') { if (a !== 'jump') dlgInput(a); return; }
         if (mode !== 'play' || repeat) return;
+        const p = dev === P[0].dev || !P[1].on && dev === 'keys' ? P[0] : P[1].on && dev === P[1].dev ? P[1] : null;
         if (a === 'jump') {
-            if (dev === P[0].dev || !P[1].on && dev === 'keys') act(P[0]);
-            else if (P[1].on && dev === P[1].dev) act(P[1]);
-            else if (!P[1].on) join(dev);
-        }
+            if (!p) { if (!P[1].on) join(dev); return; }
+            // a second OK soon after the first is "OK twice"
+            if (tick - p.tapT < 16) { p.tapT = -99; gesture(p, 'double'); } else { p.tapT = tick; gesture(p, 'tap'); }
+        } else if (p && (a === 'run' || a === 'cancel')) gesture(p, a);
     }
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, changeZone, loadZone, placePlayers, update, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
+        talk, act, gesture, ability, SET, TUNE, changeZone, loadZone, placePlayers, update, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
 
     /* ------------------------------------------------------------------ lifecycle */
 
     function finishInit() {
+        readTune(); loadSettings(); refreshHint();
         S = fresh();
         const saved = MyPC.load('save', null);
         if (saved) S = migrate(Object.assign(fresh(), saved));
@@ -2382,7 +2681,7 @@
     MyPC.init({
         onInit: function (i) {
             info = i; L = TEXT[i.lang] ? i.lang : 'en'; T = TEXT[L]; tier = (i.quality && i.quality.tier) || 'high';
-            document.documentElement.lang = L;
+            document.documentElement.lang = L; document.documentElement.dir = L === 'ar' ? 'rtl' : 'ltr';
             VOICE.setLang(L);
             document.title = T.ui.title + ': ' + T.ui.sub;
             canvas = $('c'); ctx = canvas.getContext('2d', { alpha: false });
@@ -2391,7 +2690,6 @@
             darkC = document.createElement('canvas'); darkC.width = W; darkC.height = H; dctx = darkC.getContext('2d');
             $('questLbl').textContent = T.ui.quest;
             $('join').textContent = T.ui.p2join;
-            $('hint').textContent = T.ui.holdOk;
             $('dai').textContent = '✦ ' + T.ui.ai;
             $('pn0').textContent = T.ui.hero1; $('pn1').textContent = T.ui.hero2;
             MyPC.progress(0.3);
@@ -2417,13 +2715,14 @@
         onInput: onInput,
         onMenu: function (id) {
             if (!S || (mode !== 'play' && mode !== 'dialog')) return;
-            if (mode === 'dialog' && (id === 'journal' || id === 'equip')) closeDlg();
+            if (mode === 'dialog' && (id === 'journal' || id === 'equip' || id === 'settings' || id === 'mount')) closeDlg();
             if (id === 'journal') showJournal();
             else if (id === 'equip') equipScreen();
+            else if (id === 'settings') settingsScreen();
             else if (id === 'potion') drink(false);
             else if (id === 'big') drink(true);
             else if (id === 'leave2' && P[1].on) leave2();
-            else if (id === 'mount') setMount(S.mount ? '' : S.mounts[0]);
+            else if (id === 'mount') mountScreen();
         },
         onVolume: function (v) { SND.setVolume(v); }
     });

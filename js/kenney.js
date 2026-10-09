@@ -116,8 +116,8 @@ window.HM_KN = (function () {
             else if (c === 's') { sh = 'dungeon'; i = h < 0.7 ? 48 : 49; }
             else if (c === 'm') i = h < 0.7 ? 25 : 39;
             else if (c === 'F') i = 2;
-            else if (c === 'x') { if (theme === 'mine') { sh = 'dungeon'; i = 0; } else i = 109; }
-            else if (c === '#' || c === 't') { sh = 'dungeon'; i = theme === 'mine' ? 0 : 40; if (!dungeon && theme !== 'stone') { sh = 'town'; i = 109; } }
+            else if (c === 'x') { if (theme === 'mine') { sh = 'dungeon'; i = 40; } else i = 109; }
+            else if (c === '#' || c === 't') { sh = 'dungeon'; i = 40; if (!dungeon && theme !== 'stone') { sh = 'town'; i = 109; } }
             else if (theme === 'crypt') i = 109;
             else if (theme === 'mine') { sh = 'dungeon'; i = h < 0.85 ? 0 : 12; }
             else if (theme === 'stone') { sh = 'dungeon'; i = h < 0.75 ? 48 : 49; }
@@ -143,13 +143,15 @@ window.HM_KN = (function () {
     // a raised wall block: top face, and a front face when nothing is below it
     function wall(theme, front) {
         const key = 'wall' + theme + front; if (CACHE[key]) return CACHE[key];
-        const top = theme === 'mine' ? T('dungeon', 0) : theme === 'crypt' || theme === 'stone' ? T('dungeon', 40) : T('town', 109);
-        const face = theme === 'mine' ? T('dungeon', 57) : theme === 'crypt' || theme === 'stone' ? T('dungeon', 40) : T('town', 77);
+        // the mine: grey rock walls over its brown earth floor, so the two never look alike
+        const top = theme === 'mine' || theme === 'crypt' || theme === 'stone' ? T('dungeon', 40) : T('town', 109);
+        const face = theme === 'mine' || theme === 'crypt' || theme === 'stone' ? T('dungeon', 40) : T('town', 77);
         const c = mk(32, 48, x => {
             x.drawImage(top, 0, 0, 32, 32);
             if (theme === 'crypt') { x.fillStyle = 'rgba(16,14,34,0.55)'; x.fillRect(0, 0, 32, 32); }
+            if (theme === 'mine') { x.fillStyle = 'rgba(30,32,40,0.45)'; x.fillRect(0, 0, 32, 32); x.fillStyle = 'rgba(255,220,160,0.18)'; x.fillRect(0, 0, 32, 2); }
             x.fillStyle = 'rgba(0,0,0,0.18)'; x.fillRect(0, 28, 32, 4);
-            if (front) { x.drawImage(face, 0, 4, 16, 8, 0, 32, 32, 16); x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(0, 32, 32, 2); }
+            if (front) { x.drawImage(face, 0, 4, 16, 8, 0, 32, 32, 16); x.fillStyle = theme === 'mine' ? 'rgba(10,10,16,0.55)' : 'rgba(0,0,0,0.25)'; x.fillRect(0, 32, 32, theme === 'mine' ? 16 : 2); }
         });
         CACHE[key] = c;
         return c;

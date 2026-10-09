@@ -38,8 +38,16 @@
   #bars { position: absolute; bottom: 6%; inset-inline-start: 4%; inset-inline-end: 4%; display: flex; justify-content: space-between; }
   .pbar { width: 26%; } .pn { font-size: calc(var(--u) * 2.8); font-weight: 800; }
   #pb0 .pn { color: #8af0e0; } #pb1 .pn { color: #ffb38a; }
+  .sbar { height: calc(var(--u) * 1.1); margin-top: calc(var(--u) * 0.4); } .sbar i { background: linear-gradient(#9fe8ff, #2a8ad6); transition: width 0.2s; }
+  .abil { display: flex; gap: calc(var(--u) * 0.8); margin-top: calc(var(--u) * 0.6); }
+  .ab { position: relative; width: calc(var(--u) * 4.4); height: calc(var(--u) * 4.4); line-height: calc(var(--u) * 4.4); text-align: center; overflow: hidden;
+        font-size: calc(var(--u) * 2.8); font-weight: 900; border: calc(var(--u) * 0.3) solid #000; border-radius: calc(var(--u) * 0.8); background: rgba(10,12,20,0.75); color: #fff; }
+  .ab b { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: rgba(0,0,0,0.72); }
+  .ab u { position: absolute; left: 0; right: 0; bottom: 0; text-decoration: none; font-size: calc(var(--u) * 1.8); line-height: 1.1; color: #ffd23f; }
+  .ab.ready { border-color: #7ad8ff; box-shadow: 0 0 calc(var(--u) * 1) rgba(122,216,255,0.7); }
+  .ab.low { color: #6a7080; }
   #join { position: absolute; bottom: 6%; inset-inline-end: 4%; font-size: calc(var(--u) * 2.6); color: #ffb38a; background: rgba(10,12,20,0.6); padding: calc(var(--u) * 0.5) calc(var(--u) * 1.2); border-radius: calc(var(--u) * 0.8); }
-  #hint { position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%); font-size: calc(var(--u) * 2.4); color: rgba(255,255,255,0.65); white-space: nowrap; }
+  #hint { position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); font-size: calc(var(--u) * 2.4); color: rgba(255,255,255,0.65); white-space: nowrap; }
   #bossBox { position: absolute; bottom: 14%; left: 22%; right: 22%; text-align: center; }
   #bossName { font-size: calc(var(--u) * 3.4); font-weight: 800; color: #ffd0a0; }
   #bossBox .bar { height: calc(var(--u) * 2); } #bossBox .bar i { background: linear-gradient(#c89cff, #6a3ad6); }
@@ -109,6 +117,33 @@
   .jsub { font-size: calc(var(--u) * 3); font-weight: 900; color: #7ef0a0; margin-top: calc(var(--u) * 1.4); }
   .jq { font-size: calc(var(--u) * 2.8); margin: calc(var(--u) * 0.5) 0; }
   .jq.ready { color: #7ef0a0; }
+  /* equipment: boxes with pictures, and the details of the chosen one */
+  .gearbox { background: rgba(14,12,20,0.97); border: calc(var(--u) * 0.5) solid #e9d8a6; border-radius: calc(var(--u) * 2); width: 90%; height: 88%;
+             display: flex; flex-direction: column; padding: calc(var(--u) * 1.6) calc(var(--u) * 2.4); box-sizing: border-box; }
+  .gtabs { display: flex; gap: calc(var(--u) * 1); margin-top: calc(var(--u) * 1); flex-wrap: wrap; }
+  .gt { font-size: calc(var(--u) * 2.8); font-weight: 800; padding: calc(var(--u) * 0.5) calc(var(--u) * 1.6); border-radius: calc(var(--u) * 1); border: calc(var(--u) * 0.4) solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #c8c8d0; }
+  .gt.cur { background: rgba(233,216,166,0.25); color: #ffe9a8; border-color: #e9d8a6; }
+  .gt.sel { border-color: #ffd23f; box-shadow: 0 0 calc(var(--u) * 1.4) rgba(255,210,63,0.6); color: #fff; }
+  .gmain { flex: 1; min-height: 0; display: flex; gap: calc(var(--u) * 2); margin-top: calc(var(--u) * 1.4); }
+  .ggrid { flex: 1; min-width: 0; overflow: hidden; display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: calc(var(--u) * 17.5); gap: calc(var(--u) * 1); align-content: start; padding: calc(var(--u) * 0.6); }
+  .gi { position: relative; display: flex; flex-direction: column; align-items: center; border: calc(var(--u) * 0.45) solid #444a5a; border-radius: calc(var(--u) * 1.2);
+        background: linear-gradient(#262a38, #161822); padding: calc(var(--u) * 0.4); box-sizing: border-box; overflow: hidden; }
+  .gi.r1 { border-color: #3a7ad0; background: linear-gradient(#1d2c48, #141a28); } .gi.r2 { border-color: #8a4ad0; background: linear-gradient(#2c1d48, #1a1428); } .gi.r3 { border-color: #d08a10; background: linear-gradient(#402c10, #22180a); }
+  .gi.sel { border-color: #ffd23f; transform: scale(1.06); box-shadow: 0 0 calc(var(--u) * 1.8) rgba(255,210,63,0.75); z-index: 1; }
+  .gi.worn::after { content: '✓'; position: absolute; bottom: calc(var(--u) * 0.2); inset-inline-end: calc(var(--u) * 0.7); color: #7ef0a0; font-weight: 900; font-size: calc(var(--u) * 2.6); }
+  .gn { font-size: calc(var(--u) * 2.2); font-weight: 800; text-align: center; line-height: 1.1; height: calc(var(--u) * 4.9); overflow: hidden; width: 100%; display: flex; align-items: center; justify-content: center; }
+  .gn.r1 { color: #5ab0ff; } .gn.r2 { color: #c77dff; } .gn.r3 { color: #ffb020; }
+  .gi canvas { width: calc(var(--u) * 11); height: calc(var(--u) * 11); image-rendering: pixelated; }
+  .gup { position: absolute; bottom: calc(var(--u) * 0.3); inset-inline-start: calc(var(--u) * 0.6); font-size: calc(var(--u) * 2.2); font-weight: 900; color: #ffd23f; }
+  .gi.empty { border-style: dashed; color: #8a90a0; justify-content: center; font-size: calc(var(--u) * 2.6); font-weight: 800; }
+  .gdet { width: 34%; flex: none; background: rgba(255,255,255,0.05); border-radius: calc(var(--u) * 1.4); padding: calc(var(--u) * 1.6); box-sizing: border-box; overflow: hidden; }
+  .gdn { font-size: calc(var(--u) * 3.4); font-weight: 900; } .gdn.r1 { color: #5ab0ff; } .gdn.r2 { color: #c77dff; } .gdn.r3 { color: #ffb020; }
+  .gdk { font-size: calc(var(--u) * 2.4); color: #9fb0c8; margin-bottom: calc(var(--u) * 1); }
+  .gdet canvas { width: calc(var(--u) * 15); height: calc(var(--u) * 15); image-rendering: pixelated; display: block; margin: calc(var(--u) * 0.6) auto; }
+  .gds { font-size: calc(var(--u) * 2.6); margin: calc(var(--u) * 0.4) 0; display: flex; justify-content: space-between; gap: calc(var(--u) * 1); }
+  .gds .up { color: #7ef0a0; } .gds .dn { color: #ff7a7a; }
+  .gdh { font-size: calc(var(--u) * 2.3); color: #ffd23f; margin-top: calc(var(--u) * 1.2); }
+  .ghelp { font-size: calc(var(--u) * 2.2); color: #8a90a0; margin-top: calc(var(--u) * 0.8); }
   #paused { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: calc(var(--u) * 12); font-weight: 900; color: #fff; }
 </style>
 </head>
@@ -120,8 +155,10 @@
       <div id="embers"><span class="em r" id="em0"></span><span class="em b" id="em1"></span><span class="em s" id="em2"></span><span class="em h" id="em3"></span></div></div>
     <div id="stats"><span id="stLv"></span><span id="stCoins"></span><span id="stPot"></span></div>
     <div id="bars">
-      <div class="pbar" id="pb0"><div class="pn" id="pn0"></div><div class="bar"><i id="hp0"></i></div></div>
-      <div class="pbar" id="pb1" style="display:none"><div class="pn" id="pn1"></div><div class="bar"><i id="hp1"></i></div></div>
+      <div class="pbar" id="pb0"><div class="pn" id="pn0"></div><div class="bar"><i id="hp0"></i></div><div class="bar sbar"><i id="sp0"></i></div>
+        <div class="abil"><span class="ab" id="ab0h">✚<b></b><u></u></span><span class="ab" id="ab0p">✸<b></b><u></u></span><span class="ab" id="ab0d">➶<b></b><u></u></span></div></div>
+      <div class="pbar" id="pb1" style="display:none"><div class="pn" id="pn1"></div><div class="bar"><i id="hp1"></i></div><div class="bar sbar"><i id="sp1"></i></div>
+        <div class="abil"><span class="ab" id="ab1h">✚<b></b><u></u></span><span class="ab" id="ab1p">✸<b></b><u></u></span><span class="ab" id="ab1d">➶<b></b><u></u></span></div></div>
     </div>
     <div id="join" style="display:none"></div>
     <div id="hint"></div>
@@ -133,21 +170,22 @@
   <div id="toast"></div>
   <div id="paused" style="display:none">II</div>
 </div>
-<script>window.HM_VERSION = '1.7.0';</script>
+<script>window.HM_VERSION = '1.8.0';</script>
 <script src="https://imad-os.github.io/g/sdk/mypc-sdk.js"></script>
-<script src="js/i18n.js?v=1.7.0"></script>
-<script src="js/i18n_more.js?v=1.7.0"></script>
-<script src="js/i18n_talk.js?v=1.7.0"></script>
-<script src="js/i18n_pets.js?v=1.7.0"></script>
-<script src="js/i18n_rift.js?v=1.7.0"></script>
-<script src="js/items.js?v=1.7.0"></script>
-<script src="js/pool.js?v=1.7.0"></script>
-<script src="js/rift.js?v=1.7.0"></script>
-<script src="js/maps.js?v=1.7.0"></script>
-<script src="js/kenney.js?v=1.7.0"></script>
-<script src="js/art.js?v=1.7.0"></script>
-<script src="js/audio.js?v=1.7.0"></script>
-<script src="js/voice.js?v=1.7.0"></script>
-<script src="js/game.js?v=1.7.0"></script>
+<script src="js/i18n.js?v=1.8.0"></script>
+<script src="js/i18n_more.js?v=1.8.0"></script>
+<script src="js/i18n_talk.js?v=1.8.0"></script>
+<script src="js/i18n_pets.js?v=1.8.0"></script>
+<script src="js/i18n_rift.js?v=1.8.0"></script>
+<script src="js/i18n_play.js?v=1.8.0"></script>
+<script src="js/items.js?v=1.8.0"></script>
+<script src="js/pool.js?v=1.8.0"></script>
+<script src="js/rift.js?v=1.8.0"></script>
+<script src="js/maps.js?v=1.8.0"></script>
+<script src="js/kenney.js?v=1.8.0"></script>
+<script src="js/art.js?v=1.8.0"></script>
+<script src="js/audio.js?v=1.8.0"></script>
+<script src="js/voice.js?v=1.8.0"></script>
+<script src="js/game.js?v=1.8.0"></script>
 </body>
 </html>
