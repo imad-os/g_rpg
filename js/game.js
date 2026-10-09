@@ -679,7 +679,9 @@
         const items = [{ id: 'journal', label: T.ui.mJournal }, { id: 'equip', label: T.ui.mEquip }, { id: 'settings', label: T.ui.mSettings },
             { id: 'potion', label: txt(T.ui.mPotionS, { n: S.potions }) }];
         if (S.mounts.length) items.push({ id: 'mount', label: T.ui.mMounts });
-        items.push(P[1].on ? { id: 'leave2', label: T.ui.mLeave } : { id: 'coop', label: T.ui.mCoop });
+        if (ctrlEl) return;                                 // a guest phone: the menu only has "Leave" (set in controllerOn)
+        const asks = HM_COOP.host.asks.length;
+        items.push(P[1].on ? { id: 'leave2', label: T.ui.mLeave } : { id: 'coop', label: T.ui.mCoop + (asks ? ' (' + asks + ')' : '') });
         const k = items.map(i => i.label).join('|');
         if (k !== menuKey) { menuKey = k; MyPC.setMenu(items); }
     }
@@ -696,7 +698,7 @@
         if (mode !== 'overlay') return false;
         if (OV.kind === 'gear') { SND.fx('ok'); closeList(); return true; }
         if (OV.kind === 'journal') { SND.fx('ok'); ovHide(); toPlay(); return true; }
-        if (OV.kind === 'menu' && OV.coop) { SND.fx('ok'); coopClose(); return true; }
+        if (OV.kind === 'menu' && OV.coop) { SND.fx('ok'); if (OV.coop === 'host') coopClose(); else if (HM_COOP.guest.state === 'asking') HM_COOP.cancel(); else joinClose(); return true; }
         if (OV.kind === 'list') {
             const rows = OV.list.rows();
             for (const r of rows) if (r.fn === closeList || r.label === T.ui.back || r.label === T.ui.close || r.label === T.ui.leave) { SND.fx('ok'); r.fn(); return true; }
@@ -953,6 +955,7 @@
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
         OV.items.push({ label: T.ui.newg, fn: () => hasSave ? confirmNew() : newGame() });
+        OV.items.push({ label: T.ui.coopJoin, fn: joinScreen });
         OV.sel = 0; OV.head = [T.ui.title, chapterTitle()];
         renderMenu();
     }
@@ -1496,26 +1499,72 @@
     function riding(p) { return !!S.mount && !Z.def.dark && !p.down && !(S.mount === 'wolf' && CH && CH.noWolf); }
     function flying(p) { return S.mount === 'dragon' && riding(p); }
     function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
-    // local co-op: the code a phone types (controller.html) to join as hero 2; the state lives in js/coop.js
-    function coopScreen() {
-        mode = 'overlay'; OV.kind = 'menu'; OV.coop = true; setHud(false);
-        HM_COOP.open(coopRender); coopRender();
-    }
-    function coopRender() {
-        if (!(mode === 'overlay' && OV.kind === 'menu' && OV.coop)) return;
-        const c = HM_COOP.state, u = T.ui, title = u.mCoop.split(/[:：]/)[0], page = location.host + location.pathname.replace(/[^/]*$/, '') + 'controller.html';
-        OV.items = [];
-        if (c.state === 'waiting') OV.head = [c.code.split('').join(' '), txt(u.coopHow, { url: page })];
-        else if (c.state === 'connected') { OV.head = [title, u.coopOn]; OV.items.push({ label: u.coopDrop, fn: () => HM_COOP.disconnect() }); }
-        else if (c.state === 'error') { OV.head = [title, c.err === 'rules' ? u.coopRules : c.err === 'config' ? u.coopConfig : c.err === 'none' ? u.coopNone : u.coopNet]; OV.items.push({ label: u.coopNew, fn: () => HM_COOP.again() }); }
-        else if (c.state === 'expired') { OV.head = [title, u.coopExpired]; OV.items.push({ label: u.coopNew, fn: () => HM_COOP.again() }); }
-        else OV.head = [title, u.coopMake];
-        OV.items.push({ label: u.close, fn: coopClose });
-        OV.sel = Math.min(OV.sel || 0, OV.items.length - 1);
+    function leave2() { P[1].on = false; toast(txt(T.ui.p2left, { name: heroName(1) })); }
+
+    /* ---------- local co-op: rooms through Firestore (state and network in js/coop.js) ---------- */
+    const myName = () => (info && info.profile && info.profile.name) || T.ui.hero1;
+    const coopErr = c => c.err === 'rules' ? T.ui.coopRules : c.err === 'config' ? T.ui.coopConfig : c.err === 'none' ? T.ui.coopNone : T.ui.coopNet;
+    function coopMenu(head, items) {            // one render of a co-op screen; keeps the highlighted entry when the list changes
+        const cur = OV.items && OV.items[OV.sel] && OV.items[OV.sel].id;
+        OV.head = head; OV.items = items;
+        const k = cur && cur.indexOf('room:') === 0 ? items.findIndex(i => i.id === cur) : -1;       // only a chosen room keeps the highlight
+        OV.sel = k >= 0 ? k : Math.min(OV.sel || 0, items.length - 1);
         renderMenu();
     }
-    function coopClose() { OV.coop = false; HM_COOP.close(); ovHide(); toPlay(); }
-    function leave2() { P[1].on = false; toast(txt(T.ui.p2left, { name: heroName(1) })); }
+    // the host: open a room, accept a phone
+    function coopScreen() {
+        mode = 'overlay'; OV.kind = 'menu'; OV.coop = 'host'; OV.items = []; OV.sel = 0; setHud(false);
+        HM_COOP.listenHost(coopRender); coopRender();
+    }
+    function coopRender() {
+        if (!(mode === 'overlay' && OV.kind === 'menu' && OV.coop === 'host')) return;
+        const c = HM_COOP.host, u = T.ui, back = { label: u.coopBack, fn: coopClose, id: 'back' }, t = u.coopTitle;
+        if (c.state === 'open' && c.asks.length) {
+            const a = c.asks[0];
+            coopMenu([t, txt(u.coopAsk, { name: a.name })], [{ label: u.coopAccept, fn: () => HM_COOP.accept(a), id: 'yes' }, { label: u.coopDecline, fn: () => HM_COOP.decline(a), id: 'no' }, back]);
+        } else if (c.state === 'open') coopMenu([t, u.coopWaiting], [{ label: u.coopShut, fn: () => HM_COOP.closeRoom(), id: 'shut' }, back]);
+        else if (c.state === 'opening') coopMenu([t, u.coopOpening], [back]);
+        else if (c.state === 'connecting') coopMenu([t, u.coopConnecting], [back]);
+        else if (c.state === 'connected') coopMenu([t, u.coopOn], [{ label: u.coopDrop, fn: () => HM_COOP.disconnect(), id: 'drop' }, back]);
+        else if (c.state === 'error') coopMenu([t, coopErr(c)], [{ label: u.coopRetry, fn: () => HM_COOP.openRoom(myName()), id: 'retry' }, back]);
+        else coopMenu([t, u.coopIdle], [{ label: u.coopOpen, fn: () => HM_COOP.openRoom(myName()), id: 'open' }, back]);
+    }
+    function coopClose() { OV.coop = ''; HM_COOP.listenHost(null); ovHide(); toPlay(); refreshMenu(); }
+    // the guest: list the open rooms, pick one
+    function joinScreen() {
+        mode = 'overlay'; OV.kind = 'menu'; OV.coop = 'guest'; OV.items = []; OV.sel = 0; setHud(false);
+        HM_COOP.browse(joinRender); joinRender();
+    }
+    function joinRender() {
+        if (!(mode === 'overlay' && OV.kind === 'menu' && OV.coop === 'guest')) return;
+        const c = HM_COOP.guest, u = T.ui, t = u.coopJoin, back = { label: u.coopBack, fn: joinClose, id: 'back' }, name = c.room ? c.room.name : '';
+        if (c.state === 'asking') coopMenu([t, txt(u.coopWaitHost, { name })], [{ label: u.coopCancel, fn: () => HM_COOP.cancel(), id: 'cancel' }]);
+        else if (c.state === 'denied') coopMenu([t, txt(c.why === 'no' ? u.coopNo : c.why === 'gone' ? u.coopGone : c.why === 'timeout' ? u.coopTimeout : u.coopConnectFail, { name })], [{ label: u.coopBack, fn: () => HM_COOP.cancel(), id: 'back' }]);
+        else if (c.state === 'error') coopMenu([t, coopErr(c)], [back]);
+        else if (c.state === 'listing') coopMenu([t, c.rooms.length ? u.coopPick : u.coopNoRooms],
+            c.rooms.map(r => ({ label: r.name, id: 'room:' + r.id, fn: () => HM_COOP.ask(r, myName(), () => controllerOn(r), controllerOff) })).concat([back]));
+    }
+    function joinClose() { OV.coop = ''; HM_COOP.stopBrowse(); showTitle(); }
+    // connected as a guest: the phone shows only a pad; the game runs on the host
+    let ctrlEl = null;
+    function controllerOn(r) {
+        HM_COOP.stopBrowse(); OV.coop = ''; ovHide(); mode = 'overlay'; OV.kind = 'ctrl'; setHud(false); SND.pause();
+        ctrlEl = el('div', '');
+        ctrlEl.style.cssText = 'position:fixed;inset:0;z-index:99990;background:#07080c;color:#fff;text-align:center;padding-top:14vmin;font-size:max(18px,4.2vmin)';
+        ctrlEl.appendChild(el('div', '', txt(T.ui.coopCtrl, { name: r.name })));
+        const h = el('div', '', T.ui.coopCtrlHelp); h.style.cssText = 'margin-top:2vmin;font-size:max(14px,3vmin);color:#9fb0c8'; ctrlEl.appendChild(h);
+        const b = el('div', '', T.ui.coopLeave); b.style.cssText = 'position:absolute;top:2vmin;inset-inline-end:2vmin;padding:1.4vmin 3vmin;border:2px solid rgba(255,255,255,0.5);border-radius:1.2vmin;background:rgba(255,255,255,0.14);font-weight:700;touch-action:manipulation';
+        b.addEventListener('click', () => HM_COOP.leave());
+        ctrlEl.appendChild(b); document.body.appendChild(ctrlEl);
+        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init({ force: true, pause: false, buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }], send: HM_COOP.sendKey }); }
+        MyPC.setMenu([{ id: 'coopleave', label: T.ui.coopLeave }]);
+    }
+    function controllerOff() {
+        if (!ctrlEl) return;
+        ctrlEl.remove(); ctrlEl = null;
+        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init(); }
+        SND.resume(); menuKey = ''; showTitle(); toast(T.ui.coopLeft);
+    }
 
     function frontX(p, d) { return p.x + p.ax * d; }
     function frontY(p, d) { return p.y - 4 + p.ay * d; }
@@ -3058,7 +3107,7 @@
         } else if (p && (a === 'run' || a === 'cancel')) gesture(p, a);
     }
 
-    // local co-op: the host panel (js/coop-host.js) feeds a phone's buttons in here as one more device
+    // local co-op: js/coop.js feeds a phone's buttons in here as one more device
     window.HM_REMOTE = {
         input: (a, down, dev) => onInput(a, down, false, dev),
         leave: dev => {
@@ -3066,6 +3115,9 @@
             if (P[1].on && P[1].dev === dev) { P[1].on = false; P[1].dev = ''; toast(txt(T.ui.p2left, { name: heroName(1) })); }
         }
     };
+
+    // a phone asked to join: tell the host wherever they are (accepting is in the Co-op screen)
+    HM_COOP.onAsk = req => { toast(txt(T.ui.coopAskToast, { name: req.name })); refreshMenu(); };
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
@@ -3138,6 +3190,7 @@
         onInput: onInput,
         ownMenu: true,
         onMenu: function (id) {
+            if (id === 'coopleave') { HM_COOP.leave(); return; }
             if (!S || (mode !== 'play' && mode !== 'dialog')) return;
             if (mode === 'dialog' && (id === 'journal' || id === 'equip' || id === 'settings' || id === 'mount')) closeDlg();
             if (id === 'journal') showJournal();

@@ -221,14 +221,14 @@ Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made 
 - **My PC:** GitHub Pages (Settings → Pages → Deploy from a branch → `main` / root), then paste
   `https://imad-os.github.io/g_rpg/` into the installer at https://imad-os.github.io/g/installer/.
 
-## Local co-op (phone as second controller)
+## Local co-op (a phone as the second player)
 
-Works on the TV, a phone or a computer as the host. A second phone is hero 2's controller; both on the same Wi-Fi.
-1. Host: pause menu (or hold OK: quick menu) → **Co-op: invite a phone**. A 5-letter code appears.
-2. Phone: open `.../controller.html` (bookmark it, or "Add to Home Screen"), type the code, **Join**.
-3. The phone presses **A** to join as hero 2. It has a joystick, **A** (OK / attack), **B** (run, ability) and **C** (cancel, ability). Menus and dialogs stay on the host.
+All inside the game, nothing to type or copy; both devices on the same Wi-Fi.
+- **Host** (TV, phone or computer): pause menu (or hold OK: quick menu) → **Co-op: play with a phone** → **Open a room**.
+- **Guest** (a phone running the game, standalone or in My PC): title screen → **Join a friend** → pick the room from the list.
+- The host sees "X wants to join. Accept?" and accepts. The phone becomes a controller: joystick, **A** (OK / attack), **B** (run, ability), **C** (cancel, ability), **Leave**. It presses **A** to join as hero 2. Menus and dialogs stay on the host.
 
-The code is swapped through one small Firestore document that is deleted right after; play then goes directly device-to-device.
-One-time setup (rules, TTL, Firebase web config): see `docs/FIRESTORE_ROOMS.md`.
-Reusable parts: `js/netpad.js` + `js/netpad-room.js` (pairing) and `js/virtual-pad.js` (touch pad, `send` option for controllers).
+Firestore only introduces the devices (a room and a join request, deleted right after); play is direct device-to-device.
+One-time setup (rules, TTL policies, Firebase settings): `docs/FIRESTORE_ROOMS.md`.
+Reusable in other games: `js/netpad.js` (direct connection) + `js/netpad-rooms.js` (Firestore lobby) + `js/virtual-pad.js` (touch pad).
 If it will not connect, the router may block devices from talking to each other (guest network / client isolation).

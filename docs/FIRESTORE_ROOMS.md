@@ -1,51 +1,76 @@
-# Co-op room codes: Firestore setup
+# Co-op rooms: Firestore setup
 
-Hollowmere's local co-op (a phone as the second controller) uses a short room code. The two devices
-swap their connection data through one tiny Firestore document, `rooms/<CODE>`, which is deleted
-right after. Game traffic then goes directly between the devices on the Wi-Fi; Firestore only
-introduces them. Two things must be set up once.
+Hollowmere's local co-op works like a lobby, all inside the game:
+- A player (the **host**: TV, phone or computer) opens a room: **Co-op → Open a room**.
+- A friend on a phone starts the game, picks **Join a friend** on the title screen and chooses the room from the list.
+- The host sees "X wants to join. Accept?" and accepts. The phone becomes a controller (joystick + buttons).
 
-## 1. Publish the rules (adds the `rooms` collection)
+Nobody types or copies anything. Firestore only introduces the two devices (a room document and one join request,
+both deleted right after); the game traffic then goes directly between the devices on the Wi-Fi.
 
-Everything not listed in `firebase/firestore.rules` is closed, so the rooms need their own block.
-In the `imad-os/g` repository, add this inside `match /databases/{database}/documents { ... }` of
-`firebase/firestore.rules`, **above** the final `match /{document=**}` block, then **Publish** the rules
-(Firebase console → Firestore → Rules):
+## Firestore layout
 
 ```
-    // Local co-op rooms (apps that use a phone as a controller, e.g. Hollowmere): a device creates a room with a
-    // 5-letter code and its WebRTC offer, the phone writes its answer once, then the room is deleted.
-    // Codes are unguessable enough for a 3-minute window; there is no listing. Set a TTL policy on `exp`.
-    match /rooms/{code} {
+rooms/{room}            name, exp               the open room; its host refreshes exp every 15 s (it is gone ~45 s after the host stops)
+rooms/{room}/reqs/{req} name, offer, exp,       a phone asking to join; the host writes `answer` (accept) or `no` (decline)
+                        [answer | no]
+```
+
+## One-time setup
+
+### 1. Publish the rules
+Everything not listed in `firebase/firestore.rules` is closed, so the lobby needs its own block. In the
+`imad-os/g` repository add this inside `match /databases/{database}/documents { ... }`, **above** the final
+`match /{document=**}` block, then **Publish** (Firebase console → Firestore → Rules):
+
+```
+    // Local co-op lobby (apps with a phone as a controller, e.g. Hollowmere): a host opens a room, phones ask to join,
+    // the host answers. Rooms live ~45 s unless the host keeps refreshing `exp`. Set TTL policies on `exp` (see below).
+    match /rooms/{room} {
       allow get: if true;
-      allow list: if false;
-      allow create: if code.matches('^[A-HJ-NP-Z2-9]{5}$')
-          && request.resource.data.keys().hasOnly(['offer', 'exp'])
-          && request.resource.data.offer is string && request.resource.data.offer.size() <= 6000
-          && request.resource.data.exp is timestamp
-          && request.resource.data.exp > request.time
-          && request.resource.data.exp <= request.time + duration.value(15, 'm');
-      allow update: if !('answer' in resource.data)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answer'])
-          && request.resource.data.answer is string && request.resource.data.answer.size() <= 6000;
+      allow list: if request.query.limit <= 30;
+      allow create: if room.matches('^[a-z0-9]{12}$')
+          && request.resource.data.keys().hasOnly(['name', 'exp'])
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24
+          && request.resource.data.exp is timestamp && request.resource.data.exp > request.time
+          && request.resource.data.exp <= request.time + duration.value(2, 'm');
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['exp'])
+          && request.resource.data.exp > request.time && request.resource.data.exp <= request.time + duration.value(2, 'm');
       allow delete: if true;
+
+      match /reqs/{req} {
+        allow get: if true;
+        allow list: if request.query.limit <= 10;
+        allow create: if req.matches('^[a-z0-9]{12}$')
+            && request.resource.data.keys().hasOnly(['name', 'offer', 'exp'])
+            && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24
+            && request.resource.data.offer is string && request.resource.data.offer.size() <= 6000
+            && request.resource.data.exp is timestamp && request.resource.data.exp > request.time
+            && request.resource.data.exp <= request.time + duration.value(5, 'm');
+        // the host answers once: `answer` (accept) or `no` (decline)
+        allow update: if !('answer' in resource.data) && !('no' in resource.data)
+            && ((request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answer'])
+                  && request.resource.data.answer is string && request.resource.data.answer.size() <= 6000)
+                || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['no']) && request.resource.data.no == true));
+        allow delete: if true;
+      }
     }
 ```
 
-## 2. Let Firestore clean up abandoned rooms (TTL)
+### 2. TTL policies (Firestore cleans up abandoned rooms)
+Firebase console → Firestore → **TTL** → create two policies on the timestamp field `exp`: collection group
+`rooms`, and collection group `reqs`.
 
-Firebase console → Firestore → **TTL** → *Create policy*: collection group `rooms`, timestamp field `exp`.
-(Rooms the game does not delete itself, for example because the TV lost power, then disappear by themselves.)
-
-## 3. Put your Firebase web config in the game
-
-Fill in `js/firebase-config.js` with `project` (the Firebase project id) and `key` (the web `apiKey`) from
-Firebase console → Project settings → Your apps. A web config is an identifier, not a secret; the rules above
-are what protect the data. If it stays empty, the Co-op screen says the settings are missing.
+### 3. Firebase settings in the game
+`js/firebase-config.js` holds the Firebase `project` id and web `apiKey` (Firebase console → Project settings →
+Your apps). A web config is an identifier, not a secret; the rules above protect the data. While it is empty the
+Co-op screens say "Firebase settings are missing".
 
 ## What the rules allow (and do not)
-
-- Anyone who knows a code can read that room and write its answer once; nobody can list rooms or touch other collections.
-- A room holds one string (the offer, about 600 bytes) and its expiry; it cannot be made larger than 6000 bytes.
-- Anyone can create rooms, so a bored stranger could fill the collection with junk. TTL clears it; if it ever
-  becomes a problem, add Firebase App Check.
+- Anyone can list open rooms (max 30), read a room and its requests, and open rooms or ask to join; nobody can reach any other collection.
+- A room has only a name and an expiry; a request has a name, a connection offer (about 600 bytes) and an expiry. Sizes are capped.
+- A request can be answered once. Anyone could still delete or answer somebody else's room: this is a casual
+  friends-and-family lobby, not a place for secrets. A stranger could also fill the collection with junk; TTL clears it,
+  and Firebase App Check is the next step if that ever happens.
+- The room list is global: players who also run the game elsewhere see each other's rooms (names only). Joining only
+  works on the same Wi-Fi, because the devices connect directly without any relay.
