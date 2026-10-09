@@ -1,6 +1,7 @@
 /* Hollowmere: abilities, settings, button mapping, the gear and mounts screens (4 languages). */
 window.HM_TEXT_PLAY = {
 en: { ui: {
+    backF: 'Return', backSub: 'Closes a menu or ends a conversation with one press (hold OK: OK then acts when you let go)',
     healFullHp: 'Your health is already full.', noMount: 'You have no mount yet.', takeOff: 'Take off', critL: 'Critical', hpL: 'Health', goldL: 'Coins',
     gearHelp: 'Arrows: choose · OK: wear or take off · Up: tabs', gearHelpTabs: 'Left / right: slots · Down: your gear · OK: open',
     onFootSub: 'Walk (inside dark dungeons you always walk)', notOwned: 'Not owned', notOwnedLong: 'Win it in a quest, or buy it from Hana.',
@@ -14,6 +15,7 @@ en: { ui: {
     mounts: 'Mounts', onFoot: 'On foot', riding: 'Riding'
 } },
 fr: { ui: {
+    backF: 'Retour', backSub: 'Ferme un menu ou termine une conversation d’un seul appui (OK maintenu : OK agit alors au relâchement)',
     healFullHp: 'Votre santé est déjà pleine.', noMount: 'Vous n’avez pas encore de monture.', takeOff: 'Retirer', critL: 'Critique', hpL: 'Santé', goldL: 'Pièces',
     gearHelp: 'Flèches : choisir · OK : porter ou retirer · Haut : onglets', gearHelpTabs: 'Gauche / droite : emplacements · Bas : votre équipement · OK : ouvrir',
     onFootSub: 'À pied (dans les donjons sombres, on marche toujours)', notOwned: 'Pas à vous', notOwnedLong: 'Gagnez-la par une quête, ou achetez-la chez Hana.',
@@ -27,6 +29,7 @@ fr: { ui: {
     mounts: 'Montures', onFoot: 'À pied', riding: 'En selle'
 } },
 es: { ui: {
+    backF: 'Volver', backSub: 'Cierra un menú o termina una conversación con una sola pulsación (mantener OK: OK actúa al soltarlo)',
     healFullHp: 'Tu salud ya está completa.', noMount: 'Todavía no tienes montura.', takeOff: 'Quitar', critL: 'Crítico', hpL: 'Salud', goldL: 'Monedas',
     gearHelp: 'Flechas: elegir · OK: poner o quitar · Arriba: pestañas', gearHelpTabs: 'Izquierda / derecha: huecos · Abajo: tu equipo · OK: abrir',
     onFootSub: 'A pie (en las mazmorras oscuras siempre se camina)', notOwned: 'No es tuya', notOwnedLong: 'Gánala en una misión o cómprala en la tienda de Hana.',
@@ -40,6 +43,7 @@ es: { ui: {
     mounts: 'Monturas', onFoot: 'A pie', riding: 'Montado'
 } },
 ar: { ui: {
+    backF: 'رجوع', backSub: 'يغلق القائمة أو ينهي المحادثة بضغطة واحدة (مع الضغط المطوّل: يعمل OK عند رفع الإصبع)',
     healFullHp: 'صحتكم ممتلئة بالفعل.', noMount: 'لا تملكون مطية بعد.', takeOff: 'نزع', critL: 'ضربة حرجة', hpL: 'الصحة', goldL: 'القطع',
     gearHelp: 'الأسهم: اختيار · OK: ارتداء أو نزع · أعلى: الألسنة', gearHelpTabs: 'يمين / يسار: الخانات · أسفل: معداتكم · OK: فتح',
     onFootSub: 'سيرًا على الأقدام (في الأبراج المظلمة تمشون دائمًا)', notOwned: 'غير مملوكة', notOwnedLong: 'اربحوها في مهمة، أو اشتروها من متجر هانا.',

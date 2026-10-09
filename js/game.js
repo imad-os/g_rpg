@@ -79,13 +79,16 @@
     const OK_G = { tap: 1, double: 1, hold: 1 };
     const BTN_DEFAULT = { attack: 'tap', menu: 'hold', heal: 'cancel', power: 'double', distant: 'run', potion: 'none', mount: 'none' };
     const VOICE_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2];
-    const SET = { voice: 1, btn: Object.assign({}, BTN_DEFAULT) };
+    // "Return" works only in menus and conversations, so it has its own buttons (hold OK = OK acts when released there)
+    const BACK_G = ['hold', 'cancel', 'run', 'none'];
+    const SET = { voice: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold' };
     function loadSettings() {
         const s = MyPC.load('settings', null);
         if (s && typeof s === 'object') {
             if (VOICE_RATES.indexOf(s.voice) >= 0) SET.voice = s.voice;
             if (s.btn) for (const f of FNS) if (GESTURES.indexOf(s.btn[f]) >= 0) SET.btn[f] = s.btn[f];
             if (!OK_G[SET.btn.menu] || SET.btn.attack === 'none') SET.btn = Object.assign({}, BTN_DEFAULT);
+            if (BACK_G.indexOf(s.back) >= 0) SET.back = s.back;
         }
         VOICE.setRate(SET.voice);
     }
@@ -632,6 +635,26 @@
         const k = items.map(i => i.label).join('|');
         if (k !== menuKey) { menuKey = k; MyPC.setMenu(items); }
     }
+
+    /* ---------- the Return button: one press closes a menu or ends a conversation ---------- */
+    function goBack() {
+        if (mode === 'dialog') {
+            if (D.wait) return false;
+            if (D.i < D.pages.length - 1) { D.i = D.pages.length - 1; if (D.choices) { renderDlg(); } }   // skip the rest of the text
+            if (!D.choices) { SND.fx('ok'); closeDlg(); return true; }
+            for (const c of D.choices) if (c.fn === closeDlg) { SND.fx('ok'); c.fn(); return true; }
+            renderDlg(); return true;                       // a choice that must be made: just show it
+        }
+        if (mode !== 'overlay') return false;
+        if (OV.kind === 'gear') { SND.fx('ok'); closeList(); return true; }
+        if (OV.kind === 'journal') { SND.fx('ok'); ovHide(); toPlay(); return true; }
+        if (OV.kind === 'list') {
+            const rows = OV.list.rows();
+            for (const r of rows) if (r.fn === closeList || r.label === T.ui.back || r.label === T.ui.close || r.label === T.ui.leave) { SND.fx('ok'); r.fn(); return true; }
+        }
+        return false;                                       // the title screen and story pages have no way back
+    }
+    let okDown = -1, okBack = false;                        // hold OK as Return: when OK went down in a menu
 
     /* ------------------------------------------------------------------ dialog */
 
@@ -1257,6 +1280,7 @@
             SET.btn[f] = g; saveSettings(); refreshHint(); return;
         }
     }
+    function cycleBack(dir) { SET.back = BACK_G[(BACK_G.indexOf(SET.back) + dir + BACK_G.length) % BACK_G.length]; saveSettings(); }
     function cycleVoice(dir) {
         const i = Math.max(0, Math.min(VOICE_RATES.length - 1, VOICE_RATES.indexOf(SET.voice) + dir));
         SET.voice = VOICE_RATES[i]; VOICE.setRate(SET.voice); saveSettings();
@@ -1265,11 +1289,12 @@
     function settingsScreen() {
         listScreen({
             title: () => T.ui.settings, info: () => '', tabs: () => T.ui.remoteNote,
-            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r <= FNS.length) cycleBtn(FNS[r - 1], rtl() ? -dir : dir); },
+            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r <= FNS.length) cycleBtn(FNS[r - 1], rtl() ? -dir : dir); else if (r === FNS.length + 1) cycleBack(rtl() ? -dir : dir); },
             rows: () => [{ label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) }]
                 .concat(FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]],
                     fn: () => { cycleBtn(f, 1); renderList(); } })))
-                .concat([{ label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); saveSettings(); refreshHint(); renderList(); } },
+                .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], fn: () => { cycleBack(1); renderList(); } },
+                         { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; saveSettings(); refreshHint(); renderList(); } },
                          { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } }])
         });
     }
@@ -1690,7 +1715,7 @@
         const dy = (held(p, 'down') ? 1 : 0) - (held(p, 'up') ? 1 : 0);
         p.moving = !!(dx || dy);
         // long press OK (without moving): the quick menu with the default buttons
-        if (held(p, 'jump') && !p.moving) { if (++p.hold === 50) { p.hold = 0; gesture(p, 'hold'); if (mode !== 'play') return; } } else p.hold = 0;
+        if (held(p, 'jump') && !p.moving && !okBack) { if (++p.hold === 50) { p.hold = 0; gesture(p, 'hold'); if (mode !== 'play') return; } } else p.hold = 0;
         if (p.moving) {
             const n = dx && dy ? 0.7071 : 1;
             p.ax = dx * n; p.ay = dy * n; p.fx = dx; p.fy = dy;
@@ -1916,6 +1941,8 @@
         if (shake > 0) shake--;
         if (flashT > 0) flashT--;
         fogOff += 0.25;
+        // OK held half a second in a menu or a conversation: Return (if there is nothing to return from, the release is a normal OK)
+        if (okDown >= 0 && tick - okDown === 30 && SET.back === 'hold' && (mode === 'dialog' || mode === 'overlay')) okBack = goBack();
         if (freeze > 0) { freeze--; updParts(); return; }     // a short hit-pause makes blows land
         if (mode === 'fade') updFade();
         else if (mode === 'play') {
@@ -2645,12 +2672,19 @@
     function onInput(a, pressed, repeat, dev) {
         dev = dev || 'keys';
         if (!repeat) { const d = DEV[dev] || (DEV[dev] = {}); d[a] = pressed; }
+        // with Return on "hold OK", OK in menus and conversations acts when released (a long press is Return)
+        if (a === 'confirm' && !pressed && okDown >= 0) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
         if (!pressed || !started) return;
         if (P[0].dev === '') P[0].dev = dev;
         if (dev !== P[0].dev && !repeat) joinSeen = true;
         if (tick < lockUntil && (a === 'confirm' || a === 'jump')) return;
-        if (mode === 'overlay') { if (a !== 'jump') ovInput(a); return; }
-        if (mode === 'dialog') { if (a !== 'jump') dlgInput(a); return; }
+        if (mode === 'overlay' || mode === 'dialog') {
+            if (a === 'jump') return;
+            if (a === SET.back) { goBack(); return; }
+            if (a === 'confirm' && SET.back === 'hold') { if (!repeat) { okDown = tick; okBack = false; } return; }
+            if (mode === 'overlay') ovInput(a); else dlgInput(a);
+            return;
+        }
         if (mode !== 'play' || repeat) return;
         const p = dev === P[0].dev || !P[1].on && dev === 'keys' ? P[0] : P[1].on && dev === P[1].dev ? P[1] : null;
         if (a === 'jump') {

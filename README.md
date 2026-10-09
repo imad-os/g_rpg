@@ -1,6 +1,6 @@
 # Hollowmere: The Lantern Road
 
-**Version 1.8.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 1.8.1** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 or 2 players**. For three hundred years the Great Lantern of Hollowmere
 kept the Hush, a grey fog that eats sound, colour and memory, beyond the trees. Last night the
@@ -63,11 +63,14 @@ fire home and learn why it was taken.
 | Distant attack | (quick menu) | Shift / X | run button |
 | Healing | (quick menu) | Backspace | B |
 | Quick menu (journal, abilities, potions, equipment, mounts, bestiary, settings) | hold OK | hold Enter | hold A |
+| Return: close a menu, end a conversation | hold OK (in menus) | hold Enter | hold A |
 | Pause menu | Back | Esc / P | Start |
 
 Those are the default buttons. In **Settings** each action (attack, quick menu, healing, power
 attack, distant attack, potion, ride / walk) can be put on OK, OK twice, hold OK, the run button,
-the cancel button, or the menu only. The quick menu and attacking always stay on the remote's OK,
+the cancel button, or the menu only. **Return** has its own setting (hold OK, the cancel button, the run
+button, or off): one press closes any menu or ends a conversation, picking its Leave / Back /
+Goodbye choice. While Return is on hold OK, OK in menus and conversations acts when you let go. The quick menu and attacking always stay on the remote's OK,
 and OK always talks, opens and reads first, so nothing can be locked away.
 
 **Co-op:** a second player presses OK / A on another controller (or F with W A S D on a second
