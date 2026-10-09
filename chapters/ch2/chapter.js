@@ -36,8 +36,8 @@ HM_CHAPTERS.def.ch2 = function (api) {
     const WITCH = { skin: '#e0c8f0', hair: '#2a1a3a', style: 1, tunic: '#5a2a7a', trim: '#ff8a3a', pants: '#2a1a3a', shoes: '#1a1024', cape: '#3a1a4a' };
     const FOES = {
         rook:   { hp: 520, dmg: 7, spd: 1.1, r: 16, xp: 130, coin: 160, boss: 1, upd: rookUpd, draw: rookDraw },
-        witch:  { hp: 600, dmg: 7, spd: 0, r: 14, xp: 160, coin: 200, boss: 1, upd: witchUpd, draw: witchDraw },
-        choir:  { hp: 760, dmg: 8, spd: 0.35, r: 18, xp: 200, coin: 260, boss: 1, upd: choirUpd, draw: choirDraw },
+        witch:  { hp: 460, dmg: 7, spd: 0, r: 14, xp: 160, coin: 200, boss: 1, upd: witchUpd, draw: witchDraw },
+        choir:  { hp: 600, dmg: 8, spd: 0.35, r: 18, xp: 200, coin: 260, boss: 1, upd: choirUpd, draw: choirDraw },
         ember:  { hp: 50, dmg: 0, spd: 0, r: 12, xp: 10, coin: 0, upd: f => { f.sy = f.y; }, draw: emberDraw },
         clone:  { hp: 14, dmg: 3, spd: 0, r: 12, xp: 6, coin: 0, upd: cloneUpd, draw: (x, f, X, Y, w) => { x.globalAlpha = 0.55; witchBody(x, f, X, Y, w); x.globalAlpha = 1; } }
     };
@@ -323,12 +323,14 @@ HM_CHAPTERS.def.ch2 = function (api) {
     function bossDown(f) {
         const c = C(), t = T();
         if (f.t === 'rook') { adv(4); api.say(lines('rook', 'c2rookDown'), null, () => api.toast(t.ui.c2gotLens)); }
-        else if (f.t === 'witch') { adv(7); api.say(lines('witch', 'c2witchDown'), null, () => api.toast(t.ui.c2gotFlame)); }
+        else if (f.t === 'witch') { adv(7); giveDragon(); api.say(lines('witch', 'c2witchDown').concat(lines(null, 'c2dragon')), null, () => { api.toast(t.ui.c2gotFlame); setTimeout(() => api.toast(t.ui.gotDragon), 3000); }); }
         else if (f.t === 'choir') {
             adv(9); c.rise = true; api.save();
             api.say(lines('choir', 'c2choirDown'), null, () => api.travel('c2_bay', 26.5, 21.3));
         }
     }
+    // a young dragon hatches from the Witch's ember: a flying mount
+    function giveDragon() { const s = S(); if (s.mounts.indexOf('dragon') < 0) { s.mounts.push('dragon'); api.save(); } }
     function onZone(id) {
         const Z = api.Z, c = C();
         if (Z.pedestal) Z.pedestal.lantern = drawLantern;
@@ -447,7 +449,7 @@ HM_CHAPTERS.def.ch2 = function (api) {
             c2_light:   { root: 130.8, scale: [0, 2, 3, 6, 7, 8, 11, 12], chords: [0, 2, 5, 1], rate: 2.4, beats: 48, pad: 'sine', lead: 'bell', drums: 'none', echo: 0.45, busy: 0.4, arp: false, seed: 17 },
             c2_boss:    { root: 123.5, scale: [0, 1, 3, 5, 6, 8, 10, 12], chords: [0, 1, 5, 4], rate: 6, beats: 64, pad: 'sawtooth', lead: 'brass', drums: 'war', echo: 0.1, busy: 0.85, seed: 3 }
         },
-        start() { const s = S(); if (s && !s.c2) s.c2 = { st: 0, kills: 0, gate: false, low: false, lit: false, rise: false, letter: 0, seen: {} }; },
+        start() { const s = S(); if (s && !s.c2) s.c2 = { st: 0, kills: 0, gate: false, low: false, lit: false, rise: false, letter: 0, seen: {} }; if (s && s.c2.st >= 7) giveDragon(); },
         stop() {},
         build(Z, def) { ART.build(Z, def, api); },
         drawUnder(x, cx, cy, t) { ART.drawUnder(x, api.Z, cx, cy, t, api.glow); },

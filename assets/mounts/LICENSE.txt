@@ -1,0 +1,14 @@
+Mount sprites used by Hollowmere
+
+horse_walk.png, horse_run.png, horse_idle.png
+  "Animated horse" by ScratchIO
+  https://opengameart.org/content/animated-horse
+  License: CC0 1.0 (public domain) - https://creativecommons.org/publicdomain/zero/1.0/
+
+dragon.png (flying_dragon-red-RGB.png)
+  "Flying Dragon" (red, single-headed) by ZaPaper
+  Credits to http://www.buko-studios.com/ - Commissioned by PlayCraft: www.playcraftapp.com
+  Rework and packaging: https://opengameart.org/content/flying-dragon-rework (AntumDeluge)
+  Original: https://opengameart.org/content/red-dragon
+  License: CC-BY 3.0 - https://creativecommons.org/licenses/by/3.0/
+  Used unchanged (the game draws it scaled).

@@ -39,6 +39,7 @@ en: {
         'The Hush is not gone. But now two Lanterns watch over the lake.'
     ],
     lines: {
+        c2dragon: ['Behind the Witch\'s throne, an egg cracks in the heat. A young red dragon looks at you... and bows its head.'],
         c2arrive: ['Here we are: Larkspur Bay. Smell that? Salt and fresh bread.', 'Someone is coming. That must be the harbour mistress.'],
         c2hello: ['Travellers from across the lake? Welcome to Larkspur!', 'I am Odile. I look after this harbour. Come and talk to me: we need help.'],
         c2odile0: ['A hundred years ago, our Lantern stood here. One stormy night the old lighthouse fell, and the Lantern sank into the sea.',
@@ -141,6 +142,7 @@ fr: {
         'Le Silence n’a pas disparu. Mais maintenant, deux Lanternes veillent sur le lac.'
     ],
     lines: {
+        c2dragon: ['Derrière le trône de la Sorcière, un œuf se fend dans la chaleur. Un jeune dragon rouge vous regarde... et baisse la tête.'],
         c2arrive: ['Nous y voilà : la Baie de Larkspur. Vous sentez ? Le sel et le pain frais.', 'Quelqu’un arrive. Ce doit être la maîtresse du port.'],
         c2hello: ['Des voyageurs venus de l’autre côté du lac ? Bienvenue à Larkspur !', 'Je suis Odile. Je m’occupe de ce port. Venez me parler : nous avons besoin d’aide.'],
         c2odile0: ['Il y a cent ans, notre Lanterne se dressait ici. Une nuit de tempête, le vieux phare est tombé, et la Lanterne a coulé dans la mer.',
@@ -243,6 +245,7 @@ es: {
         'El Silencio no se ha ido. Pero ahora dos Faroles vigilan el lago.'
     ],
     lines: {
+        c2dragon: ['Detrás del trono de la Bruja, un huevo se rompe con el calor. Un dragón rojo y joven te mira... y baja la cabeza.'],
         c2arrive: ['Ya llegamos: la Bahía de Larkspur. ¿Lo hueles? Sal y pan recién hecho.', 'Alguien viene. Debe de ser la jefa del puerto.'],
         c2hello: ['¿Viajeros del otro lado del lago? ¡Bienvenidos a Larkspur!', 'Soy Odile. Cuido de este puerto. Ven a hablar conmigo: necesitamos ayuda.'],
         c2odile0: ['Hace cien años, nuestro Farol estaba aquí. Una noche de tormenta cayó el viejo faro, y el Farol se hundió en el mar.',
@@ -345,6 +348,7 @@ ar: {
         'السكون لم يذهب بعد. لكن الآن يحرس البحيرة فانوسان.'
     ],
     lines: {
+        c2dragon: ['خلف كرسي الساحرة، تنكسر بيضة من الحرارة. تنين أحمر صغير ينظر إليك... ثم يخفض رأسه.'],
         c2arrive: ['وصلنا: هذا خليج لاركسبير. هل تشم الرائحة؟ ملح وخبز طازج.', 'أحد ما قادم. لا بد أنها مسؤولة الميناء.'],
         c2hello: ['مسافرون من وراء البحيرة؟ أهلًا بكم في لاركسبير!', 'أنا أوديل. أنا أعتني بهذا الميناء. تعال وكلّمني: نحن نحتاج المساعدة.'],
         c2odile0: ['قبل مئة سنة كان فانوسنا هنا. وفي ليلة عاصفة سقطت المنارة القديمة، وغرق الفانوس في البحر.',

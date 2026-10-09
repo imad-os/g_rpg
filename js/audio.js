@@ -190,7 +190,8 @@ window.HM_AUDIO = (function () {
         blink: () => tone(1500, 300, 0.25, 'sine', 0.12),
         beam: () => { tone(110, 90, 0.9, 'sawtooth', 0.12); hiss(0.8, 0.12, 2400); },
         bell: () => { [1, 2.76, 5.4].forEach((k, i) => tone(392 * k, 0, 2.2 - i * 0.6, 'sine', 0.2 / (i + 1))); },
-        wave: () => { hiss(1.2, 0.3, 400); tone(80, 50, 1.2, 'sine', 0.2); }
+        wave: () => { hiss(1.2, 0.3, 400); tone(80, 50, 1.2, 'sine', 0.2); },
+        wings: () => { hiss(0.22, 0.18, 380); tone(70, 50, 0.2, 'sine', 0.15); }
     };
     let hoofStep = false;
     function voiceHit(f1, f2, formant) {

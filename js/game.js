@@ -5,7 +5,7 @@
     'use strict';
     const W = 640, H = 360, TS = 32, STEP = 1000 / 60;
     const KN = window.HM_KN, VERSION = window.HM_VERSION || '1';
-    const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, TEXT = window.HM_TEXT, CHAPTERS = window.HM_CHAPTERS, HEROART = window.HM_HERO;
+    const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, TEXT = window.HM_TEXT, CHAPTERS = window.HM_CHAPTERS, HEROART = window.HM_HERO, MOUNTART = window.HM_MOUNTART;
     const ITEMS = window.HM_ITEMS, SLOTS = window.HM_SLOTS, SHOPS = window.HM_SHOPS, LOOT = window.HM_LOOT, MOUNTS = window.HM_MOUNTS;
     // the chapter the heroes are in (its pack is loaded by js/chapters.js) and its content
     let CH = null, CHID = '', MAPS = {}, QUESTS = [], POOL = [], CHESTS = {}, LOOK = {}, TALKER = {}, PARENT = {}, DUST = {}, TREASURES = {}, BEASTS = [];
@@ -141,7 +141,7 @@
         if (id.indexOf('q:') === 0) { const d = poolDef(S.pq[id.slice(2)]); return d ? d.who.name[L] || d.who.name.en : ''; }
         return (T.names && T.names[id]) || (TEXT.en.names && TEXT.en.names[id]) || id;
     }
-    function mountName(m) { return m === 'horse' ? T.ui.horse : T.ui.wolfMount; }
+    function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : T.ui.wolfMount; }
     function heroName(i) { return i ? T.ui.hero2 : T.ui.hero1; }
     function itemName(id) { return (T.items && T.items[id]) || id; }
     function maxHp(p) { return 10 + 3 * (S.lvl - 1) + (p ? p.st.hp : 0); }
@@ -172,12 +172,12 @@
             if (!h.on) continue;
             if (h.t > 0) { if (--h.t === 0) {
                 SND.fx('bomb'); shake = Math.max(shake, 6); ringFx(h.x, h.y, h.r + 10, h.col); burst(h.x, h.y - 4, 14, h.col, 2.4);
-                for (const q of P) if (q.on && !q.down && dist(q.x, q.y, h.x, h.y) < h.r + 6) hurt(q, h.dmg, h.x, h.y);
+                for (const q of P) if (q.on && !q.down && dist(q.x, q.y, h.x, h.y) < h.r + 6) hurt(q, h.dmg, h.x, h.y, true);
                 if (PET.on && !PET.down && dist(PET.x, PET.y, h.x, h.y) < h.r) petHurt(h.dmg, h.x, h.y);
                 if (!h.kind) h.on = false;
             } continue; }
             if ((tick & 3) === 0) part(h.x + (Math.random() - 0.5) * h.r * 1.6, h.y + (Math.random() - 0.5) * h.r * 0.6, 2, 0, 0, 0.8 + Math.random(), 22, tick & 4 ? '#ffd25a' : h.col, 3, -0.02);
-            if ((tick & 31) === 0) for (const q of P) if (q.on && !q.down && dist(q.x, q.y, h.x, h.y) < h.r) hurt(q, Math.max(1, h.dmg >> 1), h.x, h.y);
+            if ((tick & 31) === 0) for (const q of P) if (q.on && !q.down && dist(q.x, q.y, h.x, h.y) < h.r) hurt(q, Math.max(1, h.dmg >> 1), h.x, h.y, true);
             if (--h.burn <= 0) h.on = false;
         }
     }
@@ -440,10 +440,13 @@
     const Z = { id: '', def: null, cols: 0, rows: 0, tiles: null, block: null, ground: null, theme: 'grass', rs: [], npcs: [], statics: [], picks: [],
         pots: [], chests: [], lights: [], lantern: null, boats: [], field: null, fq: null, ftx: -1, fty: -1, dust: '#b8a27a' };
 
+    const FLY_OVER = new Uint8Array(128); '~rfpbhlkcCv'.split('').forEach(c => { FLY_OVER[c.charCodeAt(0)] = 1; });
+    let flyMove = false;                                    // true while a hero on the dragon moves
     function solidAt(x, y) {
         const tx = Math.floor(x / TS), ty = Math.floor(y / TS);
         if (tx < 0 || ty < 0 || tx >= Z.cols || ty >= Z.rows) return true;
         const i = ty * Z.cols + tx;
+        if (flyMove && FLY_OVER[Z.tiles[i]] === 1 && Z.block[i] !== 1) return false;
         return SOLID[Z.tiles[i]] === 1 || Z.block[i] === 1;
     }
     function codeAt(x, y) {
@@ -1245,7 +1248,8 @@
         const c = document.createElement('canvas'); c.width = c.height = 96;
         const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
         try {
-            if (m === 'horse') drawHorse(44, 80, 0, 1, 1.7); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
+            if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
+            else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
             else HEROART.draw(ctx, 48, 88, HERO_LOOK[0], P[0].gear, 0, false, 0, 0, false, 2);
         } catch (e) {}
         ctx = saved; if (m) MICONS[m] = c;
@@ -1255,10 +1259,10 @@
         listScreen({
             title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
             rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
-                .concat(['horse', 'wolf'].map(m => {
+                .concat(['horse', 'wolf', 'dragon'].map(m => {
                     const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100, home = m === 'wolf' && CH.noWolf;
-                    return { label: mountName(m), sub: home ? T.ui.wolfStays : (m === 'horse' ? T.ui.horseSub : T.ui.wolfSub) + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
-                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(T.ui.notOwnedLong); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
+                    return { label: mountName(m), sub: home ? T.ui.wolfStays : (m === 'horse' ? T.ui.horseSub : m === 'dragon' ? T.ui.dragonSub : T.ui.wolfSub) + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
+                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(m === 'dragon' ? T.ui.dragonHow : T.ui.notOwnedLong); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
                 }))
                 .concat([{ label: T.ui.close, fn: closeList }])
         });
@@ -1299,6 +1303,7 @@
                     fn: () => { cycleBtn(f, 1); renderList(); } })))
                 .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], fn: () => { cycleBack(1); renderList(); } },
                          { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; saveSettings(); refreshHint(); renderList(); } },
+                         { label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} },
                          { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } }])
         });
     }
@@ -1480,12 +1485,14 @@
     }
     function setMount(m) {
         if (m === 'wolf' && CH.noWolf) { toast(T.ui.wolfStays); return; }
+        if (S.mount === 'dragon' && m !== 'dragon' && !Z.def.dark) for (const p of P) if (p.on && !p.down && feetSolid(p.x, p.y)) { toast(T.ui.flyLand); return; }
         S.mount = m; if (m) S.lastMount = m; save(); refreshMenu();
         if (m && Z.def.dark) toast(T.ui.noRideDark);
         for (const p of P) if (p.on) { burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
         SND.fx(m ? 'equip' : 'move');
     }
     function riding(p) { return !!S.mount && !Z.def.dark && !p.down && !(S.mount === 'wolf' && CH && CH.noWolf); }
+    function flying(p) { return S.mount === 'dragon' && riding(p); }
     function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
     function leave2() { P[1].on = false; toast(txt(T.ui.p2left, { name: heroName(1) })); }
 
@@ -1551,6 +1558,7 @@
         return true;
     }
     function attack(p) {
+        if (flying(p)) { if (toastT < 60) toast(T.ui.flyNoAttack); return; }
         const st = p.st;
         aimAt(p, st.kind === 'sword' ? 64 : 290);
         p.atk = st.cd; p.swing = 12; p.lean = 8; p.anim = st.kind;
@@ -1594,6 +1602,7 @@
     // quiet: say nothing when it cannot be used (OK twice then just attacks again)
     function ability(p, a, quiet) {
         if (!p.on || p.down || mode !== 'play') return false;
+        if (a !== 'heal' && flying(p)) { if (!quiet && toastT < 60) toast(T.ui.flyNoAttack); return false; }
         const ab = ABIL[a], k = CD_KEY[a];
         let why = p[k] > 0 ? T.ui[a] + ': ' + T.ui.cooling + ' ' + Math.ceil(p[k] / 60) + ' s' : p.sta < ab.cost ? T.ui.noStamina : a === 'heal' && p.hp >= maxHp(p) ? T.ui.healFullHp : '';
         if (why) { if (!quiet) { SND.fx('move'); if (toastT < 100) toast(why); } return false; }
@@ -1693,8 +1702,10 @@
             SND.fx('level'); toast(txt(T.ui.lvup, { n: S.lvl }));
         }
     }
-    function hurt(p, dmg, sx, sy) {
+    // ground: a blow or something on the ground (a flying hero is out of reach)
+    function hurt(p, dmg, sx, sy, ground) {
         if (!p.on || p.inv > 0 || p.down || mode !== 'play') return;
+        if (ground && flying(p)) return;
         dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - Math.min(0.6, p.st.def * 0.06))));
         p.hp = Math.max(0, p.hp - dmg); p.inv = 60; SND.fx('hurt'); SND.fx(p.i ? 'ouch2' : 'ouch'); shake = 6; freeze = 3;
         const d = dist(p.x, p.y, sx, sy) || 1; p.kx = (p.x - sx) / d * 5; p.ky = (p.y - sy) / d * 5;
@@ -1810,16 +1821,16 @@
             const spd = playerSpeed(p) * (p.atk > p.st.cd - 8 ? 0.5 : 1);
             if (p.ax) p.lfx = p.ax < 0 ? -1 : 1;
             const ox = p.x, oy = p.y;
-            moveEnt(p, dx * n * spd, dy * n * spd, 7, 4);
+            flyMove = flying(p); moveEnt(p, dx * n * spd, dy * n * spd, 7, 4); flyMove = false;
             p.walk += 0.22 * (1 + p.st.spd);
-            if (riding(p) && (tick + p.i * 7) % 14 === 0) SND.fx('hoof');
+            if (riding(p) && (tick + p.i * 7) % (flying(p) ? 26 : 14) === 0) SND.fx(flying(p) ? 'wings' : 'hoof');
             if ((tick + p.i * 5) % (riding(p) ? 4 : 9) === 0) part(p.x - p.ax * 6, p.y, 1, -p.ax * 0.3, -p.ay * 0.2, 0.6, 22, Z.dust, riding(p) ? 4 : 3, 0.02);
             if (P[1].on) {                                 // co-op: stay on the same screen
                 const o = P[1 - p.i];
                 if (o.on && !o.down && (Math.abs(p.x - o.x) > W - 70 || Math.abs(p.y - o.y) > H - 70)) { p.x = ox; p.y = oy; }
             }
         } else p.walk = 0;
-        if (p.kx || p.ky) { moveEnt(p, p.kx, p.ky, 7, 4); p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
+        if (p.kx || p.ky) { flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false; p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
         p.sy = p.y;
         // riding the wolf: it bites what you run into
         if (riding(p) && MOUNTS[S.mount].bite && --p.bite <= 0) {
@@ -1935,7 +1946,7 @@
                 else {
                     f.ring += 3;
                     if (tick & 1) part(f.x + Math.cos(tick) * f.ring, f.y + Math.sin(tick) * f.ring * 0.4, 1, 0, 0, 1.5, 16, '#c8b89a', 3);
-                    for (const q of P) if (q.on && !q.down && !(f.mask & (1 << q.i)) && Math.abs(dist(q.x, q.y, f.x, f.y) - f.ring) < 12) { f.mask |= 1 << q.i; hurt(q, f.d.dmg, f.x, f.y); }
+                    for (const q of P) if (q.on && !q.down && !(f.mask & (1 << q.i)) && Math.abs(dist(q.x, q.y, f.x, f.y) - f.ring) < 12) { f.mask |= 1 << q.i; hurt(q, f.d.dmg, f.x, f.y, true); }
                     if (f.ring > 92) { f.st = 0; f.tm = 0; }
                 }
                 break;
@@ -1957,7 +1968,7 @@
                 break;
         }
         if (f.alpha > 0.5 && f.d.dmg > 0) {
-            for (const q of P) if (q.on && !q.down && dist(q.x, q.y, f.x, f.y) < f.r + 8) hurt(q, f.d.dmg + f.bonus, f.x, f.y);
+            for (const q of P) if (q.on && !q.down && dist(q.x, q.y, f.x, f.y) < f.r + 8) hurt(q, f.d.dmg + f.bonus, f.x, f.y, true);
             if (PET.on && !PET.down && dist(PET.x, PET.y, f.x, f.y) < f.r + 5) petHurt(f.d.dmg + f.bonus, f.x, f.y);
         }
         f.sy = f.y;
@@ -2500,6 +2511,7 @@
         ctx.fillStyle = '#2a8a3a'; ctx.fillRect(x + fx * 9 * s, y - 14 * s, 2 * s, 2 * s);
     }
     function drawHorse(x, y, walk, fx, s) {
+        if (MOUNTART.horse(ctx, x, y, walk, fx, s * 0.95, walk > 0, tick)) return;
         const l = Math.sin(walk * 1.6) * 3, b = walk ? Math.abs(Math.sin(walk * 1.6)) * 1.5 : 0;
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(x, y + 1, 20 * s, 5 * s, 0, 0, 6.2832); ctx.fill();
         ctx.fillStyle = '#5a3a22';
@@ -2563,18 +2575,22 @@
         }
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
         const ride = riding(p), dir = heroDir(p), flip = dir === 2 && (p.lfx || p.fx) < 0, mfx = p.lfx || 1;
-        const hy = ride ? y - (S.mount === 'horse' ? 25 : 21) : y, lean = p.lean / 8;
-        if (ride) { if (S.mount === 'horse') drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
-        if (dir === 1) drawHeroWeapon(p, x, hy, dir, flip);
+        const fly = ride && S.mount === 'dragon' && MOUNTART.hasDragon, z = fly ? 24 + Math.sin(tick * 0.06 + p.i) * 3 : 0;
+        const hy = fly ? y - z - (dir === 2 ? 15 : dir === 1 ? 23 : 29) : ride ? y - (S.mount === 'horse' ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
+        // where the rider sits: on the dragon's back (behind its neck), in the horse's saddle
+        const rx = fly ? x + (dir === 2 ? (flip ? 7 : -7) : 0) : ride && S.mount === 'horse' && MOUNTART.ready ? x - mfx * 3 : x;
+        if (fly) { MOUNTART.dragon(ctx, x, y, z, dir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
+        else if (ride) { if (S.mount === 'horse') drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
+        if (dir === 1) drawHeroWeapon(p, rx, hy, dir, flip);
         if (ride) {                                        // sitting: hide the legs, show one leg down the side
-            ctx.save(); ctx.beginPath(); ctx.rect(x - 40, hy - 70, 80, 61); ctx.clip();
-            HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50, 1);
+            ctx.save(); ctx.beginPath(); ctx.rect(rx - 40, hy - 70, 80, 61); ctx.clip();
+            HEROART.draw(ctx, rx, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50, 1);
             ctx.restore();
             const ft = HEROART.FEET[p.gear.feet];
-            ctx.fillStyle = look.pants; ctx.fillRect(x - 2 + (dir === 2 ? (flip ? 1 : -2) : 0), hy - 10, 4, 9);
-            ctx.fillStyle = ft ? ft.main : look.shoes; ctx.fillRect(x - 2.5 + (dir === 2 ? (flip ? 1 : -2) : 0), hy - 2, 5, 4);
+            ctx.fillStyle = look.pants; ctx.fillRect(rx - 2 + (dir === 2 ? (flip ? 1 : -2) : 0), hy - 10, 4, 9);
+            ctx.fillStyle = ft ? ft.main : look.shoes; ctx.fillRect(rx - 2.5 + (dir === 2 ? (flip ? 1 : -2) : 0), hy - 2, 5, 4);
         } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50, 1);
-        if (dir !== 1) drawHeroWeapon(p, x, hy, dir, flip);
+        if (dir !== 1) drawHeroWeapon(p, rx, hy, dir, flip);
         ctx.globalAlpha = 1;
         if (P[1].on) {
             ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
@@ -3020,7 +3036,7 @@
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
 
     /* ------------------------------------------------------------------ lifecycle */
 
@@ -3060,6 +3076,7 @@
             ['grass', 'forest', 'mire', 'stone', 'crypt', 'mine'].forEach(t => ART.sprites(t));
             ART.misc();
             MyPC.progress(0.5);
+            MOUNTART.load(VERSION);
             KN.load(VERSION, p => MyPC.progress(0.5 + p * 0.4), () => finishInit());
         },
         onStart: function () {

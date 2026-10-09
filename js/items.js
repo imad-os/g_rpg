@@ -81,7 +81,8 @@ window.HM_QUESTS = [
 ];
 
 // mounts: speed multiplier, and the price at Hana's store (expensive on purpose: quests give them for free)
-window.HM_MOUNTS = { horse: { speed: 1.75, price: 700 }, wolf: { speed: 1.5, price: 900, bite: true } };
+// the dragon flies over water and low things; it is won in chapter 2 (never sold)
+window.HM_MOUNTS = { horse: { speed: 1.75, price: 700 }, wolf: { speed: 1.5, price: 900, bite: true }, dragon: { speed: 2.1, price: 0, fly: true } };
 
 // what the chests hold (by zone:x,y); anything not listed holds coins
 window.HM_CHESTS = {

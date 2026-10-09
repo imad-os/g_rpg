@@ -1896,6 +1896,12 @@
    "who": "juna",
    "dur": 6.67,
    "hash": "278ee1438ced"
+  },
+  "c2dragon-0": {
+   "file": "c2dragon-0.ogg",
+   "who": "narrator",
+   "dur": 10.56,
+   "hash": "9f44b011505d"
   }
  }
 }

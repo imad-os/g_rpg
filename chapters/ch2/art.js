@@ -10,6 +10,12 @@ window.HM_C2_ART = (function () {
     'use strict';
     const TS = 32, H = 20, CACHE = {};
     function hash(x, y, s) { let h = (x * 374761393 + y * 668265263 + (s || 0) * 982451653) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+    // a soft patch of colour (fades out to its edge), squashed into an ellipse
+    function blob(x, gx, gy, r, sy, rot, rgb, a) {
+        x.save(); x.translate(gx, gy); x.rotate(rot); x.scale(1, sy);
+        const g = x.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+        x.fillStyle = g; x.fillRect(-r, -r, r * 2, r * 2); x.restore();
+    }
     function mk(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); fn(x); return c; }
     function cached(key, w, h, fn) { return CACHE[key] || (CACHE[key] = mk(w, h, fn)); }
     function oval(x, X, Y, rx, ry, col) { x.fillStyle = col; x.beginPath(); x.ellipse(X, Y, rx, ry, 0, 0, 6.2832); x.fill(); }
@@ -24,8 +30,11 @@ window.HM_C2_ART = (function () {
     const RAISED = { 35: 1, 94: 1 };                        // # and ^
 
     /* ---------- ground tiles ---------- */
+    // the ground is painted in two passes: BASE fills each tile with its colour, then the details are drawn
+    // over everything, so a patch that crosses into the next tile is never cut off at the tile's edge
+    let BASE = true;
     function grassTile(x, px, py, tx, ty, P, base) {
-        x.fillStyle = base || P.grass; x.fillRect(px, py, TS, TS);
+        if (BASE) { x.fillStyle = base || P.grass; x.fillRect(px, py, TS, TS); return; }
         for (let k = 0; k < 5; k++) { const h = hash(tx, ty, k + 3); x.fillStyle = h < 0.5 ? P.grass2 : 'rgba(255,255,255,0.07)'; oval(x, px + hash(tx, ty, k) * 32, py + hash(tx, ty, k + 9) * 32, 4 + h * 6, 2 + h * 3, x.fillStyle); }
         x.strokeStyle = P.dark; x.lineWidth = 1;
         for (let k = 0; k < 4; k++) { const gx = px + hash(tx, ty, k + 20) * 30 + 1, gy = py + hash(tx, ty, k + 30) * 28 + 4; x.beginPath(); x.moveTo(gx, gy); x.lineTo(gx - 1, gy - 4); x.moveTo(gx + 2, gy); x.lineTo(gx + 3, gy - 3); x.stroke(); }
@@ -39,12 +48,12 @@ window.HM_C2_ART = (function () {
                 grassTile(x, px, py, tx, ty, P); break;
             case ',': grassTile(x, px, py, tx, ty, P, P.dark); break;
             case 'F':
-                grassTile(x, px, py, tx, ty, P);
+                grassTile(x, px, py, tx, ty, P); if (BASE) break;
                 for (let k = 0; k < 6; k++) { const fx = px + 3 + hash(tx, ty, k + 40) * 26, fy = py + 4 + hash(tx, ty, k + 50) * 24, col = ['#ffffff', '#ffd23f', '#ff8ab0', '#8ab4ff'][(hash(tx, ty, k + 60) * 4) | 0];
                     oval(x, fx, fy, 2.2, 2.2, col); oval(x, fx, fy, 0.9, 0.9, '#f4a020'); }
                 break;
             case '=': {
-                x.fillStyle = P.cob; x.fillRect(px, py, TS, TS); x.fillStyle = 'rgba(0,0,0,0.18)'; x.fillRect(px, py, TS, TS);
+                if (BASE) { x.fillStyle = P.cob; x.fillRect(px, py, TS, TS); x.fillStyle = 'rgba(0,0,0,0.18)'; x.fillRect(px, py, TS, TS); break; }
                 for (let r = 0; r < 4; r++) for (let k = 0; k < 3; k++) {
                     const sx = px + 5 + k * 11 + (r & 1) * 5 - 2, sy = py + 4 + r * 8;
                     oval(x, sx, sy, 4.6, 3.2, shade(P.cob, 0.9 + hash(tx * 3 + k, ty * 4 + r, 7) * 0.25));
@@ -54,17 +63,18 @@ window.HM_C2_ART = (function () {
             }
             case 'x': stoneTile(x, px, py, tx, ty, P); break;
             case 'd':
-                x.fillStyle = P.dirt; x.fillRect(px, py, TS, TS);
+                if (BASE) { x.fillStyle = P.dirt; x.fillRect(px, py, TS, TS); break; }
                 for (let k = 0; k < 6; k++) oval(x, px + hash(tx, ty, k + 70) * 32, py + hash(tx, ty, k + 80) * 32, 1.5 + hash(tx, ty, k) * 2, 1.2, k & 1 ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.12)');
                 break;
             case 's':
-                x.fillStyle = P.sand; x.fillRect(px, py, TS, TS);
+                if (BASE) { x.fillStyle = P.sand; x.fillRect(px, py, TS, TS); break; }
                 x.strokeStyle = 'rgba(160,120,60,0.25)'; x.lineWidth = 1;
                 for (let k = 0; k < 2; k++) { x.beginPath(); x.arc(px + 16 + (h - 0.5) * 10, py + 10 + k * 12, 9, 0.3, 2.8); x.stroke(); }
                 for (let k = 0; k < 4; k++) x.fillRect(px + hash(tx, ty, k + 90) * 30, py + hash(tx, ty, k + 95) * 30, 1, 1);
                 break;
             case 'a': ashTile(x, px, py, tx, ty, P); break;
             case 'l': {
+                if (!BASE) break;
                 x.fillStyle = '#b8381a'; x.fillRect(px, py, TS, TS);
                 for (let k = 0; k < 4; k++) oval(x, px + hash(tx, ty, k + 4) * 32, py + hash(tx, ty, k + 6) * 32, 6, 3, '#ff7a22');
                 for (let k = 0; k < 3; k++) oval(x, px + hash(tx, ty, k + 14) * 32, py + hash(tx, ty, k + 16) * 32, 5, 3, '#5a2014');
@@ -72,6 +82,7 @@ window.HM_C2_ART = (function () {
                 break;
             }
             case 'w': case 'v': {
+                if (!BASE) break;
                 if (c === 'v') { waterTile(x, px, py, tx, ty, P, at); x.fillStyle = 'rgba(120,90,60,0.45)'; for (let k = 0; k < 3; k++) x.fillRect(px + 2, py + 4 + k * 10, 28, 4); break; }
                 waterTile(x, px, py, tx, ty, P, at);
                 for (let k = 0; k < 4; k++) {
@@ -82,8 +93,9 @@ window.HM_C2_ART = (function () {
                 }
                 break;
             }
-            case '~': waterTile(x, px, py, tx, ty, P, at); break;
+            case '~': if (BASE) waterTile(x, px, py, tx, ty, P, at); break;
             case 'D': {
+                if (!BASE) break;
                 x.fillStyle = '#0a0c12'; x.fillRect(px, py, TS, TS);
                 for (let k = 0; k < 4; k++) { x.fillStyle = k & 1 ? '#3a3e4a' : '#4a4e5a'; x.fillRect(px + 2, py + 2 + k * 7, 28, 4); }
                 break;
@@ -92,7 +104,7 @@ window.HM_C2_ART = (function () {
         }
     }
     function stoneTile(x, px, py, tx, ty, P) {
-        x.fillStyle = P.stone; x.fillRect(px, py, TS, TS);
+        if (BASE) { x.fillStyle = P.stone; x.fillRect(px, py, TS, TS); return; }
         for (let r = 0; r < 2; r++) for (let k = 0; k < 2; k++) {
             x.fillStyle = shade(P.stone, 0.92 + hash(tx * 2 + k, ty * 2 + r, 5) * 0.18); x.fillRect(px + k * 16 + 1, py + r * 16 + 1, 14, 14);
             x.fillStyle = 'rgba(255,255,255,0.1)'; x.fillRect(px + k * 16 + 1, py + r * 16 + 1, 14, 1);
@@ -100,14 +112,13 @@ window.HM_C2_ART = (function () {
         if (hash(tx, ty, 9) < 0.2) { x.strokeStyle = 'rgba(0,0,0,0.3)'; x.beginPath(); x.moveTo(px + 6, py + 8); x.lineTo(px + 12, py + 14); x.lineTo(px + 10, py + 22); x.stroke(); }
     }
     function ashTile(x, px, py, tx, ty, P) {
-        x.fillStyle = P.grass; x.fillRect(px, py, TS, TS);
-        for (let k = 0; k < 5; k++) oval(x, px + hash(tx, ty, k + 4) * 32, py + hash(tx, ty, k + 8) * 32, 3 + hash(tx, ty, k) * 5, 2, k & 1 ? P.grass2 : 'rgba(255,255,255,0.06)');
+        if (BASE) { x.fillStyle = P.grass; x.fillRect(px, py, TS, TS); return; }
+        for (let k = 0; k < 5; k++) oval(x, px + hash(tx, ty, k + 4) * 32, py + hash(tx, ty, k + 8) * 32, 3 + hash(tx, ty, k) * 5, 2, k & 1 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.06)');
         if (hash(tx, ty, 12) < 0.3) { x.fillStyle = '#ff8a3a'; x.fillRect(px + hash(tx, ty, 13) * 30, py + hash(tx, ty, 14) * 30, 1.5, 1.5); }
         if (hash(tx, ty, 15) < 0.25) { x.strokeStyle = 'rgba(0,0,0,0.35)'; x.beginPath(); x.moveTo(px + 4, py + 20); x.lineTo(px + 14, py + 16); x.lineTo(px + 22, py + 22); x.stroke(); }
     }
     function waterTile(x, px, py, tx, ty, P, at) {
-        const g = x.createLinearGradient(px, py, px, py + TS); g.addColorStop(0, P.water); g.addColorStop(1, P.deep);
-        x.fillStyle = g; x.fillRect(px, py, TS, TS);
+        x.fillStyle = P.water; x.fillRect(px, py, TS, TS);
         const land = c => c !== '~' && c !== 'w' && c !== 'v' && c !== 'D';
         x.fillStyle = 'rgba(200,240,255,0.55)';                                           // foam along the shore
         if (land(at(tx, ty - 1))) { x.fillRect(px, py, TS, 3); x.fillStyle = 'rgba(120,200,230,0.35)'; x.fillRect(px, py + 3, TS, 6); x.fillStyle = 'rgba(200,240,255,0.55)'; }
@@ -121,20 +132,21 @@ window.HM_C2_ART = (function () {
     }
 
     /* ---------- raised blocks: a top face and (on the south side) a front face ---------- */
-    function block(c, theme, front) {
-        const P = PAL[theme], key = 'blk' + c + theme + front;
+    function block(c, theme, front, v) {
+        v = v || 0;
+        const P = PAL[theme], key = 'blk' + c + theme + front + v;
         return cached(key, TS, TS + H, x => {
             const rock = c === '^', palis = c === '#' && theme === 'fields', top = rock ? P.rockTop : P.wallTop, face = rock ? P.rock : P.wall;
             // top face
             x.fillStyle = top; x.fillRect(0, 0, TS, TS);
             if (rock && (theme === 'bay' || theme === 'fields')) {               // grassy cliff tops
-                for (let k = 0; k < 5; k++) oval(x, 4 + k * 6, 6 + (k & 1) * 12, 5, 3, shade(top, 0.85));
+                for (let k = 0; k < 5; k++) oval(x, (4 + k * 6 + v * 9) % 32, 6 + ((k + v) & 1) * 12 + v * 3, 5, 3, shade(top, 0.85 + v * 0.03));
                 x.fillStyle = 'rgba(255,255,255,0.15)'; x.fillRect(0, 0, TS, 2);
             } else if (palis) {                                                 // log ends
                 for (let k = 0; k < 4; k++) { oval(x, 4 + k * 8, 16, 4, 4, '#c08a50'); oval(x, 4 + k * 8, 16, 2, 2, '#8a5a32'); }
             } else if (c === '#') {                                             // stone blocks
                 for (let r = 0; r < 2; r++) for (let k = 0; k < 2; k++) { x.fillStyle = shade(top, 0.9 + ((r + k) & 1) * 0.12); x.fillRect(k * 16 + 1, r * 16 + 1, 14, 14); }
-            } else for (let k = 0; k < 4; k++) oval(x, 6 + k * 7, 10 + (k % 2) * 10, 4, 3, shade(top, 0.85));
+            } else for (let k = 0; k < 4; k++) oval(x, (6 + k * 7 + v * 11) % 32, 10 + ((k + v) % 2) * 10, 4, 3, shade(top, 0.85 + v * 0.03));
             if (!front) return;
             // front face with layers, and a darker foot
             const g = x.createLinearGradient(0, TS, 0, TS + H); g.addColorStop(0, face); g.addColorStop(1, shade(face, 0.6));
@@ -348,13 +360,35 @@ window.HM_C2_ART = (function () {
         // things standing on a tile take the ground around them (a crate on the quay stands on stone)
         const GROUND = '.,F=xdsaw';
         const under = (tx, ty) => { for (const o of [[-1, 0], [1, 0], [0, 1], [0, -1]]) { const n = at(tx + o[0], ty + o[1]); if (GROUND.indexOf(n) >= 0 && n !== 'w') return n; } return theme === 'light' ? 'x' : theme === 'ridge' ? 'a' : '.'; };
+        const kinds = new Array(cols * rows), soft = new Path2D(), wet = new Path2D();
         for (let ty = 0; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {
-            const c = at(tx, ty), px = tx * TS, py = ty * TS;
+            const c = at(tx, ty);
             const base = raised(tx, ty) ? (theme === 'light' ? 'x' : theme === 'ridge' ? 'a' : '.') : 'bhpCLcrg'.indexOf(c) >= 0 ? under(tx, ty) : c;
-            paint(x, base, px, py, tx, ty, P, at);
-            if (c === '~' || c === 'v') Z.water.push(px, py);
-            if (c === 'l') Z.lava.push(px, py);
+            kinds[ty * cols + tx] = base;
+            if (c === '~' || c === 'v') Z.water.push(tx * TS, ty * TS);
+            if (c === 'l') Z.lava.push(tx * TS, ty * TS);
+            if (base === '~' || base === 'v') wet.rect(tx * TS, ty * TS, TS, TS);
+            else if ('.,FaTPkf'.indexOf(base) >= 0 && theme !== 'light') soft.rect(tx * TS, ty * TS, TS, TS);
         }
+        for (const pass of [true, false]) {
+            BASE = pass;
+            for (let ty = 0; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) paint(x, kinds[ty * cols + tx], tx * TS, ty * TS, tx, ty, P, at);
+        }
+        BASE = true;
+        // big soft patches of light and shade over grass and ash, deeper patches in the water
+        const n = cols * rows;
+        x.save(); x.clip(soft);
+        for (let k = 0; k < n * 0.45; k++) {
+            const gx = hash(k, 1, 31) * cols * TS, gy = hash(k, 2, 33) * rows * TS, r = 18 + hash(k, 3, 35) * 50;
+            blob(x, gx, gy, r * 1.4, 0.5 + hash(k, 5, 39) * 0.4, hash(k, 6, 41) * 3, hash(k, 4, 37) < 0.55 ? '0,0,0' : '255,250,200', hash(k, 4, 37) < 0.55 ? 0.11 : 0.1);
+        }
+        x.restore();
+        x.save(); x.clip(wet);
+        for (let k = 0; k < n * 0.2; k++) {
+            const gx = hash(k, 7, 43) * cols * TS, gy = hash(k, 8, 45) * rows * TS, r = 30 + hash(k, 9, 47) * 70;
+            blob(x, gx, gy, r * 1.3, 0.5, 0, hash(k, 10, 49) < 0.6 ? '10,40,80' : '150,220,255', hash(k, 10, 49) < 0.6 ? 0.22 : 0.1);
+        }
+        x.restore();
         // shadows: below raised ground and to the lower right of trees and rocks
         for (let ty = 1; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {
             if (raised(tx, ty) || !raised(tx, ty - 1)) continue;
@@ -365,8 +399,9 @@ window.HM_C2_ART = (function () {
         for (let ty = 0; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {
             if (!raised(tx, ty)) continue;
             const c = at(tx, ty), px = tx * TS, py = ty * TS, south = raised(tx, ty + 1), north = raised(tx, ty - 1);
-            if (south && north) x.drawImage(block(c, theme, false), px, py - H);
-            else api.addStatic('cliff', block(c, theme, !south), px, py - H, py + TS, TS, south ? TS : TS + H);
+            const bv = (hash(tx, ty, 7) * 3) | 0;
+            if (south && north) x.drawImage(block(c, theme, false, bv), px, py - H);
+            else api.addStatic('cliff', block(c, theme, !south, bv), px, py - H, py + TS, TS, south ? TS : TS + H);
         }
         // things standing on tiles
         for (let ty = 0; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {

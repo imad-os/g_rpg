@@ -39,6 +39,7 @@ Cinder Witch, ring the tide bell, and go down into the Sunken Lighthouse to face
 - 5 side quests and 11 tasks, tier 4 gear (sea steel) at Gus's forge, warm bread at Tuck's bakery,
   and one quest that sends a letter back to Maren in Hollowmere
 - The horse sails with you; the wolf stays home in the Greywood
+- **A flying dragon** hatches when the Cinder Witch falls. It flies over water, rocks, fences and lava (never over walls, trees or gates). You can't attack from its back, and only bows, guns and magic can reach you there; you can't land on water.
 
 ## In both chapters
 
@@ -52,7 +53,7 @@ Cinder Witch, ring the tide bell, and go down into the Sunken Lighthouse to face
 - **Armed foes:** archers and musketeers aim with a warning (a drawn bow, a red line), hexers throw
   homing orbs and vanish when you get close, raiders shake before they lunge, boars charge
 - **A cat** that wanders near you, sits when you stop, picks up loot, fights at your side and hides
-  behind you when hurt; **mounts** (a horse, and a wolf in chapter 1) with hoof sounds
+  behind you when hurt; **mounts**: a horse (open-source sprite, walk and gallop), a wolf in chapter 1, and a flying dragon
 - Gear with rarities and random bonuses, upgrades from +1 to +5, an **Equipment screen** with
   pictures and a details panel, a **Mounts screen**, **Settings** (voice speed, button mapping, Return)
 - Each hero cries out when hit; hit-pause, critical hits, sparks, slash trails, rings of light
@@ -209,6 +210,8 @@ node tools/release.js 2.0.0
 ## Credits
 
 Pixel art: [Kenney](https://www.kenney.nl) (Tiny Town, Tiny Dungeon, Roguelike Characters), CC0.
+Horse: ["Animated horse"](https://opengameart.org/content/animated-horse) by ScratchIO, CC0.
+Dragon: ["Flying Dragon"](https://opengameart.org/content/flying-dragon-rework) by ZaPaper. Credits to http://www.buko-studios.com/, commissioned by PlayCraft (www.playcraftapp.com), [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/). Details in `assets/mounts/LICENSE.txt`.
 Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made for this game.
 
 ## Run and install

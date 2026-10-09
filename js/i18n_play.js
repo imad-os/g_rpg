@@ -2,6 +2,9 @@
  * new gear and foes (4 languages). The Arabic is kept short and plain, with everyday words. */
 window.HM_TEXT_PLAY = {
 en: { ui: {
+    credits: 'Credits', creditsText: 'Kenney (CC0) · ScratchIO, horse (CC0) · ZaPaper / buko-studios.com, commissioned by PlayCraft (playcraftapp.com), dragon (CC-BY 3.0) · Piper voices',
+    dragon: 'Dragon', dragonSub: 'Flies over water and low things. You can\'t attack while flying; only bows, guns and magic reach you', dragonHow: 'A dragon lives on Cinder Ridge, in Chapter 2.',
+    flyNoAttack: 'You can\'t attack while flying. Land first (Mounts).', flyLand: 'You can\'t land here. Fly to solid ground first.', gotDragon: 'A young dragon is yours! Choose it in Mounts and fly.',
     backF: 'Return', backSub: 'Closes a menu or ends a conversation with one press (hold OK: OK then acts when you let go)',
     healFullHp: 'Your health is already full.', noMount: 'You have no mount yet.', takeOff: 'Take off', critL: 'Critical', hpL: 'Health', goldL: 'Coins',
     gearHelp: 'Arrows: choose · OK: wear or take off · Up: tabs', gearHelpTabs: 'Left / right: slots · Down: your gear · OK: open',
@@ -36,6 +39,9 @@ en: { ui: {
     marenLetter: ['A letter from Mirelle? My little sister! I have not heard from her in forty years.', 'She asks if I am well. I am, now that the Lantern burns. Here, take my answer back to her.']
 } },
 fr: { ui: {
+    credits: 'Crédits', creditsText: 'Kenney (CC0) · ScratchIO, horse (CC0) · ZaPaper / buko-studios.com, commissioned by PlayCraft (playcraftapp.com), dragon (CC-BY 3.0) · Piper voices',
+    dragon: 'Dragon', dragonSub: 'Vole au-dessus de l’eau et des petits obstacles. On ne peut pas attaquer en vol ; seuls les arcs, fusils et la magie vous atteignent', dragonHow: 'Un dragon vit sur la Crête de Cendre, au Chapitre 2.',
+    flyNoAttack: 'Impossible d’attaquer en volant. Posez-vous d’abord (Montures).', flyLand: 'Impossible de se poser ici. Volez d’abord vers la terre ferme.', gotDragon: 'Un jeune dragon est à vous ! Choisissez-le dans Montures et volez.',
     backF: 'Retour', backSub: 'Ferme un menu ou termine une conversation d’un seul appui (OK maintenu : OK agit alors au relâchement)',
     healFullHp: 'Votre santé est déjà pleine.', noMount: 'Vous n’avez pas encore de monture.', takeOff: 'Retirer', critL: 'Critique', hpL: 'Santé', goldL: 'Pièces',
     gearHelp: 'Flèches : choisir · OK : porter ou retirer · Haut : onglets', gearHelpTabs: 'Gauche / droite : emplacements · Bas : votre équipement · OK : ouvrir',
@@ -70,6 +76,9 @@ fr: { ui: {
     marenLetter: ['Une lettre de Mirelle ? Ma petite sœur ! Je n’ai pas eu de nouvelles depuis quarante ans.', 'Elle demande si je vais bien. Oui, maintenant que la Lanterne brûle. Tenez, rapportez-lui ma réponse.']
 } },
 es: { ui: {
+    credits: 'Créditos', creditsText: 'Kenney (CC0) · ScratchIO, horse (CC0) · ZaPaper / buko-studios.com, commissioned by PlayCraft (playcraftapp.com), dragon (CC-BY 3.0) · Piper voices',
+    dragon: 'Dragón', dragonSub: 'Vuela sobre el agua y obstáculos bajos. No puedes atacar volando; solo arcos, armas de fuego y magia te alcanzan', dragonHow: 'Un dragón vive en la Cresta de Ceniza, en el Capítulo 2.',
+    flyNoAttack: 'No puedes atacar volando. Aterriza primero (Monturas).', flyLand: 'No puedes aterrizar aquí. Vuela antes a tierra firme.', gotDragon: '¡Un dragón joven es tuyo! Elígelo en Monturas y vuela.',
     backF: 'Volver', backSub: 'Cierra un menú o termina una conversación con una sola pulsación (mantener OK: OK actúa al soltarlo)',
     healFullHp: 'Tu salud ya está completa.', noMount: 'Todavía no tienes montura.', takeOff: 'Quitar', critL: 'Crítico', hpL: 'Salud', goldL: 'Monedas',
     gearHelp: 'Flechas: elegir · OK: poner o quitar · Arriba: pestañas', gearHelpTabs: 'Izquierda / derecha: huecos · Abajo: tu equipo · OK: abrir',
@@ -104,6 +113,9 @@ es: { ui: {
     marenLetter: ['¿Una carta de Mirelle? ¡Mi hermana pequeña! No sé nada de ella desde hace cuarenta años.', 'Pregunta si estoy bien. Lo estoy, ahora que el Farol arde. Toma, llévale mi respuesta.']
 } },
 ar: { ui: {
+    credits: 'الشكر', creditsText: 'Kenney (CC0) · ScratchIO, horse (CC0) · ZaPaper / buko-studios.com, commissioned by PlayCraft (playcraftapp.com), dragon (CC-BY 3.0) · Piper voices',
+    dragon: 'تنين', dragonSub: 'يطير فوق الماء والأشياء الصغيرة. لا تستطيع الهجوم وأنت تطير، ولا يصل إليك إلا السهم والرصاص والسحر', dragonHow: 'يعيش تنين في جبل الرماد، في الفصل 2.',
+    flyNoAttack: 'لا تستطيع الهجوم وأنت تطير. انزل أولًا (الركوب).', flyLand: 'لا تستطيع النزول هنا. طِر أولًا إلى أرض صلبة.', gotDragon: 'صار عندك تنين صغير! اختره من الركوب وطِر.',
     backF: 'رجوع', backSub: 'يغلق القائمة أو ينهي الكلام بضغطة واحدة (مع الضغط الطويل: يعمل OK عندما ترفع إصبعك)',
     healFullHp: 'صحتك كاملة.', noMount: 'ليس عندك ما تركبه بعد.', takeOff: 'انزع', critL: 'ضربة قوية', hpL: 'الصحة', goldL: 'العملات',
     gearHelp: 'الأسهم: اختر · OK: البس أو انزع · فوق: الأقسام', gearHelpTabs: 'يمين / يسار: الأقسام · تحت: أغراضك · OK: افتح',

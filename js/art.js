@@ -224,7 +224,7 @@ window.HM_ART = (function () {
         const at = (cx, cy) => (cx < 0 || cy < 0 || cx >= cols || cy >= rows) ? 'T' : zone.ch(cx, cy);
         for (let ty = 0; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {
             const ch = at(tx, ty), px = tx * TS, py = ty * TS, h = hash(tx, ty, 1);
-            let base = th.g[(h * 3) | 0];
+            let base = th.g[0];                                 // one colour per ground (mixed colours made squares)
             if (ch === '=') base = th.path;
             else if (ch === 's') base = '#c8b07a';
             else if (ch === 'm') base = '#4a3f2c';
@@ -245,7 +245,8 @@ window.HM_ART = (function () {
                 continue;
             }
             if (ch === '~' || ch === 'w') {
-                x.fillStyle = 'rgba(255,255,255,0.06)'; x.fillRect(px + (h * 20) | 0, py + 8, 10, 2); x.fillRect(px + 4, py + 22, 8, 2);
+                x.fillStyle = 'rgba(255,255,255,0.06)';     // ripples at random places (the same marks in every tile made a grid)
+                for (let i = 0; i < 2; i++) x.fillRect(px + ((hash(tx, ty, 30 + i) * 24) | 0), py + ((hash(tx, ty, 40 + i) * 28) | 0), 5 + ((hash(tx, ty, 50 + i) * 7) | 0), 2);
                 // foam where water meets land
                 if (at(tx, ty - 1) !== '~' && at(tx, ty - 1) !== 'w' && at(tx, ty - 1) !== 'T') { x.fillStyle = 'rgba(220,240,255,0.35)'; x.fillRect(px, py, TS, 3); }
                 if (ch === 'w') {
