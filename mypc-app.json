@@ -6,7 +6,7 @@
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "scores": true,
   "config": {
     "proxyUrl": "",

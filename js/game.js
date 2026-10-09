@@ -3013,7 +3013,10 @@
         // with Return on "hold OK", OK in menus and conversations acts when released (a long press is Return)
         if (a === 'confirm' && !pressed && okDown >= 0) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
         if (!pressed || !started) return;
-        if (P[0].dev === '') P[0].dev = dev;
+        // a phone on the network ('net1'...) only plays: it never takes hero 1, opens menus or answers dialogs
+        const remote = dev.indexOf('net') === 0;
+        if (remote && (mode !== 'play' || a === 'menu' || a === 'confirm' || a === 'pause')) return;
+        if (P[0].dev === '' && !remote) P[0].dev = dev;
         if (dev !== P[0].dev && !repeat) joinSeen = true;
         if (tick < lockUntil && (a === 'confirm' || a === 'jump')) return;
         if (a === 'menu') { if (mode === 'play') quickMenu(P[0]); else if (mode === 'overlay' || mode === 'dialog') goBack(); return; }
@@ -3033,6 +3036,15 @@
             if (tick - p.tapT < 16) { p.tapT = -99; gesture(p, 'double'); } else { p.tapT = tick; gesture(p, 'tap'); }
         } else if (p && (a === 'run' || a === 'cancel')) gesture(p, a);
     }
+
+    // local co-op: the host panel (js/coop-host.js) feeds a phone's buttons in here as one more device
+    window.HM_REMOTE = {
+        input: (a, down, dev) => onInput(a, down, false, dev),
+        leave: dev => {
+            DEV[dev] = {};
+            if (P[1].on && P[1].dev === dev) { P[1].on = false; P[1].dev = ''; toast(txt(T.ui.p2left, { name: heroName(1) })); }
+        }
+    };
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },

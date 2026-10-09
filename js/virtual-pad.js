@@ -6,23 +6,27 @@
  *   VirtualPad.init({ buttons: [{ label: 'A', key: 13 }, { label: 'B', key: 88 }] });
  *
  * It shows itself only when the game runs standalone (not inside My PC) on a touch device; add
- * ?pad=1 to the address to force it on a computer, ?pad=0 to hide it. It does not touch the game:
+ * ?pad=1 to the address to force it on a computer, ?pad=0 to hide it.
+ * Options: buttons, pause (false hides the pause button), force (show anywhere), send(keyCode, down)
+ * (route the keys somewhere else, e.g. over NetPad, instead of pressing them in this page). It does not touch the game:
  * it presses the same keys the SDK already reads in standalone mode (arrows, Enter, X, Esc).
  * Key codes: 13 Enter (OK / jump), 32 Space, 88 X (run / fire), 27 Esc (pause menu), 80 P. */
 window.VirtualPad = (function () {
     'use strict';
     var DEFAULT = [{ label: 'A', key: 13 }, { label: 'B', key: 88 }];
     var DIRS = { left: 37, up: 38, right: 39, down: 40 };
-    var root = null, down = {};
+    var root = null, down = {}, sendFn = null;
 
     function press(code, on) {
         if (!!down[code] === on) return;
         down[code] = on;
+        if (sendFn) { sendFn(code, on); return; }            // controller mode: hand the key to the network instead
         var e = new KeyboardEvent(on ? 'keydown' : 'keyup', { bubbles: true, cancelable: true });
         Object.defineProperty(e, 'keyCode', { get: function () { return code; } });
         document.dispatchEvent(e);
     }
-    function wanted() {
+    function wanted(opt) {
+        if (opt.force) return true;
         var m = /[?&]pad=(\d)/.exec(location.search);
         if (m) return m[1] === '1';
         var standalone = !window.MyPC || !MyPC.info || !MyPC.info() || MyPC.info().standalone;
@@ -60,20 +64,25 @@ window.VirtualPad = (function () {
         e.addEventListener('pointerdown', on(true)); e.addEventListener('pointerup', on(false)); e.addEventListener('pointercancel', on(false)); e.addEventListener('pointerleave', on(false));
     }
     function init(opt) {
-        if (root || !wanted()) return;
         opt = opt || {};
+        if (root || !wanted(opt)) return;
+        sendFn = opt.send || null;
         // like a native app: no pinch zoom, no double-tap zoom, no page scroll or text selection while playing
         ['touchmove', 'gesturestart', 'gesturechange', 'contextmenu'].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false }); });
         var lastTap = 0; document.addEventListener('touchend', function (e) { var n = Date.now(); if (n - lastTap < 350) e.preventDefault(); lastTap = n; }, { passive: false });
         root = el('div', 'position:fixed;inset:0;z-index:99999;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none', document.body);
         stick(root);
         (opt.buttons || DEFAULT).forEach(function (b, i) { button(root, b, i); });
+        // never leave a key held when the page goes away (phone locked, app switched)
+        document.addEventListener('visibilitychange', function () { if (document.hidden) releaseAll(); });
+        window.addEventListener('blur', releaseAll);
         if (opt.pause !== false) {                       // small pause button, top centre
             var p = el('div', 'position:absolute;left:50%;top:2vmin;margin-left:-6vmin;width:12vmin;height:6vmin;border-radius:3vmin;background:rgba(255,255,255,0.14);border:2px solid rgba(255,255,255,0.35);color:#fff;font:700 3.5vmin sans-serif;display:flex;align-items:center;justify-content:center;touch-action:none;pointer-events:auto', root);
             p.textContent = 'II';
             p.addEventListener('pointerdown', function (ev) { press(27, true); press(27, false); ev.preventDefault(); });
         }
     }
-    function hide() { if (root) { for (var k in down) press(+k, false); root.remove(); root = null; } }
+    function releaseAll() { for (var k in down) press(+k, false); }
+    function hide() { if (root) { releaseAll(); root.remove(); root = null; } }
     return { init: init, hide: hide };
 })();

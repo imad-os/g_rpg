@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Hollowmere controller</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #07080c; color: #fff; font-family: 'Segoe UI', Tahoma, 'Noto Sans', 'Noto Sans Arabic', Arial, sans-serif; overflow: hidden;
+               touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
+  #info { position: fixed; inset: 0; overflow: auto; padding: 5vmin; box-sizing: border-box; font-size: max(16px, 3.2vmin); line-height: 1.45; touch-action: pan-y; -webkit-user-select: text; user-select: text; }
+  h1 { font-size: max(22px, 5vmin); color: #ffd76a; margin: 0 0 2vmin; }
+  textarea { width: 100%; box-sizing: border-box; height: 22vmin; padding: 1.5vmin; border-radius: 1vmin; border: 2px solid rgba(255,255,255,0.3); background: #10131c; color: #fff; font: max(14px, 2.6vmin) monospace; margin: 1.5vmin 0; }
+  .b { display: inline-block; margin: 1vmin 1.5vmin 1vmin 0; padding: 1.6vmin 3vmin; border-radius: 1.2vmin; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.14); font-weight: 700; cursor: pointer; touch-action: manipulation; }
+  #msg { margin: 2vmin 0; color: #9af0b0; } #msg.bad { color: #ff9a9a; }
+  #live { position: fixed; top: 2vmin; left: 0; right: 0; text-align: center; font-size: max(14px, 3vmin); color: #9af0b0; pointer-events: none; display: none; }
+</style>
+</head>
+<body>
+<div id="info">
+  <h1 id="h"></h1>
+  <div id="how"></div>
+  <div id="step1" style="display:none"><textarea id="inv" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><span class="b" id="go"></span></div>
+  <div id="step2" style="display:none"><textarea id="rep" readonly></textarea><span class="b" id="copy"></span><span class="b" id="share" style="display:none"></span></div>
+  <div id="msg"></div>
+</div>
+<div id="live"></div>
+<script src="js/netpad.js?v=2.3.0"></script>
+<script src="js/virtual-pad.js?v=2.3.0"></script>
+<script>
+(function () {
+    'use strict';
+    var TXT = {
+        en: { h: 'Hollowmere controller', open: 'Ask the host to press Co-op, then Invite, and send you the link. Open the link here, or paste it below.', go: 'Continue', wait: 'Connecting...', reply: 'Now send this reply code to the host and ask them to paste it in the Co-op panel:', copy: 'Copy', share: 'Share', copied: 'Copied', live: 'Connected: press A to join the game', bad: 'That link or code does not work. Ask the host for a new invite.', lost: 'Disconnected. Ask the host for a new invite.', again: 'Start again', nonet: 'This browser cannot connect. Try Chrome or Safari.' },
+        fr: { h: 'Manette Hollowmere', open: 'Demandez à l\'hôte d\'appuyer sur Coop, puis Inviter, et de vous envoyer le lien. Ouvrez-le ici, ou collez-le ci-dessous.', go: 'Continuer', wait: 'Connexion...', reply: 'Envoyez maintenant ce code de réponse à l\'hôte et demandez-lui de le coller dans le panneau Coop :', copy: 'Copier', share: 'Partager', copied: 'Copié', live: 'Connecté : appuyez sur A pour rejoindre', bad: 'Ce lien ou ce code ne marche pas. Demandez une nouvelle invitation.', lost: 'Déconnecté. Demandez une nouvelle invitation.', again: 'Recommencer', nonet: 'Ce navigateur ne peut pas se connecter. Essayez Chrome ou Safari.' },
+        es: { h: 'Mando de Hollowmere', open: 'Pide al anfitrión que pulse Coop, luego Invitar, y que te envíe el enlace. Ábrelo aquí o pégalo abajo.', go: 'Continuar', wait: 'Conectando...', reply: 'Ahora envía este código de respuesta al anfitrión y pídele que lo pegue en el panel Coop:', copy: 'Copiar', share: 'Compartir', copied: 'Copiado', live: 'Conectado: pulsa A para unirte', bad: 'Ese enlace o código no funciona. Pide una invitación nueva.', lost: 'Desconectado. Pide una invitación nueva.', again: 'Empezar de nuevo', nonet: 'Este navegador no puede conectarse. Prueba Chrome o Safari.' },
+        ar: { h: 'يد تحكم هولومير', open: 'اطلب من المضيف الضغط على تعاون ثم دعوة وإرسال الرابط إليك. افتحه هنا أو الصقه في الأسفل.', go: 'متابعة', wait: 'جارٍ الاتصال...', reply: 'أرسل الآن رمز الرد هذا إلى المضيف واطلب منه لصقه في لوحة التعاون:', copy: 'نسخ', share: 'مشاركة', copied: 'تم النسخ', live: 'تم الاتصال: اضغط A للانضمام إلى اللعبة', bad: 'هذا الرابط أو الرمز لا يعمل. اطلب دعوة جديدة من المضيف.', lost: 'انقطع الاتصال. اطلب دعوة جديدة من المضيف.', again: 'ابدأ من جديد', nonet: 'هذا المتصفح لا يستطيع الاتصال. جرّب Chrome أو Safari.' }
+    };
+    var lang = (navigator.language || 'en').slice(0, 2), T = TXT[lang] || TXT.en;
+    var $ = function (id) { return document.getElementById(id); }, g = null;
+    document.documentElement.lang = lang; if (lang === 'ar') document.documentElement.dir = 'rtl';
+    $('h').textContent = T.h; $('how').textContent = T.open; $('go').textContent = T.go; $('copy').textContent = T.copy; $('share').textContent = T.share;
+    function msg(t, bad) { $('msg').textContent = t || ''; $('msg').className = bad ? 'bad' : ''; }
+
+    function connect(code) {
+        if (!NetPad.supported) return msg(T.nonet, true);
+        $('step1').style.display = 'none'; msg(T.wait);
+        NetPad.join(code, { onOpen: live, onClose: lost }).then(function (conn) {
+            g = conn; $('how').textContent = T.reply; $('rep').value = conn.reply; $('step2').style.display = ''; msg('');
+        }, function () { msg(T.bad, true); $('step1').style.display = ''; });
+    }
+    function live() {
+        $('info').style.display = 'none'; $('live').style.display = 'block'; $('live').textContent = T.live;
+        VirtualPad.init({ force: true, pause: false, buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }],
+                          send: function (k, on) { g.send([k, on ? 1 : 0]); } });
+        try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () {}); } catch (e) {}
+    }
+    function lost() {
+        VirtualPad.hide(); $('live').style.display = 'none'; $('info').style.display = 'block';
+        $('step2').style.display = 'none'; $('how').textContent = ''; msg(T.lost, true);
+        var b = document.createElement('span'); b.className = 'b'; b.textContent = T.again; b.onclick = function () { location.hash = ''; location.reload(); }; $('msg').appendChild(document.createElement('br')); $('msg').appendChild(b);
+    }
+    $('copy').onclick = function () {
+        var t = $('rep').value, done = function () { $('copy').textContent = T.copied; setTimeout(function () { $('copy').textContent = T.copy; }, 1200); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { $('rep').select(); });
+        else { $('rep').select(); try { document.execCommand('copy'); done(); } catch (e) {} }
+    };
+    if (navigator.share) { $('share').style.display = ''; $('share').onclick = function () { navigator.share({ title: 'Hollowmere', text: $('rep').value }).catch(function () {}); }; }
+    $('go').onclick = function () { connect($('inv').value); };
+    if (location.hash.length > 2) connect(location.hash.slice(1)); else $('step1').style.display = '';
+})();
+</script>
+</body>
+</html>

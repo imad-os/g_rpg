@@ -220,3 +220,14 @@ Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made 
 - **Standalone:** open `index.html` in Chrome (arrows + Enter, Esc pauses).
 - **My PC:** GitHub Pages (Settings → Pages → Deploy from a branch → `main` / root), then paste
   `https://imad-os.github.io/g_rpg/` into the installer at https://imad-os.github.io/g/installer/.
+
+## Local co-op (phone as second controller)
+
+Standalone only (a phone or computer running the game in its browser; not on the TV). Both devices on the same Wi-Fi, no server:
+1. Host: press **Co-op** (top of the screen), then **Invite**, and send the link to the other phone.
+2. Guest: open the link (`controller.html`). It shows a reply code: send it back to the host.
+3. Host: paste the reply code and press **Connect**. The guest presses **A** to join as hero 2.
+
+The guest has a joystick, **A** (OK / attack), **B** (run, ability) and **C** (cancel, ability). Menus and dialogs stay on the host.
+Reusable parts: `js/netpad.js` (serverless WebRTC pairing) and `js/virtual-pad.js` (touch pad; `send` option for controllers).
+If it will not connect, the router may block devices from talking to each other (guest network / client isolation).
