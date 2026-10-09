@@ -27,8 +27,11 @@ its texts are in `js/i18n*.js` because the menus share them.
 - An exit `{ x, y, w, h, to: 'c3_harbour', tx, ty }` into another chapter's zone switches chapter
   (a dark fade with "Loading" while the pack loads). `api.travel(zone, tx, ty)` does the same from code
   (for a boat, a portal...). Put arrival points at least 3 tiles away from any exit.
-- The owner can switch chapters on or off with the app config key `chapters` (`"ch2"`, `["ch2", "ch3"]`
-  or `"all"`; default: all). Check `HM_CHAPTERS.enabled('ch3')` before offering the way in.
+- The owner can switch chapters on or off with the app config key `chapters`, a list such as
+  `["ch2", "ch3"]` (`"all"` turns on every chapter; not set: all; `[]`: chapter 1 only). When you add a
+  chapter, add it to the `chapters` list in `mypc-app.json` too, and tell the owner to add it to the
+  app's Config in the App Store Manager (updates never overwrite the owner's config).
+  Check `HM_CHAPTERS.enabled('ch3')` before offering the way in.
 
 ## A zone (in `maps`)
 

@@ -14,14 +14,16 @@ window.HM_CHAPTERS = (function () {
     const def = {}, loaded = {}, tags = {};
 
     function of(zone) { const m = /^c(\d+)_/.exec(zone || ''); return m ? 'ch' + m[1] : 'ch1'; }
-    // chapters the owner switched on (app config "chapters": "ch2" or ["ch2"]); chapter 1 is always there
+    // chapters the owner switched on: app config "chapters" is a list like ["ch2", "ch3"]
+    // (a text "ch2, ch3", numbers [2, 3] and "all" work too); chapter 1 is always there
     function enabled(id) {
         if (id === 'ch1') return true;
         const c = (window.MyPC && MyPC.app_config) || {};
         let v = c.chapters;
-        if (v === undefined || v === null) v = 'ch2';                      // default: every chapter ("" or "none": chapter 1 only)
-        if (typeof v === 'string') v = v.split(/[\s,]+/);
-        return Array.isArray(v) && (v.indexOf(id) >= 0 || v.indexOf(id.slice(2)) >= 0 || v.indexOf('all') >= 0);
+        if (v === undefined || v === null) return true;                   // not set: every chapter ([] or "none": chapter 1 only)
+        if (!Array.isArray(v)) v = String(v).split(/[\s,]+/);
+        v = v.map(k => String(k).trim().toLowerCase()).map(k => /^\d+$/.test(k) ? 'ch' + k : k);
+        return v.indexOf(id) >= 0 || v.indexOf('all') >= 0;
     }
     function script(src) {
         return new Promise((ok, fail) => {

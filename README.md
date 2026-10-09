@@ -64,7 +64,8 @@ Cinder Witch, ring the tide bell, and go down into the Sunken Lighthouse to face
 
 Each chapter is loaded only while you are in it: travelling to chapter 2 loads its pack and lets go
 of chapter 1's maps, music and code, and the other way round. The owner chooses the chapters with the
-app config key `chapters` (default `"ch2"`; `""` or `"none"` keeps only chapter 1). How to add a
+app config key `chapters`, a list such as `["ch2"]` (later `["ch2", "ch3"]`; `"all"` turns on every
+chapter, `[]` keeps only chapter 1). How to add a
 chapter: **[docs/CHAPTER_API.md](docs/CHAPTER_API.md)**.
 
 ## Controls

@@ -6,7 +6,7 @@
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "scores": true,
   "config": {
     "proxyUrl": "",
@@ -17,6 +17,8 @@
     "mountSpeed": 1,
     "petSpeed": 1.5,
     "enemyDifficulty": 1.3,
-    "chapters": "ch2"
+    "chapters": [
+      "ch2"
+    ]
   }
 }
