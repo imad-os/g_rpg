@@ -3048,14 +3048,21 @@
         if (saved) S = migrate(Object.assign(fresh(), saved));
         let ch = CHAPTERS.of(S.zone);
         if (!CHAPTERS.enabled(ch)) ch = 'ch1';
+        let finished = false;
         const done = () => {
-            recalcAll();
-            loadZone(CH.home); camX = 0; camY = 0;
-            refreshMenu();
+            if (finished) return; finished = true;
+            try { recalcAll(); loadZone(CH.home); camX = 0; camY = 0; refreshMenu(); }
+            catch (e) { finished = false; return fail(e); }
             MyPC.progress(1);
             MyPC.ready();
         };
-        enterChapter(ch).then(done).catch(() => { if (ch !== 'ch1') enterChapter('ch1').then(done); });
+        // never stay silently on the loading bar: a failure shows My PC's Retry / Back with the reason
+        const fail = e => { if (!finished) { finished = true; MyPC.fail('Hollowmere: ' + ((e && e.message) || e)); } };
+        enterChapter(ch).then(done).catch(e1 => {
+            if (ch === 'ch1') return fail(e1);
+            CH = null; CHID = '';
+            enterChapter('ch1').then(done).catch(fail);
+        });
     }
 
     MyPC.init({
@@ -3077,13 +3084,15 @@
             ART.misc();
             MyPC.progress(0.5);
             MOUNTART.load(VERSION);
-            KN.load(VERSION, p => MyPC.progress(0.5 + p * 0.4), () => finishInit());
+            // the pictures must not hold the game back: if they stall (slow TV network), start with the drawn art
+            let inited = false;
+            const go = () => { if (inited) return; inited = true; clearTimeout(wd); finishInit(); };
+            const wd = setTimeout(go, 15000);
+            KN.load(VERSION, p => MyPC.progress(0.5 + p * 0.4), go);
         },
         onStart: function () {
             started = true;
-            SND.start(info.volume);
-            if (CH) for (const k of CH.songs || []) SND.prepare(k);
-            music();
+            try { SND.start(info.volume); if (CH) for (const k of CH.songs || []) SND.prepare(k); music(); } catch (e) { /* no sound is better than no game */ }
             showTitle();
             startLoop();
         },
