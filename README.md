@@ -223,11 +223,12 @@ Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made 
 
 ## Local co-op (phone as second controller)
 
-Standalone only (a phone or computer running the game in its browser; not on the TV). Both devices on the same Wi-Fi, no server:
-1. Host: press **Co-op** (top of the screen), then **Invite**, and send the link to the other phone.
-2. Guest: open the link (`controller.html`). It shows a reply code: send it back to the host.
-3. Host: paste the reply code and press **Connect**. The guest presses **A** to join as hero 2.
+Works on the TV, a phone or a computer as the host. A second phone is hero 2's controller; both on the same Wi-Fi.
+1. Host: pause menu (or hold OK: quick menu) → **Co-op: invite a phone**. A 5-letter code appears.
+2. Phone: open `.../controller.html` (bookmark it, or "Add to Home Screen"), type the code, **Join**.
+3. The phone presses **A** to join as hero 2. It has a joystick, **A** (OK / attack), **B** (run, ability) and **C** (cancel, ability). Menus and dialogs stay on the host.
 
-The guest has a joystick, **A** (OK / attack), **B** (run, ability) and **C** (cancel, ability). Menus and dialogs stay on the host.
-Reusable parts: `js/netpad.js` (serverless WebRTC pairing) and `js/virtual-pad.js` (touch pad; `send` option for controllers).
+The code is swapped through one small Firestore document that is deleted right after; play then goes directly device-to-device.
+One-time setup (rules, TTL, Firebase web config): see `docs/FIRESTORE_ROOMS.md`.
+Reusable parts: `js/netpad.js` + `js/netpad-room.js` (pairing) and `js/virtual-pad.js` (touch pad, `send` option for controllers).
 If it will not connect, the router may block devices from talking to each other (guest network / client isolation).

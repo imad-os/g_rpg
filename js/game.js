@@ -679,7 +679,7 @@
         const items = [{ id: 'journal', label: T.ui.mJournal }, { id: 'equip', label: T.ui.mEquip }, { id: 'settings', label: T.ui.mSettings },
             { id: 'potion', label: txt(T.ui.mPotionS, { n: S.potions }) }];
         if (S.mounts.length) items.push({ id: 'mount', label: T.ui.mMounts });
-        if (P[1].on) items.push({ id: 'leave2', label: T.ui.mLeave });
+        items.push(P[1].on ? { id: 'leave2', label: T.ui.mLeave } : { id: 'coop', label: T.ui.mCoop });
         const k = items.map(i => i.label).join('|');
         if (k !== menuKey) { menuKey = k; MyPC.setMenu(items); }
     }
@@ -696,6 +696,7 @@
         if (mode !== 'overlay') return false;
         if (OV.kind === 'gear') { SND.fx('ok'); closeList(); return true; }
         if (OV.kind === 'journal') { SND.fx('ok'); ovHide(); toPlay(); return true; }
+        if (OV.kind === 'menu' && OV.coop) { SND.fx('ok'); coopClose(); return true; }
         if (OV.kind === 'list') {
             const rows = OV.list.rows();
             for (const r of rows) if (r.fn === closeList || r.label === T.ui.back || r.label === T.ui.close || r.label === T.ui.leave) { SND.fx('ok'); r.fn(); return true; }
@@ -1330,6 +1331,7 @@
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
                 if (P[1].on) r.push({ label: T.ui.mLeave, fn: go(leave2) });
+                else r.push({ label: T.ui.mCoop, fn: () => { ovHide(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
             }
@@ -1494,6 +1496,25 @@
     function riding(p) { return !!S.mount && !Z.def.dark && !p.down && !(S.mount === 'wolf' && CH && CH.noWolf); }
     function flying(p) { return S.mount === 'dragon' && riding(p); }
     function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
+    // local co-op: the code a phone types (controller.html) to join as hero 2; the state lives in js/coop.js
+    function coopScreen() {
+        mode = 'overlay'; OV.kind = 'menu'; OV.coop = true; setHud(false);
+        HM_COOP.open(coopRender); coopRender();
+    }
+    function coopRender() {
+        if (!(mode === 'overlay' && OV.kind === 'menu' && OV.coop)) return;
+        const c = HM_COOP.state, u = T.ui, title = u.mCoop.split(/[:：]/)[0], page = location.host + location.pathname.replace(/[^/]*$/, '') + 'controller.html';
+        OV.items = [];
+        if (c.state === 'waiting') OV.head = [c.code.split('').join(' '), txt(u.coopHow, { url: page })];
+        else if (c.state === 'connected') { OV.head = [title, u.coopOn]; OV.items.push({ label: u.coopDrop, fn: () => HM_COOP.disconnect() }); }
+        else if (c.state === 'error') { OV.head = [title, c.err === 'rules' ? u.coopRules : c.err === 'config' ? u.coopConfig : c.err === 'none' ? u.coopNone : u.coopNet]; OV.items.push({ label: u.coopNew, fn: () => HM_COOP.again() }); }
+        else if (c.state === 'expired') { OV.head = [title, u.coopExpired]; OV.items.push({ label: u.coopNew, fn: () => HM_COOP.again() }); }
+        else OV.head = [title, u.coopMake];
+        OV.items.push({ label: u.close, fn: coopClose });
+        OV.sel = Math.min(OV.sel || 0, OV.items.length - 1);
+        renderMenu();
+    }
+    function coopClose() { OV.coop = false; HM_COOP.close(); ovHide(); toPlay(); }
     function leave2() { P[1].on = false; toast(txt(T.ui.p2left, { name: heroName(1) })); }
 
     function frontX(p, d) { return p.x + p.ax * d; }
@@ -3125,6 +3146,7 @@
             else if (id === 'potion') drink(false);
             else if (id === 'big') drink(true);
             else if (id === 'leave2' && P[1].on) leave2();
+            else if (id === 'coop' && !P[1].on) { if (mode === 'dialog') closeDlg(); coopScreen(); }
             else if (id === 'mount') mountScreen();
         },
         onVolume: function (v) { SND.setVolume(v); }
