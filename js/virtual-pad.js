@@ -62,6 +62,9 @@ window.VirtualPad = (function () {
     function init(opt) {
         if (root || !wanted()) return;
         opt = opt || {};
+        // like a native app: no pinch zoom, no double-tap zoom, no page scroll or text selection while playing
+        ['touchmove', 'gesturestart', 'gesturechange', 'contextmenu'].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false }); });
+        var lastTap = 0; document.addEventListener('touchend', function (e) { var n = Date.now(); if (n - lastTap < 350) e.preventDefault(); lastTap = n; }, { passive: false });
         root = el('div', 'position:fixed;inset:0;z-index:99999;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none', document.body);
         stick(root);
         (opt.buttons || DEFAULT).forEach(function (b, i) { button(root, b, i); });
