@@ -223,12 +223,10 @@ Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made 
 
 ## Local co-op (a phone as the second player)
 
-All inside the game, nothing to type or copy; both devices on the same Wi-Fi.
-- **Host** (TV, phone or computer): pause menu (or hold OK: quick menu) → **Co-op: play with a phone** → **Open a room**.
-- **Guest** (a phone running the game, standalone or in My PC): title screen → **Join a friend** → pick the room from the list.
-- The host sees "X wants to join. Accept?" and accepts. The phone becomes a controller: joystick, **A** (OK / attack), **B** (run, ability), **C** (cancel, ability), **Leave**. It presses **A** to join as hero 2. Menus and dialogs stay on the host.
+Uses My PC's own multiplayer (`MyPC.multiplayer`): the rooms list, "Open a room" and the accept dialog are My PC's screens, the same in every game. Both devices on the same Wi-Fi.
+- **Host** (TV, phone or computer): pause menu (or hold OK: quick menu) → **Co-op: play with a friend** → My PC's "Open a room".
+- **Guest** (a phone running My PC): Hollowmere title screen → **Join a friend** → pick the room. The host accepts in My PC's dialog.
+- The phone becomes a controller: joystick, **A** (OK / attack), **B** (run, ability), **C** (cancel, ability), **Leave**. It presses **A** to join as hero 2. Menus and dialogs stay on the host.
 
-Firestore only introduces the devices (a room and a join request, deleted right after); play is direct device-to-device.
-One-time setup (rules, TTL policies, Firebase settings): `docs/FIRESTORE_ROOMS.md`.
-Reusable in other games: `js/netpad.js` (direct connection) + `js/netpad-rooms.js` (Firestore lobby) + `js/virtual-pad.js` (touch pad).
-If it will not connect, the router may block devices from talking to each other (guest network / client isolation).
+The game only has `js/coop.js` (host/guest state and messages), the small status and controller screens in `game.js`, and `js/virtual-pad.js` (touch pad, reusable).
+Standalone (a browser, not My PC) works between two tabs of the same browser, for testing. No Firebase, no codes, no links.
