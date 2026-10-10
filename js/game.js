@@ -101,7 +101,12 @@
     // "Return" works only in menus and conversations, so it has its own buttons (hold OK = OK acts when released there)
     const BACK_G = ['hold', 'cancel', 'run', 'none'];
     const ZOOMS = [0.75, 1, 1.25, 1.5];
-    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold' };
+    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold', pad: {}, padBack: undefined };
+    // real controller buttons (js/gamepad.js): index of the physical button for each function; -1 = none
+    const PAD_DEFAULT = { attack: 0, heal: 1, power: 2, distant: 3 }, PAD_BACK = 1;
+    const padOf = f => SET.pad[f] !== undefined ? SET.pad[f] : (PAD_DEFAULT[f] !== undefined ? PAD_DEFAULT[f] : -1);
+    const padBackOf = () => SET.padBack !== undefined ? SET.padBack : PAD_BACK;
+    const padName = i => i < 0 ? T.ui.g_none : HM_PAD.name(i);
     function loadSettings() {
         const s = MyPC.load('settings', null);
         if (s && typeof s === 'object') {
@@ -110,6 +115,8 @@
             if (s.btn) for (const f of FNS) if (GESTURES.indexOf(s.btn[f]) >= 0) SET.btn[f] = s.btn[f];
             if (!OK_G[SET.btn.menu] || SET.btn.attack === 'none') SET.btn = Object.assign({}, BTN_DEFAULT);
             if (BACK_G.indexOf(s.back) >= 0) SET.back = s.back;
+            if (s.pad && typeof s.pad === 'object') for (const f of FNS) if (Number.isInteger(s.pad[f]) && s.pad[f] >= -1 && s.pad[f] < 12) SET.pad[f] = s.pad[f];
+            if (Number.isInteger(s.padBack) && s.padBack >= -1 && s.padBack < 12) SET.padBack = s.padBack;
         }
         VOICE.setRate(SET.voice);
     }
@@ -724,7 +731,7 @@
             { id: 'potion', label: txt(T.ui.mPotionS, { n: S.potions }) }];
         if (S.mounts.length) items.push({ id: 'mount', label: T.ui.mMounts });
         if (ctrlEl) return;                                 // a guest phone: the menu only has "Leave" (set in controllerOn)
-                if (HM_COOP.usable()) items.push({ id: 'coop', label: T.ui.mCoop });
+                if (coopAvail()) items.push({ id: 'coop', label: T.ui.mCoop });
         const k = items.map(i => i.label).join('|');
         if (k !== menuKey) { menuKey = k; MyPC.setMenu(items); }
     }
@@ -1328,7 +1335,7 @@
     }
 
     // settings: voice speed and what each button does
-    function fnLabel(f) { return f === 'attack' ? T.ui.attack : f === 'menu' ? T.ui.menuF : f === 'mount' ? T.ui.mountF : f === 'potion' ? T.ui.potionF : ABIL[f].icon + ' ' + T.ui[f]; }
+    function fnLabel(f) { return f === 'back' ? T.ui.backF : f === 'attack' ? T.ui.attack : f === 'menu' ? T.ui.menuF : f === 'mount' ? T.ui.mountF : f === 'potion' ? T.ui.potionF : ABIL[f].icon + ' ' + T.ui[f]; }
     function canSet(f, g) {
         const cur = SET.btn[f], o = g === 'none' ? '' : fnOf(g);
         if (f === 'menu' && !OK_G[g]) return false;              // the menu must stay on the remote's OK
@@ -1343,14 +1350,17 @@
         const box = el('div', 'journal');
         box.appendChild(el('div', 'jtitle', T.ui.assignTitle));
         box.appendChild(el('div', 'jobj', txt(T.ui.assignHow, { fn: fnLabel(f) })));
-        box.appendChild(el('div', 'jzone', T.ui.assignNow + ': ' + T.ui['g_' + SET.btn[f]]));
-        box.appendChild(el('div', 'jpage', T.ui.assignHelp));
+        const raw = HM_PAD.live;
+        box.appendChild(el('div', 'jzone', T.ui.assignNow + ': ' + (raw ? padName(f === 'back' ? padBackOf() : padOf(f)) : T.ui['g_' + (f === 'back' ? SET.back : SET.btn[f])])));
+        box.appendChild(el('div', 'jpage', raw ? T.ui.assignPadHelp : T.ui.assignHelp));
         ovShow(box);
         MyPC.announce(T.ui.assignTitle + '. ' + txt(T.ui.assignHow, { fn: fnLabel(f) }));
     }
     function assignEnd(g) {                                    // g: the chosen button, or null to keep the current one
         clearTimeout(assignT); const A = OV.assign; OV.assign = null;
-        if (g && g !== SET.btn[A.f]) {
+        if (A.f === 'back') {
+            if (g && BACK_G.indexOf(g) >= 0) { SET.back = g; SET.padBack = undefined; saveSettings(); SND.fx('ok'); } else if (g) toast(T.ui.assignNo);
+        } else if (g && g !== SET.btn[A.f]) {
             if (canSet(A.f, g)) {
                 const cur = SET.btn[A.f], o = g === 'none' ? '' : fnOf(g);
                 if (o) SET.btn[o] = cur;                           // the one that had it gets this one's old button
@@ -1358,6 +1368,17 @@
             } else toast(T.ui.assignNo);
         }
         ovHide(); buttonsScreen(A.sel);
+    }
+    // a real controller button was pressed while the modal waits (D-pad up: none, D-pad down: keep)
+    function assignPad(i) {
+        const A = OV.assign; if (!A) return;
+        if (i === 14 || i === 15) return;
+        if (i === 13) { OV.assign = null; ovHide(); buttonsScreen(A.sel); return; }
+        if (i === 12 && A.f === 'attack') return toast(T.ui.assignNo);
+        const v = i === 12 ? -1 : i;
+        if (A.f === 'back') SET.padBack = v;
+        else { const old = padOf(A.f); for (const o of FNS) if (o !== A.f && v >= 0 && padOf(o) === v) SET.pad[o] = old; SET.pad[A.f] = v; }
+        saveSettings(); refreshHint(); SND.fx('ok'); OV.assign = null; lockUntil = tick + 15; ovHide(); buttonsScreen(A.sel);
     }
     function assignInput(a, pressed) {
         const A = OV.assign; if (!A || !pressed && a !== 'jump' && a !== 'confirm') return;
@@ -1382,7 +1403,6 @@
         S.gender[i] = g ? 1 : 0; save(); SND.fx('ok');
         toast(txt(T.ui.lookDone, { name: heroName(i), to: g ? T.ui.female : T.ui.male }));
     }
-    function cycleBack(dir) { SET.back = BACK_G[(BACK_G.indexOf(SET.back) + dir + BACK_G.length) % BACK_G.length]; saveSettings(); }
     function cycleVoice(dir) {
         const i = Math.max(0, Math.min(VOICE_RATES.length - 1, VOICE_RATES.indexOf(SET.voice) + dir));
         SET.voice = VOICE_RATES[i]; VOICE.setRate(SET.voice); saveSettings();
@@ -1406,14 +1426,14 @@
     // the buttons: a submenu of Settings (OK on a row asks for the button to use)
     function buttonsScreen(sel) {
         listScreen({
-            sel: sel || 0, title: () => T.ui.buttons, info: () => '', tabs: () => T.ui.remoteNote,
-            rows: () => FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]], fn: () => assignScreen(f) }))
-                .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], side: d => cycleBack(rtl() ? -d : d), fn: () => { cycleBack(1); renderList(); } },
-                         { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; saveSettings(); refreshHint(); renderList(); } },
+            sel: sel || 0, title: () => T.ui.buttons, info: () => '', tabs: () => HM_PAD.live ? txt(T.ui.padKind, { kind: HM_PAD.kind === 'xbox' ? 'Xbox' : HM_PAD.kind === 'ps' ? 'PlayStation' : HM_PAD.kind === 'nintendo' ? 'Nintendo' : T.ui.padGeneric }) : T.ui.remoteNote,
+            rows: () => FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: HM_PAD.live ? padName(padOf(f)) : T.ui['g_' + SET.btn[f]], fn: () => assignScreen(f) }))
+                .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: HM_PAD.live ? padName(padBackOf()) : T.ui['g_' + SET.back], fn: () => assignScreen('back') },
+                         { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; SET.pad = {}; SET.padBack = undefined; saveSettings(); refreshHint(); renderList(); } },
                          { label: T.ui.back, fn: () => settingsScreen(2) }])
         });
     }
-    function refreshHint() { $('hint').textContent = T.ui['g_' + SET.btn.menu] + ': ' + T.ui.menuF; }
+    function refreshHint() { $('hint').textContent = (HM_PAD.live && padOf('menu') >= 0 ? padName(padOf('menu')) : T.ui['g_' + SET.btn.menu]) + ': ' + T.ui.menuF; }
 
     // the quick menu (hold OK with the default buttons): everything is reachable from here with arrows and OK
     let qmP = null;
@@ -1435,7 +1455,7 @@
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
-                if (HM_COOP.usable()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
+                if (coopAvail()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
             }
@@ -1645,9 +1665,10 @@
     /* ---------- local co-op: My PC owns the rooms (MyPC.multiplayer); state and messages in js/coop.js ---------- */
     // the host: "Co-op" opens My PC's own "Open a room" screen; friends are accepted by My PC's own dialog.
     // Once a room is open (or a friend is in) the menu item shows a small status screen instead.
+    const coopAvail = () => HM_COOP.usable() || P.some(p => p.i && p.on);
     function coopScreen() {
-        if (!HM_COOP.usable()) return toast(T.ui.coopNone);
-        if (HM_COOP.host.state === 'idle') { HM_COOP.openRoom(() => { toast(T.ui.coopOpened); refreshMenu(); }); return; }
+        if (!coopAvail()) return toast(T.ui.coopNone);
+        if (HM_COOP.usable() && HM_COOP.host.state === 'idle' && !P.some(p => p.i && p.on)) { HM_COOP.openRoom(() => { toast(T.ui.coopOpened); refreshMenu(); }); return; }
         mode = 'overlay'; OV.kind = 'menu'; OV.coop = 'host'; OV.items = []; OV.sel = 0; setHud(false);
         HM_COOP.listen(coopRender); coopRender();
     }
@@ -1655,7 +1676,13 @@
         if (!(mode === 'overlay' && OV.kind === 'menu' && OV.coop === 'host')) return;
         const c = HM_COOP.host, u = T.ui, back = { label: u.coopBack, fn: coopClose }, n = c.peers.length;
         OV.head = [u.coopTitle, n ? txt(u.coopOnN, { n }) : c.state === 'open' ? u.coopWaiting : u.coopIdle];
-        OV.items = c.peers.map(q => ({ label: txt(u.coopDropN, { name: q.name || q.dev }), fn: () => HM_COOP.disconnect(q.dev) }));
+        OV.items = [];
+        for (const p of P) if (p.i && p.on) {                        // every other hero can be removed by player 1: local ones are dropped, remote ones disconnected
+            const dev = p.dev, remote = /^net/.test(dev);
+            OV.items.push({ label: txt(u.coopRemove, { name: heroName(p.i) }), fn: () => { if (remote) HM_COOP.disconnect(dev); else { leaveHero(p); coopRender(); } } });
+        }
+        for (const q of c.peers) if (!P.some(p => p.on && p.dev === q.dev)) OV.items.push({ label: txt(u.coopDropN, { name: q.name || q.dev }), fn: () => HM_COOP.disconnect(q.dev) });
+        if (c.state === 'idle' && HM_COOP.usable()) OV.items.push({ label: u.mCoop, fn: () => HM_COOP.openRoom(() => { toast(u.coopOpened); refreshMenu(); }) });
         if (c.state === 'open') OV.items.push({ label: u.coopShut, fn: () => HM_COOP.closeRoom() });
         OV.items.push(back);
         OV.sel = Math.min(OV.sel || 0, OV.items.length - 1);
@@ -1683,6 +1710,7 @@
         ctrlEl.appendChild(ctrlText); document.body.appendChild(ctrlEl);
         // a pure controller: big stick and buttons (the player can change them with the gear button); the menu button opens hero 2's menu
         if (MyPC.pad) MyPC.pad.init({ force: true, pause: false, id: 'guest', scale: { stick: 1.35, btn: 1.25 }, send: HM_COOP.sendKey,
+            onAction: (a, d) => { const k = { left: 37, up: 38, right: 39, down: 40, pause: 27 }[a]; if (k) HM_COOP.sendKey(k, d); },     // the shell relays the stick as actions
             buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }], catalog: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }] });
         MyPC.setMenu([{ id: 'coopleave', label: T.ui.coopLeave }]);
     }
@@ -1853,11 +1881,24 @@
         const f = fnOf(g);
         if (!f && g === 'double') return gesture(p, 'tap');               // nothing on "OK twice": it is just another OK
         if ((g === 'tap' || g === 'double') && interact(p)) return;        // OK always talks, opens and reads first
+        if (!doFn(p, f, g === 'double') && g === 'double') gesture(p, 'tap');
+    }
+    function doFn(p, f, dbl) {
         if (f === 'attack') { if (p.atk <= 0) attack(p); }
         else if (f === 'menu') quickMenu(p);
         else if (f === 'potion') potion(p);
         else if (f === 'mount') toggleMount();
-        else if (!ability(p, f, g === 'double') && g === 'double') gesture(p, 'tap');
+        else return ability(p, f, dbl);
+        return true;
+    }
+    // a real controller button (js/gamepad.js): the same functions, by the physical button; hero 1 only
+    function padPress(i) {
+        if (!started) return;
+        if (OV.kind === 'assign') return assignPad(i);
+        if (mode === 'overlay' || mode === 'dialog') { if (i === padBackOf() && i !== 0) goBack(); return; }
+        if (mode !== 'play' || i >= 12) return;
+        const p = P[0]; if (p.down) return;
+        for (const f of FNS) if (padOf(f) === i) { if (f === 'attack' && interact(p)) return; doFn(p, f, false); return; }
     }
 
     function hitFoe(f, p, dmg, dx, dy) {
@@ -2393,6 +2434,7 @@
     /* ------------------------------------------------------------------ update */
 
     function update() {
+        HM_PAD.poll((i, d) => { if (d) padPress(i); });
         tick++;
         if (toastT > 0 && --toastT === 0) $('toast').className = '';
         if (bannerT > 0 && --bannerT === 0) $('banner').className = '';
@@ -3217,7 +3259,10 @@
     function onInput(a, pressed, repeat, dev) {
         dev = dev || 'keys';
         if (!repeat) { const d = DEV[dev] || (DEV[dev] = {}); d[a] = pressed; }
-        if (OV.kind === 'assign') { if (!repeat) assignInput(a, pressed); return; }          // the "press the button" modal listens to everything
+        if (OV.kind === 'assign') { if (!repeat && !(HM_PAD.live && HM_PAD.holding())) assignInput(a, pressed); return; }
+        // a real controller is read by padPress: its button presses that also arrive as abstract actions are ignored here
+        if (pressed && HM_PAD.live && dev.indexOf('net') !== 0 && HM_PAD.holding() && (dev === 'keys' || dev === P[0].dev) &&
+            ((mode === 'play' && (a === 'jump' || a === 'run' || a === 'cancel')) || ((mode === 'overlay' || mode === 'dialog') && a === 'cancel'))) return;          // the "press the button" modal listens to everything
         // with Return on "hold OK", OK in menus and conversations acts when released (a long press is Return)
         if (a === 'confirm' && !pressed && okDown >= 0) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
         if (!pressed || !started) return;

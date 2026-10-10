@@ -1,10 +1,10 @@
 /* Hollowmere: texts for up to four heroes (4 languages). */
 (function () {
     const M = {
-        en: { hero3: 'Sage', hero4: 'Rook', coopOnN: '{n} friend(s) connected. On each phone press A to join the adventure.', coopDropN: 'Disconnect {name}' },
-        fr: { hero3: 'Sage', hero4: 'Rook', coopOnN: '{n} ami(s) connecté(s). Sur chaque téléphone, appuyez sur A pour rejoindre l\'aventure.', coopDropN: 'Déconnecter {name}' },
-        es: { hero3: 'Sage', hero4: 'Rook', coopOnN: '{n} amigo(s) conectado(s). En cada móvil pulsa A para unirte a la aventura.', coopDropN: 'Desconectar a {name}' },
-        ar: { hero3: 'سيج', hero4: 'روك', coopOnN: '{n} من الأصدقاء متصلون. على كل هاتف اضغط A للانضمام إلى المغامرة.', coopDropN: 'افصل {name}' }
+        en: { coopRemove: 'Remove {name}', hero3: 'Sage', hero4: 'Rook', coopOnN: '{n} friend(s) connected. On each phone press A to join the adventure.', coopDropN: 'Disconnect {name}' },
+        fr: { coopRemove: 'Retirer {name}', hero3: 'Sage', hero4: 'Rook', coopOnN: '{n} ami(s) connecté(s). Sur chaque téléphone, appuyez sur A pour rejoindre l\'aventure.', coopDropN: 'Déconnecter {name}' },
+        es: { coopRemove: 'Quitar a {name}', hero3: 'Sage', hero4: 'Rook', coopOnN: '{n} amigo(s) conectado(s). En cada móvil pulsa A para unirte a la aventura.', coopDropN: 'Desconectar a {name}' },
+        ar: { coopRemove: 'أزل {name}', hero3: 'سيج', hero4: 'روك', coopOnN: '{n} من الأصدقاء متصلون. على كل هاتف اضغط A للانضمام إلى المغامرة.', coopDropN: 'افصل {name}' }
     };
     for (const l in M) Object.assign(window.HM_TEXT[l].ui, M[l]);
 })();

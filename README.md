@@ -253,3 +253,7 @@ One to four heroes: the host (TV, phone or computer) plus up to three phones (`M
 
 ## Settings
 Settings now has **Voice speed**, **Zoom** (75% sees more, 150% sees less and bigger; saved), **Buttons** (a submenu: OK on a row asks for the real button), the look of each hero, and Credits.
+
+### Real controller buttons
+`js/gamepad.js` reads the game controller itself, so **Buttons** shows the real names (A B X Y on Xbox, ✕ ○ □ △ on PlayStation, B A Y X on Nintendo) and OK on a row asks you to press the controller button to use (D-pad up: none, D-pad down: keep). **Return** works the same way (no more toggling). It only switches on after a real press is seen, so on a TV remote nothing changes and the old OK / OK twice / Hold OK choices remain. If My PC does not pass the controller to the game, see `docs/MYPC_RAW_BUTTONS_PROMPT.md`.
+Player 1's **Co-op** menu lists every other hero with **Remove {name}** (a local second player is dropped, a phone is disconnected). A phone's stick now moves its hero when the pad is drawn by My PC.
