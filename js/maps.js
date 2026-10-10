@@ -50,6 +50,8 @@ window.HM_MAPS = {
             { id: 'hana', x: 29, y: 12.2 },
             { id: 'pip', x: 25.5, y: 19.5 },
             { id: 'odo', x: 10.6, y: 2.6 },
+            { id: 'ilsa', x: 15.5, y: 15.4 },
+            { id: 'joss', x: 35.4, y: 14.8 },
             { id: 'tamHome', x: 12.5, y: 13.6 },
             { id: 'biscuitHome', x: 27, y: 19.9 }
         ],

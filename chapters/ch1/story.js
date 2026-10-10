@@ -4,8 +4,8 @@
 HM_CHAPTERS.def.ch1 = function (api) {
     'use strict';
     const TS = api.TS, GT = api.GT;
-    const NAME = { maren: 'Maren', tobin: 'Tobin', sela: 'Sela', corvin: 'Corvin', lira: 'Lira', hana: 'Hana', pip: 'Pip', bram: 'Bram', odo: 'Odo', tam: 'Tam', biscuit: 'Biscuit' };
-    const NAME_AR = { maren: 'مارين', tobin: 'توبين', sela: 'سيلا', corvin: 'كورفين', lira: 'ليرا', hana: 'هانا', pip: 'بيب', bram: 'برام', odo: 'أودو', tam: 'تام', biscuit: 'بسكويت' };
+    const NAME = { maren: 'Maren', tobin: 'Tobin', sela: 'Sela', corvin: 'Corvin', lira: 'Lira', hana: 'Hana', pip: 'Pip', bram: 'Bram', odo: 'Odo', tam: 'Tam', biscuit: 'Biscuit', ilsa: 'Ilsa', joss: 'Joss' };
+    const NAME_AR = { maren: 'مارين', tobin: 'توبين', sela: 'سيلا', corvin: 'كورفين', lira: 'ليرا', hana: 'هانا', pip: 'بيب', bram: 'برام', odo: 'أودو', tam: 'تام', biscuit: 'بسكويت', ilsa: 'إيلسا', joss: 'جوس' };
     const LOOK = {
         maren: { cloak: '#6d5a8a', trim: '#d9c27a', skin: '#e8c4a0', hair: '#e6e6ea', style: 1, s: 1 },
         tobin: { cloak: '#6b4a32', trim: '#2f2f33', skin: '#c98e66', hair: '#3a2a1e', style: 2, s: 1.2 },
@@ -17,6 +17,8 @@ HM_CHAPTERS.def.ch1 = function (api) {
         bram: { cloak: '#a8322e', trim: '#3a2a1e', skin: '#d09a74', hair: '#6a4a2a', style: 0, s: 1.1 },
         odo: { cloak: '#7a7f8a', trim: '#c9a43a', skin: '#c48c64', hair: '#5a5f6a', style: 3, s: 1.1 },
         tam: { cloak: '#5a7a3a', trim: '#3a2a1e', skin: '#e2b48c', hair: '#9a5a2a', style: 0, s: 0.86 },
+        ilsa: { tunic: '#8a3a7a', trim: '#f2d14a', pants: '#4a3a5a', shoes: '#3a2a1e', skin: '#e2b48c', hair: '#7a3a22', style: 1, s: 1 },
+        joss: { tunic: '#3a6a8a', trim: '#e8e0c8', pants: '#3a3f5a', shoes: '#4a3020', skin: '#c89a74', hair: '#2a2a2e', style: 4, s: 1.05 },
         miner: { cloak: '#7a5a3a', trim: '#3a3a3a', skin: '#d4a07a', hair: '#c8a020', style: 3, s: 1 },
         kid: { cloak: '#5a8ad8', trim: '#f2d14a', skin: '#f0c8a0', hair: '#2a1a10', style: 1, s: 0.74 },
         fisher: { cloak: '#3a6a8a', trim: '#e8e0c8', skin: '#c89a74', hair: '#6a6a6a', style: 3, s: 1.05 },
@@ -73,7 +75,7 @@ HM_CHAPTERS.def.ch1 = function (api) {
         const s = S();
         if (id === 'maren') return s.stage >= 17 ? lines('maren', 'marenEnd') : lines('maren', 'marenIdle', { obj: objective(api.L) });
         const key = { tobin: 'tobinIdle', sela: 'selaIdle', corvin: 'corvinIdle', lira: 'liraIdle', hana: 'hana', pip: s.lit ? 'pipPost' : 'pip',
-            bram: s.hearth ? 'bramPost' : 'bram', odo: s.key ? 'odoKey' : 'odo', tamHome: 'tamHome', biscuitHome: 'biscuitHome' }[id];
+            bram: s.hearth ? 'bramPost' : 'bram', odo: s.key ? 'odoKey' : 'odo', ilsa: 'ilsa', joss: 'joss', tamHome: 'tamHome', biscuitHome: 'biscuitHome' }[id];
         return lines(id === 'tamHome' ? 'tam' : id === 'biscuitHome' ? 'biscuit' : id, key);
     }
     function forgeSword() { S().sword = true; api.giveItem('iron_sword', true); api.toast(T().ui.gotSword); }
@@ -83,6 +85,10 @@ HM_CHAPTERS.def.ch1 = function (api) {
         if (id === 'sela' && s.stage >= 8) c.push({ label: t.ui.ferry, fn: () => { api.closeDlg(); ferry('isle'); } });
         if (id === 'sela' && ch2Open()) c.push({ label: t.ui.sailLark, fn: () => { api.closeDlg(); sailLark(); } });
         if (id === 'tobin' && s.stage >= 4) c.push({ label: t.ui.browseForge, fn: () => { api.closeDlg(); api.forgeScreen(); } });
+        if (id === 'ilsa' || id === 'joss') {                       // a new look: the tailor and the barber change a hero's gender
+            const g = s.gender || [0, 1];
+            for (const i of [0, 1]) if (i === 0 || api.P[1].on) c.push({ label: api.txt(t.ui.lookTo, { name: api.heroName(i), to: g[i] ? t.ui.male : t.ui.female }), fn: () => { api.closeDlg(); api.setGender(i, g[i] ? 0 : 1); } });
+        }
         if (id === 'hana') c.push({ label: t.ui.browsePotions, fn: () => { api.closeDlg(); api.potionScreen(); } });
     }
     function whatNext(id) { return id === 'maren' ? api.txt(T().lines.marenIdle[0], { obj: objective(api.L) }) : objective(api.L); }

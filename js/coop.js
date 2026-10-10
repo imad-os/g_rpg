@@ -20,7 +20,7 @@ window.HM_COOP = (function () {
         MyPC.multiplayer.host({ max: 1 }).then(s => {
             session = s; set('open'); if (done) done();
             s.onPeer(p => {
-                peer = p; set('connected');
+                peer = p; set('connected'); window.HM_REMOTE.setName(p.name);      // hero 2 carries the friend's My PC profile name
                 p.onMessage(m => { const a = ACTION[Array.isArray(m) ? m[0] : 0]; if (a) window.HM_REMOTE.input(a, !!m[1], DEV); });
                 p.onClose(() => { window.HM_REMOTE.leave(DEV); if (peer === p) { peer = null; session = null; set('idle'); } });
             });

@@ -19,10 +19,17 @@
 
     /* ------------------------------------------------------------------ data */
 
-    const HERO_LOOK = [
-        { skin: '#f0c8a0', hair: '#3a2416', style: 0, tunic: '#2a9d8f', trim: '#f4d35e', pants: '#3a3f5a', shoes: '#4a3020', cape: '#1f6f66' },
-        { skin: '#e2b48c', hair: '#c0582e', style: 1, tunic: '#e76f51', trim: '#f4d35e', pants: '#4a3a5a', shoes: '#4a3020', cape: '#a8432e' }
+    // the heroes' looks: [male, female], each with a second colour set so two heroes of the same gender can still be told apart
+    const GLOOKS = [
+        [{ skin: '#f0c8a0', hair: '#3a2416', style: 0, tunic: '#2a9d8f', trim: '#f4d35e', pants: '#3a3f5a', shoes: '#4a3020', cape: '#1f6f66' },
+         { skin: '#e2b48c', hair: '#5a2a1a', style: 0, tunic: '#c0582e', trim: '#f4d35e', pants: '#4a3a5a', shoes: '#4a3020', cape: '#8a3a1e' }],
+        [{ skin: '#e2b48c', hair: '#c0582e', style: 1, tunic: '#e76f51', trim: '#f4d35e', pants: '#4a3a5a', shoes: '#4a3020', cape: '#a8432e' },
+         { skin: '#f0c8a0', hair: '#3a2416', style: 1, tunic: '#2a9d8f', trim: '#f4d35e', pants: '#3a3f5a', shoes: '#4a3020', cape: '#1f6f66' }]
     ];
+    function heroLook(i) {
+        const g = S && S.gender ? S.gender : [0, 1];
+        return GLOOKS[g[i] ? 1 : 0][i === 1 && g[0] === g[1] ? 1 : 0];
+    }
     const NOGEAR = { head: '', body: '', feet: '' };
     // a soft round glow of one colour (cached), for magic, shiny weapons and lights
     const GLOW = {};
@@ -80,7 +87,10 @@
 
     // abilities: they burn stamina (filled by defeating foes) and then wait for their cooldown (frames)
     const ABIL = { heal: { cost: 25, cd: 600, icon: '✚' }, power: { cost: 35, cd: 300, icon: '✸' }, distant: { cost: 20, cd: 180, icon: '➶' } };
-    const STA_MAX = 100, STA_KILL = 8, STA_BIG = 25;
+    // the blue bar: a normal kill gives 12 (three kills = one 35-cost special), a boss hit gives 7 (five hits), an elite or boss kill 24;
+    // after 10 s without fighting (attacking or being hit) it also refills by itself, 1.2 per second (an empty bar reaches a special in ~30 s)
+    const STA_MAX = 100, STA_KILL = 12, STA_BIG = 24, STA_HIT_BOSS = 7, STA_IDLE = 600, STA_REGEN = 0.02;
+    let combatT = 0;                                       // ticks since the last blow given or taken
     // what each OK gesture or extra button does (the player can change it in Settings)
     const FNS = ['attack', 'menu', 'heal', 'power', 'distant', 'potion', 'mount'];
     const GESTURES = ['tap', 'double', 'hold', 'run', 'cancel', 'none'];
@@ -110,7 +120,7 @@
                  bag: [{ u: 1, id: 'stick', r: 0, up: 0, b: [] }], uid: 1, iron: 0,
                  eq: [{ weapon: 1, head: 0, body: 0, feet: 0 }, { weapon: 1, head: 0, body: 0, feet: 0 }],
                  sq: {}, sqc: {}, opened: {}, star: false, crypt: false, qdone: 0,
-                 pq: {}, pqDone: [], pqOffer: {}, pet: '', mounts: [], mount: '',
+                 pq: {}, pqDone: [], pqOffer: {}, pet: '', mounts: [], mount: '', gender: [0, 1],
                  seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 } };
     }
     // older saves: their gear (a list of names) becomes items in the bag, and Tobin's sword is never lost
@@ -142,7 +152,16 @@
         return (T.names && T.names[id]) || (TEXT.en.names && TEXT.en.names[id]) || id;
     }
     function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : T.ui.wolfMount; }
-    function heroName(i) { return i ? T.ui.hero2 : T.ui.hero1; }
+    // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
+    const cleanName = n => String(n || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
+    let p2Name = '';
+    function heroName(i) {
+        const n0 = cleanName(info && info.profile && info.profile.name) || T.ui.hero1;
+        if (!i) return n0;
+        const n1 = p2Name || T.ui.hero2;
+        return n1.toLowerCase() === n0.toLowerCase() ? n1 + ' 2' : n1;
+    }
+    function refreshNames() { $('pn0').textContent = heroName(0); $('pn1').textContent = heroName(1); }
     function itemName(id) { return (T.items && T.items[id]) || id; }
     function maxHp(p) { return 10 + 3 * (S.lvl - 1) + (p ? p.st.hp : 0); }
     function need(l) { return 5 * l * (l + 1) + (l > 11 ? 60 * (l - 11) * (l - 10) : 0); }   // levels past 11 (chapter 2) take longer
@@ -1264,7 +1283,7 @@
         try {
             if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
             else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
-            else HEROART.draw(ctx, 48, 88, HERO_LOOK[0], P[0].gear, 0, false, 0, 0, false, 2);
+            else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
         } catch (e) {}
         ctx = saved; if (m) MICONS[m] = c;
         return c;
@@ -1331,6 +1350,12 @@
             assignT = setTimeout(() => { if (OV.assign === A) assignEnd('tap'); }, 320);
         }
     }
+    // the look of a hero: 0 male, 1 female (Settings, and the tailor and the barber of the village)
+    function setGender(i, g) {
+        if (!S.gender) S.gender = [0, 1];
+        S.gender[i] = g ? 1 : 0; save(); SND.fx('ok');
+        toast(txt(T.ui.lookDone, { name: heroName(i), to: g ? T.ui.female : T.ui.male }));
+    }
     function cycleBack(dir) { SET.back = BACK_G[(BACK_G.indexOf(SET.back) + dir + BACK_G.length) % BACK_G.length]; saveSettings(); }
     function cycleVoice(dir) {
         const i = Math.max(0, Math.min(VOICE_RATES.length - 1, VOICE_RATES.indexOf(SET.voice) + dir));
@@ -1340,11 +1365,13 @@
     function settingsScreen(sel) {
         listScreen({
             sel: sel || 0, title: () => T.ui.settings, info: () => '', tabs: () => T.ui.remoteNote,
-            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r === FNS.length + 1) cycleBack(rtl() ? -dir : dir); },
+            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r === FNS.length + 1) cycleBack(rtl() ? -dir : dir); else if (r === FNS.length + 2 || r === FNS.length + 3) setGender(r - FNS.length - 2, 1 - S.gender[r - FNS.length - 2]); },
             rows: () => [{ label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) }]
                 .concat(FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]],
                     fn: () => assignScreen(f) })))
                 .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], fn: () => { cycleBack(1); renderList(); } },
+                         { label: txt(T.ui.lookOf, { name: heroName(0) }), right: S.gender[0] ? T.ui.female : T.ui.male, fn: () => { setGender(0, 1 - S.gender[0]); renderList(); } },
+                         { label: txt(T.ui.lookOf, { name: heroName(1) }), right: S.gender[1] ? T.ui.female : T.ui.male, fn: () => { setGender(1, 1 - S.gender[1]); renderList(); } },
                          { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; saveSettings(); refreshHint(); renderList(); } },
                          { label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} },
                          { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } }])
@@ -1501,7 +1528,7 @@
         spawnFoe, shot, hazard, part, burst, sparks, smoke, ringFx, floater, coins, loot, drop, dropGear, rollItem, giveItem, addToBag, addXp,
         hurt, hitFoe, petHurt, dist, moveEnt, chase, leash, wander, nearest, activate, showBoss, hideBoss, music, minions, maxHp,
         loadZone, placePlayers, changeZone, travel, startFade, addStatic, solidAt, codeAt, openTiles, ahead, frontX, frontY,
-        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, itemName,
+        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, itemName,
         scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, potion: () => drink(false)
     };
 
@@ -1652,6 +1679,7 @@
     }
     function attack(p) {
         if (flying(p)) { if (toastT < 60) toast(T.ui.flyNoAttack); return; }
+        combatT = 0;
         const st = p.st;
         aimAt(p, st.kind === 'sword' ? 64 : 290);
         p.atk = st.cd; p.swing = 12; p.lean = 8; p.anim = st.kind;
@@ -1755,6 +1783,7 @@
     }
 
     function hitFoe(f, p, dmg, dx, dy) {
+        combatT = 0; if (f.d.boss) gainStamina(STA_HIT_BOSS);
         if (!f.active && f.d.boss) activate(f);
         if (f.immune) { SND.fx('pot'); sparks(f.x - dx * 6, f.y - 14, dx, dy, 5, '#9ad8ff'); ringFx(f.x, f.y - 14, f.r + 10, '#9ad8ff'); return; }
         if (f.weak) dmg *= 2;
@@ -1799,6 +1828,7 @@
     function hurt(p, dmg, sx, sy, ground) {
         if (!p.on || p.inv > 0 || p.down || mode !== 'play') return;
         if (ground && flying(p)) return;
+        combatT = 0;
         dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - Math.min(0.6, p.st.def * 0.06))));
         p.hp = Math.max(0, p.hp - dmg); p.inv = 60; SND.fx('hurt'); SND.fx(p.i ? 'ouch2' : 'ouch'); shake = 6; freeze = 3;
         const d = dist(p.x, p.y, sx, sy) || 1; p.kx = (p.x - sx) / d * 5; p.ky = (p.y - sy) / d * 5;
@@ -2295,6 +2325,7 @@
         fogOff += 0.25;
         // OK held half a second in a menu or a conversation: Return (if there is nothing to return from, the release is a normal OK)
         if (okDown >= 0 && tick - okDown === 30 && SET.back === 'hold' && (mode === 'dialog' || mode === 'overlay')) okBack = goBack();
+        if (mode === 'play' && ++combatT > STA_IDLE) for (const p of P) if (p.on && !p.down && p.sta < STA_MAX) p.sta = Math.min(STA_MAX, p.sta + STA_REGEN);
         if (freeze > 0) { freeze--; updParts(); return; }     // a short hit-pause makes blows land
         updAtmo();
         if (mode === 'fade') updFade();
@@ -2654,7 +2685,7 @@
     }
     function heroDir(p) { return p.fy < 0 && Math.abs(p.fy) >= Math.abs(p.fx) ? 1 : p.fx !== 0 ? 2 : 0; }
     function drawPlayer(p, cx, cy) {
-        const x = p.x - cx, y = p.y - cy, look = HERO_LOOK[p.i];
+        const x = p.x - cx, y = p.y - cy, look = heroLook(p.i);
         if (p.down) {
             ctx.globalAlpha = 0.65; ctx.save(); ctx.translate(x, y - 3); ctx.rotate(-1.45); HEROART.draw(ctx, 0, 0, look, p.gear, 0, false, 0, 0, false, 0.9); ctx.restore(); ctx.globalAlpha = 1;
             ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(NUM[Math.ceil(p.downT / 60)], x, y - 18);
@@ -3146,8 +3177,9 @@
     // local co-op: js/coop.js feeds a phone's buttons in here as one more device
     window.HM_REMOTE = {
         input: (a, down, dev) => onInput(a, down, false, dev),
+        setName: n => { p2Name = cleanName(n); refreshNames(); },
         leave: dev => {
-            DEV[dev] = {};
+            DEV[dev] = {}; if (p2Name) { p2Name = ''; refreshNames(); }
             if (P[1].on && P[1].dev === dev) { P[1].on = false; P[1].dev = ''; toast(txt(T.ui.p2left, { name: heroName(1) })); }
         }
     };
@@ -3196,7 +3228,7 @@
             $('questLbl').textContent = T.ui.quest;
             $('join').textContent = T.ui.p2join;
             $('dai').textContent = '✦ ' + T.ui.ai;
-            $('pn0').textContent = T.ui.hero1; $('pn1').textContent = T.ui.hero2;
+            refreshNames();
             MyPC.progress(0.3);
             ['grass', 'forest', 'mire', 'stone', 'crypt', 'mine'].forEach(t => ART.sprites(t));
             ART.misc();

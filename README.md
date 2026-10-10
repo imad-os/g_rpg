@@ -231,3 +231,13 @@ Uses My PC's own multiplayer (`MyPC.multiplayer`): the rooms list, "Open a room"
 
 The game only has `js/coop.js` (host/guest state and messages), the small status and controller screens in `game.js`, and My PC's own touch pad (`MyPC.pad`: the shell draws a customizable pad on phones; the library's source and docs are in `pad/`).
 Standalone (a browser, not My PC) works between two tabs of the same browser, for testing. No Firebase, no codes, no links.
+
+## The blue bar (special abilities)
+It fills three ways: **kills** (a normal foe gives 12: three kills = one special), **boss hits** (7 each: five hits = one special; an elite or boss kill gives 24),
+and **by itself**: after 10 seconds without fighting (no blow given or taken) it refills 1.2 per second, so an empty bar reaches a special in about 30 seconds.
+
+## Names and looks
+- Hero 1 is called by the My PC **profile name** (Ash when there is none). In co-op, hero 2 carries the **friend's** profile name (cleaned of control
+  characters and `<>`, 16 characters at most; if both names are equal hero 2 becomes "<name> 2").
+- **Male / Female**: Settings has a "Look of ..." row for each hero. In the village of chapter 1, **Ilsa the tailor** and **Joss the barber** change a hero's look
+  from their conversation. Two heroes of the same gender get different colours so they can still be told apart.
