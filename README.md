@@ -226,7 +226,8 @@ Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made 
 Uses My PC's own multiplayer (`MyPC.multiplayer`): the rooms list, "Open a room" and the accept dialog are My PC's screens, the same in every game. Both devices on the same Wi-Fi.
 - **Host** (TV, phone or computer): pause menu (or hold OK: quick menu) → **Co-op: play with a friend** → My PC's "Open a room".
 - **Guest** (a phone running My PC): Hollowmere title screen → **Join a friend** → pick the room. The host accepts in My PC's dialog.
-- The phone becomes a controller: joystick, **A** (OK / attack), **B** (run, ability), **C** (cancel, ability), **Leave**. It presses **A** to join as hero 2. Menus and dialogs stay on the host.
+- The phone becomes a controller with a big joystick and **A** (OK / attack), **B** (run, ability), **C** (cancel, ability), **☰** (hero 2's own menu: gear, mounts, abilities, journal), **Leave**. It presses **A** to join as hero 2. Hero 2's menu opens on the host's screen, is driven from the phone (stick, **A** = OK, **C** = back) and is copied as text onto the phone. Other menus and dialogs stay on the host.
+- **Pad settings** (the ⚙ button, on every touch pad): add or hide buttons, make the stick and buttons bigger or smaller, drag them where you like, reset. Saved on the device.
 
 The game only has `js/coop.js` (host/guest state and messages), the small status and controller screens in `game.js`, and `js/virtual-pad.js` (touch pad, reusable).
 Standalone (a browser, not My PC) works between two tabs of the same browser, for testing. No Firebase, no codes, no links.

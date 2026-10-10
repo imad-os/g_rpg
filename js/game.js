@@ -942,7 +942,18 @@
     /* ------------------------------------------------------------------ overlay screens */
 
     const OV = { kind: '', items: null, sel: 0, slides: null, i: 0, done: null, list: null };
-    function ovShow(html) { const o = $('ov'); o.textContent = ''; o.appendChild(html); o.style.display = ''; }
+    function ovShow(html) { const o = $('ov'); o.textContent = ''; o.appendChild(html); o.style.display = ''; if (remoteMenu) mirrorMenu(); }
+    // hero 2's menu is shown on the host's screen and also copied, as short lines, to the phone that drives it
+    let remoteMenu = false;
+    function mirrorMenu() {
+        if (!remoteMenu) return;
+        const rows = [];
+        $('ov').querySelectorAll('.ltitle,.linfo,.gt,.li,.gi,.gdn,.gdk,.gds,.mi,.jtitle,.jzone,.jobj,.jq,.jrow').forEach(e => {
+            const t = e.textContent.replace(/\s+/g, ' ').trim().slice(0, 70);
+            if (t) rows.push((e.classList.contains('sel') ? '▶ ' : '') + t);
+        });
+        HM_COOP.sendMenu(rows.slice(0, 40));
+    }
     function ovHide() { $('ov').style.display = 'none'; OV.kind = ''; VOICE.stop(); }
     function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
 
@@ -1166,7 +1177,7 @@
         return list;
     }
     function gearTabs() { const t = SLOTS.slice(); if (P[1].on) t.push('hero'); t.push('close'); return t; }
-    function equipScreen() { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = 0; EQ.si = 0; EQ.focus = 'grid'; EQ.ti = 0; EQ.gi = 0; renderGear(); }
+    function equipScreen(h) { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = h || 0; EQ.si = 0; EQ.focus = 'grid'; EQ.ti = 0; EQ.gi = 0; renderGear(); }
     function renderGear() {
         const e = S.eq[EQ.hero], sl = SLOTS[EQ.si], items = gearItems(), tabs = gearTabs();
         if (EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
@@ -1328,7 +1339,7 @@
                 }
                 r.push({ label: txt(T.ui.mPotionS, { n: S.potions }), dim: S.potions <= 0, fn: go(() => drink(false)) },
                        { label: txt(T.ui.mPotionB, { n: S.big }), dim: S.big <= 0, fn: go(() => drink(true)) },
-                       { label: T.ui.mEquip, fn: () => { ovHide(); equipScreen(); } },
+                       { label: T.ui.mEquip, fn: () => { ovHide(); equipScreen(qmP.i); } },
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
@@ -1373,7 +1384,7 @@
         else if (OV.kind === 'list') listInput(a);
         else if (OV.kind === 'gear') gearInput(a);
     }
-    function toPlay() { mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
+    function toPlay() { if (remoteMenu) { remoteMenu = false; HM_COOP.sendMenu([]); } mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
 
     function newGame() {
         S = fresh();
@@ -1521,10 +1532,10 @@
     // the guest: "Join a friend" opens My PC's own list of rooms; when accepted this phone becomes a pad
     function joinFriend() {
         if (!HM_COOP.usable()) return toast(T.ui.coopNone);
-        HM_COOP.join(controllerOn, controllerOff);               // a failed or cancelled join was already explained by My PC: stay on the title
+        HM_COOP.join(controllerOn, controllerOff, rows => { if (ctrlText) ctrlText.textContent = rows.join('\n'); });               // a failed or cancelled join was already explained by My PC: stay on the title
     }
     // connected as a guest: the phone shows only a pad; the game runs on the host
-    let ctrlEl = null;
+    let ctrlEl = null, ctrlText = null;
     function controllerOn(r) {
         OV.coop = ''; ovHide(); mode = 'overlay'; OV.kind = 'ctrl'; setHud(false); SND.pause();
         ctrlEl = el('div', '');
@@ -1533,14 +1544,19 @@
         const h = el('div', '', T.ui.coopCtrlHelp); h.style.cssText = 'margin-top:2vmin;font-size:max(14px,3vmin);color:#9fb0c8'; ctrlEl.appendChild(h);
         const b = el('div', '', T.ui.coopLeave); b.style.cssText = 'position:absolute;top:2vmin;inset-inline-end:2vmin;padding:1.4vmin 3vmin;border:2px solid rgba(255,255,255,0.5);border-radius:1.2vmin;background:rgba(255,255,255,0.14);font-weight:700;touch-action:manipulation';
         b.addEventListener('click', () => HM_COOP.leave());
-        ctrlEl.appendChild(b); document.body.appendChild(ctrlEl);
-        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init({ force: true, pause: false, buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }], send: HM_COOP.sendKey }); }
+        ctrlEl.appendChild(b);
+        ctrlText = el('div', ''); ctrlText.style.cssText = 'position:absolute;left:26%;right:26%;top:20vmin;bottom:4vmin;overflow:hidden;text-align:start;white-space:pre-line;font-size:max(13px,2.8vmin);line-height:1.35;color:#dfe3ee';
+        ctrlEl.appendChild(ctrlText); document.body.appendChild(ctrlEl);
+        // a pure controller: big stick and buttons (the player can change them with the gear button); the menu button opens hero 2's menu
+        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init({ force: true, pause: false, id: 'guest', scale: { stick: 1.35, btn: 1.25 }, send: HM_COOP.sendKey,
+            buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }], catalog: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }] }); }
         MyPC.setMenu([{ id: 'coopleave', label: T.ui.coopLeave }]);
     }
     function controllerOff() {
         if (!ctrlEl) return;
         ctrlEl.remove(); ctrlEl = null;
-        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init(); }
+        ctrlText = null;
+        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init(window.HM_PADOPT); }
         SND.resume(); menuKey = ''; showTitle(); toast(T.ui.coopLeft);
     }
 
@@ -3063,7 +3079,19 @@
         if (!pressed || !started) return;
         // a phone on the network ('net1'...) only plays: it never takes hero 1, opens menus or answers dialogs
         const remote = dev.indexOf('net') === 0;
-        if (remote && (mode !== 'play' || a === 'menu' || a === 'confirm' || a === 'pause')) return;
+        if (remote) {
+            if (mode === 'play') {
+                if (a === 'menu') { if (P[1].on && P[1].dev === dev) { remoteMenu = true; quickMenu(P[1]); } return; }       // hero 2's own menu: gear, mounts, abilities
+                if (a === 'confirm' || a === 'pause') return;
+            } else {
+                if (remoteMenu && mode === 'overlay' && OV.kind === 'journal') { if (a === 'jump' || a === 'cancel') { ovHide(); toPlay(); } return; }
+                if (remoteMenu && mode === 'overlay' && (OV.kind === 'list' || OV.kind === 'gear')) {                      // the phone drives hero 2's menu
+                    if (a === 'cancel') goBack(); else if (a === 'jump') ovInput('confirm'); else if (a === 'left' || a === 'right' || a === 'up' || a === 'down') ovInput(a);
+                    mirrorMenu();
+                }
+                return;
+            }
+        }
         if (P[0].dev === '' && !remote) P[0].dev = dev;
         if (dev !== P[0].dev && !repeat) joinSeen = true;
         if (tick < lockUntil && (a === 'confirm' || a === 'jump')) return;

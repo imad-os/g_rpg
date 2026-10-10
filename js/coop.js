@@ -5,8 +5,8 @@
  * No lobby, no codes, no Firebase here. State only; the screens that remain are in game.js. */
 window.HM_COOP = (function () {
     'use strict';
-    // the keys the controller sends -> the game's actions (hero 2 never sends OK / menu: it only plays)
-    const ACTION = { 37: 'left', 38: 'up', 39: 'right', 40: 'down', 90: 'jump', 88: 'run', 8: 'cancel' };
+    // the keys the controller sends -> the game's actions (hero 2 never sends OK: menus on the host are not answered by the phone, except hero 2's own menu)
+    const ACTION = { 37: 'left', 38: 'up', 39: 'right', 40: 'down', 90: 'jump', 88: 'run', 8: 'cancel', 77: 'menu' };
     const DEV = 'net1';
     const usable = () => !!(window.MyPC && MyPC.multiplayer && MyPC.multiplayer.supported);
 
@@ -28,12 +28,13 @@ window.HM_COOP = (function () {
     }
     function closeRoom() { if (session) session.close(); session = null; set('idle'); }
     function disconnect() { if (peer) peer.close(); }
+    const sendMenu = rows => { if (peer) peer.send(['m', rows]); };
 
     /* ------------------------------------------------------------ guest */
     let gpeer = null;
-    function join(onConnected, onLost) {
+    function join(onConnected, onLost, onText) {
         MyPC.multiplayer.join().then(p => {
-            gpeer = p; p.onMessage(() => {});
+            gpeer = p; p.onMessage(m => { if (Array.isArray(m) && m[0] === 'm' && Array.isArray(m[1]) && onText) onText(m[1].map(String)); });     // hero 2's menu, as lines
             p.onClose(() => { if (gpeer === p) { gpeer = null; onLost(); } });
             onConnected(p);
         }, () => { /* cancelled, declined, closed, no answer, not on the same Wi-Fi: My PC already explained it */ });
@@ -41,5 +42,5 @@ window.HM_COOP = (function () {
     const leave = () => { if (gpeer) gpeer.close(); };
     const sendKey = (code, down) => { if (gpeer) gpeer.send([code, down ? 1 : 0]); };
 
-    return { usable, get host() { return hs; }, listen(fn) { listener = fn; }, openRoom, closeRoom, disconnect, join, leave, sendKey };
+    return { usable, get host() { return hs; }, listen(fn) { listener = fn; }, openRoom, closeRoom, disconnect, join, leave, sendKey, sendMenu };
 })();
