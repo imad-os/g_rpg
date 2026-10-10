@@ -1577,15 +1577,15 @@
         ctrlText = el('div', ''); ctrlText.style.cssText = 'position:absolute;left:26%;right:26%;top:20vmin;bottom:4vmin;overflow:hidden;text-align:start;white-space:pre-line;font-size:max(13px,2.8vmin);line-height:1.35;color:#dfe3ee';
         ctrlEl.appendChild(ctrlText); document.body.appendChild(ctrlEl);
         // a pure controller: big stick and buttons (the player can change them with the gear button); the menu button opens hero 2's menu
-        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init({ force: true, pause: false, id: 'guest', scale: { stick: 1.35, btn: 1.25 }, send: HM_COOP.sendKey,
-            buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }], catalog: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }] }); }
+        if (MyPC.pad) MyPC.pad.init({ force: true, pause: false, id: 'guest', scale: { stick: 1.35, btn: 1.25 }, send: HM_COOP.sendKey,
+            buttons: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }], catalog: [{ label: 'A', key: 90 }, { label: 'B', key: 88 }, { label: 'C', key: 8 }, { label: '☰', key: 77 }] });
         MyPC.setMenu([{ id: 'coopleave', label: T.ui.coopLeave }]);
     }
     function controllerOff() {
         if (!ctrlEl) return;
         ctrlEl.remove(); ctrlEl = null;
         ctrlText = null;
-        if (window.VirtualPad) { VirtualPad.hide(); VirtualPad.init(window.HM_PADOPT); }
+        if (MyPC.pad) MyPC.pad.hide();                                 // My PC's own pad is drawn again
         SND.resume(); menuKey = ''; showTitle(); toast(T.ui.coopLeft);
     }
 
@@ -3222,6 +3222,7 @@
         },
         onInput: onInput,
         ownMenu: true,
+        pad: true,                                          // My PC draws the touch pad on phones (A = OK, B = run, and C / menu in the pad's settings); standalone on a touch device the SDK does
         onMenu: function (id) {
             if (id === 'coopleave') { HM_COOP.leave(); return; }
             if (!S || (mode !== 'play' && mode !== 'dialog')) return;

@@ -54,6 +54,7 @@ VirtualPad.init({
 | `send` | none | `function (keyCode, down)`: route key codes somewhere else (e.g. over the network) instead of pressing keys |
 | `pause` | `true` | `false` hides the pause button |
 | `customize` | `true` | `false` hides the gear (settings) button |
+| `onSettings` | none | `function (open)`: called with `true` when the settings panel opens and `false` when it closes (My PC pauses the game meanwhile) |
 | `force` | `false` | show the pad anywhere; by default only on touch devices when running standalone (not inside My PC) |
 
 `?pad=1` in the page address forces the pad on and `?pad=0` hides it (handy for testing on a computer).
@@ -91,10 +92,12 @@ still works, it just forgets the layout.
   `preventDefault()` so the page cannot be zoomed or scrolled while playing. Do not use the pad on a page that must scroll.
 - Own texts only appear in the settings panel, in the language of `<html lang>` (`en`, `fr`, `es`, `ar`; English otherwise).
 
-## For My PC
+## In My PC
 
-The recommended integration inside My PC (touch controls for every game, from the manifest, with a "Pad settings" entry in the
-pause menu) is described in `MYPC_INTEGRATION_PROMPT.md`.
+My PC adopted this library in build 25: on a touch device the shell draws the pad above every app (no code needed), the manifest has an optional
+`touch` field, apps can ask for `MyPC.init({ pad: true })` and use `MyPC.pad` for their own pads. See the "Touch controls" section of the My PC guide
+(`sdk/GUIDE.md`) and `sdk/pad/README.md` in the My PC repository. The only change My PC made to this file is the `onSettings` option, now merged here.
+The original request is kept in `MYPC_INTEGRATION_PROMPT.md`.
 
 ## Testing
 
