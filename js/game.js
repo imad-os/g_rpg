@@ -3,7 +3,8 @@
  * input only through the My PC SDK. */
 (function () {
     'use strict';
-    const W = 640, H = 360, TS = 32, STEP = 1000 / 60;
+    const BASE_W = 640, BASE_H = 360, TS = 32, STEP = 1000 / 60;
+    let W = BASE_W, H = BASE_H;                              // how much of the world is seen (the Zoom setting changes it)
     const KN = window.HM_KN, VERSION = window.HM_VERSION || '1';
     const ART = window.HM_ART, SND = window.HM_AUDIO, VOICE = window.HM_VOICE, TEXT = window.HM_TEXT, CHAPTERS = window.HM_CHAPTERS, HEROART = window.HM_HERO, MOUNTART = window.HM_MOUNTART;
     const ITEMS = window.HM_ITEMS, SLOTS = window.HM_SLOTS, SHOPS = window.HM_SHOPS, LOOT = window.HM_LOOT, MOUNTS = window.HM_MOUNTS;
@@ -19,16 +20,16 @@
 
     /* ------------------------------------------------------------------ data */
 
-    // the heroes' looks: [male, female], each with a second colour set so two heroes of the same gender can still be told apart
-    const GLOOKS = [
-        [{ skin: '#f0c8a0', hair: '#3a2416', style: 0, tunic: '#2a9d8f', trim: '#f4d35e', pants: '#3a3f5a', shoes: '#4a3020', cape: '#1f6f66' },
-         { skin: '#e2b48c', hair: '#5a2a1a', style: 0, tunic: '#c0582e', trim: '#f4d35e', pants: '#4a3a5a', shoes: '#4a3020', cape: '#8a3a1e' }],
-        [{ skin: '#e2b48c', hair: '#c0582e', style: 1, tunic: '#e76f51', trim: '#f4d35e', pants: '#4a3a5a', shoes: '#4a3020', cape: '#a8432e' },
-         { skin: '#f0c8a0', hair: '#3a2416', style: 1, tunic: '#2a9d8f', trim: '#f4d35e', pants: '#3a3f5a', shoes: '#4a3020', cape: '#1f6f66' }]
-    ];
+    // the heroes' looks: [male, female], each in four colour sets so up to four heroes of the same gender can still be told apart
+    const LOOK_BASE = [{ skin: '#f0c8a0', hair: '#3a2416', style: 0, pants: '#3a3f5a', shoes: '#4a3020', trim: '#f4d35e' },
+                       { skin: '#e2b48c', hair: '#c0582e', style: 1, pants: '#4a3a5a', shoes: '#4a3020', trim: '#f4d35e' }];
+    const LOOK_SETS = [[['#2a9d8f', '#1f6f66'], ['#c0582e', '#8a3a1e'], ['#7a4fb0', '#4e2f7a'], ['#7a8f2a', '#4a5a1a']],
+                       [['#e76f51', '#a8432e'], ['#2a9d8f', '#1f6f66'], ['#d85a9a', '#9a3a6a'], ['#4a7ad8', '#2a4a9a']]];
+    const GLOOKS = LOOK_BASE.map((b, g) => LOOK_SETS[g].map(c => Object.assign({}, b, { tunic: c[0], cape: c[1] })));
     function heroLook(i) {
-        const g = S && S.gender ? S.gender : [0, 1];
-        return GLOOKS[g[i] ? 1 : 0][i === 1 && g[0] === g[1] ? 1 : 0];
+        const g = S && S.gender ? S.gender : [0, 1, 0, 1];
+        let k = 0; for (let j = 0; j < i; j++) if (g[j] === g[i]) k++;                  // the first of a gender wears the main colours, the next ones the others
+        return GLOOKS[g[i] ? 1 : 0][k];
     }
     const NOGEAR = { head: '', body: '', feet: '' };
     // a soft round glow of one colour (cached), for magic, shiny weapons and lights
@@ -99,11 +100,13 @@
     const VOICE_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2];
     // "Return" works only in menus and conversations, so it has its own buttons (hold OK = OK acts when released there)
     const BACK_G = ['hold', 'cancel', 'run', 'none'];
-    const SET = { voice: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold' };
+    const ZOOMS = [0.75, 1, 1.25, 1.5];
+    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold' };
     function loadSettings() {
         const s = MyPC.load('settings', null);
         if (s && typeof s === 'object') {
             if (VOICE_RATES.indexOf(s.voice) >= 0) SET.voice = s.voice;
+            if (ZOOMS.indexOf(s.zoom) >= 0) SET.zoom = s.zoom;
             if (s.btn) for (const f of FNS) if (GESTURES.indexOf(s.btn[f]) >= 0) SET.btn[f] = s.btn[f];
             if (!OK_G[SET.btn.menu] || SET.btn.attack === 'none') SET.btn = Object.assign({}, BTN_DEFAULT);
             if (BACK_G.indexOf(s.back) >= 0) SET.back = s.back;
@@ -118,9 +121,9 @@
                  heart: false, page: false, lit: false, picked: {}, cut: false, coins: 0, potions: 1, big: 0, xp: 0, lvl: 1,
                  zone: 'village', x: 21.5, y: 10.5, kills: 0, time: 0, scored: false,
                  bag: [{ u: 1, id: 'stick', r: 0, up: 0, b: [] }], uid: 1, iron: 0,
-                 eq: [{ weapon: 1, head: 0, body: 0, feet: 0 }, { weapon: 1, head: 0, body: 0, feet: 0 }],
+                 eq: [0, 1, 2, 3].map(() => ({ weapon: 1, head: 0, body: 0, feet: 0 })),
                  sq: {}, sqc: {}, opened: {}, star: false, crypt: false, qdone: 0,
-                 pq: {}, pqDone: [], pqOffer: {}, pet: '', mounts: [], mount: '', gender: [0, 1],
+                 pq: {}, pqDone: [], pqOffer: {}, pet: '', mounts: [], mount: '', gender: [0, 1, 0, 1],
                  seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 } };
     }
     // older saves: their gear (a list of names) becomes items in the bag, and Tobin's sword is never lost
@@ -141,6 +144,11 @@
             });
             delete s.inv; s.iron = s.iron || 0; s.v = 3;
         }
+        // saves of two heroes: heroes 3 and 4 start with the plain stick and the default looks
+        const stick = (s.bag || []).find(b => b.id === 'stick');
+        while (s.eq.length < MAXP) s.eq.push({ weapon: stick ? stick.u : 1, head: 0, body: 0, feet: 0 });
+        if (!Array.isArray(s.gender)) s.gender = [0, 1];
+        while (s.gender.length < MAXP) s.gender.push(s.gender.length & 1);
         return s;
     }
     function save() { MyPC.save('save', S); }
@@ -154,14 +162,14 @@
     function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : T.ui.wolfMount; }
     // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
     const cleanName = n => String(n || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
-    let p2Name = '';
+    const pNames = ['', '', '', ''], devName = {};          // the friends' profile names, by hero and by connected phone
+    const baseName = k => k === 0 ? (cleanName(info && info.profile && info.profile.name) || T.ui.hero1) : (pNames[k] || T.ui['hero' + (k + 1)]);
     function heroName(i) {
-        const n0 = cleanName(info && info.profile && info.profile.name) || T.ui.hero1;
-        if (!i) return n0;
-        const n1 = p2Name || T.ui.hero2;
-        return n1.toLowerCase() === n0.toLowerCase() ? n1 + ' 2' : n1;
+        const n = baseName(i);
+        for (let j = 0; j < i; j++) if ((j === 0 || P[j].on) && baseName(j).toLowerCase() === n.toLowerCase()) return n + ' ' + (i + 1);   // two equal names: add the number
+        return n;
     }
-    function refreshNames() { $('pn0').textContent = heroName(0); $('pn1').textContent = heroName(1); }
+    function refreshNames() { for (let i = 0; i < MAXP; i++) { const e = $('pn' + i); if (e) e.textContent = heroName(i); } }
     function itemName(id) { return (T.items && T.items[id]) || id; }
     function maxHp(p) { return 10 + 3 * (S.lvl - 1) + (p ? p.st.hp : 0); }
     function need(l) { return 5 * l * (l + 1) + (l > 11 ? 60 * (l - 11) * (l - 10) : 0); }   // levels past 11 (chapter 2) take longer
@@ -171,10 +179,12 @@
 
     /* ------------------------------------------------------------------ pools */
 
-    const P = [0, 1].map(i => ({ i, on: i === 0, dev: '', x: 0, y: 0, fx: 0, fy: 1, ax: 0, ay: 1, hp: 10, atk: 0, swing: 0, inv: 0,
+    const MAXP = 4;                                         // up to four heroes: the TV (or a phone) plus three phones
+    const P = [0, 1, 2, 3].map(i => ({ i, on: i === 0, dev: '', x: 0, y: 0, fx: 0, fy: 1, ax: 0, ay: 1, hp: 10, atk: 0, swing: 0, inv: 0,
         down: false, downT: 0, walk: 0, kx: 0, ky: 0, hold: 0, moving: false, r: 7, sy: 0, kind: 3, lean: 0, flash: 0, anim: 'sword', bite: 0, lfx: 1,
         sta: 50, cdHeal: 0, cdPower: 0, cdDistant: 0, tapT: -99, aura: 0, auraCol: '#fff',
         st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
+    function nPlayers() { let n = 0; for (const p of P) if (p.on) n++; return n; }
     const FOES = []; for (let i = 0; i < 36; i++) FOES.push({ on: false, kind: 4, t: '', d: null, x: 0, y: 0, hx: 0, hy: 0, hp: 0, max: 0, st: 0, tm: 0, cd: 0,
         vx: 0, vy: 0, kx: 0, ky: 0, hurt: 0, r: 10, sy: 0, active: false, minion: false, mask: 0, ring: 0, alpha: 1, wt: 0, sum: 0, pt: 0, walk: 0, side: 0, sdx: 0, sdy: 0, elite: '', ename: '', bonus: 0 });
     // k: 0 mud, 1 rock, 2 orb, 3 bone (hurt heroes) | 10 arrow, 11 bullet (hurt foes)
@@ -247,7 +257,7 @@
         p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : ''; p.gear.weapon = wi ? wi.id : 'stick'; p.wr = wi ? wi.r : 0;
         if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
-    function recalcAll() { recalc(P[0]); recalc(P[1]); }
+    function recalcAll() { for (const p of P) recalc(p); }
     function rollBonuses(id, r) {
         const base = ITEMS[id], pool = LOOT.bonuses[base.slot === 'weapon' ? 'weapon' : 'armour'].slice(), out = [], t = Math.max(1, base.tier || 1);
         for (let k = 0; k < r && pool.length; k++) {
@@ -269,12 +279,20 @@
     }
     function zoneTier() { if (Z.def && Z.def.tier) return Z.def.tier; if (Z.def && Z.def.rift) return Math.min(3, 1 + ((Z.def.rift / 4) | 0)); return Math.min(3, Math.max(LOOT.zoneTier[Z.id] || 2, S.lvl >= 9 ? 3 : S.lvl >= 5 ? 2 : 1)); }
     function sellPrice(it) { return Math.max(5, (ITEMS[it.id].price || 60) >> 2) * (1 + it.r) + it.up * 15; }
+    // co-op: what the heroes win is shared. The host's game tells every connected phone; each phone puts it in its own save
+    // (rewards for everybody, a quest marked done only for a player whose story has reached it)
+    let sharing = true;                                    // false while a phone applies something it was told (so it is not sent on)
+    function shareNow(b) { if (sharing) HM_COOP.broadcast(['r', b]); }
+    const STORY_FLAGS = ['sword', 'key', 'gate', 'seal', 'hearth', 'tide', 'stone', 'heart', 'page', 'lit', 'star', 'crypt'];
+    function shareQuest(kind, id, stg, after) { if (sharing) HM_COOP.broadcast(['q', CHID, kind, id, stg || 0, after || '']); }
+    function shareStory(from, to) { if (sharing) HM_COOP.broadcast(['s', CHID, from, to, STORY_FLAGS.filter(f => S[f] === true)]); }
     function addToBag(it, quiet) {
+        if (sharing) HM_COOP.broadcast(['i', { id: it.id, r: it.r, up: it.up, b: it.b }]);
         if (S.bag.length >= LOOT.bagSize) { const c = sellPrice(it); S.coins += c; toast(txt(T.ui.bagFull, { n: c })); save(); return; }
         S.bag.push(it);
         // wear it right away if that slot is empty (or still holds the stick)
         const sl = ITEMS[it.id].slot;
-        for (let i = 0; i < 2; i++) { const cur = itemOf(S.eq[i][sl]); if (!cur || cur.id === 'stick') S.eq[i][sl] = it.u; }
+        for (let i = 0; i < MAXP; i++) { const cur = itemOf(S.eq[i][sl]); if (!cur || cur.id === 'stick') S.eq[i][sl] = it.u; }
         recalcAll();
         if (!quiet) { toast(txt(T.ui.gotItem, { item: itemLabel(it) })); SND.fx(it.r >= 2 ? 'level' : 'equip'); }
         save();
@@ -294,8 +312,7 @@
         return s;
     }
     // worn by hero 1, or by hero 2 while they play (hero 2's slots fall back to nothing if it was sold)
-    function worn(u) { return !!u && (S.eq[0].weapon === u || S.eq[0].head === u || S.eq[0].body === u || S.eq[0].feet === u ||
-        (P[1].on && (S.eq[1].weapon === u || S.eq[1].head === u || S.eq[1].body === u || S.eq[1].feet === u))); }
+    function worn(u) { if (!u) return false; for (const p of P) { const e = S.eq[p.i]; if (p.on && (e.weapon === u || e.head === u || e.body === u || e.feet === u)) return true; } return false; }
 
     /* ------------------------------------------------------------------ side quests */
 
@@ -330,6 +347,7 @@
         const r = q.reward;
         S.sq[q.id] = 3; S.qdone++;
         S.coins += loot(r.coins || 0); S.big += r.big || 0;
+        shareNow({ c: loot(r.coins || 0), b: r.big || 0, pet: r.pet || '', mount: r.mount || '' }); shareQuest('s', q.id, q.stage, q.after);
         if (r.item) giveItem(r.item, true, 1);
         if (r.pet && !S.pet) { S.pet = r.pet; PET.x = P[0].x - 20; PET.y = P[0].y + 6; PET.hp = 99; PET.down = 0; setTimeout(() => toast(T.ui.gotPet), 2600); }
         if (r.mount && S.mounts.indexOf(r.mount) < 0) { S.mounts.push(r.mount); if (!S.mount) S.mount = r.mount; refreshMenu(); setTimeout(() => toast(txt(T.ui.gotMount, { m: mountName(r.mount) })), 2600); }
@@ -379,6 +397,7 @@
         const q = S.pq[npc], d = poolDef(q), rw = q.rw;
         delete S.pq[npc]; if (S.pqDone.indexOf(d.id) < 0) S.pqDone.push(d.id); S.qdone++;
         S.coins += rw.coins; S.iron += rw.ore;
+        shareNow({ c: rw.coins, o: rw.ore }); shareQuest('p', d.id, d.stage, '');
         if (rw.gear) addToBag(rollItem(zoneTier(), 1), true);
         SND.fx('level'); ringFx(P[0].x, P[0].y - 10, 60, '#ffd23f'); save();
         const msg = txt(T.ui.qReward, { r: poolRewardText(rw) });
@@ -567,11 +586,13 @@
         SND.play(Z.def ? (CH && CH.music ? CH.music(Z.id, Z.def) : Z.def.music) : 0);
     }
 
+    const NEAR = [[18, 0], [-18, 0], [0, 18], [0, -18], [14, 14], [-14, 14], [14, -14], [-14, -14]];
     function placePlayers(tx, ty) {
         P[0].x = tx * TS; P[0].y = ty * TS;
-        P[1].x = P[0].x; P[1].y = P[0].y;
-        for (const o of [[18, 0], [-18, 0], [0, 18], [0, -18], [12, 12]]) {
-            if (!feetSolid(P[0].x + o[0], P[0].y + o[1])) { P[1].x = P[0].x + o[0]; P[1].y = P[0].y + o[1]; break; }
+        let k = 0;
+        for (let i = 1; i < MAXP; i++) {                    // the other heroes stand around hero 1
+            P[i].x = P[0].x; P[i].y = P[0].y;
+            while (k < NEAR.length) { const o = NEAR[k++]; if (!feetSolid(P[0].x + o[0], P[0].y + o[1])) { P[i].x = P[0].x + o[0]; P[i].y = P[0].y + o[1]; break; } }
         }
         for (const p of P) { p.kx = p.ky = 0; p.inv = 60; p.atk = 0; p.swing = 0; p.sy = p.y; }
         PET.x = P[0].x - 18; PET.y = P[0].y + 6; PET.sy = PET.y;
@@ -586,7 +607,7 @@
         for (const f of FOES) if (!f.on) {
             const d = FOE[t];
             f.on = true; f.t = t; f.d = d; f.x = f.hx = x; f.y = f.hy = y; f.r = d.r;
-            f.max = f.hp = Math.max(1, Math.round(d.hp * (d.boss && P[1].on ? 1.5 : 1) * TUNE.enemyDifficulty));
+            f.max = f.hp = Math.max(1, Math.round(d.hp * (d.boss ? 1 + 0.5 * (nPlayers() - 1) : 1) * TUNE.enemyDifficulty));
             f.st = 0; f.tm = 0; f.cd = 60; f.vx = f.vy = f.kx = f.ky = 0; f.hurt = 0; f.minion = minion; f.mask = 0; f.ring = 0;
             f.alpha = 1; f.wt = 0; f.sum = 0; f.pt = 0; f.side = 0; f.immune = false; f.weak = false; f.ang = 0; f.ph = 0; f.elite = ''; f.ename = ''; f.bonus = 0; f.active = !d.boss; f.walk = Math.random() * 6; f.sy = y;
             return f;
@@ -641,7 +662,7 @@
 
     /* ------------------------------------------------------------------ HUD / DOM */
 
-    const hudLast = { hp0: -1, hp1: -1, on1: null, max: -1, boss: -1, coins: -1, pot: -1, lvl: -1, obj: '', em: -1, join: null, objTick: 0, mini: false };
+    const hudLast = { np: -1, max: -1, boss: -1, coins: -1, pot: -1, lvl: -1, obj: '', em: -1, join: null, objTick: 0, mini: false };
     let toastT = 0, bannerT = 0, joinSeen = false, aiNoticeShown = false;
 
     function toast(s) { const t = $('toast'); t.textContent = s; t.className = 'show'; toastT = 170; MyPC.announce(s); }
@@ -660,21 +681,25 @@
         const pk = S.potions * 100 + S.big;
         if (pk !== hudLast.pot) { hudLast.pot = pk; $('stPot').textContent = '♥ ' + S.potions + (S.big ? '  ✚ ' + S.big : ''); refreshMenu(); }
         if (S.lvl !== hudLast.lvl) { hudLast.lvl = S.lvl; $('stLv').textContent = T.ui.lv + ' ' + S.lvl; }
-        const m0 = maxHp(P[0]), m1 = maxHp(P[1]), mh = m0 * 1000 + m1;
-        if (P[0].hp !== hudLast.hp0 || mh !== hudLast.max) { hudLast.hp0 = P[0].hp; $('hp0').style.width = (100 * P[0].hp / m0) + '%'; }
-        if (P[1].hp !== hudLast.hp1 || mh !== hudLast.max) { hudLast.hp1 = P[1].hp; $('hp1').style.width = (100 * P[1].hp / m1) + '%'; }
+        let mh = 0, np = 0;
+        for (const q of P) { const m = maxHp(q); mh = mh * 31 + m; if (q.on) np++; }
+        for (const q of P) { if (!q.on) continue; if (q.hp !== HP_LAST[q.i] || mh !== hudLast.max) { HP_LAST[q.i] = q.hp; $('hp' + q.i).style.width = (100 * q.hp / maxHp(q)) + '%'; } }
         hudLast.max = mh;
-        if (P[1].on !== hudLast.on1) { hudLast.on1 = P[1].on; $('pb1').style.display = P[1].on ? '' : 'none'; refreshMenu(); }
-        const j = joinSeen && !P[1].on;
+        if (np !== hudLast.np) {                                  // heroes joined or left: show their panels (smaller from three on)
+            hudLast.np = np; $('bars').className = np > 2 ? 'c' + np : ''; $('hint').style.display = np > 2 ? 'none' : '';
+            for (const q of P) $('pb' + q.i).style.display = q.on ? '' : 'none';
+            HP_LAST.fill(-1); AB_LAST.fill(-1); STA_LAST.fill(-1); refreshMenu();
+        }
+        const j = joinSeen && np < MAXP;
         if (j !== hudLast.join) { hudLast.join = j; $('join').style.display = j ? '' : 'none'; }
         hudAbil();
         if (boss && boss.active && boss.on && boss.hp !== hudLast.boss) { hudLast.boss = boss.hp; $('bossFill').style.width = (100 * Math.max(0, boss.hp) / boss.max) + '%'; }
     }
     // stamina bars and the three ability boxes (dark part = cooldown left), changed only when they change
-    const AB_EL = [], AB_LAST = new Int32Array(6).fill(-1), STA_LAST = new Int32Array(2).fill(-1), AB_IDS = ['heal', 'power', 'distant'], AB_CH = ['h', 'p', 'd'];
+    const AB_EL = [], AB_LAST = new Int32Array(12).fill(-1), STA_LAST = new Int32Array(4).fill(-1), HP_LAST = new Float32Array(4).fill(-1), AB_IDS = ['heal', 'power', 'distant'], AB_CH = ['h', 'p', 'd'];
     function hudAbil() {
-        if (!AB_EL.length) for (let i = 0; i < 6; i++) { const e = $('ab' + ((i / 3) | 0) + AB_CH[i % 3]); AB_EL.push({ e, b: e.firstElementChild, u: e.lastElementChild }); }
-        for (let i = 0; i < 2; i++) {
+        if (!AB_EL.length) for (let i = 0; i < 12; i++) { const e = $('ab' + ((i / 3) | 0) + AB_CH[i % 3]); AB_EL.push({ e, b: e.firstElementChild, u: e.lastElementChild }); }
+        for (let i = 0; i < MAXP; i++) {
             const p = P[i]; if (!p.on) continue;
             const sv = Math.round(p.sta); if (sv !== STA_LAST[i]) { STA_LAST[i] = sv; $('sp' + i).style.width = (100 * sv / STA_MAX) + '%'; }
             for (let k = 0; k < 3; k++) {
@@ -699,7 +724,7 @@
             { id: 'potion', label: txt(T.ui.mPotionS, { n: S.potions }) }];
         if (S.mounts.length) items.push({ id: 'mount', label: T.ui.mMounts });
         if (ctrlEl) return;                                 // a guest phone: the menu only has "Leave" (set in controllerOn)
-                if (P[1].on) items.push({ id: 'leave2', label: T.ui.mLeave }); else if (HM_COOP.usable()) items.push({ id: 'coop', label: T.ui.mCoop });
+                if (HM_COOP.usable()) items.push({ id: 'coop', label: T.ui.mCoop });
         const k = items.map(i => i.label).join('|');
         if (k !== menuKey) { menuKey = k; MyPC.setMenu(items); }
     }
@@ -891,7 +916,7 @@
         const n = S.rift.floor, secs = Math.floor(S.time - (S.rift.t0 || S.time));
         const sc = n * 1000 + Math.max(0, S.kills - S.rift.k0) * 10 + (won ? 5000 + Math.max(0, 3000 - secs * 2) : 0);
         if (won) { S.rift.won = (S.rift.won || 0) + 1; addToBag(rollItem(3, 3), true); }
-        MyPC.submitScore(sc, { player: 1, players: P[1].on ? 2 : 1 });
+        MyPC.submitScore(sc, { player: 1, players: nPlayers() });
         S.rift.floor = 0;
         startFade(() => {
             loadZone('village'); placePlayers(12.5, 6.2); S.zone = 'village'; S.x = 12.5; S.y = 6.2;
@@ -904,7 +929,7 @@
         t.found = true; S.tre[t.key] = true;
         SND.fx('chest'); ringFx(t.x, t.y, 60, '#ffd23f'); shake = 4;
         for (let i = 0; i < 18; i++) part(t.x, t.y, 4, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 2, 2 + Math.random() * 2.5, 40, i & 1 ? '#8a6a44' : '#ffe9a8', 3);
-        coins(t.x, t.y, loot(40 + zoneTier() * 20)); S.iron += 2;
+        coins(t.x, t.y, loot(40 + zoneTier() * 20)); S.iron += 2; shareNow({ o: 2 });
         if (Math.random() < 0.6) dropGear(t.x, t.y, rollItem(zoneTier(), Math.random() < 0.15 ? 2 : 1));
         toast(T.ui.treasureFound + '   ' + txt(T.ui.gotIron, { n: 2 })); save();
     }
@@ -945,7 +970,7 @@
         if (k && k.star) { S.star = true; if (qState('stariron') === 1) S.sq.stariron = 2; say(lines(null, 'starFound')); }
         else if (k && k.flag) { S[k.flag] = true; if (k.item) giveItem(k.item, false, k.r || 1); if (CH.chest) CH.chest(k); }
         else if (k && k.item) giveItem(k.item, false, 1);
-        else { const n = loot((k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0)); coins(c.cx, c.cy, n); S.iron += 2; toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); }
+        else { const n = loot((k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0)); coins(c.cx, c.cy, n); S.iron += 2; shareNow({ o: 2 }); toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); }
         save();
     }
     function breakPot(s) {
@@ -963,7 +988,7 @@
     const OV = { kind: '', items: null, sel: 0, slides: null, i: 0, done: null, list: null };
     function ovShow(html) { const o = $('ov'); o.textContent = ''; o.appendChild(html); o.style.display = ''; if (remoteMenu) mirrorMenu(); }
     // hero 2's menu is shown on the host's screen and also copied, as short lines, to the phone that drives it
-    let remoteMenu = false;
+    let remoteMenu = null, remoteDev = '';                   // the hero whose menu a phone is driving, and that phone
     function mirrorMenu() {
         if (!remoteMenu) return;
         const rows = [];
@@ -971,7 +996,7 @@
             const t = e.textContent.replace(/\s+/g, ' ').trim().slice(0, 70);
             if (t) rows.push((e.classList.contains('sel') ? '▶ ' : '') + t);
         });
-        HM_COOP.sendMenu(rows.slice(0, 40));
+        HM_COOP.sendMenu(remoteDev, rows.slice(0, 40));
     }
     function ovHide() { $('ov').style.display = 'none'; OV.kind = ''; VOICE.stop(); }
     function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
@@ -1065,7 +1090,7 @@
     function listInput(a) {
         const d = OV.list, rows = d.rows();
         if (a === 'up' || a === 'down') { OV.sel = (OV.sel + (a === 'down' ? 1 : rows.length - 1)) % rows.length; SND.fx('move'); renderList(); }
-        else if ((a === 'left' || a === 'right') && d.side) { d.side(a === 'right' ? 1 : -1); SND.fx('move'); renderList(); }
+        else if ((a === 'left' || a === 'right') && (rows[OV.sel].side || d.side)) { (rows[OV.sel].side || d.side)(a === 'right' ? 1 : -1); SND.fx('move'); renderList(); }
         else if (a === 'confirm') { SND.fx('ok'); rows[OV.sel].fn(); }
     }
     function closeList() { ovHide(); toPlay(); }
@@ -1195,18 +1220,19 @@
         if (sl !== 'weapon') list.push(null);             // the last box takes the piece off
         return list;
     }
-    function gearTabs() { const t = SLOTS.slice(); if (P[1].on) t.push('hero'); t.push('close'); return t; }
+    function nextHero(i) { for (let k = 1; k <= MAXP; k++) { const j = (i + k) % MAXP; if (P[j].on) return j; } return i; }
+    function gearTabs() { const t = SLOTS.slice(); if (nPlayers() > 1) t.push('hero'); t.push('close'); return t; }
     function equipScreen(h) { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = h || 0; EQ.si = 0; EQ.focus = 'grid'; EQ.ti = 0; EQ.gi = 0; renderGear(); }
     function renderGear() {
         const e = S.eq[EQ.hero], sl = SLOTS[EQ.si], items = gearItems(), tabs = gearTabs();
         if (EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
         const box = el('div', 'gearbox'), head = el('div', 'lhead'), st = P[EQ.hero].st;
-        head.appendChild(el('div', 'ltitle', T.ui.equip + (P[1].on ? ': ' + heroName(EQ.hero) : '')));
+        head.appendChild(el('div', 'ltitle', T.ui.equip + (nPlayers() > 1 ? ': ' + heroName(EQ.hero) : '')));
         head.appendChild(el('div', 'linfo', T.ui.atk + ' ' + (st.atk + ((S.lvl - 1) >> 1)) + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'));
         box.appendChild(head);
         const tb = el('div', 'gtabs');
         tabs.forEach((t, i) => tb.appendChild(el('div', 'gt' + (i === EQ.si && i < 4 ? ' cur' : '') + (EQ.focus === 'tabs' && i === EQ.ti ? ' sel' : ''),
-            t === 'hero' ? '⇄ ' + heroName(1 - EQ.hero) : t === 'close' ? T.ui.close : T.ui['slot_' + t])));
+            t === 'hero' ? '⇄ ' + heroName(nextHero(EQ.hero)) : t === 'close' ? T.ui.close : T.ui['slot_' + t])));
         box.appendChild(tb);
         const main = el('div', 'gmain'), grid = el('div', 'ggrid');
         items.forEach((it, i) => {
@@ -1238,7 +1264,7 @@
                 row.appendChild(v); det.appendChild(row);
             }
             if (it.up) det.appendChild(el('div', 'gds', txt(T.ui.upgradeLv, { n: it.up })));
-            const who = [0, 1].filter(i => (i === 0 || P[1].on) && S.eq[i][base.slot] === it.u).map(heroName).join(', ');
+            const who = P.filter(q => q.on && S.eq[q.i][base.slot] === it.u).map(q => heroName(q.i)).join(', ');
             det.appendChild(el('div', 'gdh', who ? txt(T.ui.worn, { name: who }) : cur ? T.ui.compare : T.ui.noneWorn));
         } else det.appendChild(el('div', 'gdk', EQ.focus === 'grid' ? T.ui.takeOff : T.ui.noneWorn));
         det.appendChild(el('div', 'ghelp', EQ.focus === 'grid' ? T.ui.gearHelp : T.ui.gearHelpTabs));
@@ -1258,7 +1284,7 @@
             else if (a === 'confirm') {
                 const t = tabs[EQ.ti]; SND.fx('ok');
                 if (t === 'close') return closeList();
-                if (t === 'hero') EQ.hero = 1 - EQ.hero; else { EQ.si = EQ.ti; EQ.focus = 'grid'; EQ.gi = 0; }
+                if (t === 'hero') EQ.hero = nextHero(EQ.hero); else { EQ.si = EQ.ti; EQ.focus = 'grid'; EQ.gi = 0; }
             } else return;
         } else {
             if (h) EQ.gi = Math.max(0, Math.min(items.length - 1, EQ.gi + h));
@@ -1331,7 +1357,7 @@
                 SET.btn[A.f] = g; saveSettings(); refreshHint(); SND.fx('ok');
             } else toast(T.ui.assignNo);
         }
-        ovHide(); settingsScreen(A.sel);
+        ovHide(); buttonsScreen(A.sel);
     }
     function assignInput(a, pressed) {
         const A = OV.assign; if (!A || !pressed && a !== 'jump' && a !== 'confirm') return;
@@ -1362,19 +1388,29 @@
         SET.voice = VOICE_RATES[i]; VOICE.setRate(SET.voice); saveSettings();
         VOICE.say('intro-0', T.intro[0], null);                  // a sample at the new speed
     }
+    function cycleZoom(dir) { SET.zoom = ZOOMS[(ZOOMS.indexOf(SET.zoom) + dir + ZOOMS.length) % ZOOMS.length]; applyZoom(); saveSettings(); }
     function settingsScreen(sel) {
         listScreen({
-            sel: sel || 0, title: () => T.ui.settings, info: () => '', tabs: () => T.ui.remoteNote,
-            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r === FNS.length + 1) cycleBack(rtl() ? -dir : dir); else if (r === FNS.length + 2 || r === FNS.length + 3) setGender(r - FNS.length - 2, 1 - S.gender[r - FNS.length - 2]); },
-            rows: () => [{ label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) }]
-                .concat(FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]],
-                    fn: () => assignScreen(f) })))
-                .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], fn: () => { cycleBack(1); renderList(); } },
-                         { label: txt(T.ui.lookOf, { name: heroName(0) }), right: S.gender[0] ? T.ui.female : T.ui.male, fn: () => { setGender(0, 1 - S.gender[0]); renderList(); } },
-                         { label: txt(T.ui.lookOf, { name: heroName(1) }), right: S.gender[1] ? T.ui.female : T.ui.male, fn: () => { setGender(1, 1 - S.gender[1]); renderList(); } },
+            sel: sel || 0, title: () => T.ui.settings, info: () => '', tabs: () => '',
+            rows: () => {
+                const r = [
+                    { label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', side: d => cycleVoice(rtl() ? -d : d), fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) },
+                    { label: txt(T.ui.zoomRow, { n: Math.round(SET.zoom * 100) }), sub: T.ui.zoomSub, right: '◀ ▶', side: d => cycleZoom(rtl() ? -d : d), fn: () => cycleZoom(1) },
+                    { label: T.ui.buttons, sub: T.ui.buttonsSub, right: '▸', fn: () => buttonsScreen() }];
+                for (const q of P) if (q.on) { const tg = () => setGender(q.i, 1 - S.gender[q.i]); r.push({ label: txt(T.ui.lookOf, { name: heroName(q.i) }), right: S.gender[q.i] ? T.ui.female : T.ui.male, side: tg, fn: () => { tg(); renderList(); } }); }
+                r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
+                return r;
+            }
+        });
+    }
+    // the buttons: a submenu of Settings (OK on a row asks for the button to use)
+    function buttonsScreen(sel) {
+        listScreen({
+            sel: sel || 0, title: () => T.ui.buttons, info: () => '', tabs: () => T.ui.remoteNote,
+            rows: () => FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]], fn: () => assignScreen(f) }))
+                .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], side: d => cycleBack(rtl() ? -d : d), fn: () => { cycleBack(1); renderList(); } },
                          { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; saveSettings(); refreshHint(); renderList(); } },
-                         { label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} },
-                         { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } }])
+                         { label: T.ui.back, fn: () => settingsScreen(2) }])
         });
     }
     function refreshHint() { $('hint').textContent = T.ui['g_' + SET.btn.menu] + ': ' + T.ui.menuF; }
@@ -1385,7 +1421,7 @@
         qmP = p || P[0];
         const go = fn => () => { closeList(); fn(); };
         listScreen({
-            title: () => T.ui.menuF + (P[1].on ? ': ' + heroName(qmP.i) : ''), info: () => T.ui.stamina + ' ' + Math.round(qmP.sta) + ' / ' + STA_MAX,
+            title: () => T.ui.menuF + (nPlayers() > 1 ? ': ' + heroName(qmP.i) : ''), info: () => T.ui.stamina + ' ' + Math.round(qmP.sta) + ' / ' + STA_MAX,
             rows: () => {
                 const r = [{ label: T.ui.mJournal, sub: objective(L), fn: () => { ovHide(); showJournal(); } }];
                 for (const a of AB_IDS) {
@@ -1399,8 +1435,7 @@
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
-                if (P[1].on) r.push({ label: T.ui.mLeave, fn: go(leave2) });
-                else if (HM_COOP.usable()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
+                if (HM_COOP.usable()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
             }
@@ -1440,13 +1475,13 @@
         else if (OV.kind === 'list') listInput(a);
         else if (OV.kind === 'gear') gearInput(a);
     }
-    function toPlay() { if (remoteMenu) { remoteMenu = false; HM_COOP.sendMenu([]); } mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
+    function toPlay() { if (remoteMenu) { HM_COOP.sendMenu(remoteDev, []); remoteMenu = null; remoteDev = ''; } mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
 
     function newGame() {
         S = fresh();
         const go = () => {
             recalcAll(); save();
-            P[0].hp = maxHp(P[0]); P[1].hp = maxHp(P[1]); P[0].down = P[1].down = false;
+            for (const q of P) { q.hp = maxHp(q); q.down = false; }
             for (const p of P) { p.sta = 50; p.cdHeal = p.cdPower = p.cdDistant = 0; }
             loadZone('village'); placePlayers(S.x, S.y); P[0].fx = 0; P[0].fy = -1;
             slides(T.intro, () => { toPlay(); banner(T.zone.village); }, '', T.intro.map((s, i) => 'intro-' + i));
@@ -1457,7 +1492,7 @@
         S = migrate(Object.assign(fresh(), MyPC.load('save', {})));
         if (CHAPTERS.of(S.zone) !== CHID) { S.zone = CH.home; const sp = MAPS[CH.home].spawn; S.x = sp[0]; S.y = sp[1]; }
         recalcAll();
-        P[0].hp = maxHp(P[0]); P[1].hp = maxHp(P[1]); P[0].down = P[1].down = false;
+        for (const q of P) { q.hp = maxHp(q); q.down = false; }
         if (S.zone === 'rift') { if (S.rift.floor > 0) MAPS.rift = window.HM_RIFT.build(S.rift.floor, S.rift.seed); else { S.zone = 'village'; S.x = 12.5; S.y = 6.2; } }
         loadZone(S.zone); placePlayers(S.x, S.y);
         ovHide(); toPlay(); banner(S.zone === 'rift' ? txt(T.ui.riftFloor, { n: S.rift.floor }) : T.zone[S.zone]);
@@ -1519,7 +1554,7 @@
 
     // what a chapter can use (see docs/CHAPTER_API.md)
     const API = {
-        TS, W, H, P, Z, FOES, SHOTS, DROPS, PET, TEXT, ITEMS, MOUNTS, TUNE, KN, ART, SND, VOICE, HERO: HEROART, FOE,
+        TS, get W() { return W; }, get H() { return H; }, P, Z, FOES, SHOTS, DROPS, PET, TEXT, ITEMS, MOUNTS, TUNE, KN, ART, SND, VOICE, HERO: HEROART, FOE,
         get S() { return S; }, get T() { return T; }, get L() { return L; }, get tick() { return tick; }, get ctx() { return ctx; }, get GT() { return GT; },
         get mode() { return mode; }, set mode(v) { mode = v; }, get boss() { return boss; }, set boss(f) { boss = f; },
         get shake() { return shake; }, set shake(v) { shake = v; }, set flash(v) { flashT = v; }, set freeze(v) { freeze = v; },
@@ -1528,7 +1563,7 @@
         spawnFoe, shot, hazard, part, burst, sparks, smoke, ringFx, floater, coins, loot, drop, dropGear, rollItem, giveItem, addToBag, addXp,
         hurt, hitFoe, petHurt, dist, moveEnt, chase, leash, wander, nearest, activate, showBoss, hideBoss, music, minions, maxHp,
         loadZone, placePlayers, changeZone, travel, startFade, addStatic, solidAt, codeAt, openTiles, ahead, frontX, frontY,
-        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, itemName,
+        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, shareStory, itemName,
         scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, potion: () => drink(false)
     };
 
@@ -1536,23 +1571,64 @@
 
     const DEV = {};
     function devHeld(dev, a) { const d = DEV[dev]; return !!(d && d[a]); }
-    function held(p, a) { return P[1].on ? devHeld(p.dev, a) : MyPC.isDown(a); }
+    function held(p, a) { return nPlayers() > 1 ? devHeld(p.dev, a) : MyPC.isDown(a); }
 
     function drink(big) {
         if (big ? S.big <= 0 : S.potions <= 0) return toast(T.ui.noPotion);
-        let p = P[0];
-        if (P[1].on && (P[0].down || (!P[1].down && P[1].hp < P[0].hp))) p = P[1];
+        let p = P[0];                                       // the hero who needs it most (lowest health), hero 1 when equal
+        for (const q of P) if (q.on && !q.down && (p.down || q.hp / maxHp(q) < p.hp / maxHp(p))) p = q;
         if (big) S.big--; else S.potions--;
         p.hp = Math.min(maxHp(p), p.hp + (big ? 99 : 8)); if (p.down) { p.down = false; p.inv = 90; }
         SND.fx('heal'); burst(p.x, p.y - 10, 16, '#ff7a9a', 1.5); ringFx(p.x, p.y - 8, 34, '#ff7a9a');
         toast(txt(T.ui.healed, { name: heroName(p.i) })); save();
     }
+    // a new hero takes the first free place; returns it (or null when four are playing)
     function join(dev) {
-        const p = P[1];
-        p.on = true; p.dev = dev; p.hp = maxHp(p); p.down = false; p.x = P[0].x; p.y = P[0].y; p.inv = 90;
-        for (const o of [[18, 0], [-18, 0], [0, 18], [0, -18]]) if (!feetSolid(P[0].x + o[0], P[0].y + o[1])) { p.x = P[0].x + o[0]; p.y = P[0].y + o[1]; break; }
-        recalc(p); ringFx(p.x, p.y - 10, 40, '#ffb38a');
-        toast(txt(T.ui.p2joined, { name: heroName(1) })); SND.fx('ok');
+        const p = P.find(q => !q.on); if (!p) return null;
+        p.on = true; p.dev = dev; pNames[p.i] = devName[dev] || ''; p.hp = maxHp(p); p.down = false; p.sta = 50; p.x = P[0].x; p.y = P[0].y; p.inv = 90;
+        for (const o of NEAR) if (!feetSolid(P[0].x + o[0], P[0].y + o[1]) && !P.some(q => q !== p && q.on && dist(q.x, q.y, P[0].x + o[0], P[0].y + o[1]) < 10)) { p.x = P[0].x + o[0]; p.y = P[0].y + o[1]; break; }
+        recalc(p); ringFx(p.x, p.y - 10, 40, '#ffb38a'); refreshNames(); refreshMenu();
+        toast(txt(T.ui.p2joined, { name: heroName(p.i) })); SND.fx('ok');
+        return p;
+    }
+    // a phone that is only a controller receives what the host's heroes won (see shareNow) and keeps it in its own save
+    let syncT = 0;
+    function syncSave() { clearTimeout(syncT); syncT = setTimeout(() => { if (S) save(); }, 1500); }
+    function ctrlNote(t) { if (!ctrlNoteEl) return; ctrlNoteEl.textContent = t; clearTimeout(ctrlNoteT); ctrlNoteT = setTimeout(() => { if (ctrlNoteEl) ctrlNoteEl.textContent = ''; }, 6000); }
+    function syncIn(m) {
+        if (!S || !Array.isArray(m)) return;
+        sharing = false;
+        try {
+            const k = m[0];
+            if (k === 'r' && m[1] && typeof m[1] === 'object') {                 // everybody gets the same reward
+                const r = m[1], notes = [];
+                if (+r.c > 0) { S.coins += r.c | 0; notes.push('+' + (r.c | 0) + ' ' + T.ui.coins); }
+                if (+r.o > 0) S.iron += r.o | 0;
+                if (+r.b > 0) { S.big += r.b | 0; notes.push('+' + (r.b | 0) + ' ' + T.ui.potB); }
+                if (+r.x > 0) { const lv = S.lvl; addXp(r.x | 0); if (S.lvl > lv) notes.push(txt(T.ui.lvup, { n: S.lvl })); }
+                if (typeof r.pet === 'string' && r.pet && !S.pet) S.pet = r.pet;
+                if (typeof r.mount === 'string' && MOUNTS[r.mount] && S.mounts.indexOf(r.mount) < 0) { S.mounts.push(r.mount); notes.push(mountName(r.mount)); }
+                if (notes.length) ctrlNote(notes.join('  '));
+            } else if (k === 'i' && m[1] && ITEMS[m[1].id]) {                    // the same item (same rarity and bonuses)
+                const it = m[1]; addToBag(newItem(it.id, it.r | 0, Array.isArray(it.b) ? it.b : []), true); if (it.up) S.bag[S.bag.length - 1].up = it.up | 0;
+                ctrlNote(itemName(it.id));
+            } else if (k === 'q') {                                              // a quest done: marked only if this player could have it
+                const ch = m[1], kind = m[2], id = String(m[3]), stg = +m[4] || 0, after = String(m[5] || '');
+                if (ch === CHID && stage() >= stg) {
+                    if (kind === 's' && qState(id) !== 3 && (!after || qState(after) === 3)) { S.sq[id] = 3; S.qdone++; ctrlNote(T.quests[id] ? T.quests[id].title : id); }
+                    else if (kind === 'p' && S.pqDone.indexOf(id) < 0) { S.pqDone.push(id); S.qdone++; for (const g in S.pq) if (S.pq[g] && S.pq[g].id === id) delete S.pq[g]; }
+                }
+            } else if (k === 's') {                                              // the story moved on: only for a player who was at that point
+                const ch = m[1], from = +m[2], to = +m[3];
+                if (ch === CHID && S.stage >= from && S.stage < to) { S.stage = to; for (const f of m[4] || []) if (STORY_FLAGS.indexOf(f) >= 0) S[f] = true; ctrlNote(objective(L)); }
+            }
+        } finally { sharing = true; }
+        syncSave();
+    }
+    function leaveHero(p) {
+        if (!p || !p.i || !p.on) return;
+        const dev = p.dev; p.on = false; p.dev = ''; pNames[p.i] = ''; DEV[dev] = {};
+        toast(txt(T.ui.p2left, { name: heroName(p.i) })); refreshNames(); refreshMenu();
     }
     function setMount(m) {
         if (m === 'wolf' && CH.noWolf) { toast(T.ui.wolfStays); return; }
@@ -1565,7 +1641,6 @@
     function riding(p) { return !!S.mount && !Z.def.dark && !p.down && !(S.mount === 'wolf' && CH && CH.noWolf); }
     function flying(p) { return S.mount === 'dragon' && riding(p); }
     function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
-    function leave2() { P[1].on = false; toast(txt(T.ui.p2left, { name: heroName(1) })); }
 
     /* ---------- local co-op: My PC owns the rooms (MyPC.multiplayer); state and messages in js/coop.js ---------- */
     // the host: "Co-op" opens My PC's own "Open a room" screen; friends are accepted by My PC's own dialog.
@@ -1578,9 +1653,11 @@
     }
     function coopRender() {
         if (!(mode === 'overlay' && OV.kind === 'menu' && OV.coop === 'host')) return;
-        const c = HM_COOP.host, u = T.ui, back = { label: u.coopBack, fn: coopClose };
-        OV.head = [u.coopTitle, c.state === 'connected' ? u.coopOn : c.state === 'open' ? u.coopWaiting : u.coopIdle];
-        OV.items = c.state === 'connected' ? [{ label: u.coopDrop, fn: () => HM_COOP.disconnect() }, back] : c.state === 'open' ? [{ label: u.coopShut, fn: () => HM_COOP.closeRoom() }, back] : [back];
+        const c = HM_COOP.host, u = T.ui, back = { label: u.coopBack, fn: coopClose }, n = c.peers.length;
+        OV.head = [u.coopTitle, n ? txt(u.coopOnN, { n }) : c.state === 'open' ? u.coopWaiting : u.coopIdle];
+        OV.items = c.peers.map(q => ({ label: txt(u.coopDropN, { name: q.name || q.dev }), fn: () => HM_COOP.disconnect(q.dev) }));
+        if (c.state === 'open') OV.items.push({ label: u.coopShut, fn: () => HM_COOP.closeRoom() });
+        OV.items.push(back);
         OV.sel = Math.min(OV.sel || 0, OV.items.length - 1);
         renderMenu();
     }
@@ -1588,10 +1665,10 @@
     // the guest: "Join a friend" opens My PC's own list of rooms; when accepted this phone becomes a pad
     function joinFriend() {
         if (!HM_COOP.usable()) return toast(T.ui.coopNone);
-        HM_COOP.join(controllerOn, controllerOff, rows => { if (ctrlText) ctrlText.textContent = rows.join('\n'); });               // a failed or cancelled join was already explained by My PC: stay on the title
+        HM_COOP.join(controllerOn, controllerOff, rows => { if (ctrlText) ctrlText.textContent = rows.join('\n'); }, syncIn);               // a failed or cancelled join was already explained by My PC: stay on the title
     }
     // connected as a guest: the phone shows only a pad; the game runs on the host
-    let ctrlEl = null, ctrlText = null;
+    let ctrlEl = null, ctrlText = null, ctrlNoteEl = null, ctrlNoteT = 0;
     function controllerOn(r) {
         OV.coop = ''; ovHide(); mode = 'overlay'; OV.kind = 'ctrl'; setHud(false); SND.pause();
         ctrlEl = el('div', '');
@@ -1601,6 +1678,7 @@
         const b = el('div', '', T.ui.coopLeave); b.style.cssText = 'position:absolute;top:2vmin;inset-inline-end:2vmin;padding:1.4vmin 3vmin;border:2px solid rgba(255,255,255,0.5);border-radius:1.2vmin;background:rgba(255,255,255,0.14);font-weight:700;touch-action:manipulation';
         b.addEventListener('click', () => HM_COOP.leave());
         ctrlEl.appendChild(b);
+        ctrlNoteEl = el('div', ''); ctrlNoteEl.style.cssText = 'margin-top:1.5vmin;font-size:max(14px,3vmin);color:#ffe9a8;min-height:1.3em'; ctrlEl.appendChild(ctrlNoteEl);
         ctrlText = el('div', ''); ctrlText.style.cssText = 'position:absolute;left:26%;right:26%;top:20vmin;bottom:4vmin;overflow:hidden;text-align:start;white-space:pre-line;font-size:max(13px,2.8vmin);line-height:1.35;color:#dfe3ee';
         ctrlEl.appendChild(ctrlText); document.body.appendChild(ctrlEl);
         // a pure controller: big stick and buttons (the player can change them with the gear button); the menu button opens hero 2's menu
@@ -1611,7 +1689,7 @@
     function controllerOff() {
         if (!ctrlEl) return;
         ctrlEl.remove(); ctrlEl = null;
-        ctrlText = null;
+        ctrlText = null; ctrlNoteEl = null;
         if (MyPC.pad) MyPC.pad.hide();                                 // My PC's own pad is drawn again
         SND.resume(); menuKey = ''; showTitle(); toast(T.ui.coopLeft);
     }
@@ -1642,10 +1720,10 @@
         if (p.down) return true;
         const fx = frontX(p, 18), fy = frontY(p, 18);
         for (const n of Z.npcs) {
-            if (!npcVisible(n.id) || !talkable(n.id)) continue;
+            if (p.i !== 0 || !npcVisible(n.id) || !talkable(n.id)) continue;                     // only hero 1 talks
             if (dist(fx, fy, n.x, n.y - 6) < 34 || dist(p.x, p.y, n.x, n.y) < 46) { n.fx = Math.sign(p.x - n.x); n.fy = n.fx ? 0 : Math.sign(p.y - n.y); talk(n.id); return true; }
         }
-        if (CH.interact && CH.interact(p, fx, fy)) return true;
+        if (p.i === 0 && CH.interact && CH.interact(p, fx, fy)) return true;
         if (Z.rift && (dist(fx, fy, Z.rift.cx, Z.rift.cy) < 40 || dist(p.x, p.y, Z.rift.cx, Z.rift.cy) < 40)) { riftMenu(); return true; }
         if (Z.tablet && dist(fx, fy, Z.tablet.cx, Z.tablet.cy) < 36) { readTablet(); return true; }
         for (const t of Z.tre) if (!t.found && (dist(fx, fy, t.x, t.y) < 30 || dist(p.x, p.y, t.x, t.y) < 26)) { dig(t); return true; }
@@ -1817,7 +1895,7 @@
         if (f.d.boss) bossDown(f);
     }
     function addXp(n) {
-        S.xp += n;
+        S.xp += n; shareNow({ x: n });
         while (S.lvl < 20 && S.xp >= need(S.lvl)) {
             S.lvl++;
             for (const p of P) if (p.on) { p.hp = maxHp(p); p.down = false; burst(p.x, p.y - 10, 20, '#ffe66a', 2); ringFx(p.x, p.y - 8, 60, '#ffe66a'); }
@@ -1836,8 +1914,7 @@
         sparks(p.x, p.y - 12, (p.x - sx) / d, (p.y - sy) / d, 6, '#ff7a7a');
         if (p.hp <= 0) {
             p.down = true; p.downT = 360; burst(p.x, p.y - 8, 12, '#c9cfdc', 1.5);
-            const other = P[1 - p.i];
-            if (other.on && !other.down) toast(txt(T.ui.down, { name: heroName(p.i) }));
+            if (P.some(q => q.on && !q.down)) toast(txt(T.ui.down, { name: heroName(p.i) }));
             else allDown();
         }
     }
@@ -1856,10 +1933,10 @@
     // picking something up (the hero or the cat; the cat's finds go to hero 1)
     function collect(p, d) {
         d.on = false;
-        if (d.k === 0) { S.coins += d.v + (p.st.gold && Math.random() * 100 < p.st.gold ? 1 : 0); SND.fx('coin'); part(d.x, d.y, 6, 0, 0, 1.2, 16, '#ffe66a', 2, 0); }
+        if (d.k === 0) { const n = d.v + (p.st.gold && Math.random() * 100 < p.st.gold ? 1 : 0); S.coins += n; shareNow({ c: n }); SND.fx('coin'); part(d.x, d.y, 6, 0, 0, 1.2, 16, '#ffe66a', 2, 0); }
         else if (d.k === 1) { p.hp = Math.min(maxHp(p), p.hp + d.v); SND.fx('heal'); }
         else if (d.k === 2) { const it = d.it; d.it = null; addToBag(it); burst(d.x, d.y - 6, 14, LOOT.colors[it.r], 1.5); }
-        else if (d.k === 3) { S.iron += d.v; SND.fx('pick'); toast(txt(T.ui.gotIron, { n: d.v })); }
+        else if (d.k === 3) { S.iron += d.v; shareNow({ o: d.v }); SND.fx('pick'); toast(txt(T.ui.gotIron, { n: d.v })); }
         else {                                              // a quest item
             const q = S.pq[d.qg], df = poolDef(q);
             SND.fx('pick'); burst(d.x, d.y - 6, 12, '#7ef0a0', 1.5); ringFx(d.x, d.y, 30, '#7ef0a0');
@@ -1877,7 +1954,7 @@
     }
     function updPet() {
         const pet = PET, p = P[0];
-        pet.on = !!S.pet && p.on;
+        pet.on = !!S.pet && p.on && nPlayers() === 1;                         // no pets in co-op
         if (!pet.on) return;
         pet.max = Math.max(4, Math.floor(maxHp(p) / 2)); if (pet.hp > pet.max) pet.hp = pet.max;
         if (pet.inv > 0) pet.inv--; if (pet.cd > 0) pet.cd--; if (pet.hurt > 0) pet.hurt--; if (pet.lunge > 0) pet.lunge--;
@@ -1929,8 +2006,8 @@
         if (p.aura > 0) p.aura--;
         if (p.cdHeal > 0) p.cdHeal--; if (p.cdPower > 0) p.cdPower--; if (p.cdDistant > 0) p.cdDistant--;
         if (p.down) {
-            const other = P[1 - p.i];
-            if (--p.downT <= 0 && other.on && !other.down) { p.down = false; p.hp = Math.ceil(maxHp(p) / 2); p.inv = 120; p.x = other.x; p.y = other.y; toast(txt(T.ui.revived, { name: heroName(p.i) })); }
+            const other = P.find(q => q !== p && q.on && !q.down);
+            if (--p.downT <= 0 && other) { p.down = false; p.hp = Math.ceil(maxHp(p) / 2); p.inv = 120; p.x = other.x; p.y = other.y; toast(txt(T.ui.revived, { name: heroName(p.i) })); }
             return;
         }
         const dx = (held(p, 'right') ? 1 : 0) - (held(p, 'left') ? 1 : 0);
@@ -1948,9 +2025,8 @@
             p.walk += 0.22 * (1 + p.st.spd);
             if (riding(p) && (tick + p.i * 7) % (flying(p) ? 26 : 14) === 0) SND.fx(flying(p) ? 'wings' : 'hoof');
             if ((tick + p.i * 5) % (riding(p) ? 4 : 9) === 0) part(p.x - p.ax * 6, p.y, 1, -p.ax * 0.3, -p.ay * 0.2, 0.6, 22, Z.dust, riding(p) ? 4 : 3, 0.02);
-            if (P[1].on) {                                 // co-op: stay on the same screen
-                const o = P[1 - p.i];
-                if (o.on && !o.down && (Math.abs(p.x - o.x) > W - 70 || Math.abs(p.y - o.y) > H - 70)) { p.x = ox; p.y = oy; }
+            if (nPlayers() > 1) {                          // co-op: nobody walks out of the screen (the camera sits in the middle of all heroes)
+                for (const o of P) if (o !== p && o.on && !o.down && (Math.abs(p.x - o.x) > W - TETHER_X || Math.abs(p.y - o.y) > H - TETHER_Y)) { p.x = ox; p.y = oy; break; }
             }
         } else p.walk = 0;
         if (p.kx || p.ky) { flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false; p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
@@ -2351,11 +2427,12 @@
         if ((mode !== 'overlay' || OV.kind !== 'menu') && !(mode === 'scene' && SC.steps && SC.steps[SC.i] && SC.steps[SC.i].cam)) follow(false);
     }
 
+    const TETHER_X = 90, TETHER_Y = 140;                    // free room kept around the heroes (screen edges and the HUD)
     function follow(snap) {
-        let x = 0, y = 0, n = 0;
-        for (const p of P) if (p.on && !p.down) { x += p.x; y += p.y; n++; }
-        if (!n) { x = P[0].x; y = P[0].y; n = 1; }
-        const tx = Math.max(0, Math.min(Z.cols * TS - W, x / n - W / 2)), ty = Math.max(0, Math.min(Z.rows * TS - H, y / n - H / 2 - 10));
+        let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, n = 0;                 // the middle of the box around all standing heroes
+        for (const p of P) if (p.on && !p.down) { if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x; if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y; n++; }
+        if (!n) { x0 = x1 = P[0].x; y0 = y1 = P[0].y; }
+        const tx = Math.max(0, Math.min(Z.cols * TS - W, (x0 + x1) / 2 - W / 2)), ty = Math.max(0, Math.min(Z.rows * TS - H, (y0 + y1) / 2 - H / 2 - 10));
         if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     }
     function snapCamera() { follow(true); }
@@ -2603,7 +2680,7 @@
     function drawTreasures(cx, cy) {
         for (const t of Z.tre) {
             if (t.found) continue;
-            const near = dist(t.x, t.y, P[0].x, P[0].y) < 70 || (P[1].on && dist(t.x, t.y, P[1].x, P[1].y) < 70) || (PET.on && PET.sniff && dist(t.x, t.y, PET.x, PET.y) < 60);
+            const near = P.some(q => q.on && dist(t.x, t.y, q.x, q.y) < 70) || (PET.on && PET.sniff && dist(t.x, t.y, PET.x, PET.y) < 60);
             if (!near) continue;
             const x = t.x - cx, y = t.y - cy;
             ctx.fillStyle = '#6a5034'; ctx.beginPath(); ctx.ellipse(x, y, 11, 5, 0, 0, 6.2832); ctx.fill();
@@ -2716,12 +2793,13 @@
         } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50, 1);
         if (dir !== 1) drawHeroWeapon(p, rx, hy, dir, flip);
         ctx.globalAlpha = 1;
-        if (P[1].on) {
+        if (nPlayers() > 1) {
             ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillStyle = '#000'; ctx.fillText(p.i ? '2P' : '1P', x + 1, hy - 47);
-            ctx.fillStyle = p.i ? '#ffb38a' : '#8af0e0'; ctx.fillText(p.i ? '2P' : '1P', x, hy - 48);
+            ctx.fillStyle = '#000'; ctx.fillText((p.i + 1) + 'P', x + 1, hy - 47);
+            ctx.fillStyle = PCOL[p.i]; ctx.fillText((p.i + 1) + 'P', x, hy - 48);
         }
     }
+    const PCOL = ['#8af0e0', '#ffb38a', '#c9a8ff', '#a8e88a'];       // the colour of each hero's label and HUD name
     function drawHeroWeapon(p, x, y, dir, flip) {
         const st = p.st;
         if (st.kind === 'sword' && p.swing > 0) {          // slash: a bright arc with a fading trail
@@ -3105,6 +3183,10 @@
 
     /* ------------------------------------------------------------------ loop, screen */
 
+    function applyZoom() {                                   // 75% sees more of the world, 150% sees less and bigger
+        W = Math.round(BASE_W / SET.zoom); H = Math.round(BASE_H / SET.zoom); window.HM_VIEW = { w: W, h: H };
+        if (canvas && darkC) { vignette = ART.vignette(W, H); darkC.width = W; darkC.height = H; resize(); snapCamera(); }
+    }
     function resize() {
         const vw = window.innerWidth, vh = window.innerHeight;
         const s = Math.min(vw / W, vh / H);
@@ -3131,6 +3213,7 @@
 
     /* ------------------------------------------------------------------ input (SDK only) */
 
+    const devHero = dev => P.find(q => q.on && q.dev === dev);
     function onInput(a, pressed, repeat, dev) {
         dev = dev || 'keys';
         if (!repeat) { const d = DEV[dev] || (DEV[dev] = {}); d[a] = pressed; }
@@ -3142,11 +3225,11 @@
         const remote = dev.indexOf('net') === 0;
         if (remote) {
             if (mode === 'play') {
-                if (a === 'menu') { if (P[1].on && P[1].dev === dev) { remoteMenu = true; quickMenu(P[1]); } return; }       // hero 2's own menu: gear, mounts, abilities
+                if (a === 'menu') { const rp = devHero(dev); if (rp && !remoteMenu) { remoteMenu = rp; remoteDev = dev; quickMenu(rp); } return; }       // that hero's own menu: gear, mounts, abilities
                 if (a === 'confirm' || a === 'pause') return;
             } else {
-                if (remoteMenu && mode === 'overlay' && OV.kind === 'journal') { if (a === 'jump' || a === 'cancel') { ovHide(); toPlay(); } return; }
-                if (remoteMenu && mode === 'overlay' && (OV.kind === 'list' || OV.kind === 'gear')) {                      // the phone drives hero 2's menu
+                if (remoteMenu && remoteDev === dev && mode === 'overlay' && OV.kind === 'journal') { if (a === 'jump' || a === 'cancel') { ovHide(); toPlay(); } return; }
+                if (remoteMenu && remoteDev === dev && mode === 'overlay' && (OV.kind === 'list' || OV.kind === 'gear')) {   // the phone drives its hero's menu
                     if (a === 'cancel') goBack(); else if (a === 'jump') ovInput('confirm'); else if (a === 'left' || a === 'right' || a === 'up' || a === 'down') ovInput(a);
                     mirrorMenu();
                 }
@@ -3156,9 +3239,10 @@
         if (P[0].dev === '' && !remote) P[0].dev = dev;
         if (dev !== P[0].dev && !repeat) joinSeen = true;
         if (tick < lockUntil && (a === 'confirm' || a === 'jump')) return;
-        if (a === 'menu') { if (mode === 'play') quickMenu(P[0]); else if (mode === 'overlay' || mode === 'dialog') goBack(); return; }
+        if (a === 'menu') { if (mode === 'play') quickMenu(devHero(dev) || P[0]); else if (mode === 'overlay' || mode === 'dialog') goBack(); return; }
         if (mode === 'scene') { if (a === 'confirm' && SC.t > 0 && !repeat) { SC.t = 0; nextStep(); } return; }
         if (mode === 'overlay' || mode === 'dialog') {
+            if (nPlayers() > 1 && dev !== P[0].dev && !(remoteMenu && remoteDev === dev)) return;       // in co-op only hero 1 answers villagers and runs the menus
             if (a === 'jump') return;
             if (a === SET.back) { goBack(); return; }
             if (a === 'confirm' && SET.back === 'hold') { if (!repeat) { okDown = tick; okBack = false; } return; }
@@ -3166,9 +3250,9 @@
             return;
         }
         if (mode !== 'play' || repeat) return;
-        const p = dev === P[0].dev || !P[1].on && dev === 'keys' ? P[0] : P[1].on && dev === P[1].dev ? P[1] : null;
+        const p = devHero(dev) || (nPlayers() === 1 && dev === 'keys' ? P[0] : null);
         if (a === 'jump') {
-            if (!p) { if (!P[1].on) join(dev); return; }
+            if (!p) { join(dev); return; }
             // a second OK soon after the first is "OK twice"
             if (tick - p.tapT < 16) { p.tapT = -99; gesture(p, 'double'); } else { p.tapT = tick; gesture(p, 'tap'); }
         } else if (p && (a === 'run' || a === 'cancel')) gesture(p, a);
@@ -3177,11 +3261,8 @@
     // local co-op: js/coop.js feeds a phone's buttons in here as one more device
     window.HM_REMOTE = {
         input: (a, down, dev) => onInput(a, down, false, dev),
-        setName: n => { p2Name = cleanName(n); refreshNames(); },
-        leave: dev => {
-            DEV[dev] = {}; if (p2Name) { p2Name = ''; refreshNames(); }
-            if (P[1].on && P[1].dev === dev) { P[1].on = false; P[1].dev = ''; toast(txt(T.ui.p2left, { name: heroName(1) })); }
-        }
+        setName: (dev, n) => { devName[dev] = cleanName(n); const q = devHero(dev); if (q) { pNames[q.i] = devName[dev]; refreshNames(); } },
+        leave: dev => { leaveHero(devHero(dev)); delete devName[dev]; DEV[dev] = {}; if (remoteDev === dev && remoteMenu) { remoteMenu = null; remoteDev = ''; } }
     };
 
     // test hook for development only: open index.html?debug
@@ -3192,7 +3273,7 @@
 
     // load the chapter the save is in (or chapter 1), then show the title over its home
     function finishInit() {
-        readTune(); loadSettings(); refreshHint();
+        readTune(); loadSettings(); applyZoom(); refreshHint();
         S = fresh();
         const saved = MyPC.load('save', null);
         if (saved) S = migrate(Object.assign(fresh(), saved));
@@ -3264,8 +3345,7 @@
             else if (id === 'settings') settingsScreen();
             else if (id === 'potion') drink(false);
             else if (id === 'big') drink(true);
-            else if (id === 'leave2' && P[1].on) leave2();
-            else if (id === 'coop' && !P[1].on) { if (mode === 'dialog') closeDlg(); coopScreen(); }
+            else if (id === 'coop') { if (mode === 'dialog') closeDlg(); coopScreen(); }
             else if (id === 'mount') mountScreen();
         },
         onVolume: function (v) { SND.setVolume(v); }

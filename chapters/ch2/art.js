@@ -467,7 +467,7 @@ window.HM_C2_ART = (function () {
     };
     // every frame: water glints, glowing lava and crystals (only on screen)
     function drawUnder(x, Z, cx, cy, t, glow) {
-        const W = 640, Hh = 360, wl = Z.water;
+        const V = window.HM_VIEW || { w: 640, h: 360 }, W = V.w, Hh = V.h, wl = Z.water;
         if (wl) {
             x.fillStyle = 'rgba(220,245,255,0.35)';
             for (let i = 0; i < wl.length; i += 2) {

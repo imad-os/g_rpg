@@ -28,7 +28,7 @@ HM_CHAPTERS.def.ch1 = function (api) {
 
     function S() { return api.S; }
     function T() { return api.T; }
-    function advance(st) { const s = S(); if (s.stage < st) { s.stage = st; api.SND.fx('quest'); MyPC.announce(objective(api.L)); } api.save(); }
+    function advance(st) { const s = S(); if (s.stage < st) { const from = s.stage; s.stage = st; api.shareStory(from, st); api.SND.fx('quest'); MyPC.announce(objective(api.L)); } api.save(); }
     const lines = api.lines;
     function embers() { const s = S(); return (s.hearth ? 1 : 0) + (s.tide ? 1 : 0) + (s.stone ? 1 : 0); }
     const ch2Open = () => S().stage >= 17 && HM_CHAPTERS.enabled('ch2');

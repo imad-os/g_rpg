@@ -241,3 +241,15 @@ and **by itself**: after 10 seconds without fighting (no blow given or taken) it
   characters and `<>`, 16 characters at most; if both names are equal hero 2 becomes "<name> 2").
 - **Male / Female**: Settings has a "Look of ..." row for each hero. In the village of chapter 1, **Ilsa the tailor** and **Joss the barber** change a hero's look
   from their conversation. Two heroes of the same gender get different colours so they can still be told apart.
+
+## Up to four players
+One to four heroes: the host (TV, phone or computer) plus up to three phones (`MyPC.multiplayer.host({ max: 3 })`). Each phone joins by pressing **A**, any number from 1 to 4 works, and a hero that leaves frees its place.
+- **Camera and screen:** the camera sits in the middle of the box around all standing heroes, and nobody can walk out of the picture (they stop at the edge of what the screen shows, with room kept for the HUD).
+- **HUD:** one compact panel per hero along the bottom edge (smaller from three heroes on; the quick-menu hint is hidden), so the play area stays free.
+- **Pets** are off while more than one hero plays. Bosses get +50% health for every extra hero.
+- **Only hero 1 talks** to villagers, answers conversations and runs the shared menus; every other hero has its own quick menu (gear, abilities) opened with its ☰ button.
+- **Names and looks:** hero 1 = My PC profile name, friends = their profile names (two equal names get a number; defaults Ash, Wren, Sage, Rook). Four colour sets per gender.
+- **Progress for everybody:** what the heroes win is shared. The host tells each phone (kill XP, coins, ore, loot, quest rewards) and each phone puts it in **its own save**, so everyone gets the same reward. A quest or a story step is marked done for a friend **only if their own story has reached it** (their stage is high enough, and the quest before it is done); a friend who is not there yet gets the reward but not the quest. Chapter 2's main story is not synced (its side tasks are, for friends who are in chapter 2).
+
+## Settings
+Settings now has **Voice speed**, **Zoom** (75% sees more, 150% sees less and bigger; saved), **Buttons** (a submenu: OK on a row asks for the real button), the look of each hero, and Credits.
