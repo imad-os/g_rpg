@@ -1291,15 +1291,44 @@
         if (o && o !== f && ((o === 'menu' && !OK_G[cur]) || (o === 'attack' && cur === 'none'))) return false;
         return true;
     }
-    function cycleBtn(f, dir) {
-        const cur = SET.btn[f]; let i = GESTURES.indexOf(cur);
-        for (let n = 0; n < GESTURES.length; n++) {
-            i = (i + dir + GESTURES.length) % GESTURES.length;
-            const g = GESTURES[i]; if (g === cur) return;
-            if (!canSet(f, g)) continue;
-            const o = g === 'none' ? '' : fnOf(g);
-            if (o) SET.btn[o] = cur;                               // the one that had it gets this one's old button
-            SET.btn[f] = g; saveSettings(); refreshHint(); return;
+    // assigning a button: a modal waits for the button the player really presses (OK once / twice / held, Run, Cancel)
+    let assignT = 0;
+    function assignScreen(f) {
+        mode = 'overlay'; OV.kind = 'assign'; OV.assign = { f, sel: OV.sel, ok: false, taps: 0, held: false };
+        const box = el('div', 'journal');
+        box.appendChild(el('div', 'jtitle', T.ui.assignTitle));
+        box.appendChild(el('div', 'jobj', txt(T.ui.assignHow, { fn: fnLabel(f) })));
+        box.appendChild(el('div', 'jzone', T.ui.assignNow + ': ' + T.ui['g_' + SET.btn[f]]));
+        box.appendChild(el('div', 'jpage', T.ui.assignHelp));
+        ovShow(box);
+        MyPC.announce(T.ui.assignTitle + '. ' + txt(T.ui.assignHow, { fn: fnLabel(f) }));
+    }
+    function assignEnd(g) {                                    // g: the chosen button, or null to keep the current one
+        clearTimeout(assignT); const A = OV.assign; OV.assign = null;
+        if (g && g !== SET.btn[A.f]) {
+            if (canSet(A.f, g)) {
+                const cur = SET.btn[A.f], o = g === 'none' ? '' : fnOf(g);
+                if (o) SET.btn[o] = cur;                           // the one that had it gets this one's old button
+                SET.btn[A.f] = g; saveSettings(); refreshHint(); SND.fx('ok');
+            } else toast(T.ui.assignNo);
+        }
+        ovHide(); settingsScreen(A.sel);
+    }
+    function assignInput(a, pressed) {
+        const A = OV.assign; if (!A || !pressed && a !== 'jump' && a !== 'confirm') return;
+        if (a === 'run' || a === 'cancel') return assignEnd(a);
+        if (a === 'up') return assignEnd('none');
+        if (a === 'down') return assignEnd(null);
+        if (a !== 'jump' && a !== 'confirm') return;
+        if (pressed) {
+            if (A.ok) return;                                      // the same press arrives as confirm and jump
+            A.ok = true; clearTimeout(assignT);
+            if (A.taps === 1) return assignEnd('double');
+            assignT = setTimeout(() => { if (OV.assign === A && A.ok) { A.held = true; assignEnd('hold'); } }, 450);
+        } else if (A.ok) {
+            A.ok = false; if (A.held) return;
+            clearTimeout(assignT); A.taps = 1;
+            assignT = setTimeout(() => { if (OV.assign === A) assignEnd('tap'); }, 320);
         }
     }
     function cycleBack(dir) { SET.back = BACK_G[(BACK_G.indexOf(SET.back) + dir + BACK_G.length) % BACK_G.length]; saveSettings(); }
@@ -1308,13 +1337,13 @@
         SET.voice = VOICE_RATES[i]; VOICE.setRate(SET.voice); saveSettings();
         VOICE.say('intro-0', T.intro[0], null);                  // a sample at the new speed
     }
-    function settingsScreen() {
+    function settingsScreen(sel) {
         listScreen({
-            title: () => T.ui.settings, info: () => '', tabs: () => T.ui.remoteNote,
-            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r <= FNS.length) cycleBtn(FNS[r - 1], rtl() ? -dir : dir); else if (r === FNS.length + 1) cycleBack(rtl() ? -dir : dir); },
+            sel: sel || 0, title: () => T.ui.settings, info: () => '', tabs: () => T.ui.remoteNote,
+            side: dir => { const r = OV.sel; if (r === 0) cycleVoice(rtl() ? -dir : dir); else if (r === FNS.length + 1) cycleBack(rtl() ? -dir : dir); },
             rows: () => [{ label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) }]
                 .concat(FNS.map(f => ({ label: fnLabel(f), sub: ABIL[f] ? txt(T.ui.abilityInfo, { a: T.ui[f + 'Sub'], s: ABIL[f].cost, c: ABIL[f].cd / 60 }) : '', right: T.ui['g_' + SET.btn[f]],
-                    fn: () => { cycleBtn(f, 1); renderList(); } })))
+                    fn: () => assignScreen(f) })))
                 .concat([{ label: '↩ ' + T.ui.backF, sub: T.ui.backSub, right: T.ui['g_' + SET.back], fn: () => { cycleBack(1); renderList(); } },
                          { label: T.ui.resetButtons, fn: () => { SET.btn = Object.assign({}, BTN_DEFAULT); SET.back = 'hold'; saveSettings(); refreshHint(); renderList(); } },
                          { label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} },
@@ -3074,6 +3103,7 @@
     function onInput(a, pressed, repeat, dev) {
         dev = dev || 'keys';
         if (!repeat) { const d = DEV[dev] || (DEV[dev] = {}); d[a] = pressed; }
+        if (OV.kind === 'assign') { if (!repeat) assignInput(a, pressed); return; }          // the "press the button" modal listens to everything
         // with Return on "hold OK", OK in menus and conversations acts when released (a long press is Return)
         if (a === 'confirm' && !pressed && okDown >= 0) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
         if (!pressed || !started) return;
