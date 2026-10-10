@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Virtual pad demo</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0d14; color: #fff; font-family: sans-serif; overflow: hidden; touch-action: none; }
+  #log { position: fixed; top: 10px; left: 0; right: 0; text-align: center; font-size: 16px; color: #9fb0c8; pointer-events: none; }
+  #hero { position: fixed; width: 40px; height: 40px; border-radius: 8px; background: #ffd23f; left: 50%; top: 50%; margin: -20px 0 0 -20px; transition: background 0.1s; }
+</style>
+</head>
+<body>
+<div id="log">Use the stick and the buttons. The gear button opens the pad settings.<br>Open this page on a phone, or add ?pad=1 on a computer.</div>
+<div id="hero"></div>
+<script src="virtual-pad.js"></script>
+<script>
+// A tiny "game": the pad calls onAction(action, down); here the square moves with the stick and flashes with the buttons.
+var held = {}, x = innerWidth / 2, y = innerHeight / 2, hero = document.getElementById('hero'), log = document.getElementById('log');
+VirtualPad.init({
+    id: 'demo',
+    onAction: function (action, down) {
+        held[action] = down;
+        if (down && action !== 'left' && action !== 'right' && action !== 'up' && action !== 'down') log.textContent = 'action: ' + action;
+        if (action === 'jump') hero.style.background = down ? '#ff7a7a' : '#ffd23f';
+    },
+    buttons: [{ label: 'A', key: 13, action: 'jump' }, { label: 'B', key: 88, action: 'run' }],
+    catalog: [{ label: 'A', key: 13, action: 'jump' }, { label: 'B', key: 88, action: 'run' }, { label: 'C', key: 8, action: 'cancel' }, { label: '☰', key: 77, action: 'menu' }]
+});
+(function loop() {
+    var v = held.run ? 6 : 3;
+    x += ((held.right ? 1 : 0) - (held.left ? 1 : 0)) * v; y += ((held.down ? 1 : 0) - (held.up ? 1 : 0)) * v;
+    x = Math.max(20, Math.min(innerWidth - 20, x)); y = Math.max(20, Math.min(innerHeight - 20, y));
+    hero.style.left = x + 'px'; hero.style.top = y + 'px';
+    requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

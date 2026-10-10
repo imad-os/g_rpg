@@ -13,7 +13,9 @@
  *   id       name for the saved layout           scale    { stick, btn } starting size multipliers (default 1; use ~1.3 for a pure controller)
  *   pause    false hides the pause button        force    show anywhere (default: standalone on a touch device)
  *   send     function (keyCode, down): route the keys somewhere else (e.g. over the network) instead of pressing them here
- *   customize false hides the gear button
+ *   customize false hides the gear button          onAction function (action, down): call the game's own input system for buttons that have an `action`
+ *                                                   (e.g. { label: 'A', key: 13, action: 'jump' }); the stick sends 'left' 'right' 'up' 'down'; the pause button 'pause'
+ * API: VirtualPad.init(opt), .hide(), .openSettings() (open the settings panel from your own menu), .active(), .version
  * ?pad=1 in the address forces the pad on, ?pad=0 hides it.
  * Without `send` it presses the keys the SDK already reads in standalone mode (arrows, Enter, X, Esc).
  * Key codes: 13 Enter (OK / jump), 32 Space, 88 X (run / fire), 8 Backspace (cancel), 27 Esc (pause menu), 80 P. */
@@ -27,18 +29,22 @@ window.VirtualPad = (function () {
         es: { opts: 'Ajustes del mando', btns: 'Botones', stick: 'Tamaño del joystick', btn: 'Tamaño de los botones', move: 'Mover', done: 'Listo', reset: 'Restablecer', close: 'Cerrar' },
         ar: { opts: 'إعدادات اليد', btns: 'الأزرار', stick: 'حجم العصا', btn: 'حجم الأزرار', move: 'تحريك', done: 'تم', reset: 'إعادة ضبط', close: 'إغلاق' }
     };
-    var bound = false, root = null, down = {}, sendFn = null, o = null, cfg = null, els = {}, panel = null, editing = false, doneBtn = null;
+    var bound = false, root = null, down = {}, downInfo = {}, sendFn = null, o = null, cfg = null, els = {}, panel = null, editing = false, doneBtn = null;
 
     function tx(k) { var l = (document.documentElement.lang || 'en').slice(0, 2); return (TXT[l] || TXT.en)[k]; }
-    function press(code, on) {
-        if (!!down[code] === on) return;
-        down[code] = on;
+    // one control state change. With `onAction` (and a button that has an `action`) the game's own input system is called;
+    // otherwise the key goes to `send`, or is pressed as a keyboard event for the SDK's standalone mode.
+    function press(code, on, action) {
+        var viaAction = !!(o && o.onAction && action), id = viaAction ? 'a:' + action : code;
+        if (!!down[id] === on) return;
+        down[id] = on; downInfo[id] = { code: code, action: action };
+        if (viaAction) { o.onAction(action, on); return; }
         if (sendFn) { sendFn(code, on); return; }
         var e = new KeyboardEvent(on ? 'keydown' : 'keyup', { bubbles: true, cancelable: true });
         Object.defineProperty(e, 'keyCode', { get: function () { return code; } });
         document.dispatchEvent(e);
     }
-    function releaseAll() { for (var k in down) press(+k, false); }
+    function releaseAll() { for (var k in down) if (down[k]) press(downInfo[k].code, false, downInfo[k].action); }
     function wanted(opt) {
         if (opt.force) return true;
         var m = /[?&]pad=(\d)/.exec(location.search);
@@ -110,12 +116,12 @@ window.VirtualPad = (function () {
             var dx = ev.clientX - (r.left + R), dy = ev.clientY - (r.top + R), d = Math.sqrt(dx * dx + dy * dy) || 1, k = Math.min(1, R * 0.6 / d);
             els.knob.style.transform = 'translate(' + dx * k + 'px,' + dy * k + 'px)';
             var t = R * 0.3;
-            press(DIRS.left, dx < -t); press(DIRS.right, dx > t); press(DIRS.up, dy < -t); press(DIRS.down, dy > t);
+            press(DIRS.left, dx < -t, 'left'); press(DIRS.right, dx > t, 'right'); press(DIRS.up, dy < -t, 'up'); press(DIRS.down, dy > t, 'down');
         }
         function end(ev) {
             if (ev.pointerId !== id) return;
             id = null; els.knob.style.transform = '';
-            for (var k in DIRS) press(DIRS[k], false);
+            for (var k in DIRS) press(DIRS[k], false, k);
         }
         base.addEventListener('pointerdown', function (ev) { if (editing || id !== null) return; id = ev.pointerId; base.setPointerCapture(id); move(ev); ev.preventDefault(); });
         base.addEventListener('pointermove', function (ev) { if (!editing && ev.pointerId === id) move(ev); });
@@ -125,7 +131,7 @@ window.VirtualPad = (function () {
     function makeButton(b) {
         var e = el('div', 'position:absolute;border-radius:50%;background:rgba(255,255,255,0.14);border:2px solid rgba(255,255,255,0.35);color:#fff;font-family:sans-serif;font-weight:700;display:flex;align-items:center;justify-content:center;touch-action:none;pointer-events:auto;box-sizing:border-box', root, b.label);
         els['b' + b.key] = e;
-        function on(v) { return function (ev) { if (editing) return; press(b.key, v); e.style.background = v ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.14)'; ev.preventDefault(); }; }
+        function on(v) { return function (ev) { if (editing) return; press(b.key, v, b.action); e.style.background = v ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.14)'; ev.preventDefault(); }; }
         e.addEventListener('pointerdown', on(true)); e.addEventListener('pointerup', on(false)); e.addEventListener('pointercancel', on(false)); e.addEventListener('pointerleave', on(false));
         drag(e, 'b' + b.key);
     }
@@ -176,7 +182,7 @@ window.VirtualPad = (function () {
     function init(opt) {
         opt = opt || {};
         if (root || !wanted(opt)) return;
-        o = { id: opt.id, buttons: opt.buttons || DEFAULT, scale: opt.scale || {}, customize: opt.customize !== false };
+        o = { id: opt.id, onAction: opt.onAction || null, buttons: opt.buttons || DEFAULT, scale: opt.scale || {}, customize: opt.customize !== false };
         o.catalog = opt.catalog || o.buttons;
         o.buttons.forEach(function (b) { if (!o.catalog.some(function (c) { return c.key === b.key; })) o.catalog = o.catalog.concat([b]); });
         sendFn = opt.send || null; cfg = loadCfg(); editing = false;
@@ -193,7 +199,7 @@ window.VirtualPad = (function () {
         window.addEventListener('resize', layout);
         if (opt.pause !== false) {
             var p = el('div', 'position:absolute;left:50%;top:2vmin;margin-left:-6vmin;width:12vmin;height:6vmin;border-radius:3vmin;background:rgba(255,255,255,0.14);border:2px solid rgba(255,255,255,0.35);color:#fff;font:700 3.5vmin sans-serif;display:flex;align-items:center;justify-content:center;touch-action:none;pointer-events:auto', root, 'II');
-            p.addEventListener('pointerdown', function (ev) { press(27, true); press(27, false); ev.preventDefault(); });
+            p.addEventListener('pointerdown', function (ev) { press(27, true, 'pause'); press(27, false, 'pause'); ev.preventDefault(); });
         }
         if (o.customize) {
             buildPanel();
@@ -203,5 +209,6 @@ window.VirtualPad = (function () {
         layout();
     }
     function hide() { if (root) { releaseAll(); window.removeEventListener('resize', layout); root.remove(); root = null; panel = null; doneBtn = null; editing = false; sendFn = null; } }
-    return { init: init, hide: hide };
+    function openSettings() { if (root && panel) { releaseAll(); panel.style.display = 'block'; } }
+    return { init: init, hide: hide, openSettings: openSettings, active: function () { return !!root; }, version: '1.0.0' };
 })();

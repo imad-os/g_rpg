@@ -229,5 +229,5 @@ Uses My PC's own multiplayer (`MyPC.multiplayer`): the rooms list, "Open a room"
 - The phone becomes a controller with a big joystick and **A** (OK / attack), **B** (run, ability), **C** (cancel, ability), **☰** (hero 2's own menu: gear, mounts, abilities, journal), **Leave**. It presses **A** to join as hero 2. Hero 2's menu opens on the host's screen, is driven from the phone (stick, **A** = OK, **C** = back) and is copied as text onto the phone. Other menus and dialogs stay on the host.
 - **Pad settings** (the ⚙ button, on every touch pad): add or hide buttons, make the stick and buttons bigger or smaller, drag them where you like, reset. Saved on the device.
 
-The game only has `js/coop.js` (host/guest state and messages), the small status and controller screens in `game.js`, and `js/virtual-pad.js` (touch pad, reusable).
+The game only has `js/coop.js` (host/guest state and messages), the small status and controller screens in `game.js`, and `pad/virtual-pad.js` (the customizable touch pad: a standalone, reusable package with its own docs in `pad/README.md`).
 Standalone (a browser, not My PC) works between two tabs of the same browser, for testing. No Firebase, no codes, no links.
