@@ -8,6 +8,8 @@ HM_CHAPTERS.def.ch2 = function (api) {
     'use strict';
     const TS = api.TS, GT = api.GT, ART = window.HM_C2_ART, MAPS = window.HM_C2_MAPS, HERO = api.HERO;
     const S = () => api.S, T = () => api.T, C = () => api.S.c2, lines = api.lines;
+    // the way north: Larkspur's Lantern burns, the owner switched chapter 3 on, and the heroes have not been there yet
+    const ch3Open = () => !!(C() && C().lit) && HM_CHAPTERS.enabled('ch3') && !S().c3;
     function adv(st) { const c = C(); if (c.st < st) { c.st = st; api.SND.fx('quest'); MyPC.announce(objective(api.L)); } api.save(); }
 
     /* ---------------- the people of Larkspur (drawn in clothes) ---------------- */
@@ -247,6 +249,7 @@ HM_CHAPTERS.def.ch2 = function (api) {
     /* ---------------- the story ---------------- */
     function objective(lang) {
         const t = api.TEXT[lang] || api.TEXT.en, c = C(); if (!c || !t.c2obj) return '';
+        if (ch3Open()) return t.ui.ch3Go;
         return api.txt(t.c2obj[Math.min(c.st, t.c2obj.length - 1)], { n: Math.min(6, c.kills) });
     }
     function story(id) {
@@ -297,6 +300,7 @@ HM_CHAPTERS.def.ch2 = function (api) {
         if (id === 'odile') return st === 0 || st === 4;
         if (id === 'ada') return st === 1;
         if (id === 'mirelle') return st === 5 || st === 7 || c.letter === 2;
+        if (id === 'sela2') return ch3Open();
         return false;
     }
     function visible(id) {
@@ -422,6 +426,7 @@ HM_CHAPTERS.def.ch2 = function (api) {
         else if (st === 6) { z = 'c2_ridge'; x = 20; y = 4.5; }
         else if (st === 8) { z = 'c2_light'; x = 20; y = 6.5; }
         else if (st === 9) { z = 'c2_bay'; x = 27; y = 20.6; }
+        else if (ch3Open()) { z = 'c2_bay'; x = 23.5; y = 24.2; }
         else return false;
         if (z !== Z.id) return api.hop(z);
         GT.x = x * TS; GT.y = y * TS; return true;

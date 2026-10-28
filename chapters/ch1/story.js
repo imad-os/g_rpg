@@ -32,12 +32,15 @@ HM_CHAPTERS.def.ch1 = function (api) {
     const lines = api.lines;
     function embers() { const s = S(); return (s.hearth ? 1 : 0) + (s.tide ? 1 : 0) + (s.stone ? 1 : 0); }
     const ch2Open = () => S().stage >= 17 && HM_CHAPTERS.enabled('ch2');
+    // after chapter 2, Sela can also sail straight north to chapter 3 (until the heroes have been there once)
+    const ch3Open = () => { const s = S(); return !!(s.c2 && s.c2.lit) && HM_CHAPTERS.enabled('ch3') && !s.c3; };
 
     function objective(lang) {
         const t = api.TEXT[lang] || api.TEXT.en, s = S(), st = s.stage;
         if (st === 2 && s.ore >= 3) return t.obj[3];
         if (st === 7 && s.caps >= 3) return t.ui.bringCaps;
         if (st >= 17 && ch2Open() && !s.c2) return t.ui.ch2Go;
+        if (ch3Open()) return t.ui.ch3GoHome;
         return api.txt(t.obj[st] || '', { n: st === 2 ? Math.min(3, s.ore) : Math.min(3, s.caps) });
     }
 
@@ -84,6 +87,7 @@ HM_CHAPTERS.def.ch1 = function (api) {
         const s = S(), t = T();
         if (id === 'sela' && s.stage >= 8) c.push({ label: t.ui.ferry, fn: () => { api.closeDlg(); ferry('isle'); } });
         if (id === 'sela' && ch2Open()) c.push({ label: t.ui.sailLark, fn: () => { api.closeDlg(); sailLark(); } });
+        if (id === 'sela' && ch3Open()) c.push({ label: t.ui.c3sailNorth, fn: () => { api.closeDlg(); api.travel('c3_dawn', 22.5, 24.6); } });
         if (id === 'tobin' && s.stage >= 4) c.push({ label: t.ui.browseForge, fn: () => { api.closeDlg(); api.forgeScreen(); } });
         if (id === 'ilsa' || id === 'joss') {                       // a new look: the tailor and the barber change a hero's gender
             const g = s.gender || [0, 1];
@@ -96,7 +100,7 @@ HM_CHAPTERS.def.ch1 = function (api) {
         const s = S(), st = s.stage;
         if (id === 'maren') return st === 0 || st === 5 || st === 9 || st === 12 || st === 15 || !!(s.c2 && s.c2.letter === 1);
         if (id === 'tobin') return st === 1 || (st === 2 && s.ore >= 3) || st === 10;
-        if (id === 'sela') return st === 6 || (st === 7 && s.caps >= 3) || (ch2Open() && !s.c2);
+        if (id === 'sela') return st === 6 || (st === 7 && s.caps >= 3) || (ch2Open() && !s.c2) || ch3Open();
         return false;
     }
     function visible(id) {
@@ -194,7 +198,7 @@ HM_CHAPTERS.def.ch1 = function (api) {
     function target() {
         const s = S(), st = s.stage, Z = api.Z;
         if (st >= 17) {
-            if (ch2Open() && !s.c2) { if (Z.id !== 'mireshore') return api.hop('mireshore'); GT.x = 23.5 * TS; GT.y = 15.2 * TS; return true; }
+            if ((ch2Open() && !s.c2) || ch3Open()) { if (Z.id !== 'mireshore') return api.hop('mireshore'); GT.x = 23.5 * TS; GT.y = 15.2 * TS; return true; }
             if (Z.id !== 'village') return api.hop('village'); GT.x = 12.5 * TS; GT.y = 4.6 * TS; return true;
         }
         let z = '', x = 0, y = 0;

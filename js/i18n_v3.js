@@ -3,6 +3,7 @@
 (function () {
     const M = {
         en: { ui: {
+            ch3Go: 'A third light burns in the north: talk to Sela at her boat on Larkspur harbour and sail to the Veilscar Frontier.', ch3GoHome: 'A third light burns in the north: ask Sela at the Mirefen Shore to sail you to the Veilscar Frontier.',
             ch3Name: 'The Veilscar Frontier', c3sailNorth: 'Sail north to the Veilscar Frontier',
             trackHint: 'OK on a quest: the arrow follows it', tracked: 'Followed', actN: 'Act {n}', mainQuest: 'Main story', storySoFar: 'The story so far', relics: 'Relics',
             trackMain: 'The arrow follows the main story again.', trackOn: 'The arrow now follows this quest.',
@@ -15,6 +16,7 @@
             runic_robe: 'Runic robe', wyrm_boots: 'Wyrm boots', dawnbreaker: 'Dawnbreaker', sylvan_warbow: 'Sylvan Warbow', thunderforge: 'Thunderforge', veilstaff: 'Veilstaff'
         } },
         fr: { ui: {
+            ch3Go: 'Une troisième lumière brille au nord : parlez à Sela, à son bateau sur le port de Larkspur, pour naviguer vers la Frontière du Voile.', ch3GoHome: 'Une troisième lumière brille au nord : demandez à Sela, sur la Rive de la Fangemare, de vous emmener à la Frontière du Voile.',
             ch3Name: 'La Frontière du Voile', c3sailNorth: 'Naviguer au nord vers la Frontière du Voile',
             trackHint: 'OK sur une quête : la flèche la suit', tracked: 'Suivie', actN: 'Acte {n}', mainQuest: 'Histoire principale', storySoFar: 'L’histoire jusqu’ici', relics: 'Reliques',
             trackMain: 'La flèche suit à nouveau l’histoire principale.', trackOn: 'La flèche suit maintenant cette quête.',
@@ -27,6 +29,7 @@
             runic_robe: 'Robe runique', wyrm_boots: 'Bottes de wyrm', dawnbreaker: 'Brise-Aube', sylvan_warbow: 'Arc sylvestre', thunderforge: 'Forge-Tonnerre', veilstaff: 'Bâton du Voile'
         } },
         es: { ui: {
+            ch3Go: 'Una tercera luz arde en el norte: habla con Sela junto a su barca en el puerto de Larkspur y navega a la Frontera del Velo.', ch3GoHome: 'Una tercera luz arde en el norte: pide a Sela, en la Orilla de Lodomar, que te lleve a la Frontera del Velo.',
             ch3Name: 'La Frontera del Velo', c3sailNorth: 'Navegar al norte, a la Frontera del Velo',
             trackHint: 'OK en una misión: la flecha la sigue', tracked: 'Seguida', actN: 'Acto {n}', mainQuest: 'Historia principal', storySoFar: 'La historia hasta ahora', relics: 'Reliquias',
             trackMain: 'La flecha vuelve a seguir la historia principal.', trackOn: 'La flecha sigue ahora esta misión.',
@@ -39,6 +42,7 @@
             runic_robe: 'Túnica rúnica', wyrm_boots: 'Botas de sierpe', dawnbreaker: 'Rompealbas', sylvan_warbow: 'Arco silvano', thunderforge: 'Forjatruenos', veilstaff: 'Bastón del Velo'
         } },
         ar: { ui: {
+            ch3Go: 'نور ثالث يشتعل في الشمال: كلّم سيلا عند قاربها في ميناء لاركسبير وأبحر إلى حدود الحجاب.', ch3GoHome: 'نور ثالث يشتعل في الشمال: اطلب من سيلا عند شاطئ ميرفن أن تأخذك إلى حدود الحجاب.',
             ch3Name: 'حدود الحجاب', c3sailNorth: 'أبحر شمالًا إلى حدود الحجاب',
             trackHint: 'اضغط OK على مهمة: السهم يتبعها', tracked: 'متبوعة', actN: 'الفصل {n}', mainQuest: 'القصة الأساسية', storySoFar: 'القصة حتى الآن', relics: 'الكنوز',
             trackMain: 'السهم يتبع القصة الأساسية من جديد.', trackOn: 'السهم يتبع هذه المهمة الآن.',

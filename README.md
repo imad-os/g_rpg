@@ -1,6 +1,6 @@
 # Hollowmere
 
-**Version 3.0.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 3.0.1** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 to 4 players**, told in chapters.
 
