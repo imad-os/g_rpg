@@ -101,7 +101,11 @@
     // "Return" works only in menus and conversations, so it has its own buttons (hold OK = OK acts when released there)
     const BACK_G = ['hold', 'cancel', 'run', 'none'];
     const ZOOMS = [0.75, 1, 1.25, 1.5];
-    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold', pad: {}, padBack: undefined };
+    // fx: how many effects the legendary gear, super weapons and spells show ('auto' follows the TV's speed)
+    // aiVoice: speak lines that have no recording with My PC's AI (MyPC.ai text to speech), for every language
+    const FX_LEVELS = ['auto', 'low', 'mid', 'high'];
+    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold', pad: {}, padBack: undefined, fx: 'auto', aiVoice: true };
+    const fxLevel = () => SET.fx === 'auto' ? tier : SET.fx;
     // real controller buttons (js/gamepad.js): index of the physical button for each function; -1 = none
     const PAD_DEFAULT = { attack: 0, heal: 1, power: 2, distant: 3 }, PAD_BACK = 1;
     const padOf = f => SET.pad[f] !== undefined ? SET.pad[f] : (PAD_DEFAULT[f] !== undefined ? PAD_DEFAULT[f] : -1);
@@ -117,8 +121,10 @@
             if (BACK_G.indexOf(s.back) >= 0) SET.back = s.back;
             if (s.pad && typeof s.pad === 'object') for (const f of FNS) if (Number.isInteger(s.pad[f]) && s.pad[f] >= -1 && s.pad[f] < 12) SET.pad[f] = s.pad[f];
             if (Number.isInteger(s.padBack) && s.padBack >= -1 && s.padBack < 12) SET.padBack = s.padBack;
+            if (FX_LEVELS.indexOf(s.fx) >= 0) SET.fx = s.fx;
+            if (typeof s.aiVoice === 'boolean') SET.aiVoice = s.aiVoice;
         }
-        VOICE.setRate(SET.voice);
+        VOICE.setRate(SET.voice); VOICE.setAi(SET.aiVoice);
     }
     function saveSettings() { MyPC.save('settings', SET); }
     function fnOf(g) { for (const f in SET.btn) if (SET.btn[f] === g) return f; return ''; }
@@ -166,7 +172,7 @@
         if (id.indexOf('q:') === 0) { const d = poolDef(S.pq[id.slice(2)]); return d ? d.who.name[L] || d.who.name.en : ''; }
         return (T.names && T.names[id]) || (TEXT.en.names && TEXT.en.names[id]) || id;
     }
-    function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : T.ui.wolfMount; }
+    function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : m === 'charger' ? T.ui.charger : T.ui.wolfMount; }
     // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
     const cleanName = n => String(n || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
     const pNames = ['', '', '', ''], devName = {};          // the friends' profile names, by hero and by connected phone
@@ -192,13 +198,15 @@
         sta: 50, cdHeal: 0, cdPower: 0, cdDistant: 0, tapT: -99, aura: 0, auraCol: '#fff',
         st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
     function nPlayers() { let n = 0; for (const p of P) if (p.on) n++; return n; }
+    // every hero who joins makes the foes 20% harder: health, armour and the blows they deal
+    function coopMul() { return 1 + 0.2 * (nPlayers() - 1); }
     const FOES = []; for (let i = 0; i < 36; i++) FOES.push({ on: false, kind: 4, t: '', d: null, x: 0, y: 0, hx: 0, hy: 0, hp: 0, max: 0, st: 0, tm: 0, cd: 0,
         vx: 0, vy: 0, kx: 0, ky: 0, hurt: 0, r: 10, sy: 0, active: false, minion: false, mask: 0, ring: 0, alpha: 1, wt: 0, sum: 0, pt: 0, walk: 0, side: 0, sdx: 0, sdy: 0, elite: '', ename: '', bonus: 0 });
     // k: 0 mud, 1 rock, 2 orb, 3 bone (hurt heroes) | 10 arrow, 11 bullet (hurt foes)
     // hostile k: 4 arrow, 5 bullet, 6 homing orb, 7 bomb (lobbed to tx,ty), 8 fireball | friendly 12 light bolt, 13 staff magic
-    const SHOTS = []; for (let i = 0; i < 80; i++) SHOTS.push({ on: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, dmg: 0, r: 5, k: 0, pierce: 0, owner: 0, hit: null, tx: 0, ty: 0, m: 1, col: '' });
+    const SHOTS = []; for (let i = 0; i < 120; i++) SHOTS.push({ on: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, dmg: 0, r: 5, k: 0, pierce: 0, owner: 0, hit: null, tx: 0, ty: 0, m: 1, col: "", fx: "", lg: false });
     // ground warnings: a circle fills up, then bursts (kind 0) or burns for a while (kind 1)
-    const HAZ = []; for (let i = 0; i < 24; i++) HAZ.push({ on: false, x: 0, y: 0, r: 0, t: 0, m: 1, burn: 0, dmg: 0, kind: 0, col: '#ff5a3c', mask: 0 });
+    const HAZ = []; for (let i = 0; i < 48; i++) HAZ.push({ on: false, x: 0, y: 0, r: 0, t: 0, m: 1, burn: 0, dmg: 0, kind: 0, col: '#ff5a3c', mask: 0 });
     function hazard(x, y, r, warn, dmg, kind, col) {
         for (const h of HAZ) if (!h.on) { h.on = true; h.x = x; h.y = y; h.r = r; h.t = h.m = warn; h.dmg = dmg; h.kind = kind || 0; h.burn = kind ? 150 : 0; h.col = col || '#ff5a3c'; h.mask = 0; return h; }
         return null;
@@ -262,6 +270,7 @@
         }
         const h = itemOf(e.head), bd = itemOf(e.body), ft = itemOf(e.feet);
         p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : ''; p.gear.weapon = wi ? wi.id : 'stick'; p.wr = wi ? wi.r : 0;
+        p.lgMask = (h && h.r >= 3 ? 1 : 0) | (bd && bd.r >= 3 ? 2 : 0) | (ft && ft.r >= 3 ? 4 : 0);
         if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
     function recalcAll() { for (const p of P) recalc(p); }
@@ -276,14 +285,19 @@
         return out;
     }
     // a random piece of gear for this area: better areas drop better gear; minR = lowest rarity (bosses: rare)
+    // legendary: LOOT.chance, raised by the pity counter (after LOOT.pity pieces without one, the next is legendary)
     function rollItem(tier, minR) {
         const ids = [];
-        for (const id in ITEMS) { const t = ITEMS[id].tier; if (t >= 1 && t <= tier && t >= tier - 1) ids.push(id); }
+        for (const id in ITEMS) { const t = ITEMS[id].tier; if (t >= 1 && t <= tier && t >= tier - 1 && !ITEMS[id].super) ids.push(id); }
         const id = ids[(Math.random() * ids.length) | 0], c = LOOT.chance, x = Math.random();
         let r = x < c[3] ? 3 : x < c[3] + c[2] ? 2 : x < c[3] + c[2] + c[1] ? 1 : 0;
         r = Math.max(r, minR || 0);
+        if (minR >= 2 && Math.random() < LOOT.bossLegend) r = 3;
+        S.pity = r >= 3 ? 0 : (S.pity || 0) + 1;
+        if (S.pity >= LOOT.pity) { r = 3; S.pity = 0; }
         return newItem(id, r, rollBonuses(id, r));
     }
+    function makeItem(id, r) { return newItem(id, r, rollBonuses(id, r)); }
     function zoneTier() { if (Z.def && Z.def.tier) return Z.def.tier; if (Z.def && Z.def.rift) return Math.min(3, 1 + ((Z.def.rift / 4) | 0)); return Math.min(3, Math.max(LOOT.zoneTier[Z.id] || 2, S.lvl >= 9 ? 3 : S.lvl >= 5 ? 2 : 1)); }
     function sellPrice(it) { return Math.max(5, (ITEMS[it.id].price || 60) >> 2) * (1 + it.r) + it.up * 15; }
     // co-op: what the heroes win is shared. The host's game tells every connected phone; each phone puts it in its own save
@@ -301,7 +315,7 @@
         const sl = ITEMS[it.id].slot;
         for (let i = 0; i < MAXP; i++) { const cur = itemOf(S.eq[i][sl]); if (!cur || cur.id === 'stick') S.eq[i][sl] = it.u; }
         recalcAll();
-        if (!quiet) { toast(txt(T.ui.gotItem, { item: itemLabel(it) })); SND.fx(it.r >= 2 ? 'level' : 'equip'); }
+        if (!quiet) { toast(txt(T.ui.gotItem, { item: itemLabel(it) })); SND.fx(it.r >= 2 ? 'level' : 'equip'); if (it.r >= 3) SND.fx('unsheath'); }
         save();
     }
     function giveItem(id, quiet, r) { if (ITEMS[id]) addToBag(newItem(id, r || 0, r ? rollBonuses(id, r) : []), quiet); }
@@ -352,7 +366,7 @@
     }
     function handIn(q) {
         const r = q.reward;
-        S.sq[q.id] = 3; S.qdone++;
+        S.sq[q.id] = 3; S.qdone++; if (CH.questDone) CH.questDone(q);
         S.coins += loot(r.coins || 0); S.big += r.big || 0;
         shareNow({ c: loot(r.coins || 0), b: r.big || 0, pet: r.pet || '', mount: r.mount || '' }); shareQuest('s', q.id, q.stage, q.after);
         if (r.item) giveItem(r.item, true, 1);
@@ -402,7 +416,7 @@
     function poolReady(npc) { const q = S.pq[npc]; if (!q || q.st !== 1) return; q.st = 2; SND.fx('quest'); toast(txt(T.ui.qDoneGo, { name: pt(poolDef(q)).title, npc: npcName(npc) })); save(); }
     function poolHandIn(npc) {
         const q = S.pq[npc], d = poolDef(q), rw = q.rw;
-        delete S.pq[npc]; if (S.pqDone.indexOf(d.id) < 0) S.pqDone.push(d.id); S.qdone++;
+        delete S.pq[npc]; if (S.pqDone.indexOf(d.id) < 0) S.pqDone.push(d.id); S.qdone++; if (CH.questDone) CH.questDone(d);
         S.coins += rw.coins; S.iron += rw.ore;
         shareNow({ c: rw.coins, o: rw.ore }); shareQuest('p', d.id, d.stage, '');
         if (rw.gear) addToBag(rollItem(zoneTier(), 1), true);
@@ -461,7 +475,7 @@
                 if (!have) { const p = spot(seed, 0); Z.npcs.push({ id: 'q:' + npc, look: d.who.look, x: p[0], y: p[1], hx: p[0], hy: p[1], kind: 2, sy: p[1], walk: 0, fx: 0, fy: 1, bob: 2 }); }
             } else if (d.type === 'elite') {
                 const p = spot(seed, 0), f = spawnFoe(d.foe, p[0], p[1], false);
-                if (f) { f.elite = npc; f.ename = d.name[L] || d.name.en; f.max = f.hp = Math.round((f.d.hp * 5 + S.lvl * 3) * TUNE.enemyDifficulty); f.r = Math.round(f.d.r * 1.35); f.bonus = 1; }
+                if (f) { f.elite = npc; f.ename = d.name[L] || d.name.en; f.max = f.hp = Math.round((f.d.hp * (f.d.hp > 300 ? 2.5 : 5) + S.lvl * 3) * TUNE.enemyDifficulty * coopMul()); f.r = Math.round(f.d.r * 1.35); f.bonus = f.d.def ? 4 : 1; f.def += 2; }
             }
         }
     }
@@ -614,7 +628,8 @@
         for (const f of FOES) if (!f.on) {
             const d = FOE[t];
             f.on = true; f.t = t; f.d = d; f.x = f.hx = x; f.y = f.hy = y; f.r = d.r;
-            f.max = f.hp = Math.max(1, Math.round(d.hp * (d.boss ? 1 + 0.5 * (nPlayers() - 1) : 1) * TUNE.enemyDifficulty));
+            f.max = f.hp = Math.max(1, Math.round(d.hp * (d.boss ? 1 + 0.5 * (nPlayers() - 1) : 1) * TUNE.enemyDifficulty * coopMul()));
+            f.def = Math.round((d.def || 0) * coopMul()); f.tag = '';
             f.st = 0; f.tm = 0; f.cd = 60; f.vx = f.vy = f.kx = f.ky = 0; f.hurt = 0; f.minion = minion; f.mask = 0; f.ring = 0;
             f.alpha = 1; f.wt = 0; f.sum = 0; f.pt = 0; f.side = 0; f.immune = false; f.weak = false; f.ang = 0; f.ph = 0; f.elite = ''; f.ename = ''; f.bonus = 0; f.active = !d.boss; f.walk = Math.random() * 6; f.sy = y;
             return f;
@@ -646,7 +661,7 @@
     }
     function coins(x, y, total) { while (total > 0) { const v = total >= 10 ? 5 : 1; drop(x, y, 0, v); total -= v; } }
     function shot(x, y, vx, vy, dmg, r, k, owner) {
-        for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : k === 12 ? 70 : k === 13 ? 64 : k === 4 ? 100 : k === 5 ? 80 : k === 8 ? 160 : 240; s.m = s.life; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; s.col = ''; return s; }
+        for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : k === 12 ? 70 : k === 13 ? 64 : k === 4 ? 100 : k === 5 ? 80 : k === 8 ? 160 : 240; s.m = s.life; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; s.col = ''; s.fx = ''; s.lg = false; return s; }
         return null;
     }
     function bomb(x, y, tx, ty, time, dmg) {
@@ -759,7 +774,7 @@
 
     /* ------------------------------------------------------------------ dialog */
 
-    const D = { pages: null, i: 0, choices: null, sel: 0, npc: '', ai: false, wait: false, after: null };
+    const D = { pages: null, i: 0, choices: null, sel: 0, npc: '', ai: false, wait: false, after: null, asked: {} };
     let askToken = 0;
 
     function openDlg() { mode = 'dialog'; $('dlg').style.display = ''; lockUntil = tick + 6; }
@@ -823,23 +838,26 @@
         else { const d = poolOffer(id); if (d) c.push({ label: T.ui.askWork, fn: () => offerPool(id, d) }); }
         return c;
     }
-    // every question shown has a written answer; more questions open up as the story goes on
-    function talkChoices(id) {
-        const c = extras(id);
-        c.push({ label: T.ui.next, fn: () => answer(id, CH.whatNext ? CH.whatNext(id) : objective(L), null) });
+    // every question shown has a written answer; more questions open up as the story goes on.
+    // A question you asked disappears from this conversation (no more loops of the same answer);
+    // when nothing is left to ask, the person's last words come with "Goodbye" only.
+    function talkChoices(id, after) {
+        const q = [], A = D.asked;
+        if (!A.next) q.push({ label: T.ui.next, fn: () => answer(id, CH.whatNext ? CH.whatNext(id) : objective(L), null, 'next') });
         const tp = T.topic[id];
         if (tp) {
-            c.push({ label: tp[0], fn: () => answer(id, tp[1], 'topic-' + id + '-lore') });
-            c.push({ label: T.ui.about, fn: () => answer(id, tp[2], 'topic-' + id + '-about') });
+            if (!A.lore) q.push({ label: tp[0], fn: () => answer(id, tp[1], 'topic-' + id + '-lore', 'lore') });
+            if (!A.about) q.push({ label: T.ui.about, fn: () => answer(id, tp[2], 'topic-' + id + '-about', 'about') });
         }
         const list = (T.talk && T.talk[id]) || [];
-        list.forEach((t, k) => { if (stage() >= t.s && (t.e === undefined || stage() <= t.e)) c.push({ label: t.q, fn: () => answer(id, t.a, 'talk-' + id + '-' + k) }); });
+        list.forEach((t, k) => { if (!A['t' + k] && stage() >= t.s && (t.e === undefined || stage() <= t.e)) q.push({ label: t.q, fn: () => answer(id, t.a, 'talk-' + id + '-' + k, 't' + k) }); });
+        const c = after && !q.length ? [] : extras(id).concat(q);
         c.push({ label: T.ui.bye, fn: closeDlg });
         return c;
     }
-    function answer(id, text, clip) {
-        const sel = D.sel;
-        D.pages = [[id, text, clip]]; D.i = 0; D.choices = talkChoices(id); D.sel = Math.min(sel, D.choices.length - 1); D.wait = false; D.ai = false;
+    function answer(id, text, clip, key) {
+        D.asked[key] = 1;
+        D.pages = [[id, text, clip]]; D.i = 0; D.choices = talkChoices(id, true); D.sel = 0; D.wait = false; D.ai = false;
         renderDlg();
     }
 
@@ -872,6 +890,7 @@
             pages = CH.idle ? CH.idle(id) : [];
             if (!pages || !pages.length) pages = [[id, '...', 0]];
         }
+        D.asked = {};
         if (TALKER[id]) return say(pages, talkChoices(id));
         const ex = extras(id);
         if (ex.length) { ex.push({ label: T.ui.bye, fn: closeDlg }); return say(pages, ex); }
@@ -1045,7 +1064,73 @@
         if (clip === undefined || clip === 0) VOICE.stop(); else VOICE.say(clip, OV.slides[OV.i], null);
         if (OV.clips[OV.i + 1]) VOICE.prefetch(OV.clips[OV.i + 1]);
     }
+    // the journal: every active quest is a row; OK on one makes the yellow guide arrow follow it (side quests too)
+    function journalScreen(sel) {
+        SND.fx('book');
+        listScreen({
+            sel: sel || 0, title: () => T.ui.journal, info: () => T.ui.level + ' ' + S.lvl + '  ·  ● ' + S.coins,
+            tabs: () => (Z.def.rift ? txt(T.ui.riftFloor, { n: Z.def.rift }) : T.zone[Z.id] || '') + '   ·   ' + T.ui.trackHint,
+            rows: () => {
+                const r = [], tr = S.track || 'main', mq = CH.journal ? CH.journal() : null;
+                r.push({ label: (tr === 'main' ? '◎ ' : '◆ ') + (mq ? txt(T.ui.actN, { n: mq.act }) + ' · ' + mq.title : T.ui.mainQuest), sub: objective(L) + (mq ? '  (' + mq.n + '/' + mq.m + ')' : ''),
+                         right: tr === 'main' ? T.ui.tracked : '', cls: 'main', mark: tr === 'main', fn: () => track('main') });
+                for (const q of QUESTS) { const st = qState(q.id); if (st === 1 || st === 2) r.push({ label: (tr === 'sq:' + q.id ? '◎ ' : '◇ ') + T.quests[q.id].title, sub: qText(q), right: tr === 'sq:' + q.id ? T.ui.tracked : st === 2 ? '✓' : '', mark: tr === 'sq:' + q.id || st === 2, fn: () => track('sq:' + q.id) }); }
+                for (const npc in S.pq) { const d = poolDef(S.pq[npc]); if (d) r.push({ label: (tr === 'pq:' + npc ? '◎ ' : '◇ ') + pt(d).title, sub: poolGoal(npc), right: tr === 'pq:' + npc ? T.ui.tracked : S.pq[npc].st === 2 ? '✓' : '', mark: tr === 'pq:' + npc || S.pq[npc].st === 2, fn: () => track('pq:' + npc) }); }
+                if (mq && mq.all) r.push({ label: T.ui.storySoFar, sub: mq.all.map(a => (a[2] ? '▶ ' : a[1] ? '✓ ' : '· ') + a[0]).join('   '), dim: true, fn: () => {} });
+                const rel = CH.relics ? CH.relics() : [];
+                if (rel.length) r.push({ label: T.ui.relics, sub: rel.map(e => (e[1] ? '◆ ' : '◇ ') + e[0]).join('    '), dim: true, fn: () => {} });
+                let found = 0, all = 0; for (const z in TREASURES) { all += TREASURES[z]; for (let k = 0; k < TREASURES[z]; k++) if (S.tre[z + ':T' + k]) found++; }
+                const m = Math.floor(S.time / 60), s = Math.floor(S.time % 60);
+                r.push({ label: txt(T.ui.progress, { a: BEASTS.filter(b => S.seen[b]).length, b: BEASTS.length, c: found, d: all, e: S.rift.best }),
+                         sub: S.xp + ' / ' + need(S.lvl) + ' XP    ' + T.ui.time + ' ' + m + ':' + (s < 10 ? '0' : '') + s, dim: true, fn: () => {} });
+                r.push({ label: T.ui.close, fn: closeList });
+                return r;
+            }
+        });
+    }
+    function track(k) {
+        S.track = k; save(); SND.fx('quest'); GT.ok = false;
+        toast(k === 'main' ? T.ui.trackMain : T.ui.trackOn); renderList();
+    }
+    // where a tracked side quest wants you (false: nothing to point at, the main story is used)
+    function npcSpot(id) {
+        for (const n of Z.npcs) if (n.id === id) { GT.x = n.x; GT.y = n.y; return true; }
+        for (const z in MAPS) if (z !== Z.id && MAPS[z].npcs) for (const n of MAPS[z].npcs) if (n.id === id) return hop(z);
+        return false;
+    }
+    function foeSpot(t, elite) {
+        let best = null, bd = 1e9;
+        for (const f of FOES) if (f.on && (elite ? f.elite === elite : f.t === t)) { const d = dist(f.x, f.y, P[0].x, P[0].y); if (d < bd) { bd = d; best = f; } }
+        if (best) { GT.x = best.x; GT.y = best.y; return true; }
+        if (elite) return false;
+        for (const z in MAPS) if (z !== Z.id && MAPS[z].foes) for (const f of MAPS[z].foes) if (f.t === t) return hop(z);
+        return false;
+    }
+    function trackTarget() {
+        const k = S.track;
+        if (k.indexOf('sq:') === 0) {
+            const q = qDef(k.slice(3)), st = q ? qState(q.id) : 0;
+            if (!q || st === 0 || st === 3) { S.track = 'main'; return false; }
+            if (st === 2) return npcSpot(q.giver);
+            if (q.type === 'rescue') return npcSpot(q.who);
+            if (q.type === 'kill') return foeSpot(q.foe, '');
+            return npcSpot(q.giver);
+        }
+        if (k.indexOf('pq:') === 0) {
+            const npc = k.slice(3), q = S.pq[npc], d = poolDef(q);
+            if (!q || !d) { S.track = 'main'; return false; }
+            if (q.st === 2) return npcSpot(npc);
+            if (d.type === 'deliver') return npcSpot(d.to);
+            if (d.zone && d.zone !== Z.id) return hop(d.zone);
+            if (d.type === 'collect') { let best = null, bd = 1e9; for (const o of DROPS) if (o.on && o.k === 4 && o.qg === npc) { const dd = dist(o.x, o.y, P[0].x, P[0].y); if (dd < bd) { bd = dd; best = o; } } if (best) { GT.x = best.x; GT.y = best.y; return true; } return false; }
+            if (d.type === 'rescue') return npcSpot('q:' + npc);
+            if (d.type === 'elite') return foeSpot(d.foe, npc);
+            return foeSpot(d.foe, '');
+        }
+        return false;
+    }
     function showJournal() {
+        if (S && CHID) return journalScreen();
         mode = 'overlay'; OV.kind = 'journal';
         const box = el('div', 'journal');
         box.appendChild(el('div', 'jtitle', T.ui.journal));
@@ -1316,6 +1401,7 @@
         try {
             if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
             else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
+            else if (m === 'charger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite('#7ad8ff'));
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
         } catch (e) {}
         ctx = saved; if (m) MICONS[m] = c;
@@ -1325,10 +1411,10 @@
         listScreen({
             title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
             rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
-                .concat(['horse', 'wolf', 'dragon'].map(m => {
+                .concat(['horse', 'wolf', 'dragon', 'charger'].map(m => {
                     const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100, home = m === 'wolf' && CH.noWolf;
-                    return { label: mountName(m), sub: home ? T.ui.wolfStays : (m === 'horse' ? T.ui.horseSub : m === 'dragon' ? T.ui.dragonSub : T.ui.wolfSub) + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
-                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(m === 'dragon' ? T.ui.dragonHow : T.ui.notOwnedLong); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
+                    return { label: mountName(m), sub: home ? T.ui.wolfStays : (m === 'horse' ? T.ui.horseSub : m === 'dragon' ? T.ui.dragonSub : m === 'charger' ? T.ui.chargerSub : T.ui.wolfSub) + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
+                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(m === 'dragon' ? T.ui.dragonHow : m === 'charger' ? T.ui.chargerHow : T.ui.notOwnedLong); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
                 }))
                 .concat([{ label: T.ui.close, fn: closeList }])
         });
@@ -1409,6 +1495,11 @@
         VOICE.say('intro-0', T.intro[0], null);                  // a sample at the new speed
     }
     function cycleZoom(dir) { SET.zoom = ZOOMS[(ZOOMS.indexOf(SET.zoom) + dir + ZOOMS.length) % ZOOMS.length]; applyZoom(); saveSettings(); }
+    function cycleFx(dir) { SET.fx = FX_LEVELS[(FX_LEVELS.indexOf(SET.fx) + dir + FX_LEVELS.length) % FX_LEVELS.length]; saveSettings(); }
+    function toggleAiVoice() {
+        SET.aiVoice = !SET.aiVoice; VOICE.setAi(SET.aiVoice); saveSettings(); renderList();
+        if (SET.aiVoice) VOICE.say(null, T.ui.aiVoiceTest, null);                 // a sample, read by My PC's AI
+    }
     function settingsScreen(sel) {
         listScreen({
             sel: sel || 0, title: () => T.ui.settings, info: () => '', tabs: () => '',
@@ -1416,7 +1507,9 @@
                 const r = [
                     { label: txt(T.ui.voiceSpeed, { n: SET.voice }), sub: T.ui.voiceSub, right: '◀ ▶', side: d => cycleVoice(rtl() ? -d : d), fn: () => cycleVoice(SET.voice >= 2 ? -9 : 1) },
                     { label: txt(T.ui.zoomRow, { n: Math.round(SET.zoom * 100) }), sub: T.ui.zoomSub, right: '◀ ▶', side: d => cycleZoom(rtl() ? -d : d), fn: () => cycleZoom(1) },
-                    { label: T.ui.buttons, sub: T.ui.buttonsSub, right: '▸', fn: () => buttonsScreen() }];
+                    { label: T.ui.buttons, sub: T.ui.buttonsSub, right: '▸', fn: () => buttonsScreen() },
+                    { label: T.ui.fxRow, sub: T.ui.fxSub, right: '◀ ' + T.ui['fx_' + SET.fx] + ' ▶', side: d => cycleFx(rtl() ? -d : d), fn: () => cycleFx(1) },
+                    { label: T.ui.aiVoice, sub: VOICE.aiReady() ? T.ui.aiVoiceSub : T.ui.aiVoiceNone, right: SET.aiVoice ? T.ui.on : T.ui.off, side: () => toggleAiVoice(), fn: () => toggleAiVoice() }];
                 for (const q of P) if (q.on) { const tg = () => setGender(q.i, 1 - S.gender[q.i]); r.push({ label: txt(T.ui.lookOf, { name: heroName(q.i) }), right: S.gender[q.i] ? T.ui.female : T.ui.male, side: tg, fn: () => { tg(); renderList(); } }); }
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
                 return r;
@@ -1584,7 +1677,8 @@
         hurt, hitFoe, petHurt, dist, moveEnt, chase, leash, wander, nearest, activate, showBoss, hideBoss, music, minions, maxHp,
         loadZone, placePlayers, changeZone, travel, startFade, addStatic, solidAt, codeAt, openTiles, ahead, frontX, frontY,
         forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, shareStory, itemName,
-        scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, potion: () => drink(false)
+        scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, potion: () => drink(false),
+        makeItem, itemLabel, drawFoeBody, coopMul, get tier() { return fxLevel(); }
     };
 
     /* ------------------------------------------------------------------ players */
@@ -1652,14 +1746,14 @@
     }
     function setMount(m) {
         if (m === 'wolf' && CH.noWolf) { toast(T.ui.wolfStays); return; }
-        if (S.mount === 'dragon' && m !== 'dragon' && !Z.def.dark) for (const p of P) if (p.on && !p.down && feetSolid(p.x, p.y)) { toast(T.ui.flyLand); return; }
+        if (S.mount && MOUNTS[S.mount].fly && !(m && MOUNTS[m].fly) && !Z.def.dark) for (const p of P) if (p.on && !p.down && feetSolid(p.x, p.y)) { toast(T.ui.flyLand); return; }
         S.mount = m; if (m) S.lastMount = m; save(); refreshMenu();
         if (m && Z.def.dark) toast(T.ui.noRideDark);
         for (const p of P) if (p.on) { burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
         SND.fx(m ? 'equip' : 'move');
     }
     function riding(p) { return !!S.mount && !Z.def.dark && !p.down && !(S.mount === 'wolf' && CH && CH.noWolf); }
-    function flying(p) { return S.mount === 'dragon' && riding(p); }
+    function flying(p) { return !!S.mount && !!MOUNTS[S.mount].fly && riding(p); }
     function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
 
     /* ---------- local co-op: My PC owns the rooms (MyPC.multiplayer); state and messages in js/coop.js ---------- */
@@ -1770,12 +1864,17 @@
         return d;
     }
     // turn the hero toward the nearest foe within range (true if there was one)
-    function aimAt(p, range) {
+    // cone: bows, guns, staffs and the distant attack only aim at foes within 30° each side of where the hero faces (60° in all)
+    const CONE = Math.cos(Math.PI / 6);
+    function aimAt(p, range, cone) {
         let best = null, bd = range * range;
+        const fl = Math.sqrt(p.ax * p.ax + p.ay * p.ay) || 1, fx = p.ax / fl, fy = p.ay / fl;
         for (const f of FOES) {
             if (!f.on || f.alpha < 0.5 || (f.d.boss && !f.active && dist(f.x, f.y, p.x, p.y) > 120)) continue;
-            const d2 = (f.x - p.x) * (f.x - p.x) + (f.y - p.y) * (f.y - p.y);
-            if (d2 < bd) { bd = d2; best = f; }
+            const ex = f.x - p.x, ey = f.y - 4 - p.y, d2 = ex * ex + ey * ey;
+            if (d2 >= bd) continue;
+            if (cone && d2 > 24 * 24 && (ex * fx + ey * fy) / Math.sqrt(d2) < CONE) continue;
+            bd = d2; best = f;
         }
         if (!best) return false;
         const dx = best.x - p.x, dy = best.y - 4 - p.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -1786,9 +1885,14 @@
     function attack(p) {
         if (flying(p)) { if (toastT < 60) toast(T.ui.flyNoAttack); return; }
         combatT = 0;
-        const st = p.st;
-        aimAt(p, st.kind === 'sword' ? 64 : 290);
+        const st = p.st, fx = ITEMS[p.gear.weapon] ? ITEMS[p.gear.weapon].fx || '' : '', lv = fxLevel();
+        aimAt(p, st.kind === 'sword' ? 64 : 290, st.kind !== 'sword');
         p.atk = st.cd; p.swing = 12; p.lean = 8; p.anim = st.kind;
+        if (p.wr >= 3 && lv !== 'low') for (let i = 0; i < (lv === 'high' ? 5 : 2); i++) part(p.x + p.ax * 14, p.y - 12 + p.ay * 6, 8, p.ax * (1 + Math.random()) + (Math.random() - 0.5), p.ay * (1 + Math.random()) + (Math.random() - 0.5), 0.6, 16, i & 1 ? '#ffd23f' : st.col, 2, 0);
+        if (fx === 'wave') {                                 // Dawnbreaker: every swing also throws a crescent of light
+            const s = shot(p.x + p.ax * 16, p.y - 12 + p.ay * 8, p.ax * 5.2, p.ay * 5.2, Math.round(damage(p) * 0.7), 12, 14, p.i + 1);
+            if (s) { s.pierce = 4; s.life = s.m = 26; s.col = st.col; }
+        }
         if (st.kind === 'sword') {
             SND.fx('swing');
             const hx = frontX(p, 16), hy = frontY(p, 16);
@@ -1802,14 +1906,19 @@
         } else if (st.kind === 'staff') {                    // magic: a glowing bolt that bends toward foes
             SND.fx('magic');
             const s = shot(p.x + p.ax * 14, p.y - 14 + p.ay * 6, p.ax * 4.6, p.ay * 4.6, damage(p), 7, 13, p.i + 1);
-            if (s) s.col = st.col;
+            if (s) { s.col = st.col; s.fx = fx; s.lg = p.wr >= 3; }
             ringFx(p.x + p.ax * 14, p.y - 6 + p.ay * 6, 16, st.col);
         } else if (st.kind === 'bow') {
             SND.fx('bow');
-            shot(p.x + p.ax * 12, p.y - 10 + p.ay * 6, p.ax * 5.6, p.ay * 5.6, damage(p), 5, 10, 1);
+            const a = Math.atan2(p.ay, p.ax);
+            for (let k = fx === 'leaf' ? -1 : 0; k <= (fx === 'leaf' ? 1 : 0); k++) {   // the Sylvan Warbow shoots three
+                const s = shot(p.x + p.ax * 12, p.y - 10 + p.ay * 6, Math.cos(a + k * 0.16) * 5.6, Math.sin(a + k * 0.16) * 5.6, k ? Math.round(damage(p) * 0.6) : damage(p), 5, 10, p.i + 1);
+                if (s) { s.fx = fx; s.lg = p.wr >= 3; s.col = st.col; }
+            }
         } else {
             SND.fx('gun'); p.flash = 6; shake = 5; flashT = 2;
-            shot(p.x + p.ax * 18, p.y - 11 + p.ay * 8, p.ax * 10, p.ay * 10, damage(p), 4, 11, 1);
+            const s = shot(p.x + p.ax * 18, p.y - 11 + p.ay * 8, p.ax * 10, p.ay * 10, damage(p), 4, 11, p.i + 1);
+            if (s) { s.fx = fx; s.lg = p.wr >= 3; s.col = st.col; }
             smoke(p.x + p.ax * 22, p.y - 10 + p.ay * 8, 6);
             sparks(p.x + p.ax * 20, p.y - 10 + p.ay * 8, p.ax, p.ay, 6, '#ffd76a');
             p.kx -= p.ax * 2.5; p.ky -= p.ay * 2.5;
@@ -1855,7 +1964,7 @@
             }
             for (const s of Z.pots) if (s.on && dist(p.x, p.y, s.cx, s.cy) < 80) breakPot(s);
         } else {
-            aimAt(p, 320); p.auraCol = '#7ad8ff'; p.swing = 10; p.lean = 6;
+            aimAt(p, 320, true); p.auraCol = '#7ad8ff'; p.swing = 10; p.lean = 6;
             SND.fx('shoot'); SND.fx('bow'); flashT = 2; shake = Math.max(shake, 5);
             const s = shot(p.x + p.ax * 14, p.y - 10 + p.ay * 6, p.ax * 7, p.ay * 7, Math.round(damage(p) * 2.5), 11, 12, p.i + 1);
             if (s) s.pierce = 99;
@@ -1906,10 +2015,14 @@
         if (!f.active && f.d.boss) activate(f);
         if (f.immune) { SND.fx('pot'); sparks(f.x - dx * 6, f.y - 14, dx, dy, 5, '#9ad8ff'); ringFx(f.x, f.y - 14, f.r + 10, '#9ad8ff'); return; }
         if (f.weak) dmg *= 2;
+        if (f.d.hitMul) dmg *= f.d.hitMul(f, dx, dy, p);            // a shield facing the blow
+        const md = CH && CH.mods ? CH.mods() : null; if (md) dmg *= md.deal;
         const crit = Math.random() * 100 < p.st.crit;
         if (crit) dmg *= 2;
         if (f.t === 'thornback' && f.st === 3) dmg *= 2;
+        dmg = Math.max(1, Math.round(dmg - (f.def || 0)));           // armour takes a little off every blow
         f.hp -= dmg; f.hurt = 8;
+        if (p.wr >= 3) legendHit(f, p, dx, dy);
         freeze = crit ? 5 : 2;
         SND.fx(crit ? 'crit' : 'hit');
         if (crit) { flashT = 3; shake = Math.max(shake, 6); ringFx(f.x, f.y - 10, 30, '#ffd23f'); }
@@ -1917,6 +2030,34 @@
         sparks(f.x - dx * 6, f.y - 10, dx, dy, crit ? 10 : 6, crit ? '#ffd23f' : '#ffffff');
         if (!f.d.boss) { f.kx = dx * (p.st.kind === 'gun' ? 6 : 4); f.ky = dy * (p.st.kind === 'gun' ? 6 : 4); }
         if (f.hp <= 0) killFoe(f);
+    }
+    // a legendary weapon's blow: golden sparks and a small ring (fewer on slow TVs)
+    function legendHit(f, p, dx, dy) {
+        const lv = fxLevel(), col = ITEMS[p.gear.weapon] && ITEMS[p.gear.weapon].fx ? p.st.col : '#ffd23f';
+        if (lv !== 'low') sparks(f.x, f.y - 14, -dx, -dy, lv === 'high' ? 6 : 3, col);
+        if (lv === 'high' && (tick & 1)) ringFx(f.x, f.y - 6, 22, col);
+    }
+    /* ---------- the super weapons of chapter 3: what their attacks do besides the blow ---------- */
+    const BOLTS = []; for (let i = 0; i < 8; i++) BOLTS.push({ on: false, x1: 0, y1: 0, x2: 0, y2: 0, t: 0 });
+    function bolt(x1, y1, x2, y2) { for (const b of BOLTS) if (!b.on) { b.on = true; b.x1 = x1; b.y1 = y1; b.x2 = x2; b.y2 = y2; b.t = 10; return; } }
+    // chain: lightning jumps from the foe that was hit to two more nearby
+    function chainHit(f, p, dmg) {
+        let from = f, n = 0;
+        for (let k = 0; k < 2; k++) {
+            let best = null, bd = 120 * 120;
+            for (const o of FOES) if (o.on && o !== f && o !== from && o.alpha > 0.5 && !o.chained) { const d2 = (o.x - from.x) * (o.x - from.x) + (o.y - from.y) * (o.y - from.y); if (d2 < bd) { bd = d2; best = o; } }
+            if (!best) break;
+            best.chained = true; bolt(from.x, from.y - 14, best.x, best.y - 14); n++;
+            const d = dist(best.x, best.y, from.x, from.y) || 1; hitFoe(best, p, Math.max(1, Math.round(dmg * 0.55)), (best.x - from.x) / d, (best.y - from.y) / d);
+            from = best;
+        }
+        for (const o of FOES) o.chained = false;
+        if (n) SND.fx('zap');
+    }
+    // void: a burst that hurts every foe around the place a bolt landed
+    function voidBurst(x, y, p, dmg, skip) {
+        ringFx(x, y, 46, '#b07aff'); if (fxLevel() !== 'low') burst(x, y - 6, 12, '#d8b0ff', 2.2);
+        for (const o of FOES) if (o.on && o !== skip && o.alpha > 0.5 && dist(o.x, o.y - 8, x, y) < 46 + o.r) { const d = dist(o.x, o.y, x, y) || 1; hitFoe(o, p, Math.max(1, Math.round(dmg * 0.45)), (o.x - x) / d, (o.y - y) / d); }
     }
     function killFoe(f) {
         f.on = false; S.kills++; S.seen[f.t] = (S.seen[f.t] || 0) + 1; SND.fx('die');
@@ -1927,9 +2068,9 @@
         for (let i = 0; i < (f.d.boss ? 10 : 3); i++) part(f.x + (Math.random() - 0.5) * 10, f.y - 10, 10, 0, 0, 0.6 + Math.random() * 0.6, 50, '#e8ecff', 2, -0.01);
         ringFx(f.x, f.y - 6, f.d.boss ? 90 : 26, f.d.boss ? '#ffe9a8' : '#ffffff');
         coins(f.x, f.y, loot(f.d.coin * (f.elite ? 5 : 1)));
-        if (f.elite) { const g2 = f.elite; f.elite = ''; poolReady(g2); dropGear(f.x, f.y, rollItem(zoneTier(), 1)); }
+        if (f.elite) { const g2 = f.elite; f.elite = ''; poolReady(g2); dropGear(f.x, f.y, rollItem(zoneTier(), 2)); }
         if (!f.d.boss && Math.random() < 0.15) drop(f.x, f.y, 1, 3);
-        if (f.d.boss || Math.random() < LOOT.foeDrop * TUNE.gearDrops * (Z.def.rift ? 2 : 1)) dropGear(f.x, f.y, rollItem(zoneTier(), f.d.boss ? 1 : 0));
+        if (f.d.boss || Math.random() < LOOT.foeDrop * TUNE.gearDrops * (Z.def.rift ? 2 : 1)) dropGear(f.x, f.y, rollItem(zoneTier(), f.d.boss ? 2 : 0));
         if (Math.random() < (LOOT.oreDrop[f.t] || 0)) drop(f.x, f.y, 3, f.d.boss ? 3 : 1);
         addXp(f.d.xp);
         countKill(f.t);
@@ -1948,7 +2089,8 @@
         if (!p.on || p.inv > 0 || p.down || mode !== 'play') return;
         if (ground && flying(p)) return;
         combatT = 0;
-        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - Math.min(0.6, p.st.def * 0.06))));
+        const md = CH && CH.mods ? CH.mods() : null;
+        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * coopMul() * (md ? md.take : 1) * (1 - Math.min(0.6, p.st.def * 0.06))));
         p.hp = Math.max(0, p.hp - dmg); p.inv = 60; SND.fx('hurt'); SND.fx(p.i ? 'ouch2' : 'ouch'); shake = 6; freeze = 3;
         const d = dist(p.x, p.y, sx, sy) || 1; p.kx = (p.x - sx) / d * 5; p.ky = (p.y - sy) / d * 5;
         floater(p.x, p.y - 30, dmg, '#ff5a5a');
@@ -1978,6 +2120,7 @@
         else if (d.k === 1) { p.hp = Math.min(maxHp(p), p.hp + d.v); SND.fx('heal'); }
         else if (d.k === 2) { const it = d.it; d.it = null; addToBag(it); burst(d.x, d.y - 6, 14, LOOT.colors[it.r], 1.5); }
         else if (d.k === 3) { S.iron += d.v; shareNow({ o: d.v }); SND.fx('pick'); toast(txt(T.ui.gotIron, { n: d.v })); }
+        else if (d.qg === '@ch') { SND.fx('pick'); burst(d.x, d.y - 6, 12, '#9ad8ff', 1.5); ringFx(d.x, d.y, 30, '#9ad8ff'); if (CH.pickup) CH.pickup(d); }   // a main-quest item of the chapter
         else {                                              // a quest item
             const q = S.pq[d.qg], df = poolDef(q);
             SND.fx('pick'); burst(d.x, d.y - 6, 12, '#7ef0a0', 1.5); ringFx(d.x, d.y, 30, '#7ef0a0');
@@ -2313,17 +2456,20 @@
                 for (const o of FOES) if (o.on && o.alpha > 0.5 && o !== s.hit) { const d2 = (o.x - s.x) * (o.x - s.x) + (o.y - 10 - s.y) * (o.y - 10 - s.y); if (d2 < bd) { bd = d2; best = o; } }
                 if (best) { const dd = Math.sqrt(bd) || 1, sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy); s.vx += ((best.x - s.x) / dd * sp - s.vx) * 0.12; s.vy += ((best.y - 10 - s.y) / dd * sp - s.vy) * 0.12; }
             }
-            if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) { s.on = false; if (s.k === 12) { burst(s.x, s.y, 16, '#7ad8ff', 2.2); ringFx(s.x, s.y + 8, 30, '#7ad8ff'); } else if (s.k === 13 || s.k === 6 || s.k === 8) burst(s.x, s.y, 8, s.k === 6 ? '#c77dff' : s.k === 8 ? '#ff8a3a' : s.col || '#7fd8ff', 1.6); else burst(s.x, s.y, 3, s.k === 2 ? '#8a8fb8' : s.k === 11 ? '#ffd76a' : '#6a5a40', 1); continue; }
+            if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) { s.on = false; if (s.fx === 'void' && s.owner) voidBurst(s.x, s.y, P[s.owner - 1] || P[0], s.dmg, null); if (s.k === 14) { if (fxLevel() !== 'low') burst(s.x, s.y, 8, s.col || '#fff2b0', 1.6); continue; } if (s.k === 12) { burst(s.x, s.y, 16, '#7ad8ff', 2.2); ringFx(s.x, s.y + 8, 30, '#7ad8ff'); } else if (s.k === 13 || s.k === 6 || s.k === 8) burst(s.x, s.y, 8, s.k === 6 ? '#c77dff' : s.k === 8 ? '#ff8a3a' : s.col || '#7fd8ff', 1.6); else burst(s.x, s.y, 3, s.k === 2 ? '#8a8fb8' : s.k === 11 ? '#ffd76a' : '#6a5a40', 1); continue; }
             if (s.k === 11 && (tick & 1)) part(s.x, s.y, 10, 0, 0, 0, 10, '#ffe9a8', 2, 0);
             else if (s.k === 13 && (tick & 1)) part(s.x, s.y, 10, -s.vx * 0.1, -s.vy * 0.1, 0.1, 14, s.col || '#7fd8ff', 3, 0);
             else if ((s.k === 6 || s.k === 8) && (tick & 3) === 0) part(s.x, s.y, 10, 0, 0, 0.2, 16, s.k === 6 ? '#c77dff' : '#ffb040', 3, 0);
             else if (s.k === 12) { part(s.x + (Math.random() - 0.5) * 8, s.y + (Math.random() - 0.5) * 8, 10, -s.vx * 0.1, -s.vy * 0.1, 0.2, 18, tick & 1 ? '#7ad8ff' : '#ffffff', 3, 0); }
+            if ((s.lg || s.k === 14) && (tick & (fxLevel() === 'high' ? 0 : 1)) === 0 && fxLevel() !== 'low') part(s.x, s.y, 10, -s.vx * 0.08, -s.vy * 0.08, 0.1, 14, s.fx === 'leaf' ? (tick & 2 ? '#7ef0a0' : '#e8ffe0') : s.fx === 'chain' ? (tick & 2 ? '#ffe9a8' : '#9ad8ff') : s.col || '#ffd23f', 2, 0);
             if (s.owner) {
                 for (const f of FOES) {
                     if (!f.on || f.alpha < 0.5 || f === s.hit) continue;
                     if (dist(f.x, f.y - 10, s.x, s.y) < f.r + s.r) {
-                        const sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy);
-                        hitFoe(f, P[s.owner - 1] || P[0], s.dmg, s.vx / sp, s.vy / sp);
+                        const sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy), hp = P[s.owner - 1] || P[0];
+                        hitFoe(f, hp, s.dmg, s.vx / sp, s.vy / sp);
+                        if (s.fx === 'chain') chainHit(f, hp, s.dmg);
+                        else if (s.fx === 'void') { voidBurst(s.x, s.y, hp, s.dmg, f); s.fx = ''; }
                         if (s.pierce-- > 0) { s.hit = f; } else { s.on = false; }
                         break;
                     }
@@ -2355,8 +2501,8 @@
 
     /* ------------------------------------------------------------------ atmosphere */
 
-    const ATMO = []; for (let i = 0; i < 40; i++) ATMO.push({ x: 0, y: 0, vx: 0, vy: 0, ph: 0, s: 1 });
-    const ATMO_DEF = { pollen: [26, '#fff6c8'], leaves: [16, '#9ad05a'], embers: [34, '#ffb040'], ash: [30, '#a8a4b0'], motes: [26, '#9aa8ff'], spray: [22, '#e8f6ff'], fireflies: [22, '#d8ff7a'] };
+    const ATMO = []; for (let i = 0; i < 48; i++) ATMO.push({ x: 0, y: 0, vx: 0, vy: 0, ph: 0, s: 1 });
+    const ATMO_DEF = { pollen: [26, '#fff6c8'], leaves: [16, '#9ad05a'], embers: [34, '#ffb040'], ash: [30, '#a8a4b0'], motes: [26, '#9aa8ff'], spray: [22, '#e8f6ff'], fireflies: [22, '#d8ff7a'], snow: [44, '#ffffff'] };
     let atmoKind = '', atmoN = 0, atmoCol = '#fff', atmoCX = 0, atmoCY = 0;
     function atmoStart(k) {
         const d = ATMO_DEF[k]; atmoKind = d ? k : ''; atmoN = d ? (tier === 'low' ? d[0] >> 1 : d[0]) : 0; atmoCol = d ? d[1] : '#fff';
@@ -2364,10 +2510,10 @@
         atmoCX = camX; atmoCY = camY;
     }
     function atmoReset(a, any) {
-        a.x = Math.random() * W; a.y = any ? Math.random() * H : (atmoKind === 'embers' ? H + 4 : atmoKind === 'ash' || atmoKind === 'leaves' ? -4 : Math.random() * H);
+        a.x = Math.random() * W; a.y = any ? Math.random() * H : (atmoKind === 'embers' ? H + 4 : atmoKind === 'ash' || atmoKind === 'leaves' || atmoKind === 'snow' ? -4 : Math.random() * H);
         a.ph = Math.random() * 6.28; a.s = 0.6 + Math.random() * 0.8;
-        a.vx = atmoKind === 'leaves' ? 0.3 + Math.random() * 0.4 : atmoKind === 'spray' ? 0.5 + Math.random() * 0.5 : (Math.random() - 0.5) * 0.3;
-        a.vy = atmoKind === 'embers' ? -0.25 - Math.random() * 0.45 : atmoKind === 'ash' ? 0.2 + Math.random() * 0.3 : atmoKind === 'leaves' ? 0.3 + Math.random() * 0.3 : (Math.random() - 0.5) * 0.15;
+        a.vx = atmoKind === 'leaves' ? 0.3 + Math.random() * 0.4 : atmoKind === 'spray' ? 0.5 + Math.random() * 0.5 : atmoKind === 'snow' ? -0.3 - Math.random() * 0.5 : (Math.random() - 0.5) * 0.3;
+        a.vy = atmoKind === 'embers' ? -0.25 - Math.random() * 0.45 : atmoKind === 'ash' ? 0.2 + Math.random() * 0.3 : atmoKind === 'snow' ? 0.5 + Math.random() * 0.6 : atmoKind === 'leaves' ? 0.3 + Math.random() * 0.3 : (Math.random() - 0.5) * 0.15;
     }
     function updAtmo() {
         const mx = (camX - atmoCX) * 0.6, my = (camY - atmoCY) * 0.6; atmoCX = camX; atmoCY = camY;
@@ -2381,7 +2527,7 @@
     function drawAtmo() {
         for (let i = 0; i < atmoN; i++) {
             const a = ATMO[i], tw = 0.5 + Math.sin(a.ph * 3) * 0.5;
-            ctx.globalAlpha = atmoKind === 'fireflies' ? tw : atmoKind === 'motes' ? 0.3 + tw * 0.4 : 0.6;
+            ctx.globalAlpha = atmoKind === 'fireflies' ? tw : atmoKind === 'motes' ? 0.3 + tw * 0.4 : atmoKind === 'snow' ? 0.85 : 0.6;
             ctx.fillStyle = atmoCol;
             if (atmoKind === 'leaves') { ctx.fillRect(a.x, a.y, 3 * a.s + Math.sin(a.ph) * 1.5, 2); }
             else if (atmoKind === 'embers' || atmoKind === 'fireflies') { ctx.fillRect(a.x, a.y, 2, 2); if (tier !== 'low') { ctx.globalAlpha *= 0.4; ctx.drawImage(glowSprite(atmoCol), a.x - 4, a.y - 4, 10, 10); } }
@@ -2606,9 +2752,27 @@
     }
 
     function drawShots(cx, cy) {
+        const lv = fxLevel();
+        for (const b of BOLTS) {                           // chain lightning of the Thunderforge
+            if (!b.on) continue;
+            if (--b.t <= 0) { b.on = false; continue; }
+            const mx = (b.x1 + b.x2) / 2 + ((b.t * 7) % 9) - 4, my = (b.y1 + b.y2) / 2 + ((b.t * 5) % 9) - 4;
+            ctx.globalAlpha = b.t / 10; ctx.strokeStyle = '#9ad8ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(b.x1 - cx, b.y1 - cy); ctx.lineTo(mx - cx, my - cy); ctx.lineTo(b.x2 - cx, b.y2 - cy); ctx.stroke();
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+        }
         for (const s of SHOTS) {
             if (!s.on) continue;
             const x = s.x - cx, y = s.y - cy;
+            if (s.lg && lv !== 'low') {                    // a legendary weapon's shot glows
+                const g = s.fx ? 26 : 18; ctx.globalAlpha = 0.55; ctx.drawImage(glowSprite(s.fx === 'leaf' ? '#7ef0a0' : s.fx === 'chain' ? '#9ad8ff' : s.col && s.col[0] === '#' && s.col.length === 7 ? s.col : '#ffd23f'), x - g / 2, y - g / 2, g, g); ctx.globalAlpha = 1;
+            }
+            if (s.k === 14) {                              // Dawnbreaker's crescent of light
+                const a = Math.atan2(s.vy, s.vx), k = s.life / s.m;
+                ctx.globalAlpha = 0.4 + k * 0.5; ctx.strokeStyle = s.col || '#fff2b0'; ctx.lineWidth = 6;
+                ctx.beginPath(); ctx.arc(x - Math.cos(a) * 8, y - Math.sin(a) * 8, 16, a - 1.1, a + 1.1); ctx.stroke();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
+                continue;
+            }
             if (s.k === 10) {                                  // arrow
                 const sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy), ux = s.vx / sp, uy = s.vy / sp;
                 ctx.strokeStyle = '#d8c8a0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - ux * 12, y - uy * 12); ctx.lineTo(x + ux * 4, y + uy * 4); ctx.stroke();
@@ -2798,11 +2962,32 @@
             case 'ore2': ctx.fillStyle = '#4a3a3e'; ctx.beginPath(); ctx.moveTo(x - 6, yy + 4); ctx.lineTo(x - 3, yy - 5); ctx.lineTo(x + 4, yy - 6); ctx.lineTo(x + 6, yy + 4); ctx.fill(); ctx.fillStyle = '#ff7a2a'; ctx.fillRect(x - 2, yy - 2, 3, 3); break;
             case 'pearl': ctx.fillStyle = '#f2f2ff'; ctx.beginPath(); ctx.arc(x, yy, 4.5, 0, 6.2832); ctx.fill(); ctx.fillStyle = '#c8d0ff'; ctx.fillRect(x - 2, yy - 2, 2, 2); break;
             case 'coal': ctx.fillStyle = '#1e1e22'; ctx.beginPath(); ctx.arc(x, yy, 5.5, 0, 6.2832); ctx.fill(); ctx.fillStyle = '#ff8a3a'; ctx.fillRect(x + 1, yy - 2, 2, 2); break;
+            case 'moonpetal': ctx.globalAlpha = 0.6; ctx.drawImage(glowSprite('#9ad8ff'), x - 12, yy - 12, 24, 24); ctx.globalAlpha = 1;
+                for (let k = 0; k < 5; k++) { const a = k * 1.2566 + tick * 0.02; ctx.fillStyle = k & 1 ? '#e8f4ff' : '#bfe0ff'; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * 3.5, yy + Math.sin(a) * 3.5, 3.2, 1.8, a, 0, 6.2832); ctx.fill(); }
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 1, yy - 1, 2, 2); break;
+            case 'glowcap': ctx.fillStyle = '#d8e8e0'; ctx.fillRect(x - 1, yy, 2, 6); ctx.fillStyle = '#5ae0ff'; ctx.beginPath(); ctx.arc(x, yy + 1, 5.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = '#e8ffff'; ctx.fillRect(x - 2, yy - 2, 2, 1); break;
             default: ctx.fillStyle = '#9aa2ae'; ctx.fillRect(x - 5, yy - 5, 10, 9); ctx.fillStyle = '#6a707e'; ctx.fillRect(x - 5, yy - 1, 10, 2);
         }
         if ((tick + x) % 50 < 6) { ctx.fillStyle = '#fff'; ctx.fillRect(x + 4, yy - 8, 2, 2); }
     }
-    function heroDir(p) { return p.fy < 0 && Math.abs(p.fy) >= Math.abs(p.fx) ? 1 : p.fx !== 0 ? 2 : 0; }
+    // 0 front, 1 back, 2 side, 3 front three-quarter (walking down and sideways), 4 back three-quarter (up and sideways)
+    function heroDir(p) { return p.fy < 0 ? (p.fx ? 4 : 1) : p.fy > 0 ? (p.fx ? 3 : 0) : p.fx ? 2 : 0; }
+    // legendary armour shines a little (a gold rim at the feet, twinkles on the legendary pieces); fewer on slow TVs
+    function legendAura(p, x, y) {
+        const m = p.lgMask; if (!m) return;
+        const lv = fxLevel(), t = tick + p.i * 13;
+        ctx.globalAlpha = 0.28 + Math.sin(t * 0.08) * 0.1; ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.ellipse(x, y, 11, 4, 0, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1;
+        if (lv === 'low') return;
+        const n = lv === 'high' ? 3 : 2;
+        for (let k = 0; k < n; k++) {
+            const slot = (m & (1 << ((k + (t >> 6)) % 3))) ? (k + (t >> 6)) % 3 : (m & 2 ? 1 : m & 1 ? 0 : 2);
+            const ph = (t + k * 23) % 46; if (ph > 20) continue;
+            const a = ph / 20, sx = x + Math.sin(t * 0.05 + k * 2.1) * 8, sy = y - (slot === 0 ? 32 : slot === 1 ? 20 : 4) + Math.cos(t * 0.07 + k) * 3, r = 3 * Math.sin(a * Math.PI);
+            ctx.globalAlpha = 0.9; ctx.fillStyle = '#fff6c8'; ctx.fillRect(sx - r, sy - 0.5, r * 2, 1); ctx.fillRect(sx - 0.5, sy - r, 1, r * 2); ctx.globalAlpha = 1;
+        }
+        if (lv === 'high' && p.moving && (tick & 15) === 0) part(x + (Math.random() - 0.5) * 12, y - 2, 2, 0, 0, 0.8, 26, '#ffd23f', 2, -0.01);
+    }
     function drawPlayer(p, cx, cy) {
         const x = p.x - cx, y = p.y - cy, look = heroLook(p.i);
         if (p.down) {
@@ -2817,23 +3002,29 @@
             ctx.globalAlpha = 1;
         }
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
-        const ride = riding(p), dir = heroDir(p), flip = dir === 2 && (p.lfx || p.fx) < 0, mfx = p.lfx || 1;
-        const fly = ride && S.mount === 'dragon' && MOUNTART.hasDragon, z = fly ? 24 + Math.sin(tick * 0.06 + p.i) * 3 : 0;
-        const hy = fly ? y - z - (dir === 2 ? 15 : dir === 1 ? 23 : 29) : ride ? y - (S.mount === 'horse' ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
+        const ride = riding(p), dir = heroDir(p), flip = (dir >= 2) && (p.fx || p.lfx) < 0, mfx = p.lfx || 1, back = dir === 1 || dir === 4;
+        // mounts are seen from the front or the back when going straight down or up, from the side otherwise
+        const mdir = dir === 0 || dir === 1 ? dir : 2, horse = ride && S.mount === 'horse', charger = ride && S.mount === 'charger';
+        const fly = ride && ((S.mount === 'dragon' && MOUNTART.hasDragon) || charger), z = fly ? (charger ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
+        const hy = charger ? y - z - (mdir === 2 ? 22 : mdir === 1 ? 28 : 32) : fly ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
+            : horse && mdir !== 2 ? y - 30 : ride ? y - (horse ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
         // where the rider sits: on the dragon's back (behind its neck), in the horse's saddle
-        const rx = fly ? x + (dir === 2 ? (flip ? 7 : -7) : 0) : ride && S.mount === 'horse' && MOUNTART.ready ? x - mfx * 3 : x;
-        if (fly) { MOUNTART.dragon(ctx, x, y, z, dir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
-        else if (ride) { if (S.mount === 'horse') drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
-        if (dir === 1) drawHeroWeapon(p, rx, hy, dir, flip);
+        const rx = charger ? x - (mdir === 2 ? mfx * 3 : 0) : fly ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : horse && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
+        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, fxLevel() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && fxLevel() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
+        else if (fly) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
+        else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.38, 'horse');
+        else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
+        if (back) drawHeroWeapon(p, rx, hy, dir, flip);
         if (ride) {                                        // sitting: hide the legs, show one leg down the side
             ctx.save(); ctx.beginPath(); ctx.rect(rx - 40, hy - 70, 80, 61); ctx.clip();
-            HEROART.draw(ctx, rx, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50, 1);
+            HEROART.draw(ctx, rx, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50 && mode === 'play', 1);
             ctx.restore();
-            const ft = HEROART.FEET[p.gear.feet];
-            ctx.fillStyle = look.pants; ctx.fillRect(rx - 2 + (dir === 2 ? (flip ? 1 : -2) : 0), hy - 10, 4, 9);
-            ctx.fillStyle = ft ? ft.main : look.shoes; ctx.fillRect(rx - 2.5 + (dir === 2 ? (flip ? 1 : -2) : 0), hy - 2, 5, 4);
-        } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50, 1);
-        if (dir !== 1) drawHeroWeapon(p, rx, hy, dir, flip);
+            const ft = HEROART.FEET[p.gear.feet], side = dir >= 2 ? (flip ? 1 : -2) : 0;
+            ctx.fillStyle = look.pants; ctx.fillRect(rx - 2 + side, hy - 10, 4, 9);
+            ctx.fillStyle = ft ? ft.main : look.shoes; ctx.fillRect(rx - 2.5 + side, hy - 2, 5, 4);
+        } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50 && mode === 'play', 1);
+        if (!back) drawHeroWeapon(p, rx, hy, dir, flip);
+        legendAura(p, rx, hy);
         ctx.globalAlpha = 1;
         if (nPlayers() > 1) {
             ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
@@ -2854,12 +3045,14 @@
             drawHeld('sword', st.col, st.col2, x + Math.cos(to) * 6, y - 12 + Math.sin(to) * 6, to, p.wr);
             return;
         }
-        const hx = x + (dir === 2 ? (flip ? -3 : 3) : dir === 1 ? -9 : 9), hy = y - 14;
+        // the weapon hand: three-quarter views hold it on the side the hero turns to
+        const hx = x + (dir === 2 ? (flip ? -3 : 3) : dir === 1 ? -9 : dir === 3 ? (flip ? -7 : 7) : dir === 4 ? (flip ? 7 : -7) : 9), hy = y - 14;
+        const d = dir === 3 ? 0 : dir === 4 ? 1 : dir, m = flip && dir >= 3 ? -1 : 1;
         let a;
         if (p.swing > 0 || st.kind === 'gun') a = Math.atan2(p.ay, p.ax);
-        else if (st.kind === 'sword') a = dir === 2 ? (flip ? -2.25 : -0.9) : dir === 1 ? -1.9 : -1.2;
-        else if (st.kind === 'bow') a = dir === 2 ? (flip ? Math.PI : 0) : dir === 1 ? -1.57 : 0.25;
-        else a = dir === 2 ? (flip ? -1.85 : -1.3) : -1.45;
+        else if (st.kind === 'sword') a = d === 2 ? (flip ? -2.25 : -0.9) : d === 1 ? (m < 0 ? -1.25 : -1.9) : (m < 0 ? -1.95 : -1.2);
+        else if (st.kind === 'bow') a = d === 2 ? (flip ? Math.PI : 0) : d === 1 ? -1.57 : (m < 0 ? 2.9 : 0.25);
+        else a = d === 2 ? (flip ? -1.85 : -1.3) : (m < 0 ? -1.7 : -1.45);
         drawHeld(st.kind, st.col, st.col2, hx, hy, a, p.wr, p.swing, p.flash);
     }
     // a weapon in a hand at hx,hy pointing at angle a; epic and legendary weapons shine
@@ -2867,7 +3060,12 @@
         const ca = Math.cos(a), sa = Math.sin(a);
         if (rar >= 2) {
             const gc = LOOT.colors[rar], len = kind === 'staff' ? 18 : 10;
-            ctx.globalAlpha = 0.35 + Math.sin(tick * 0.12) * 0.15; ctx.drawImage(glowSprite(gc), hx + ca * len - 13, hy + sa * len - 13, 26, 26); ctx.globalAlpha = 1;
+            ctx.globalAlpha = 0.35 + Math.sin(tick * 0.12) * 0.15; ctx.drawImage(glowSprite(gc), hx + ca * len - 13, hy + sa * len - 13, 26, 26);
+            if (rar >= 3 && fxLevel() !== 'low') {         // legendary: a second, slower glow in the weapon's own colour along the blade
+                ctx.globalAlpha = 0.25 + Math.sin(tick * 0.07 + hx) * 0.12;
+                ctx.drawImage(glowSprite(col && col.length === 7 ? col : gc), hx + ca * len * 1.4 - 10, hy + sa * len * 1.4 - 10, 20, 20);
+            }
+            ctx.globalAlpha = 1;
         }
         ctx.save(); ctx.translate(hx, hy); ctx.rotate(a);
         if (kind === 'sword') {
@@ -3140,6 +3338,7 @@
             let best = null, bd = 1e9; for (const f of FOES) if (f.on) { const d = dist(f.x, f.y, P[0].x, P[0].y); if (d < bd) { bd = d; best = f; } }
             if (!best) return false; GT.x = best.x; GT.y = best.y; return true;
         }
+        if (S.track && S.track !== 'main' && trackTarget()) return true;
         return CH && CH.target ? CH.target() : false;
     }
     // the next doorway on the way to zone z: down from the village hub, or back up toward it
@@ -3369,6 +3568,11 @@
         onStart: function () {
             started = true;
             try { SND.start(info.volume); if (CH) for (const k of CH.songs || []) SND.prepare(k); music(); } catch (e) { /* no sound is better than no game */ }
+            try {
+                SND.loadSamples({ door: ['audio/sfx/doorOpen_1.ogg', 0.7], buy: ['audio/sfx/handleCoins.ogg', 0.7], cut: ['audio/sfx/chop.ogg', 0.9], equip: ['audio/sfx/metalClick.ogg', 0.8],
+                                  book: ['audio/sfx/bookOpen.ogg', 0.8], page: ['audio/sfx/bookFlip2.ogg', 0.7], latch: ['audio/sfx/metalLatch.ogg', 0.9], unsheath: ['audio/sfx/drawKnife2.ogg', 0.9],
+                                  chest: ['audio/sfx/creak1.ogg', 0.6], slice: ['audio/sfx/knifeSlice.ogg', 0.6] }, VERSION);
+            } catch (e) { /* the synthesized sounds stay */ }
             showTitle();
             startLoop();
         },

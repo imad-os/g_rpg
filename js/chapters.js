@@ -9,7 +9,10 @@ window.HM_CHAPTERS = (function () {
     // the files of each chapter, in load order (all with ?v=<version>)
     const LIST = {
         ch1: { files: ['js/maps.js', 'js/pool.js', 'js/rift.js', 'chapters/ch1/story.js'], home: 'village', globals: ['HM_MAPS', 'HM_POOL', 'HM_RIFT'] },
-        ch2: { files: ['chapters/ch2/text.js', 'chapters/ch2/maps.js', 'chapters/ch2/art.js', 'chapters/ch2/chapter.js'], home: 'c2_bay', globals: ['HM_C2_MAPS', 'HM_C2_ART', 'HM_C2_POOL', 'HM_C2_TEXT'] }
+        ch2: { files: ['chapters/ch2/text.js', 'chapters/ch2/maps.js', 'chapters/ch2/art.js', 'chapters/ch2/chapter.js'], home: 'c2_bay', globals: ['HM_C2_MAPS', 'HM_C2_ART', 'HM_C2_POOL', 'HM_C2_TEXT'] },
+        // data: JSON files read before the scripts, each into a global (chapter 3's main quests live in quests.json)
+        ch3: { data: { HM_C3_QUESTS: 'chapters/ch3/quests.json' }, files: ['chapters/ch3/text.js', 'chapters/ch3/maps.js', 'chapters/ch3/art.js', 'chapters/ch3/chapter.js'], home: 'c3_dawn',
+               globals: ['HM_C3_QUESTS', 'HM_C3_MAPS', 'HM_C3_ART', 'HM_C3_POOL', 'HM_C3_TEXT'] }
     };
     const def = {}, loaded = {}, tags = {};
 
@@ -36,7 +39,12 @@ window.HM_CHAPTERS = (function () {
     // load a chapter's files one after the other (they build on each other); resolves when ready
     async function load(id, progress) {
         if (loaded[id]) return def[id];
-        const files = LIST[id].files; tags[id] = [];
+        const files = LIST[id].files, data = LIST[id].data || {}; tags[id] = [];
+        for (const g in data) {
+            const r = await fetch(data[g] + '?v=' + (window.HM_VERSION || '1'));
+            if (!r.ok) throw new Error('could not load ' + data[g]);
+            window[g] = await r.json();
+        }
         for (let i = 0; i < files.length; i++) { tags[id].push(await script(files[i])); if (progress) progress((i + 1) / files.length); }
         loaded[id] = true;
         return def[id];

@@ -1,25 +1,70 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Hollowmere 3: The Veilscar Frontier. A beacon burns on the frontier walls under a torn, violet sky and the snowy heights. -->
   <defs>
-    <radialGradient id="sky" cx="50%" cy="38%" r="70%">
-      <stop offset="0" stop-color="#3a3560"/>
-      <stop offset="1" stop-color="#0d0f1c"/>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1036"/>
+      <stop offset="0.55" stop-color="#2c2050"/>
+      <stop offset="1" stop-color="#43305e"/>
+    </linearGradient>
+    <radialGradient id="rift" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f4e6ff"/>
+      <stop offset="0.35" stop-color="#c58cff"/>
+      <stop offset="1" stop-color="#7a3ae0" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#ffe9a0" stop-opacity="0.95"/>
-      <stop offset="1" stop-color="#ffb84a" stop-opacity="0"/>
+    <radialGradient id="fire" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0" stop-color="#fff6c8"/>
+      <stop offset="0.35" stop-color="#ffc95a"/>
+      <stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f8ff"/>
+      <stop offset="1" stop-color="#9fb4d4"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3348"/>
+      <stop offset="1" stop-color="#1c1826"/>
+    </linearGradient>
+    <clipPath id="r"><rect width="256" height="256" rx="48"/></clipPath>
   </defs>
-  <rect width="256" height="256" rx="48" fill="url(#sky)"/>
-  <circle cx="128" cy="86" r="80" fill="url(#glow)"/>
-  <path d="M0 196 Q64 168 128 184 T256 176 V256 H0 Z" fill="#2c4a3c"/>
-  <path d="M0 214 Q80 196 150 210 T256 206 V256 H0 Z" fill="#1f3a2f"/>
-  <path d="M100 196 L110 112 H146 L156 196 Z" fill="#8f8678"/>
-  <rect x="104" y="104" width="48" height="10" fill="#4a4a52"/>
-  <path d="M100 66 L128 44 L156 66 Z" fill="#4a4a52"/>
-  <rect x="106" y="64" width="44" height="42" fill="#ffd76a"/>
-  <rect x="126" y="64" width="4" height="42" fill="#4a4a52"/>
-  <circle cx="128" cy="85" r="11" fill="#fff6c8"/>
-  <rect x="120" y="170" width="16" height="26" fill="#5a3a24"/>
-  <path d="M32 230 q20 -14 44 -6 q22 -12 46 0" fill="none" stroke="#c8cdd8" stroke-opacity="0.35" stroke-width="8" stroke-linecap="round"/>
-  <path d="M150 238 q24 -12 50 -4 q18 -8 36 0" fill="none" stroke="#c8cdd8" stroke-opacity="0.3" stroke-width="8" stroke-linecap="round"/>
+  <g clip-path="url(#r)">
+    <rect width="256" height="256" fill="url(#sky)"/>
+    <!-- stars -->
+    <g fill="#ffffff" opacity="0.8">
+      <circle cx="30" cy="34" r="1.6"/><circle cx="74" cy="20" r="1.2"/><circle cx="214" cy="28" r="1.5"/><circle cx="232" cy="70" r="1.1"/>
+      <circle cx="18" cy="88" r="1.1"/><circle cx="120" cy="14" r="1.3"/>
+    </g>
+    <!-- the Veilscar: a torn rift in the sky -->
+    <ellipse cx="170" cy="66" rx="70" ry="44" fill="url(#rift)" opacity="0.75"/>
+    <path d="M150 22 L166 50 L156 62 L176 84 L168 104 L184 84 L176 66 L192 52 L176 34 Z" fill="#f6eaff"/>
+    <path d="M160 36 L170 54 L164 62 L178 80" fill="none" stroke="#b07aff" stroke-width="3" stroke-linecap="round"/>
+    <!-- the Frostbound Heights -->
+    <path d="M-10 170 L48 92 L78 128 L112 80 L160 140 L196 104 L266 176 L266 256 L-10 256 Z" fill="#5a6a8a"/>
+    <path d="M48 92 L62 112 L54 110 L46 120 L38 112 Z M112 80 L130 104 L118 100 L110 112 L100 98 Z M196 104 L212 120 L202 118 L194 126 L186 116 Z" fill="url(#snow)"/>
+    <!-- the frontier wall and its gate -->
+    <path d="M0 196 L0 168 L14 168 L14 160 L28 160 L28 168 L42 168 L42 160 L56 160 L56 168 L200 168 L200 160 L214 160 L214 168 L228 168 L228 160 L242 160 L242 168 L256 168 L256 196 Z" fill="url(#wall)"/>
+    <path d="M110 196 L110 176 Q128 160 146 176 L146 196 Z" fill="#120e18"/>
+    <!-- the beacon tower -->
+    <rect x="114" y="118" width="28" height="52" fill="#4a4258"/>
+    <rect x="108" y="112" width="40" height="9" rx="2" fill="#5e566e"/>
+    <rect x="114" y="150" width="28" height="4" fill="#2c2636"/>
+    <circle cx="128" cy="96" r="48" fill="url(#fire)" opacity="0.9"/>
+    <path d="M116 112 Q118 88 128 74 Q132 90 140 96 Q142 106 140 112 Z" fill="#ff9a3a"/>
+    <path d="M121 112 Q123 96 128 88 Q132 100 135 104 Q136 108 135 112 Z" fill="#fff2b0"/>
+    <!-- banners -->
+    <path d="M70 168 L70 132" stroke="#2a1e14" stroke-width="3"/><path d="M71 133 L90 136 L88 156 L80 150 L71 156 Z" fill="#2a4a9a"/>
+    <path d="M186 168 L186 132" stroke="#2a1e14" stroke-width="3"/><path d="M185 133 L166 136 L168 156 L176 150 L185 156 Z" fill="#8a1e1a"/>
+    <!-- snowy ground and the road -->
+    <path d="M0 196 L256 196 L256 256 L0 256 Z" fill="#cfdcec"/>
+    <path d="M112 196 L144 196 L170 256 L86 256 Z" fill="#a8b4c6"/>
+    <path d="M0 214 Q60 204 112 210 M144 210 Q200 204 256 214" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+    <!-- snowflakes -->
+    <g fill="#ffffff" opacity="0.85">
+      <circle cx="40" cy="140" r="2"/><circle cx="210" cy="150" r="2"/><circle cx="90" cy="60" r="1.6"/><circle cx="236" cy="120" r="1.8"/><circle cx="22" cy="190" r="1.6"/>
+    </g>
+    <!-- the third chapter -->
+    <g transform="translate(206 210)">
+      <circle r="24" fill="#16101e" stroke="#f5c451" stroke-width="3.5"/>
+      <path d="M-10 -11 L-10 11 M0 -11 L0 11 M10 -11 L10 11" stroke="#ffdf8a" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
 </svg>

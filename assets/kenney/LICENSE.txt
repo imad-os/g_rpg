@@ -22,3 +22,8 @@ Art by Kenney (www.kenney.nl), CC0 1.0 Universal (public domain): Tiny Town, Tin
 
 	Follow on Twitter for updates:
 	http://twitter.com/KenneyNL
+
+Tiny Ski (1.0), ski.png (tilemap_packed.png, used for the snowy pines, rocks, snowmen and yetis of Chapter 3)
+	Created/distributed by Kenney (www.kenney.nl), 30-03-2023
+	License: Creative Commons Zero (CC0) http://creativecommons.org/publicdomain/zero/1.0/
+	Source: https://opengameart.org/content/tiny-ski

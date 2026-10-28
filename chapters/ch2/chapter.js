@@ -288,6 +288,8 @@ HM_CHAPTERS.def.ch2 = function (api) {
             api.SND.fx('heal'); api.toast(t.ui.c2breadEat); api.save();
         } });
         if (id === 'sela2') c.push({ label: t.ui.c2sailHome, fn: () => { api.closeDlg(); api.travel('mireshore', 21.5, 16.5); } });
+        // the third light in the north: chapter 3, once Larkspur's Lantern burns (and the owner switched chapter 3 on)
+        if (id === 'sela2' && cc.lit && HM_CHAPTERS.enabled('ch3')) c.push({ label: t.ui.c3sailNorth, fn: () => { api.closeDlg(); api.travel('c3_dawn', 22.5, 24.6); } });
         if (id === 'mirelle' && cc.st >= 6 && !cc.letter) c.push({ label: t.ui.c2letterAsk, fn: () => { cc.letter = 1; api.save(); api.closeDlg(); api.say(lines('mirelle', 'c2mirelleAsk'), null, () => api.toast(t.ui.c2letterGot)); } });
     }
     function news(id) {

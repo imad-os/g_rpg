@@ -1,37 +1,42 @@
-/* Hollowmere: spoken dialogue. For each line, in this order:
- *   1. a recorded clip from audio/voices/<lang>/ (made by tools/voices/generate.py), if there is one;
- *   2. otherwise Gemini text-to-speech through the owner's proxy (MyPC.app_config.proxyUrl);
- *   3. otherwise nothing (the text is still on screen and goes to the TV's Voice Guide).
+/* Hollowmere: spoken dialogue. For each line:
+ *   with "AI voices" on (Settings, and the owner's app config "tts" not false): My PC's AI speaks it
+ *   (MyPC.ai.generate, task 'speech', any service the owner set up: Gemini, OpenAI...), with a voice and a style
+ *   per character, in every language. A recorded clip is used instead if the AI is slow (3.5 s), missing or refused.
+ *   with AI voices off: a recorded clip from audio/voices/<lang>/ (made by tools/voices/generate.py), if there is one;
+ *   otherwise nothing (the text is still on screen and goes to the TV's Voice Guide).
  * Clips are fetched one line at a time, so nothing is downloaded up front. They play through one
  * <audio> element (routed into the game's voice volume), so the speed setting keeps voices at their pitch. */
 window.HM_VOICE = (function () {
     'use strict';
-    // a voice and a speaking style per character for Gemini TTS
+    // a voice and a speaking style per character (Gemini voice names; OpenAI-style services get the second list)
     const TTS_VOICE = {
-        narrator: ['Charon', 'calm storyteller, unhurried'],
-        maren: ['Gacrux', 'warm, wise elderly woman, a little tired'],
-        tobin: ['Algenib', 'gruff but kind blacksmith'],
-        sela: ['Vindemiatrix', 'quiet, weathered ferrywoman, slightly mysterious'],
-        corvin: ['Enceladus', 'tired young man, bitter then ashamed'],
-        lira: ['Leda', 'soft, gentle young spirit'],
-        hana: ['Sulafat', 'cheerful shopkeeper'],
-        pip: ['Puck', 'excited small child'],
-        bram: ['Orus', 'plain-spoken woodcutter'],
-        odo: ['Alnilam', 'steady village guard']
+        narrator: ['Charon', 'calm storyteller, unhurried', 'fable'],
+        maren: ['Gacrux', 'warm, wise elderly woman, a little tired', 'shimmer'],
+        tobin: ['Algenib', 'gruff but kind blacksmith', 'onyx'],
+        sela: ['Vindemiatrix', 'quiet, weathered ferrywoman, slightly mysterious', 'nova'],
+        corvin: ['Enceladus', 'tired young man, bitter then ashamed', 'echo'],
+        lira: ['Leda', 'soft, gentle young spirit', 'shimmer'],
+        hana: ['Sulafat', 'cheerful shopkeeper', 'nova'],
+        pip: ['Puck', 'excited small child', 'alloy'],
+        bram: ['Orus', 'plain-spoken woodcutter', 'onyx'],
+        odo: ['Alnilam', 'steady village guard', 'echo'],
+        aldric: ['Alnilam', 'proud, tired captain of the guard', 'onyx'],
+        ysolde: ['Leda', 'calm, mysterious seer', 'shimmer'],
+        fenna: ['Aoede', 'serene, wise druid, a little cold', 'nova'],
+        kragg: ['Algenib', 'loud, gruff warlord with a big heart', 'onyx'],
+        brynn: ['Kore', 'quiet, careful scout, whispering', 'nova'],
+        veyr: ['Charon', 'cold, hollow voice of a dead general', 'onyx'],
+        hollowking: ['Enceladus', 'ancient, sad and menacing king, echoing', 'echo'],
+        nessa: ['Vindemiatrix', 'friendly sailor', 'nova'],
+        pim: ['Puck', 'excited small child', 'alloy']
     };
-    let lang = 'en', index = null, indexP = null, token = 0, ttsOff = false, rate = 1, player = null, playerCtx = null, playing = false;
-    const files = new Map(), speech = new Map();      // clips as blob: URLs: key -> url, text -> url
+    let lang = 'en', index = null, indexP = null, token = 0, rate = 1, player = null, playerCtx = null, playing = false;
+    let aiOn = true, aiOff = false, prov;                  // prov: undefined until asked, null when no service can speak
+    const files = new Map(), speech = new Map();         // clips as blob: URLs: key -> url, text -> url
 
-    function cfg() {
-        const c = (window.MyPC && MyPC.app_config) || {};
-        const url = typeof c.proxyUrl === 'string' && c.proxyUrl.indexOf('https://') === 0 ? c.proxyUrl : '';
-        return {
-            proxyUrl: url,
-            tts: c.tts !== false && !ttsOff,
-            model: typeof c.ttsModel === 'string' && c.ttsModel ? c.ttsModel : 'gemini-3.8-flash-lite-tts',
-            timeoutMs: Math.max(3000, Math.min(30000, +c.ttsTimeoutMs || 12000))
-        };
-    }
+    function cfg() { const c = (window.MyPC && MyPC.app_config) || {}; return { tts: c.tts !== false }; }
+    function aiReady() { return !!(window.MyPC && MyPC.ai && (MyPC.apiLevel || 0) >= 10) && cfg().tts && !aiOff; }
+    function setAi(on) { aiOn = !!on; }
 
     function setLang(l) {
         lang = l; index = null;
@@ -64,41 +69,54 @@ window.HM_VOICE = (function () {
         return url;
     }
 
-    async function fromTts(text, who) {
-        const c = cfg();
-        if (!c.proxyUrl || !c.tts || !text) return null;
-        if (speech.has(text)) return speech.get(text);
-        const v = TTS_VOICE[who] || TTS_VOICE.narrator;
-        const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), c.timeoutMs);
+    // the first AI service of My PC that can speak (NVIDIA's voice has no Arabic)
+    async function provider() {
+        if (prov !== undefined) return prov;
         try {
-            const r = await fetch(c.proxyUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
-                body: JSON.stringify({ kind: 'tts', model: c.model, text: text.slice(0, 600), voice: v[0], style: v[1] }) });
-            if (r.status === 400 || r.status === 403 || r.status === 404) ttsOff = true;   // proxy without TTS: stop asking
-            if (!r.ok) return null;
-            const j = await r.json();
-            if (!j || !j.audio) return null;
-            const bin = atob(j.audio), bytes = new Uint8Array(bin.length);
-            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-            const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+            const list = await MyPC.ai.providers();
+            prov = (list || []).find(p => p.tasks && p.tasks.speech && !(lang === 'ar' && /nvidia/i.test(p.type || p.preset || ''))) || null;
+        } catch (e) { prov = null; }
+        return prov;
+    }
+    async function fromAi(text, who) {
+        if (!aiOn || !aiReady() || !text) return null;
+        if (speech.has(text)) return speech.get(text);
+        const p = await provider(); if (!p) return null;
+        const v = TTS_VOICE[who] || TTS_VOICE.narrator, kind = String(p.type || p.preset || '').toLowerCase();
+        const req = { task: 'speech', provider: p.id, language: lang, prompt: text.slice(0, 600) };
+        if (kind.indexOf('gemini') >= 0) { req.voice = v[0]; req.prompt = 'Say it as a ' + v[1] + ', in natural ' + ({ en: 'English', fr: 'French', es: 'Spanish', ar: 'Arabic' }[lang] || 'English') + ': ' + text.slice(0, 600); }
+        else if (kind.indexOf('nvidia') < 0) { req.voice = v[2]; req.format = 'mp3'; }
+        try {
+            const res = await MyPC.ai.generate(req);
+            const part = res && res.parts ? res.parts.find(x => x.type === 'audio' && x.data) : null;
+            if (!part) return null;
+            const url = URL.createObjectURL(new Blob([part.data], { type: part.mime || 'audio/wav' }));
             keep(speech, text, url, 16);
             return url;
-        } finally { clearTimeout(timer); }
+        } catch (e) {
+            if (e && (e.code === 'denied' || e.code === 'no-provider' || e.code === 'unsupported')) aiOff = true;   // stop asking for this session
+            return null;
+        }
     }
 
     // speak one dialogue line; key = recorded clip name (or null), who = speaker id (null = narrator)
     function say(key, text, who) {
         stop();
-        const t = token;
-        fromFile(key).catch(() => null)
-            .then(buf => buf || fromTts(text, who || 'narrator').catch(() => null))
-            .then(url => {
-                const p = out();
-                if (!url || t !== token || !p) return;
-                p.src = url; p.playbackRate = rate; playing = true; HM_AUDIO.duck(true);
-                p.play().catch(() => { playing = false; HM_AUDIO.duck(false); });
-            });
+        const t = token, file = fromFile(key).catch(() => null);
+        let pick;
+        if (aiOn && aiReady()) {
+            const ai = fromAi(text, who || 'narrator');
+            const slow = new Promise(r => setTimeout(() => r(null), 3500));
+            pick = Promise.race([ai, slow]).then(u => u || file).then(u => u || ai);
+        } else pick = file;
+        pick.then(url => {
+            const p = out();
+            if (!url || t !== token || !p) return;
+            p.src = url; p.playbackRate = rate; playing = true; HM_AUDIO.duck(true);
+            p.play().catch(() => { playing = false; HM_AUDIO.duck(false); });
+        });
     }
-    // warm up the next recorded line (never TTS: that would cost money for lines nobody reaches)
+    // warm up the next recorded line (never AI: that would cost usage for lines nobody reaches)
     function prefetch(key) { if (key) fromFile(key).catch(() => null); }
 
     function stop() {
@@ -108,5 +126,5 @@ window.HM_VOICE = (function () {
     // voice speed from the settings: 0.75 to 2
     function setRate(r) { rate = Math.max(0.5, Math.min(2, +r || 1)); if (player) player.playbackRate = rate; }
 
-    return { setLang, say, prefetch, stop, setRate };
+    return { setLang, say, prefetch, stop, setRate, setAi, aiReady };
 })();

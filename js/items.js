@@ -4,7 +4,10 @@
  * flintlock guns (slow to reload, hit hard, go through one foe).
  *   atk: damage   cd: frames between attacks   def: armour (6% less damage per point)
  *   spd: extra walking speed (0.1 = 10%)       price: coins at the forge (0 = not sold)
- *   tier: 1-4 (4: chapter 2), which areas drop it (and how much upgrades and bonuses are worth)
+ *   tier: 1-5 (4: chapter 2, 5: chapter 3), which areas drop it (and how much upgrades and bonuses are worth)
+ *   fx: a "super" weapon (chapter 3 bosses only, never sold or rolled): its attacks have their own effect
+ *       wave: every swing also throws a crescent of light   leaf: arrows split in three
+ *       chain: bullets jump to two more foes as lightning     void: bolts burst in a ring of void
  */
 window.HM_ITEMS = {
     stick:        { slot: 'weapon', tier: 0, kind: 'sword', atk: 1, cd: 20, price: 0,   col: '#a07a4a', col2: '#6b4a2e' },
@@ -36,7 +39,21 @@ window.HM_ITEMS = {
     tide_staff:   { slot: 'weapon', tier: 4, kind: 'staff', atk: 10, cd: 22, price: 700, col: '#5affd8', col2: '#1d4a5a' },
     coral_helm:   { slot: 'head', tier: 4, def: 4, price: 430, col: '#3fb0a6' },
     tide_mail:    { slot: 'body', tier: 4, def: 7, price: 690, col: '#2f9c9a' },
-    wave_boots:   { slot: 'feet', tier: 4, def: 2, spd: 0.22, price: 490, col: '#1d6668' }
+    wave_boots:   { slot: 'feet', tier: 4, def: 2, spd: 0.22, price: 490, col: '#1d6668' },
+    // chapter 3 (the Veilscar Frontier): tier 5
+    frost_blade:  { slot: 'weapon', tier: 5, kind: 'sword', atk: 14, cd: 18, price: 1100, col: '#d8f4ff', col2: '#3a4a6a' },
+    runed_bow:    { slot: 'weapon', tier: 5, kind: 'bow',   atk: 9,  cd: 21, price: 1050, col: '#5a6a8a', col2: '#9ad8ff' },
+    ash_musket:   { slot: 'weapon', tier: 5, kind: 'gun',   atk: 19, cd: 72, price: 1250, col: '#3a3436', col2: '#7a2a1e' },
+    grove_staff:  { slot: 'weapon', tier: 5, kind: 'staff', atk: 13, cd: 22, price: 1200, col: '#7effc8', col2: '#3a5a2e' },
+    warden_helm:  { slot: 'head', tier: 5, def: 5, price: 780, col: '#b8c8e0' },
+    frost_plate:  { slot: 'body', tier: 5, def: 9, spd: -0.05, price: 1300, col: '#c8dcf0' },
+    runic_robe:   { slot: 'body', tier: 5, def: 6, spd: 0.06, price: 1150, col: '#4a3a8a' },
+    wyrm_boots:   { slot: 'feet', tier: 5, def: 3, spd: 0.24, price: 820, col: '#6a2a1e' },
+    // the four super weapons: one from each boss of chapter 3, always legendary
+    dawnbreaker:  { slot: 'weapon', tier: 5, kind: 'sword', atk: 18, cd: 17, price: 0, super: 1, fx: 'wave',  col: '#fff2b0', col2: '#c9a43a' },
+    sylvan_warbow:{ slot: 'weapon', tier: 5, kind: 'bow',   atk: 12, cd: 19, price: 0, super: 1, fx: 'leaf',  col: '#4ad87a', col2: '#e8ffe0' },
+    thunderforge: { slot: 'weapon', tier: 5, kind: 'gun',   atk: 24, cd: 66, price: 0, super: 1, fx: 'chain', col: '#5a6a9a', col2: '#ffd23f' },
+    veilstaff:    { slot: 'weapon', tier: 5, kind: 'staff', atk: 17, cd: 20, price: 0, super: 1, fx: 'void',  col: '#b07aff', col2: '#2a1a3a' }
 };
 window.HM_SLOTS = ['weapon', 'head', 'body', 'feet'];
 
@@ -45,11 +62,13 @@ window.HM_SLOTS = ['weapon', 'head', 'body', 'feet'];
  * Bonuses: a attack, d defence, c crit %, s speed %, h max health, g extra coins % */
 window.HM_LOOT = {
     colors: ['#e8e8e8', '#5ab0ff', '#c77dff', '#ffb020'],
-    chance: [0.65, 0.25, 0.08, 0.02],             // common, rare, epic, legendary
+    chance: [0.52, 0.28, 0.13, 0.07],             // common, rare, epic, legendary (legendary was 2%: too rare to ever see)
+    pity: 18,                                     // after this many pieces of gear without a legendary, the next one is legendary
+    bossLegend: 0.35,                             // chance that a boss's piece is legendary (else epic)
     bonuses: { weapon: ['a', 'c', 's', 'g'], armour: ['d', 'h', 's', 'g'] },
     zoneTier: { village: 1, greywood: 1, mireshore: 2, isle: 2, quarry: 2, barrow: 2, mine: 3 },
     foeDrop: 0.035,                               // chance that a normal foe drops gear (bosses always do, rare or better)
-    oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1 },
+    oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1, stonebrute: 0.4, yeti: 0.3, riftborn: 1, hollowsoldier: 0.12, cryptbones: 0.12 },
     bagSize: 36,
     maxUp: 5
 };
@@ -82,7 +101,8 @@ window.HM_QUESTS = [
 
 // mounts: speed multiplier, and the price at Hana's store (expensive on purpose: quests give them for free)
 // the dragon flies over water and low things; it is won in chapter 2 (never sold)
-window.HM_MOUNTS = { horse: { speed: 1.75, price: 700 }, wolf: { speed: 1.5, price: 900, bite: true }, dragon: { speed: 2.1, price: 0, fly: true } };
+// the Hollow Charger (chapter 3, from the Hollow King): a ghostly winged steed of the Veil, the fastest of all, and it flies
+window.HM_MOUNTS = { horse: { speed: 1.75, price: 700 }, wolf: { speed: 1.5, price: 900, bite: true }, dragon: { speed: 2.1, price: 0, fly: true }, charger: { speed: 2.3, price: 0, fly: true } };
 
 // what the chests hold (by zone:x,y); anything not listed holds coins
 window.HM_CHESTS = {

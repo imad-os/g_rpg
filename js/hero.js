@@ -35,11 +35,15 @@ window.HM_HERO = (function () {
     };
 
     /* dir: 0 front (facing down), 1 back (facing up), 2 side; flip = facing left
+     * dir 3 / 4: three-quarter views for diagonals (front turned toward the side it walks to / back turned), flip = toward the left
      * walk: phase in radians (0 = standing), lean: -1..1 forward lean when striking */
+    let Q = 0;                                           // 1 while drawing a three-quarter view: the face turns toward +x
     function draw(x, X, Y, look, gear, dir, flip, walk, lean, flash, s) {
         F = !!flash;
         s = s || 1;
+        Q = dir === 3 || dir === 4 ? 1 : 0; if (Q) dir = dir === 3 ? 0 : 1;
         x.save(); x.translate(X, Y); if (s !== 1) x.scale(s, s); if (flip) x.scale(-1, 1);
+        if (Q) x.scale(0.84, 1);                         // turned a little: narrower shoulders
         if (lean) x.rotate(lean * 0.12);
         const sw = walk ? Math.sin(walk) : 0, bob = walk ? -Math.abs(Math.cos(walk)) * 1.2 : 0;
         const bd = BODY[gear.body], hd = HEAD[gear.head], ft = FEET[gear.feet];
@@ -121,7 +125,7 @@ window.HM_HERO = (function () {
         const full = hd && (hd.kind === 'knight' || hd.kind === 'hood');
         if (!full && look.style !== 2) {
             const hr = look.hair;
-            if (back) { oval(x, 0, hy - 0.5, 7.4, 7, hr); if (look.style === 1) rect(x, -2, hy + 4, 4, 9, hr); }
+            if (back) { oval(x, -Q, hy - 0.5, 7.4, 7, hr); if (look.style === 1) rect(x, -2 - Q * 1.5, hy + 4, 4, 9, hr); if (Q) oval(x, 5.4, hy + 1.5, 1.6, 2.2, look.skin); }
             else if (side) {
                 poly4(x, -7.4, hy - 1, 5, -38.6, 7.4, hy - 3, -3, hy + 5, hr);
                 oval(x, -1, hy - 3, 7, 4.6, hr);
@@ -138,6 +142,7 @@ window.HM_HERO = (function () {
         if (!back) {
             const ey = hy + 0.5;
             if (side) { rect(x, 3.4, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 6.4, ey + 1.5, 1.2, 1.2, shade(look.skin)); }
+            else if (Q) { rect(x, -1.2, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 3.8, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 6.6, ey + 1, 1.2, 1.4, shade(look.skin)); if (!F) { x.fillStyle = 'rgba(255,120,120,0.35)'; x.fillRect(-3, ey + 2, 2, 1.2); x.fillRect(5, ey + 2, 1.6, 1.2); } }
             else { rect(x, -3.4, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 1.8, ey - 1, 1.6, 2.2, '#20182a'); if (!F) { x.fillStyle = 'rgba(255,120,120,0.35)'; x.fillRect(-5.5, ey + 2, 2, 1.2); x.fillRect(3.5, ey + 2, 2, 1.2); } }
             if (look.beard) { if (side) poly4(x, 0, hy + 3, 6, hy + 3, 4, hy + 8, -1, hy + 6, look.beard); else poly4(x, -5, hy + 2.5, 5, hy + 2.5, 3, hy + 8, -3, hy + 8, look.beard); }
         }

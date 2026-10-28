@@ -17,6 +17,7 @@ To make a new chapter you only need to read **this file** and the files of an ex
 | `chapters/chN/maps.js` | the areas (built with `rect`, `scatter`... or written as rows of letters) |
 | `chapters/chN/art.js` | optional: how the areas are drawn (chapter 2 draws everything in code, with depth) |
 | `chapters/chN/chapter.js` | the story, the people, quests, foes, bosses, music: `HM_CHAPTERS.def.chN = function (api) { return {...} }` |
+| `chapters/chN/*.json` | optional data read before the scripts (`data: { HM_C3_QUESTS: 'chapters/ch3/quests.json' }` in `LIST`): chapter 3 keeps its whole main story there |
 
 Chapter 1 (`chapters/ch1/story.js`) uses `js/maps.js`, `js/pool.js` and `js/rift.js` as its data;
 its texts are in `js/i18n*.js` because the menus share them.
@@ -88,6 +89,17 @@ Everything is optional except `id`, `home` and `maps`.
 | `target()` | where the guide arrow points (set `api.GT.x / y`, or `return api.hop(zone)`) |
 | `music(zone, def)`, `lanternLit()`, `gems()`, `relics()` | song choice, a lit Lantern, the four gems on the HUD, the journal row |
 | `forgeName()`, `storeName()`, `score()` | shop titles, the score shown at the chapter's end |
+| `journal()` | the main quest for the journal: `{ act, title, story, n, m, all: [[title, done, current]] }` |
+| `questDone(q)` | a side quest or task was handed in (chapter 3 counts faction trust) |
+| `pickup(d)` | a ground item with `d.qg === '@ch'` was picked up (the chapter's own collect steps; `d.v` = its spot) |
+| `mods()` | `{ take, deal }` multipliers for damage taken and dealt (allies' help); called on every blow, return a kept object |
+| `shop` | the forge's list (may be a getter, so two shopkeepers can sell different things) |
+
+**Main quests as data (chapter 3).** `quests.json` lists quests, each with steps of one action: `talk` (npc),
+`interact` (spots), `kill` (foes in a zone), `collect` (things on spots), `rescue` (people), `waves` (spots that wake
+waves of foes), `reach` (a zone), `boss`, `choice` (talk, then pick). Every step has a `goal` per language (`{n}/{m}`
+for progress), and may have `say` (lines when it is done), `each` (lines per spot), `set` (beacons lit, gates opened)
+and `picks` (a choice). `chapters/ch3/chapter.js` runs them; copy it for a new chapter that wants the same.
 
 ## Foes
 
@@ -96,6 +108,9 @@ Everything is optional except `id`, `home` and `maps`.
   `crab`, `imp`. People with `look` + `gear` + `weapon` (`bow`, `gun`, `staff`, `club`, `sword`) are
   drawn in clothes. Ready-made: `archer`, `gunner`, `hexer`, `raider`, `boar`, `crab`, `imp`, plus
   chapter 1's `wisp`, `wolf`, `crawler`, `mite`, `bones`, `bat`.
+- **Armour and shields**: `def` (taken off every blow, +20% per extra hero), `hitMul(f, dx, dy, p)` (a multiplier for
+  each blow, e.g. a shield facing it). Foes spawned with `tag` set can be counted (waves).
+- Every hero who joins makes foes 20% tougher (`api.coopMul()`): health, armour and damage. Bosses also get +50% health per extra hero.
 - **Bosses**: give `upd(f, p, d, tx, ty, rw, rh)` and `draw(ctx, f, x, y, flash)`. Use `f.st`, `f.tm`,
   `f.wt`, `f.ph`, `f.pt`, `f.ang`, `f.ring`, `f.sum` for state. `f.immune` blocks damage, `f.weak` doubles it,
   `f.alpha < 0.5` means it can't be hit. Telegraph every attack (a line, a circle, a shake) so players

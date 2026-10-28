@@ -2,23 +2,22 @@
   "mypc": 1,
   "id": "hollowmere-lantern-road",
   "name": "Hollowmere",
-  "description": "A 2.5D co-op RPG in chapters. Chapter 1: The Lantern Road. Chapter 2: The Sunken Lantern.",
+  "description": "A 2.5D co-op RPG in chapters: The Lantern Road, The Sunken Lantern and The Veilscar Frontier.",
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "2.12.1",
+  "version": "3.0.0",
   "scores": true,
   "config": {
-    "proxyUrl": "",
     "tts": true,
-    "ttsModel": "gemini-3.8-flash-lite-tts",
     "coinDrops": 0.6,
     "gearDrops": 0.5,
     "mountSpeed": 1,
     "petSpeed": 1.5,
     "enemyDifficulty": 1.3,
     "chapters": [
-      "ch2"
+      "ch2",
+      "ch3"
     ]
   }
 }

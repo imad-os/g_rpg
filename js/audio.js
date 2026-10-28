@@ -203,10 +203,29 @@ window.HM_AUDIO = (function () {
         os.connect(fl); fl.connect(g); g.connect(sfx); os.start(t); os.stop(t + 0.22);
         hiss(0.08, 0.08, formant * 2);
     }
-    function fx(name) { const f = FX[name]; if (f && ac) f(); }
+    // recorded sounds (Kenney's RPG Audio, CC0, audio/sfx/): once decoded they replace or join the synthesized ones
+    const SAMPLES = {}, SAMPLE_VOL = {};
+    function loadSamples(map, version) {
+        if (!ac) return;
+        for (const name in map) {
+            if (SAMPLES[name]) continue;
+            fetch(map[name][0] + '?v=' + version).then(r => r.ok ? r.arrayBuffer() : null)
+                .then(b => b && ac ? new Promise((ok, no) => ac.decodeAudioData(b, ok, no)) : null)
+                .then(buf => { if (buf) { SAMPLES[name] = buf; SAMPLE_VOL[name] = map[name][1]; } }).catch(() => {});
+        }
+    }
+    function sample(name) {
+        const b = SAMPLES[name]; if (!b || ac.state !== 'running') return false;
+        const s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; g.gain.value = SAMPLE_VOL[name] || 0.8;
+        s.connect(g); g.connect(sfx); s.start();
+        return true;
+    }
+    // a name with a recorded sound plays it (door, buy, cut, equip also keep a little synth under it); others are synthesized
+    const MIX = { door: 1, chest: 1 };
+    function fx(name) { if (!ac) return; if (sample(name) && !MIX[name]) return; const f = FX[name]; if (f) f(); }
 
     // while someone speaks, the music steps back
     function duck(on) { if (ac && music) music.gain.setTargetAtTime((on ? 0.12 : 0.32) * vol.music, ac.currentTime, 0.15); }
 
-    return { start, setVolume, pause, resume, close, play, fx, prepare: render, define, drop, duck, ctx: () => ac, voiceOut: () => voice };
+    return { start, setVolume, pause, resume, close, play, fx, prepare: render, define, drop, duck, loadSamples, ctx: () => ac, voiceOut: () => voice };
 })();

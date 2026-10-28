@@ -1,0 +1,378 @@
+{
+  "about": "Hollowmere, Chapter 3: The Veilscar Frontier. The main quests, in order. Each step is done by one action: talk (to npc), interact (at spots), kill (n foes of a kind in a zone), collect (pick up n things at spots), rescue (talk to n people), waves (light / break n things at spots, each wakes a wave of foes to beat), reach (walk into a zone), boss, choice (talk, then choose). goal: the objective on screen ({n}/{m} = progress). say: lines when the step is done (who speaks, per language). each: lines for each spot. set: what changes in the world (beacons lit, gates opened).",
+  "quests": [
+    {
+      "id": "c3q1", "act": 1,
+      "title": { "en": "A Land Gone Silent", "fr": "Une terre devenue muette", "es": "Una tierra en silencio", "ar": "أرض صامتة" },
+      "story": {
+        "en": "Dawnwatch's caravans vanished in the Elderwood. Find out why.",
+        "fr": "Les caravanes d'Aube-Garde ont disparu dans le Bois-Ancien. Découvrez pourquoi.",
+        "es": "Las caravanas de Vigía del Alba desaparecieron en el Bosque Antiguo. Descubre por qué.",
+        "ar": "قوافل حصن الفجر اختفت في الغابة القديمة. اكتشف السبب."
+      },
+      "steps": [
+        {
+          "id": "meet", "type": "talk", "npc": "aldric", "zone": "c3_dawn", "at": [19.5, 16.6],
+          "goal": { "en": "Speak with Captain Aldric in the square of Dawnwatch.", "fr": "Parlez au capitaine Aldric sur la place d'Aube-Garde.", "es": "Habla con el capitán Aldric en la plaza de Vigía del Alba.", "ar": "تكلّم مع القائد ألدريك في ساحة حصن الفجر." },
+          "say": {
+            "who": "aldric",
+            "en": ["You came from Larkspur? Then you saw the third light in the north. That was us: Dawnwatch, the last town of the old kingdom.", "Our caravans stopped coming. Wagons go into the Elderwood, and nobody comes out. The beasts in there have gone wrong.", "Take the west road into the wood. Find the caravans, and find out what happened."],
+            "fr": ["Vous venez de Larkspur ? Alors vous avez vu la troisième lumière au nord. C'était nous : Aube-Garde, la dernière ville du vieux royaume.", "Nos caravanes ne viennent plus. Les chariots entrent dans le Bois-Ancien, et personne n'en sort. Les bêtes de ce bois sont devenues mauvaises.", "Prenez la route de l'ouest vers le bois. Trouvez les caravanes, et découvrez ce qui s'est passé."],
+            "es": ["¿Vienes de Larkspur? Entonces viste la tercera luz del norte. Éramos nosotros: Vigía del Alba, el último pueblo del viejo reino.", "Nuestras caravanas ya no llegan. Los carros entran en el Bosque Antiguo y nadie sale. Las bestias de ese bosque se han vuelto malas.", "Toma el camino del oeste hacia el bosque. Encuentra las caravanas y descubre qué pasó."],
+            "ar": ["جئت من لاركسبر؟ إذن رأيت الضوء الثالث في الشمال. كان ذلك نحن: حصن الفجر، آخر مدينة في المملكة القديمة.", "قوافلنا لم تعد تصل. العربات تدخل الغابة القديمة ولا يخرج منها أحد. الحيوانات هناك صارت شريرة.", "خذ الطريق الغربي إلى الغابة. ابحث عن القوافل، واعرف ماذا حدث."]
+          }
+        },
+        {
+          "id": "wagons", "type": "interact", "zone": "c3_elder", "n": 3, "spots": [[41, 21.5], [30, 26.5], [15, 16.5]],
+          "goal": { "en": "Search the lost caravans in the Elderwood ({n}/{m}).", "fr": "Fouillez les caravanes perdues dans le Bois-Ancien ({n}/{m}).", "es": "Registra las caravanas perdidas en el Bosque Antiguo ({n}/{m}).", "ar": "فتّش القوافل الضائعة في الغابة القديمة ({n}/{m})." },
+          "each": {
+            "en": ["Torn canvas and broken crates. Deep claw marks in the wood.", "Thorns have grown right through this wagon. In one night.", "A driver's notebook: 'The stalkers came out of the old shrine. Their eyes were black.'"],
+            "fr": ["Toile déchirée et caisses brisées. De profondes marques de griffes dans le bois.", "Des épines ont poussé à travers ce chariot. En une seule nuit.", "Le carnet d'un cocher : « Les rôdeurs sont sortis du vieux sanctuaire. Leurs yeux étaient noirs. »"],
+            "es": ["Lona rota y cajas destrozadas. Marcas de garras profundas en la madera.", "Las espinas atravesaron este carro. En una sola noche.", "El cuaderno de un cochero: «Los acechadores salieron del viejo santuario. Sus ojos eran negros.»"],
+            "ar": ["قماش ممزق وصناديق مكسورة. آثار مخالب عميقة في الخشب.", "نبتت الأشواك داخل هذه العربة. في ليلة واحدة.", "دفتر سائق: «خرج المتربصون من المعبد القديم. كانت عيونهم سوداء.»"]
+          },
+          "say": { "who": null, "en": ["The tracks of the beasts go deeper into the wood. Hunt them down."], "fr": ["Les traces des bêtes s'enfoncent dans le bois. Traquez-les."], "es": ["Las huellas de las bestias se adentran en el bosque. Cázalas."], "ar": ["آثار الحيوانات تذهب إلى عمق الغابة. طاردها."] }
+        },
+        {
+          "id": "stalkers", "type": "kill", "zone": "c3_elder", "foes": ["thornstalker"], "n": 5,
+          "goal": { "en": "Hunt the Thornback Stalkers that attacked the caravans ({n}/{m}).", "fr": "Traquez les rôdeurs épineux qui ont attaqué les caravanes ({n}/{m}).", "es": "Caza a los acechadores espinosos que atacaron las caravanas ({n}/{m}).", "ar": "اصطد المتربصين الشائكين الذين هاجموا القوافل ({n}/{m})." },
+          "say": { "who": null, "en": ["The last stalker falls. To the north, past the stream, an old shrine glows with a sick light."], "fr": ["Le dernier rôdeur tombe. Au nord, après le ruisseau, un vieux sanctuaire brille d'une lumière malade."], "es": ["Cae el último acechador. Al norte, tras el arroyo, un viejo santuario brilla con una luz enferma."], "ar": ["سقط آخر متربص. في الشمال، بعد الجدول، يلمع معبد قديم بضوء مريض."] }
+        },
+        {
+          "id": "symbol", "type": "interact", "zone": "c3_elder", "n": 1, "spots": [[25.5, 3.6]],
+          "goal": { "en": "Look at the glowing stone in the old shrine (north of the Elderwood).", "fr": "Examinez la pierre lumineuse du vieux sanctuaire (au nord du Bois-Ancien).", "es": "Mira la piedra brillante del viejo santuario (al norte del Bosque Antiguo).", "ar": "انظر إلى الحجر المضيء في المعبد القديم (شمال الغابة القديمة)." },
+          "say": { "who": null, "en": ["A sign of light is carved in the stone: a ward, made to keep the dark away. It is cracked.", "You copy the sign onto a page. Seer Ysolde in Dawnwatch will know what it means."], "fr": ["Un signe de lumière est gravé dans la pierre : une garde, faite pour tenir l'ombre au loin. Elle est fendue.", "Vous recopiez le signe sur une page. La voyante Ysolde, à Aube-Garde, saura ce qu'il veut dire."], "es": ["Hay un signo de luz tallado en la piedra: una guarda, hecha para alejar la oscuridad. Está agrietada.", "Copias el signo en una hoja. La vidente Ysolde, en Vigía del Alba, sabrá qué significa."], "ar": ["علامة نور منقوشة في الحجر: حارس يُبعد الظلام. لكنها مشقوقة.", "تنسخ العلامة على ورقة. العرّافة إيزولد في حصن الفجر ستعرف معناها."] }
+        },
+        {
+          "id": "seer", "type": "talk", "npc": "ysolde", "zone": "c3_dawn", "at": [17.5, 11.6],
+          "goal": { "en": "Bring the light-ward sign to Seer Ysolde in Dawnwatch.", "fr": "Apportez le signe de garde à la voyante Ysolde, à Aube-Garde.", "es": "Lleva el signo de guarda a la vidente Ysolde en Vigía del Alba.", "ar": "خذ علامة النور إلى العرّافة إيزولد في حصن الفجر." },
+          "say": {
+            "who": "ysolde",
+            "en": ["This is a light-ward. The old kings carved them in every shrine, to keep the Veil shut.", "But this one is broken. The heart of the shrine is sick, and so is its guardian, the oldest tree of the wood.", "Bring me three Moonpetals. They grow only in the quiet corners of the Elderwood. With them I can make a Lightseed."],
+            "fr": ["C'est une garde de lumière. Les anciens rois en gravaient dans chaque sanctuaire, pour garder le Voile fermé.", "Mais celle-ci est brisée. Le cœur du sanctuaire est malade, et son gardien aussi : le plus vieil arbre du bois.", "Apportez-moi trois Pétales de lune. Ils ne poussent que dans les coins calmes du Bois-Ancien. Avec eux, je ferai une Graine de lumière."],
+            "es": ["Es una guarda de luz. Los antiguos reyes las tallaban en cada santuario, para mantener cerrado el Velo.", "Pero esta está rota. El corazón del santuario está enfermo, y también su guardián, el árbol más viejo del bosque.", "Tráeme tres Pétalos de luna. Solo crecen en los rincones tranquilos del Bosque Antiguo. Con ellos haré una Semilla de luz."],
+            "ar": ["هذا حارس النور. الملوك القدماء نقشوه في كل معبد، ليبقى الحجاب مغلقًا.", "لكن هذا مكسور. قلب المعبد مريض، وحارسه مريض أيضًا: أقدم شجرة في الغابة.", "أحضر لي ثلاث بتلات قمر. تنمو فقط في الزوايا الهادئة من الغابة القديمة. بها أصنع بذرة نور."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3q2", "act": 1,
+      "title": { "en": "The Rootbound Guardian", "fr": "Le Gardien enraciné", "es": "El Guardián Enraizado", "ar": "الحارس ذو الجذور" },
+      "story": {
+        "en": "Heal the shrine of the Elderwood and free its sick guardian.",
+        "fr": "Soignez le sanctuaire du Bois-Ancien et libérez son gardien malade.",
+        "es": "Sana el santuario del Bosque Antiguo y libera a su guardián enfermo.",
+        "ar": "اشفِ معبد الغابة القديمة وحرّر حارسه المريض."
+      },
+      "steps": [
+        {
+          "id": "petals", "type": "collect", "zone": "c3_elder", "n": 3, "spots": [[6, 6], [44, 5], [20, 31]], "icon": "moonpetal",
+          "goal": { "en": "Gather Moonpetals in the quiet corners of the Elderwood ({n}/{m}).", "fr": "Cueillez des Pétales de lune dans les coins calmes du Bois-Ancien ({n}/{m}).", "es": "Recoge Pétalos de luna en los rincones tranquilos del Bosque Antiguo ({n}/{m}).", "ar": "اجمع بتلات القمر من الزوايا الهادئة في الغابة القديمة ({n}/{m})." },
+          "say": { "who": null, "en": ["Three Moonpetals, cool and bright in your hands. Back to Ysolde."], "fr": ["Trois Pétales de lune, frais et brillants dans vos mains. Retour chez Ysolde."], "es": ["Tres Pétalos de luna, frescos y brillantes en tus manos. Vuelve con Ysolde."], "ar": ["ثلاث بتلات قمر، باردة ولامعة في يديك. عُد إلى إيزولد."] }
+        },
+        {
+          "id": "seed", "type": "talk", "npc": "ysolde", "zone": "c3_dawn", "at": [17.5, 11.6],
+          "goal": { "en": "Bring the Moonpetals to Ysolde.", "fr": "Apportez les Pétales de lune à Ysolde.", "es": "Lleva los Pétalos de luna a Ysolde.", "ar": "خذ بتلات القمر إلى إيزولد." },
+          "say": {
+            "who": "ysolde",
+            "en": ["Good. Now hold still... There. A Lightseed.", "Plant it in the heart of the shrine. The guardian will wake, and it will fight you. It does not know friend from foe any more.", "Stay light on your feet. When it lifts its roots, the ground will break under you."],
+            "fr": ["Bien. Ne bougez plus... Voilà. Une Graine de lumière.", "Plantez-la au cœur du sanctuaire. Le gardien se réveillera, et il vous combattra. Il ne reconnaît plus ses amis.", "Restez mobiles. Quand il lève ses racines, le sol se brise sous vos pieds."],
+            "es": ["Bien. Ahora quieto... Ya está. Una Semilla de luz.", "Plántala en el corazón del santuario. El guardián despertará y luchará contigo. Ya no distingue amigos de enemigos.", "No te quedes quieto. Cuando levante sus raíces, el suelo se romperá bajo tus pies."],
+            "ar": ["جيد. لا تتحرك الآن... هكذا. بذرة نور.", "ازرعها في قلب المعبد. سيستيقظ الحارس ويقاتلك. لم يعد يعرف الصديق من العدو.", "ابقَ تتحرك. عندما يرفع جذوره، ستنكسر الأرض تحتك."]
+          }
+        },
+        {
+          "id": "plant", "type": "interact", "zone": "c3_elder", "n": 1, "spots": [[25.5, 3.6]],
+          "goal": { "en": "Plant the Lightseed in the shrine of the Elderwood.", "fr": "Plantez la Graine de lumière dans le sanctuaire du Bois-Ancien.", "es": "Planta la Semilla de luz en el santuario del Bosque Antiguo.", "ar": "ازرع بذرة النور في معبد الغابة القديمة." },
+          "say": { "who": null, "en": ["The seed sinks into the stone. The whole wood trembles...", "Roots tear out of the ground! The Rootbound Guardian is awake!"], "fr": ["La graine s'enfonce dans la pierre. Tout le bois tremble...", "Des racines jaillissent du sol ! Le Gardien enraciné se réveille !"], "es": ["La semilla se hunde en la piedra. Todo el bosque tiembla...", "¡Las raíces salen del suelo! ¡El Guardián Enraizado despierta!"], "ar": ["تغوص البذرة في الحجر. ترتجف الغابة كلها...", "تخرج الجذور من الأرض! استيقظ الحارس ذو الجذور!"] }
+        },
+        {
+          "id": "root", "type": "boss", "boss": "rootbound", "zone": "c3_elder", "at": [25, 5.6],
+          "goal": { "en": "Defeat the Rootbound Guardian. Watch the ground!", "fr": "Vainquez le Gardien enraciné. Attention au sol !", "es": "Derrota al Guardián Enraizado. ¡Cuidado con el suelo!", "ar": "اهزم الحارس ذو الجذور. انتبه للأرض!" },
+          "set": { "beacons": 1 },
+          "say": { "who": null, "en": ["Black smoke pours out of the old tree and is gone. Its bark turns green again.", "Far away, in Dawnwatch, a beacon catches fire."], "fr": ["Une fumée noire sort du vieil arbre et disparaît. Son écorce redevient verte.", "Au loin, à Aube-Garde, un fanal s'allume."], "es": ["Un humo negro sale del viejo árbol y desaparece. Su corteza vuelve a ser verde.", "A lo lejos, en Vigía del Alba, una almenara se enciende."], "ar": ["يخرج دخان أسود من الشجرة القديمة ويختفي. يعود لحاؤها أخضر.", "بعيدًا، في حصن الفجر، تشتعل منارة."] }
+        },
+        {
+          "id": "back", "type": "talk", "npc": "ysolde", "zone": "c3_dawn", "at": [17.5, 11.6],
+          "goal": { "en": "Go back to Ysolde in Dawnwatch. A beacon burns again!", "fr": "Retournez voir Ysolde à Aube-Garde. Un fanal brûle à nouveau !", "es": "Vuelve con Ysolde en Vigía del Alba. ¡Una almenara arde otra vez!", "ar": "عُد إلى إيزولد في حصن الفجر. منارة تشتعل من جديد!" },
+          "set": { "open": "east" },
+          "say": {
+            "who": "ysolde",
+            "en": ["Look! The first beacon! People are coming out of their houses again.", "But do not rest yet. Three banners fight over this land, and while they fight, the Veil grows thin.", "Archdruid Fenna leads the Circle of the Grove, in the wood. Warlord Kragg leads the Ashblood, east, in the marches. I asked the guards to open the east gate. Meet them both."],
+            "fr": ["Regardez ! Le premier fanal ! Les gens sortent à nouveau de chez eux.", "Mais ne vous reposez pas encore. Trois bannières se battent pour cette terre, et pendant qu'elles se battent, le Voile s'amincit.", "L'archidruide Fenna mène le Cercle du Bosquet, dans le bois. Le chef de guerre Kragg mène les Sang-de-Cendre, à l'est, dans les marches. J'ai fait ouvrir la porte de l'est. Rencontrez-les tous les deux."],
+            "es": ["¡Mira! ¡La primera almenara! La gente vuelve a salir de sus casas.", "Pero no descanses todavía. Tres estandartes luchan por esta tierra, y mientras luchan, el Velo se vuelve fino.", "La archidruida Fenna guía al Círculo de la Arboleda, en el bosque. El caudillo Kragg guía a los Sangre de Ceniza, al este, en las marcas. Pedí que abrieran la puerta del este. Ve a ver a los dos."],
+            "ar": ["انظر! المنارة الأولى! الناس يخرجون من بيوتهم من جديد.", "لكن لا ترتح الآن. ثلاث رايات تتقاتل على هذه الأرض، وبينما تتقاتل، يضعف الحجاب.", "كبيرة الكهنة فينا تقود دائرة البستان في الغابة. والقائد كراغ يقود قبيلة دم الرماد في الأراضي الشرقية. طلبتُ فتح الباب الشرقي. قابل الاثنين."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3q3", "act": 2,
+      "title": { "en": "The Three Banners", "fr": "Les Trois Bannières", "es": "Los Tres Estandartes", "ar": "الرايات الثلاث" },
+      "story": {
+        "en": "The Guard, the Circle and the Ashblood fight each other. Win their trust.",
+        "fr": "La Garde, le Cercle et les Sang-de-Cendre se battent entre eux. Gagnez leur confiance.",
+        "es": "La Guardia, el Círculo y los Sangre de Ceniza luchan entre sí. Gánate su confianza.",
+        "ar": "الحرس والدائرة ودم الرماد يتقاتلون. اكسب ثقتهم."
+      },
+      "steps": [
+        {
+          "id": "fenna", "type": "talk", "npc": "fenna", "zone": "c3_elder", "at": [8.5, 28.6],
+          "goal": { "en": "Meet Archdruid Fenna at the Grove camp (south-west of the Elderwood).", "fr": "Rencontrez l'archidruide Fenna au camp du Bosquet (au sud-ouest du Bois-Ancien).", "es": "Conoce a la archidruida Fenna en el campamento de la Arboleda (al suroeste del Bosque Antiguo).", "ar": "قابل كبيرة الكهنة فينا في مخيم البستان (جنوب غرب الغابة القديمة)." },
+          "say": {
+            "who": "fenna",
+            "en": ["So you are the ones who woke the Guardian. It is healed. The wood thanks you.", "The kingdom cut our trees and built its walls. Now its old king's curse eats the land, and they ask for our help?", "The Circle will listen to you. Not to them. Go and see the Ashblood. You will understand why we trust no one."],
+            "fr": ["C'est donc vous qui avez réveillé le Gardien. Il est guéri. Le bois vous remercie.", "Le royaume a coupé nos arbres et bâti ses murs. Maintenant, la malédiction de son vieux roi dévore la terre, et ils demandent notre aide ?", "Le Cercle vous écoutera, vous. Pas eux. Allez voir les Sang-de-Cendre. Vous comprendrez pourquoi nous ne faisons confiance à personne."],
+            "es": ["Así que tú despertaste al Guardián. Está curado. El bosque te lo agradece.", "El reino cortó nuestros árboles y levantó sus muros. Ahora la maldición de su viejo rey devora la tierra, ¿y nos piden ayuda?", "El Círculo te escuchará a ti. No a ellos. Ve a ver a los Sangre de Ceniza. Entenderás por qué no confiamos en nadie."],
+            "ar": ["إذن أنت من أيقظ الحارس. لقد شُفي. الغابة تشكرك.", "المملكة قطعت أشجارنا وبنت أسوارها. والآن لعنة ملكها القديم تأكل الأرض، ويطلبون مساعدتنا؟", "الدائرة ستسمعك أنت، لا هم. اذهب إلى دم الرماد. ستفهم لماذا لا نثق بأحد."]
+          }
+        },
+        {
+          "id": "kragg", "type": "talk", "npc": "kragg", "zone": "c3_ashen", "at": [40.5, 25.8],
+          "goal": { "en": "Meet Warlord Kragg at the Ashblood camp (Ashen Marches, through the east gate).", "fr": "Rencontrez le chef de guerre Kragg au camp des Sang-de-Cendre (Marches cendrées, par la porte de l'est).", "es": "Conoce al caudillo Kragg en el campamento de los Sangre de Ceniza (Marcas Cenicientas, por la puerta del este).", "ar": "قابل القائد كراغ في مخيم دم الرماد (أراضي الرماد، عبر الباب الشرقي)." },
+          "say": {
+            "who": "kragg",
+            "en": ["Ha! The little lamplighters. Who sent you? The druid, or the captain?", "This was Hearthvale. My mother's village. The dead climbed out of their graves and burned it.", "The captain's soldiers never came. The druids never came. Prove you are different. Save who is left."],
+            "fr": ["Ha ! Les petits allumeurs de lanternes. Qui vous envoie ? La druide, ou le capitaine ?", "Ici, c'était Valfoyer. Le village de ma mère. Les morts sont sortis de leurs tombes et l'ont brûlé.", "Les soldats du capitaine ne sont jamais venus. Les druides non plus. Prouvez que vous êtes différents. Sauvez ceux qui restent."],
+            "es": ["¡Ja! Los pequeños faroleros. ¿Quién te envía? ¿La druida o el capitán?", "Esto era Valle Hogar. El pueblo de mi madre. Los muertos salieron de sus tumbas y lo quemaron.", "Los soldados del capitán nunca vinieron. Los druidas tampoco. Demuestra que eres diferente. Salva a los que quedan."],
+            "ar": ["ها! حاملو الفوانيس الصغار. من أرسلك؟ الكاهنة أم القائد؟", "هنا كانت قرية الموقد. قرية أمي. خرج الموتى من قبورهم وأحرقوها.", "جنود القائد لم يأتوا أبدًا. والكهنة لم يأتوا. أثبت أنك مختلف. أنقذ من بقي."]
+          }
+        },
+        {
+          "id": "aldric2", "type": "talk", "npc": "aldric", "zone": "c3_dawn", "at": [19.5, 16.6],
+          "goal": { "en": "Tell Captain Aldric about Hearthvale.", "fr": "Parlez de Valfoyer au capitaine Aldric.", "es": "Cuéntale al capitán Aldric lo de Valle Hogar.", "ar": "أخبر القائد ألدريك عن قرية الموقد." },
+          "say": {
+            "who": "aldric",
+            "en": ["Hearthvale... We had no men to send. That is the truth, and it shames me.", "Some villagers still hide in the ruins. And the old graveyard has three ward stones. If they burn again, the dead will sleep.", "Help them. Kragg will never trust me, but he might trust you."],
+            "fr": ["Valfoyer... Nous n'avions personne à envoyer. C'est la vérité, et j'en ai honte.", "Des villageois se cachent encore dans les ruines. Et le vieux cimetière a trois pierres de garde. Si elles brûlent à nouveau, les morts dormiront.", "Aidez-les. Kragg ne me fera jamais confiance, mais à vous, peut-être."],
+            "es": ["Valle Hogar... No teníamos a nadie que enviar. Es la verdad, y me avergüenza.", "Algunos aldeanos todavía se esconden en las ruinas. Y el viejo cementerio tiene tres piedras de guarda. Si vuelven a arder, los muertos dormirán.", "Ayúdalos. Kragg nunca confiará en mí, pero quizá en ti sí."],
+            "ar": ["قرية الموقد... لم يكن عندنا رجال لنرسلهم. هذه الحقيقة، وأنا أخجل منها.", "بعض القرويين ما زالوا يختبئون في الخراب. وفي المقبرة القديمة ثلاثة أحجار حراسة. إن اشتعلت من جديد، سينام الموتى.", "ساعدهم. كراغ لن يثق بي أبدًا، لكن ربما يثق بك."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3q4", "act": 2,
+      "title": { "en": "Ashes of Hearthvale", "fr": "Les cendres de Valfoyer", "es": "Las cenizas de Valle Hogar", "ar": "رماد قرية الموقد" },
+      "story": {
+        "en": "Save the last people of Hearthvale and put its dead back to sleep.",
+        "fr": "Sauvez les derniers habitants de Valfoyer et rendormez ses morts.",
+        "es": "Salva a los últimos habitantes de Valle Hogar y devuelve a sus muertos al sueño.",
+        "ar": "أنقذ آخر سكان قرية الموقد وأعِد موتاها إلى النوم."
+      },
+      "steps": [
+        {
+          "id": "survivors", "type": "rescue", "zone": "c3_ashen", "n": 4, "npcs": ["surv1", "surv2", "surv3", "surv4"],
+          "goal": { "en": "Find the survivors of Hearthvale in the Ashen Marches ({n}/{m}).", "fr": "Trouvez les survivants de Valfoyer dans les Marches cendrées ({n}/{m}).", "es": "Encuentra a los supervivientes de Valle Hogar en las Marcas Cenicientas ({n}/{m}).", "ar": "ابحث عن الناجين من قرية الموقد في أراضي الرماد ({n}/{m})." },
+          "each": {
+            "en": ["You came! I hid in the well house for three days. I will run to Kragg's camp.", "My leg hurts, but I can walk. Thank you, thank you!", "The dead are slow, but they never stop. I am going to the camp.", "Is it over? No? Then I will hide with Kragg's people."],
+            "fr": ["Vous êtes venus ! Je me cache près du puits depuis trois jours. Je cours au camp de Kragg.", "Ma jambe me fait mal, mais je peux marcher. Merci, merci !", "Les morts sont lents, mais ils ne s'arrêtent jamais. Je vais au camp.", "C'est fini ? Non ? Alors je vais me cacher chez les gens de Kragg."],
+            "es": ["¡Viniste! Llevo tres días escondida junto al pozo. Correré al campamento de Kragg.", "Me duele la pierna, pero puedo andar. ¡Gracias, gracias!", "Los muertos son lentos, pero nunca paran. Me voy al campamento.", "¿Se acabó? ¿No? Entonces me esconderé con la gente de Kragg."],
+            "ar": ["جئت! اختبأتُ قرب البئر ثلاثة أيام. سأركض إلى مخيم كراغ.", "رجلي تؤلمني، لكني أستطيع المشي. شكرًا، شكرًا!", "الموتى بطيئون، لكنهم لا يتوقفون أبدًا. سأذهب إلى المخيم.", "هل انتهى الأمر؟ لا؟ إذن سأختبئ عند جماعة كراغ."]
+          },
+          "say": { "who": null, "en": ["All four survivors are safe in the Ashblood camp. Now, the graveyard."], "fr": ["Les quatre survivants sont à l'abri au camp. Maintenant, le cimetière."], "es": ["Los cuatro supervivientes están a salvo en el campamento. Ahora, el cementerio."], "ar": ["الناجون الأربعة في أمان في المخيم. والآن، المقبرة."] }
+        },
+        {
+          "id": "wards", "type": "waves", "zone": "c3_ashen", "n": 3, "spots": [[7.5, 3.8], [16.5, 3.8], [12.5, 9.8]], "wave": ["cryptbones", "cryptbones", "hollowsoldier", "ashenarcher"],
+          "goal": { "en": "Light the three ward stones in the graveyard ({n}/{m}). The dead will rise!", "fr": "Allumez les trois pierres de garde du cimetière ({n}/{m}). Les morts vont se lever !", "es": "Enciende las tres piedras de guarda del cementerio ({n}/{m}). ¡Los muertos se levantarán!", "ar": "أشعل أحجار الحراسة الثلاثة في المقبرة ({n}/{m}). سينهض الموتى!" },
+          "each": {
+            "en": ["The stone burns white... and around you, the graves open!", "The second stone burns. The dead do not like it!", "The last stone! Every grave is shaking!"],
+            "fr": ["La pierre brûle d'un feu blanc... et autour de vous, les tombes s'ouvrent !", "La deuxième pierre brûle. Les morts n'aiment pas ça !", "La dernière pierre ! Toutes les tombes tremblent !"],
+            "es": ["La piedra arde en blanco... ¡y a tu alrededor se abren las tumbas!", "Arde la segunda piedra. ¡A los muertos no les gusta!", "¡La última piedra! ¡Todas las tumbas tiemblan!"],
+            "ar": ["يشتعل الحجر بنور أبيض... وحولك تنفتح القبور!", "يشتعل الحجر الثاني. الموتى لا يحبون ذلك!", "الحجر الأخير! كل القبور ترتجف!"]
+          },
+          "set": { "beacons": 2 },
+          "say": { "who": null, "en": ["The three wards burn. The dead lie down and do not get up again.", "In Dawnwatch, a second beacon is lit."], "fr": ["Les trois gardes brûlent. Les morts se couchent et ne se relèvent plus.", "À Aube-Garde, un deuxième fanal s'allume."], "es": ["Arden las tres guardas. Los muertos se tumban y ya no se levantan.", "En Vigía del Alba se enciende una segunda almenara."], "ar": ["تشتعل الحراسات الثلاث. يرقد الموتى ولا ينهضون بعد الآن.", "في حصن الفجر، تشتعل منارة ثانية."] }
+        },
+        {
+          "id": "kragg2", "type": "talk", "npc": "kragg", "zone": "c3_ashen", "at": [40.5, 25.8],
+          "goal": { "en": "Return to Warlord Kragg.", "fr": "Retournez voir le chef de guerre Kragg.", "es": "Vuelve con el caudillo Kragg.", "ar": "عُد إلى القائد كراغ." },
+          "say": {
+            "who": "kragg",
+            "en": ["You did what no banner did. The Ashblood will remember it.", "Now listen. The dead had a captain: Marshal Veyr, the old king's general. He came back from the grave too.", "He sits in the Ruined Keep, up the north road, and he holds a seal that commands the dead. Take it from him."],
+            "fr": ["Vous avez fait ce qu'aucune bannière n'a fait. Les Sang-de-Cendre s'en souviendront.", "Maintenant, écoutez. Les morts avaient un chef : le maréchal Veyr, le général du vieux roi. Lui aussi est sorti de sa tombe.", "Il siège dans le Donjon en ruine, au bout de la route du nord, et il tient un sceau qui commande aux morts. Prenez-le-lui."],
+            "es": ["Hiciste lo que ningún estandarte hizo. Los Sangre de Ceniza lo recordarán.", "Ahora escucha. Los muertos tenían un jefe: el mariscal Veyr, el general del viejo rey. También volvió de la tumba.", "Está en la Fortaleza en Ruinas, al final del camino del norte, y tiene un sello que manda sobre los muertos. Quítaselo."],
+            "ar": ["فعلت ما لم تفعله أي راية. دم الرماد سيتذكر ذلك.", "اسمع الآن. كان للموتى قائد: المارشال فاير، جنرال الملك القديم. هو أيضًا رجع من القبر.", "يجلس في القلعة المهدمة، في آخر الطريق الشمالي، ومعه ختم يأمر الموتى. خذه منه."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3q5", "act": 2,
+      "title": { "en": "The Ruined Keep", "fr": "Le Donjon en ruine", "es": "La Fortaleza en Ruinas", "ar": "القلعة المهدمة" },
+      "story": {
+        "en": "Break into Marshal Veyr's keep and take the seal that commands the dead.",
+        "fr": "Entrez dans le donjon du maréchal Veyr et prenez le sceau qui commande aux morts.",
+        "es": "Entra en la fortaleza del mariscal Veyr y toma el sello que manda sobre los muertos.",
+        "ar": "اقتحم قلعة المارشال فاير وخذ الختم الذي يأمر الموتى."
+      },
+      "steps": [
+        {
+          "id": "enter", "type": "reach", "zone": "c3_keep", "at": [46, 1],
+          "goal": { "en": "Enter the Ruined Keep (end of the north road in the Ashen Marches).", "fr": "Entrez dans le Donjon en ruine (au bout de la route du nord des Marches cendrées).", "es": "Entra en la Fortaleza en Ruinas (al final del camino del norte de las Marcas).", "ar": "ادخل القلعة المهدمة (آخر الطريق الشمالي في أراضي الرماد)." },
+          "say": { "who": null, "en": ["Cold air and the smell of old smoke. Deep inside, chains rattle."], "fr": ["Un air froid, une odeur de vieille fumée. Tout au fond, des chaînes cliquettent."], "es": ["Aire frío y olor a humo viejo. En lo más hondo, suenan cadenas."], "ar": ["هواء بارد ورائحة دخان قديم. في العمق، تصلصل السلاسل."] }
+        },
+        {
+          "id": "levers", "type": "interact", "zone": "c3_keep", "n": 2, "spots": [[4.5, 16.6], [36.5, 17.6]],
+          "goal": { "en": "Pull the two chain levers in the side wings to open the inner gate ({n}/{m}).", "fr": "Tirez les deux leviers à chaîne des ailes pour ouvrir la porte intérieure ({n}/{m}).", "es": "Tira de las dos palancas de cadena de las alas para abrir la puerta interior ({n}/{m}).", "ar": "اسحب ذراعي السلاسل في الجناحين لفتح الباب الداخلي ({n}/{m})." },
+          "each": {
+            "en": ["Clank! Far away, a chain moves.", "Clank! The inner gate groans and lifts."],
+            "fr": ["Clang ! Au loin, une chaîne bouge.", "Clang ! La porte intérieure grince et se lève."],
+            "es": ["¡Clanc! A lo lejos se mueve una cadena.", "¡Clanc! La puerta interior cruje y se levanta."],
+            "ar": ["طق! بعيدًا، تتحرك سلسلة.", "طق! الباب الداخلي يئن ويرتفع."]
+          },
+          "set": { "open": "keep" },
+          "say": { "who": null, "en": ["The way to the great hall is open."], "fr": ["Le chemin de la grande salle est ouvert."], "es": ["El camino al gran salón está abierto."], "ar": ["الطريق إلى القاعة الكبرى مفتوح."] }
+        },
+        {
+          "id": "veyr", "type": "boss", "boss": "veyr", "zone": "c3_keep", "at": [20, 7],
+          "goal": { "en": "Defeat Marshal Veyr in the great hall. Step aside when he charges!", "fr": "Vainquez le maréchal Veyr dans la grande salle. Écartez-vous quand il charge !", "es": "Derrota al mariscal Veyr en el gran salón. ¡Apártate cuando cargue!", "ar": "اهزم المارشال فاير في القاعة الكبرى. ابتعد عندما يندفع!" },
+          "set": { "beacons": 3 },
+          "say": { "who": "veyr", "en": ["My king... forgive me... I could not hold the line...", "His seal falls from his hand, cold as ice. On it: a crown, cut in two."], "fr": ["Mon roi... pardonnez-moi... je n'ai pas pu tenir...", "Son sceau tombe de sa main, froid comme la glace. Dessus : une couronne coupée en deux."], "es": ["Mi rey... perdóname... no pude resistir...", "Su sello cae de su mano, frío como el hielo. En él: una corona partida en dos."], "ar": ["يا ملكي... سامحني... لم أستطع الصمود...", "يسقط ختمه من يده، باردًا كالثلج. عليه: تاج مقطوع إلى نصفين."] }
+        },
+        {
+          "id": "seal", "type": "choice", "npc": "ysolde", "zone": "c3_dawn", "at": [17.5, 11.6],
+          "goal": { "en": "Bring the Marshal's Seal to Ysolde, and choose who will keep it.", "fr": "Apportez le Sceau du maréchal à Ysolde, et choisissez qui le gardera.", "es": "Lleva el Sello del mariscal a Ysolde y elige quién lo guardará.", "ar": "خذ ختم المارشال إلى إيزولد، واختر من سيحفظه." },
+          "set": { "open": "north" },
+          "say": {
+            "who": "ysolde",
+            "en": ["Veyr's seal. Whoever holds it can call the old army to fight. For the light, this time.", "One banner must keep it. The Guard is strong. The Circle is wise. The Ashblood is brave.", "Choose. They will stand beside you at the end."],
+            "fr": ["Le sceau de Veyr. Celui qui le tient peut appeler la vieille armée au combat. Pour la lumière, cette fois.", "Une seule bannière doit le garder. La Garde est forte. Le Cercle est sage. Les Sang-de-Cendre sont braves.", "Choisissez. Ils seront à vos côtés à la fin."],
+            "es": ["El sello de Veyr. Quien lo tenga puede llamar al viejo ejército a luchar. Por la luz, esta vez.", "Un estandarte debe guardarlo. La Guardia es fuerte. El Círculo es sabio. Los Sangre de Ceniza son valientes.", "Elige. Estarán a tu lado al final."],
+            "ar": ["ختم فاير. من يحمله يستطيع أن يدعو الجيش القديم للقتال. من أجل النور هذه المرة.", "راية واحدة يجب أن تحفظه. الحرس قوي. الدائرة حكيمة. دم الرماد شجاع.", "اختر. سيقفون بجانبك في النهاية."]
+          },
+          "picks": [
+            { "id": "guard", "who": "aldric",
+              "label": { "en": "Captain Aldric (the Guard)", "fr": "Le capitaine Aldric (la Garde)", "es": "El capitán Aldric (la Guardia)", "ar": "القائد ألدريك (الحرس)" },
+              "en": ["The Guard will carry the seal. And this time we will not be late. I swear it."], "fr": ["La Garde portera le sceau. Et cette fois, nous ne serons pas en retard. Je le jure."], "es": ["La Guardia llevará el sello. Y esta vez no llegaremos tarde. Lo juro."], "ar": ["الحرس سيحمل الختم. وهذه المرة لن نتأخر. أقسم بذلك."] },
+            { "id": "grove", "who": "fenna",
+              "label": { "en": "Archdruid Fenna (the Circle)", "fr": "L'archidruide Fenna (le Cercle)", "es": "La archidruida Fenna (el Círculo)", "ar": "كبيرة الكهنة فينا (الدائرة)" },
+              "en": ["The Circle accepts. The old army will march with the forest this time, not against it."], "fr": ["Le Cercle accepte. La vieille armée marchera avec la forêt cette fois, pas contre elle."], "es": ["El Círculo acepta. El viejo ejército marchará con el bosque esta vez, no contra él."], "ar": ["الدائرة توافق. الجيش القديم سيمشي مع الغابة هذه المرة، لا ضدها."] },
+            { "id": "ash", "who": "kragg",
+              "label": { "en": "Warlord Kragg (the Ashblood)", "fr": "Le chef de guerre Kragg (les Sang-de-Cendre)", "es": "El caudillo Kragg (los Sangre de Ceniza)", "ar": "القائد كراغ (دم الرماد)" },
+              "en": ["The Ashblood holds the seal of the man who burned Hearthvale. Good. We will make it right."], "fr": ["Les Sang-de-Cendre tiennent le sceau de l'homme qui a brûlé Valfoyer. Bien. Nous réparerons cela."], "es": ["Los Sangre de Ceniza tienen el sello del hombre que quemó Valle Hogar. Bien. Lo arreglaremos."], "ar": ["دم الرماد يحمل ختم الرجل الذي أحرق قرية الموقد. جيد. سنُصلح ما فسد."] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c3q6", "act": 3,
+      "title": { "en": "Whispers in the Snow", "fr": "Murmures dans la neige", "es": "Susurros en la nieve", "ar": "همسات في الثلج" },
+      "story": {
+        "en": "Follow the Hollow King's men up to the Frostbound Heights.",
+        "fr": "Suivez les hommes du Roi Creux jusqu'aux Hauteurs gelées.",
+        "es": "Sigue a los hombres del Rey Hueco hasta las Cumbres Heladas.",
+        "ar": "اتبع رجال الملك الأجوف إلى المرتفعات المتجمدة."
+      },
+      "steps": [
+        {
+          "id": "heights", "type": "reach", "zone": "c3_frost", "at": [21.5, 0.5],
+          "goal": { "en": "Climb to the Frostbound Heights (north gate of Dawnwatch).", "fr": "Montez aux Hauteurs gelées (porte nord d'Aube-Garde).", "es": "Sube a las Cumbres Heladas (puerta norte de Vigía del Alba).", "ar": "اصعد إلى المرتفعات المتجمدة (الباب الشمالي لحصن الفجر)." },
+          "say": { "who": null, "en": ["Snow, wind and silence. High above, the walls of a frozen fortress."], "fr": ["Neige, vent et silence. Tout là-haut, les murs d'une forteresse gelée."], "es": ["Nieve, viento y silencio. Arriba, los muros de una fortaleza helada."], "ar": ["ثلج ورياح وصمت. في الأعلى، أسوار قلعة متجمدة."] }
+        },
+        {
+          "id": "brynn", "type": "talk", "npc": "brynn", "zone": "c3_frost", "at": [12.5, 30.2],
+          "goal": { "en": "Find Brynn the scout at her camp in the snow (west of the road).", "fr": "Trouvez l'éclaireuse Brynn à son camp dans la neige (à l'ouest de la route).", "es": "Encuentra a la exploradora Brynn en su campamento en la nieve (al oeste del camino).", "ar": "ابحث عن الكشّافة برين في مخيمها في الثلج (غرب الطريق)." },
+          "say": {
+            "who": "brynn",
+            "en": ["Keep your voice down. The snow has ears up here.", "I followed the Hollow King's men. They went into the old fortress, and something huge woke up inside.", "Three rune stones show the safe way through the storm. Read them all. Then we take the gate."],
+            "fr": ["Parlez moins fort. Ici, la neige a des oreilles.", "J'ai suivi les hommes du Roi Creux. Ils sont entrés dans la vieille forteresse, et quelque chose d'énorme s'est réveillé dedans.", "Trois pierres runiques montrent le bon chemin dans la tempête. Lisez-les toutes. Ensuite, on prend la porte."],
+            "es": ["Habla bajo. Aquí arriba la nieve tiene oídos.", "Seguí a los hombres del Rey Hueco. Entraron en la vieja fortaleza, y algo enorme despertó dentro.", "Tres piedras rúnicas marcan el camino seguro en la tormenta. Léelas todas. Luego tomamos la puerta."],
+            "ar": ["اخفض صوتك. هنا للثلج آذان.", "تبعتُ رجال الملك الأجوف. دخلوا القلعة القديمة، واستيقظ في داخلها شيء ضخم.", "ثلاثة أحجار رونية تدل على الطريق الآمن في العاصفة. اقرأها كلها. ثم نأخذ الباب."]
+          }
+        },
+        {
+          "id": "runes", "type": "interact", "zone": "c3_frost", "n": 3, "spots": [[8.5, 20.6], [38.5, 23.6], [30.5, 14.6]],
+          "goal": { "en": "Read the three rune stones on the way up ({n}/{m}).", "fr": "Lisez les trois pierres runiques sur le chemin ({n}/{m}).", "es": "Lee las tres piedras rúnicas del camino ({n}/{m}).", "ar": "اقرأ الأحجار الرونية الثلاثة في الطريق ({n}/{m})." },
+          "each": {
+            "en": ["The rune says: 'Here King Aurelian stood and looked at the stars.'", "The rune says: 'He wanted to live forever. The Veil heard him.'", "The rune says: 'Do not open the door. What comes back is not the king.'"],
+            "fr": ["La rune dit : « Ici, le roi Aurélien regardait les étoiles. »", "La rune dit : « Il voulait vivre pour toujours. Le Voile l'a entendu. »", "La rune dit : « N'ouvrez pas la porte. Ce qui revient n'est pas le roi. »"],
+            "es": ["La runa dice: «Aquí el rey Aureliano miraba las estrellas.»", "La runa dice: «Quería vivir para siempre. El Velo lo oyó.»", "La runa dice: «No abras la puerta. Lo que vuelve no es el rey.»"],
+            "ar": ["تقول الرونة: «هنا وقف الملك أوريليان ونظر إلى النجوم.»", "تقول الرونة: «أراد أن يعيش إلى الأبد. وسمعه الحجاب.»", "تقول الرونة: «لا تفتح الباب. الذي يعود ليس الملك.»"]
+          },
+          "say": { "who": null, "en": ["The runes glow blue behind you. The fortress gate is close, and it is guarded."], "fr": ["Les runes brillent en bleu derrière vous. La porte de la forteresse est proche, et gardée."], "es": ["Las runas brillan en azul detrás de ti. La puerta de la fortaleza está cerca, y vigilada."], "ar": ["تلمع الرونات بالأزرق خلفك. باب القلعة قريب، وعليه حراس."] }
+        },
+        {
+          "id": "fangs", "type": "kill", "zone": "c3_frost", "foes": ["frostfang"], "n": 6, "at": [24, 14],
+          "goal": { "en": "Drive off the Frostfang Hunters around the fortress ({n}/{m}).", "fr": "Chassez les chasseurs Croc-de-Givre autour de la forteresse ({n}/{m}).", "es": "Ahuyenta a los cazadores Colmillo Helado alrededor de la fortaleza ({n}/{m}).", "ar": "اطرد صيادي ناب الصقيع حول القلعة ({n}/{m})." },
+          "set": { "open": "fort" },
+          "say": { "who": null, "en": ["The hunters run into the storm. With a crack of ice, the fortress gate opens."], "fr": ["Les chasseurs s'enfuient dans la tempête. Dans un craquement de glace, la porte de la forteresse s'ouvre."], "es": ["Los cazadores huyen a la tormenta. Con un crujido de hielo, se abre la puerta de la fortaleza."], "ar": ["يهرب الصيادون في العاصفة. وبصوت تكسّر الجليد، ينفتح باب القلعة."] }
+        }
+      ]
+    },
+    {
+      "id": "c3q7", "act": 3,
+      "title": { "en": "The Frozen Colossus", "fr": "Le Colosse gelé", "es": "El Coloso Helado", "ar": "العملاق المتجمد" },
+      "story": {
+        "en": "A giant of ice guards the fortress, and a piece of a crown.",
+        "fr": "Un géant de glace garde la forteresse, et un morceau de couronne.",
+        "es": "Un gigante de hielo guarda la fortaleza, y un trozo de corona.",
+        "ar": "عملاق من جليد يحرس القلعة، وقطعة من تاج."
+      },
+      "steps": [
+        {
+          "id": "colossus", "type": "boss", "boss": "colossus", "zone": "c3_frost", "at": [24, 5.5],
+          "goal": { "en": "Defeat the Frozen Colossus in the fortress yard. Never stand still!", "fr": "Vainquez le Colosse gelé dans la cour. Ne restez jamais immobile !", "es": "Derrota al Coloso Helado en el patio. ¡Nunca te quedes quieto!", "ar": "اهزم العملاق المتجمد في ساحة القلعة. لا تقف ساكنًا أبدًا!" },
+          "set": { "beacons": 4, "open": "breach" },
+          "say": { "who": null, "en": ["The giant breaks like a frozen lake in spring.", "In the ice where its heart was, something glows: a shard of a crown."], "fr": ["Le géant se brise comme un lac gelé au printemps.", "Dans la glace, là où battait son cœur, quelque chose brille : un éclat de couronne."], "es": ["El gigante se rompe como un lago helado en primavera.", "En el hielo, donde estaba su corazón, algo brilla: un trozo de corona."], "ar": ["ينكسر العملاق مثل بحيرة متجمدة في الربيع.", "في الجليد، حيث كان قلبه، يلمع شيء: قطعة من تاج."] }
+        },
+        {
+          "id": "shard", "type": "talk", "npc": "ysolde", "zone": "c3_dawn", "at": [17.5, 11.6],
+          "goal": { "en": "Bring the Crown Shard to Ysolde in Dawnwatch.", "fr": "Apportez l'Éclat de couronne à Ysolde, à Aube-Garde.", "es": "Lleva el Trozo de corona a Ysolde en Vigía del Alba.", "ar": "خذ قطعة التاج إلى إيزولد في حصن الفجر." },
+          "say": {
+            "who": "ysolde",
+            "en": ["Aurelian's crown. So it is true. The Hollow King is our first king, come back from the Veil.", "He wanted to live forever, and he opened a door he could not close. Now he wants to open it wide, for good.", "Behind the fortress the sky is torn: the Veilscar. Break the anchors that hold the rift open, then face him in his citadel. Your allies will meet you there."],
+            "fr": ["La couronne d'Aurélien. C'est donc vrai. Le Roi Creux est notre premier roi, revenu du Voile.", "Il voulait vivre pour toujours, et il a ouvert une porte qu'il ne pouvait pas fermer. Maintenant, il veut l'ouvrir en grand, pour toujours.", "Derrière la forteresse, le ciel est déchiré : la Balafre du Voile. Brisez les ancres qui tiennent la faille ouverte, puis affrontez-le dans sa citadelle. Vos alliés vous y attendront."],
+            "es": ["La corona de Aureliano. Entonces es verdad. El Rey Hueco es nuestro primer rey, vuelto del Velo.", "Quería vivir para siempre y abrió una puerta que no pudo cerrar. Ahora quiere abrirla del todo, para siempre.", "Detrás de la fortaleza el cielo está roto: la Cicatriz del Velo. Rompe las anclas que mantienen abierta la grieta y enfréntate a él en su ciudadela. Tus aliados te esperarán allí."],
+            "ar": ["تاج أوريليان. إذن هذا صحيح. الملك الأجوف هو ملكنا الأول، رجع من الحجاب.", "أراد أن يعيش إلى الأبد، ففتح بابًا لم يستطع إغلاقه. والآن يريد أن يفتحه كاملًا، إلى الأبد.", "خلف القلعة السماء ممزقة: ندبة الحجاب. اكسر المراسي التي تبقي الشق مفتوحًا، ثم واجهه في قلعته. حلفاؤك سينتظرونك هناك."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3q8", "act": 4,
+      "title": { "en": "The Final Breach", "fr": "La Brèche finale", "es": "La Brecha Final", "ar": "الشق الأخير" },
+      "story": {
+        "en": "Close the Veilscar and face the Hollow King.",
+        "fr": "Refermez la Balafre du Voile et affrontez le Roi Creux.",
+        "es": "Cierra la Cicatriz del Velo y enfréntate al Rey Hueco.",
+        "ar": "أغلق ندبة الحجاب وواجه الملك الأجوف."
+      },
+      "steps": [
+        {
+          "id": "veil", "type": "reach", "zone": "c3_veil", "at": [23.5, 0.5],
+          "goal": { "en": "Go through the breach behind the frozen fortress, into the Veilscar.", "fr": "Passez la brèche derrière la forteresse gelée, dans la Balafre du Voile.", "es": "Cruza la brecha detrás de la fortaleza helada, hacia la Cicatriz del Velo.", "ar": "اعبر الشق خلف القلعة المتجمدة إلى ندبة الحجاب." },
+          "say": { "who": null, "en": ["The ground floats on nothing. Far below, there is only dark. Your allies are waiting for you."], "fr": ["Le sol flotte sur le vide. Tout en bas, il n'y a que le noir. Vos alliés vous attendent."], "es": ["El suelo flota sobre la nada. Abajo solo hay oscuridad. Tus aliados te esperan."], "ar": ["الأرض تطفو فوق الفراغ. في الأسفل لا يوجد إلا الظلام. حلفاؤك ينتظرونك."] }
+        },
+        {
+          "id": "anchors", "type": "waves", "zone": "c3_veil", "n": 3, "spots": [[8, 19.8], [37, 17.8], [22, 8.8]], "wave": ["riftwisp", "veilcultist", "riftwisp", "hollowsoldier"], "last": "riftborn",
+          "goal": { "en": "Break the three rift anchors on the floating islands ({n}/{m}).", "fr": "Brisez les trois ancres de faille sur les îles flottantes ({n}/{m}).", "es": "Rompe las tres anclas de la grieta en las islas flotantes ({n}/{m}).", "ar": "اكسر مراسي الشق الثلاث على الجزر الطائرة ({n}/{m})." },
+          "each": {
+            "en": ["The anchor cracks! Things crawl out of the rift to defend it!", "Another anchor breaks. The rift screams!", "The last anchor! Something huge comes through!"],
+            "fr": ["L'ancre se fend ! Des choses sortent de la faille pour la défendre !", "Une autre ancre se brise. La faille hurle !", "La dernière ancre ! Quelque chose d'énorme arrive !"],
+            "es": ["¡El ancla se agrieta! ¡Salen cosas de la grieta para defenderla!", "Otra ancla se rompe. ¡La grieta grita!", "¡La última ancla! ¡Algo enorme está llegando!"],
+            "ar": ["ينشق المرسى! تخرج أشياء من الشق لتدافع عنه!", "ينكسر مرسى آخر. الشق يصرخ!", "المرسى الأخير! شيء ضخم يعبر!"]
+          },
+          "set": { "open": "citadel" },
+          "say": { "who": null, "en": ["The rift shrinks. The door of the citadel stands open."], "fr": ["La faille rétrécit. La porte de la citadelle est ouverte."], "es": ["La grieta se encoge. La puerta de la ciudadela está abierta."], "ar": ["يصغر الشق. باب القلعة مفتوح."] }
+        },
+        {
+          "id": "citadel", "type": "reach", "zone": "c3_citadel", "at": [22.5, 0.5],
+          "goal": { "en": "Enter the Fractured Citadel (north of the Veilscar).", "fr": "Entrez dans la Citadelle brisée (au nord de la Balafre).", "es": "Entra en la Ciudadela Fracturada (al norte de la Cicatriz).", "ar": "ادخل القلعة المحطمة (شمال ندبة الحجاب)." },
+          "say": { "who": null, "en": ["A cold voice fills the halls: 'Little lights. Come. Let me show you forever.'"], "fr": ["Une voix froide emplit les salles : « Petites lumières. Venez. Je vais vous montrer l'éternité. »"], "es": ["Una voz fría llena los salones: «Pequeñas luces. Venid. Os mostraré la eternidad.»"], "ar": ["صوت بارد يملأ القاعات: «أيها الأنوار الصغيرة. تعالوا. سأريكم الأبد.»"] }
+        },
+        {
+          "id": "king", "type": "boss", "boss": "hollowking", "zone": "c3_citadel", "at": [20, 7.5],
+          "goal": { "en": "Defeat the Hollow King on his throne.", "fr": "Vainquez le Roi Creux sur son trône.", "es": "Derrota al Rey Hueco en su trono.", "ar": "اهزم الملك الأجوف على عرشه." },
+          "say": { "who": "hollowking", "en": ["The crown breaks. For a moment, a tired old man looks at you. 'Thank you,' he whispers. Then he is gone.", "The Veilscar closes, with a sound like a long sigh."], "fr": ["La couronne se brise. Un instant, un vieil homme fatigué vous regarde. « Merci », murmure-t-il. Puis il disparaît.", "La Balafre se referme, avec un bruit de long soupir."], "es": ["La corona se rompe. Por un momento, un anciano cansado te mira. «Gracias», susurra. Luego desaparece.", "La Cicatriz se cierra, con un sonido como un largo suspiro."], "ar": ["ينكسر التاج. للحظة، ينظر إليك رجل عجوز متعب. «شكرًا»، يهمس. ثم يختفي.", "تنغلق ندبة الحجاب، بصوت مثل تنهيدة طويلة."] }
+        },
+        {
+          "id": "light", "type": "interact", "zone": "c3_dawn", "n": 1, "spots": [[25, 11.2]],
+          "goal": { "en": "Return to Dawnwatch and light the great beacon.", "fr": "Retournez à Aube-Garde et allumez le grand fanal.", "es": "Vuelve a Vigía del Alba y enciende la gran almenara.", "ar": "عُد إلى حصن الفجر وأشعل المنارة الكبرى." },
+          "say": { "who": null, "en": [], "fr": [], "es": [], "ar": [] }
+        }
+      ]
+    }
+  ]
+}

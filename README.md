@@ -1,8 +1,8 @@
 # Hollowmere
 
-**Version 2.0.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 3.0.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
-A 2.5D story RPG for **1 or 2 players**, told in chapters.
+A 2.5D story RPG for **1 to 4 players**, told in chapters.
 
 ## Chapter 1: The Lantern Road
 
@@ -41,7 +41,63 @@ Cinder Witch, ring the tide bell, and go down into the Sunken Lighthouse to face
 - The horse sails with you; the wolf stays home in the Greywood
 - **A flying dragon** hatches when the Cinder Witch falls. It flies over water, rocks, fences and lava (never over walls, trees or gates). You can't attack from its back, and only bows, guns and magic can reach you there; you can't land on water.
 
-## In both chapters
+## Chapter 3: The Veilscar Frontier
+
+North of the lake, **Dawnwatch** is the last town of the old kingdom, and the third light Sela saw from
+Larkspur. Its caravans vanish in the wood, the dead walk in the marches, and three banners fight over the land
+while King Aurelian, the **Hollow King**, comes back from the Veil to tear it open for good. After the ending of
+chapter 2, Sela's boat in Larkspur can **sail north** (when `ch3` is in the app config `chapters`).
+
+- **The main story lives in a JSON file:** `chapters/ch3/quests.json`, 8 quests in 4 acts and 31 steps, every step
+  with its goal, dialogue and what changes in the world, in 4 languages. Steps are real tasks, not "walk to the
+  boss": search wrecked caravans, hunt, read a shrine, gather moonpetals for a Lightseed, plant it to wake a boss,
+  rescue survivors, light ward stones that wake waves of the dead, pull chain levers, read rune stones in a blizzard,
+  break rift anchors over the void, and **choose which banner keeps the Marshal's Seal** (it changes your ally in
+  the last act, their help in battle, and the ending).
+- **Seven areas, four new kinds of land:** Dawnwatch (a frontier town whose burnt houses are rebuilt as its four
+  beacons are lit, opening new shops), the glowing **Elderwood** (giant trees, glowcaps, a druid shrine), the
+  **Ashen Marches** (a burnt village, a graveyard, the Ashblood camp), the dark **Ruined Keep**, the **Frostbound
+  Heights** (snow, ice, falling snow, Kenney's snowy pines), the **Veilscar** (floating islands over a starry void)
+  and the **Fractured Citadel**, each with its own music.
+- **Four bosses with phases:** the Rootbound Guardian (ground slams, roots that break the ground in racing lines,
+  thorn volleys, saplings), Marshal Veyr (three dash-slashes on red lines, a shield charge that leaves him dazed
+  against a wall, a shield wall and shockwave, dead soldiers), the Frozen Colossus (the floor freezes under you all
+  the time, a stomp ring with one gap, ice shards, an avalanche) and the Hollow King (void spirals, shadow dashes, a
+  shield held by three rift shards, an arena that breaks apart, a turning beam and the pull of the void).
+- **Nine new foes** (Thornback Stalker, Hollowbound Soldier with a shield that blocks blows from the front, Ashen
+  Archer with three-arrow fans, Rift Wisp, Stoneheart Brute, Frostfang Hunter, Veil Cultist, Riftborn Abomination,
+  Ice Yeti) plus bigger Grim Wolves and Crypt Bones; foes now have **armour** that takes a little off every blow.
+- **Harder on purpose:** tuned so a hero in full legendary gear at +1 still has to fight (normal foes take 6 to 10
+  blows, bosses are long fights you must move in).
+- **Side content:** 8 side quests, 8 tasks with 4 **rare hunts** (named elites), 4 lore stones for the scholar,
+  **faction trust** (two quests for a banner and it gives you a legendary piece), tier 5 gear at two shops.
+- **The Hollow Charger:** a ghostly winged steed of the Veil, made from the open-source horse sprite (an ice-blue
+  palette, feathered wings and a mane of blue fire), the fastest mount, and it flies. It answers the hero who beats
+  the Hollow King.
+
+## New in 3.0 (every chapter)
+
+- **Eight directions:** heroes have three-quarter views when walking diagonally, and the horse is seen from the
+  front or the back when you ride up or down the screen (no more riding sideways).
+- **Legendary gear you will actually find:** legendary drops are more common (7%), bosses and rare hunts drop epic
+  or better (35% legendary), and after 18 pieces without one the next is legendary. Legendary names are gold and
+  shine in the menus; legendary armour gives the hero a light gold shimmer, legendary weapons glow and their
+  blows and shots leave golden sparks and trails.
+- **Super weapons:** Dawnbreaker (every swing also throws a crescent of light), Sylvan Warbow (three arrows),
+  Thunderforge (lightning jumps to two more foes), Veilstaff (bolts burst in a ring of void), one from each boss.
+- **Effects setting** (Auto, Low, Medium, High): how much shine and how many sparks, for slow TVs.
+- **Aiming:** bows, guns, staffs and the distant attack only aim at foes within 60° of where the hero faces.
+- **Co-op difficulty:** every hero who joins makes foes 20% tougher (health, armour and damage).
+- **Quest journal:** a list of every active quest; OK on one makes the yellow guide arrow follow it, side quests and
+  tasks included.
+- **Better conversations:** a question you asked disappears; when nothing is left to ask, the last answer comes with
+  "Goodbye" only.
+- **AI voices** (Settings, on by default): My PC's AI reads every line with a voice for each person, in every
+  language (`MyPC.ai`, see below).
+- **New look for the menus:** dark glass panels with an amber accent, clear focus from across the room.
+- Recorded sounds (Kenney's RPG Audio, CC0) for doors, chests, shops, the journal and legendary finds.
+
+## In every chapter
 
 - **Heroes drawn in clothes:** tunic, belt, boots and cape, and every helmet, armour and pair of boots
   you wear changes how you look (leather, chainmail, plate, tide mail, a mage robe); 4 directions,
@@ -64,7 +120,7 @@ Cinder Witch, ring the tide bell, and go down into the Sunken Lighthouse to face
 
 Each chapter is loaded only while you are in it: travelling to chapter 2 loads its pack and lets go
 of chapter 1's maps, music and code, and the other way round. The owner chooses the chapters with the
-app config key `chapters`, a list such as `["ch2"]` (later `["ch2", "ch3"]`; `"all"` turns on every
+app config key `chapters`, a list such as `["ch2", "ch3"]` (the default; `"all"` turns on every
 chapter, `[]` keeps only chapter 1). How to add a
 chapter: **[docs/CHAPTER_API.md](docs/CHAPTER_API.md)**.
 
@@ -128,17 +184,14 @@ The quest is one chain, and every step can always be finished:
 
 ## Spoken dialogue
 
-Every dialogue line and story page is spoken, in this order:
+Every dialogue line and story page is spoken:
 
-1. a **recorded clip** from `audio/voices/<lang>/`, if one exists (free; made with the generator below);
-2. otherwise **Gemini text-to-speech** through the proxy, if `proxyUrl` is set and `tts` is not
-   `false` (this costs API usage, so record the fixed lines whenever you can);
-
-   It is set in the **app config** (installer → this app → **Config**), which My PC hands to the
-   game as `MyPC.app_config`:
-   `{ "proxyUrl": "https://hollowmere-voice.<you>.workers.dev", "tts": true, "ttsModel": "gemini-3.8-flash-lite-tts" }`.
-   The app config is not secret, so the Gemini key only lives in the proxy (`proxy/worker.js`,
-   a free Cloudflare Worker; set-up steps inside the file);
+1. with **AI voices** on (Settings; the owner can switch them off for everyone with `"tts": false` in the app
+   config): **My PC's AI** speaks the line (`MyPC.ai.generate`, task `speech`, through whatever AI service the
+   owner set up in the App Store Manager: Gemini, OpenAI...), with a voice and a style for each person, in the
+   player's language. The game never sees a key and needs no proxy of its own (the guide forbids one). If the AI is
+   slow (3.5 s), missing or refused, the recorded clip is used instead;
+2. a **recorded clip** from `audio/voices/<lang>/`, if one exists (free; made with the generator below);
 3. otherwise **nothing**: the text stays on screen and goes to the TV's Voice Guide.
 
 Clips are downloaded one line at a time while playing, and the music gets quieter while someone
@@ -193,7 +246,9 @@ the optional Kokoro engine.
 | `tools/release.js` | sets a new version everywhere (see below) |
 | `js/audio.js` | synthesized music and sound (Web Audio) |
 | `js/voice.js` | spoken dialogue (recordings, then Gemini TTS) |
-| `proxy/worker.js` | optional key-hiding proxy |
+| `chapters/ch3/` | Chapter 3: `quests.json` (the main story as data), `text.js`, `maps.js`, `art.js`, `chapter.js` |
+| `js/i18n_v3.js` | texts of 3.0 (journal, effects, AI voices, the Hollow Charger, tier 5 gear) |
+| `audio/sfx/` | recorded sounds (Kenney's RPG Audio, CC0) |
 | `tools/voices/` | voice generator (Python, not loaded by the game) |
 
 No build step and no downloads besides the code (about 200 KB). The SDK is loaded from
@@ -210,7 +265,9 @@ node tools/release.js 2.0.0
 
 ## Credits
 
-Pixel art: [Kenney](https://www.kenney.nl) (Tiny Town, Tiny Dungeon, Roguelike Characters), CC0.
+Pixel art: [Kenney](https://www.kenney.nl) (Tiny Town, Tiny Dungeon, Roguelike Characters, and [Tiny Ski](https://opengameart.org/content/tiny-ski) for the snowy heights), CC0.
+Sounds: [Kenney's RPG Audio](https://opengameart.org/content/50-rpg-sound-effects), CC0 (`audio/sfx/LICENSE.txt`).
+The Hollow Charger is made in the game from ScratchIO's horse (CC0).
 Horse: ["Animated horse"](https://opengameart.org/content/animated-horse) by ScratchIO, CC0.
 Dragon: ["Flying Dragon"](https://opengameart.org/content/flying-dragon-rework) by ZaPaper. Credits to http://www.buko-studios.com/, commissioned by PlayCraft (www.playcraftapp.com), [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/). Details in `assets/mounts/LICENSE.txt`.
 Voices: [Piper](https://github.com/rhasspy/piper) voices. Everything else: made for this game.
@@ -252,7 +309,7 @@ One to four heroes: the host (TV, phone or computer) plus up to three phones (`M
 - **Progress for everybody:** what the heroes win is shared. The host tells each phone (kill XP, coins, ore, loot, quest rewards) and each phone puts it in **its own save**, so everyone gets the same reward. A quest or a story step is marked done for a friend **only if their own story has reached it** (their stage is high enough, and the quest before it is done); a friend who is not there yet gets the reward but not the quest. Chapter 2's main story is not synced (its side tasks are, for friends who are in chapter 2).
 
 ## Settings
-Settings now has **Voice speed**, **Zoom** (75% sees more, 150% sees less and bigger; saved), **Buttons** (a submenu: OK on a row asks for the real button), the look of each hero, and Credits.
+Settings now has **Voice speed**, **Zoom** (75% sees more, 150% sees less and bigger; saved), **Buttons** (a submenu: OK on a row asks for the real button), **Effects** (Auto, Low, Medium, High), **AI voices** (on / off), the look of each hero, and Credits.
 
 ### Real controller buttons
 `js/gamepad.js` reads the game controller itself, so **Buttons** shows the real names (A B X Y on Xbox, ✕ ○ □ △ on PlayStation, B A Y X on Nintendo) and OK on a row asks you to press the controller button to use (D-pad up: none, D-pad down: keep). **Return** works the same way (no more toggling). It only switches on after a real press is seen, so on a TV remote nothing changes and the old OK / OK twice / Hold OK choices remain. If My PC does not pass the controller to the game, see `docs/MYPC_RAW_BUTTONS_PROMPT.md`.
