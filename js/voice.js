@@ -1,7 +1,10 @@
 /* Hollowmere: spoken dialogue. For each line:
  *   with "AI voices" on (Settings, and the owner's app config "tts" not false): My PC's AI speaks it
  *   (MyPC.ai.generate, task 'speech', any service the owner set up: Gemini, OpenAI...), with a voice and a style
- *   per character, in every language. A recorded clip is used instead if the AI is slow (3.5 s), missing or refused.
+ *   per character, in every language. The speech model is always named in the request (Gemini's TTS model...):
+ *   an app config "ai.model" such as "gemini-2.5-flash" is a text model, and My PC would use it for speech too.
+ *   The next line of a conversation is asked for while the current one plays. A recorded clip is used instead if
+ *   the AI takes too long (8 s), is missing or refused.
  *   with AI voices off: a recorded clip from audio/voices/<lang>/ (made by tools/voices/generate.py), if there is one;
  *   otherwise nothing (the text is still on screen and goes to the TV's Voice Guide).
  * Clips are fetched one line at a time, so nothing is downloaded up front. They play through one
@@ -31,10 +34,13 @@ window.HM_VOICE = (function () {
         pim: ['Puck', 'excited small child', 'alloy']
     };
     let lang = 'en', index = null, indexP = null, token = 0, rate = 1, player = null, playerCtx = null, playing = false;
-    let aiOn = true, aiOff = false, prov;                  // prov: undefined until asked, null when no service can speak
+    let aiOn = true, aiOff = false, prov, provT = 0;                  // prov: undefined until asked, null when no service can speak
     const files = new Map(), speech = new Map();         // clips as blob: URLs: key -> url, text -> url
 
-    function cfg() { const c = (window.MyPC && MyPC.app_config) || {}; return { tts: c.tts !== false }; }
+    function cfg() { const c = (window.MyPC && MyPC.app_config) || {}; return { tts: c.tts !== false, model: typeof c.ttsModel === 'string' ? c.ttsModel : '' }; }
+    // the speech model of each kind of service (the app config's "ttsModel" wins)
+    const TTS_MODEL = { gemini: 'gemini-2.5-flash-preview-tts', openai: 'gpt-4o-mini-tts', nvidia: 'magpie-multilingual' };
+    let fails = 0;
     function aiReady() { return !!(window.MyPC && MyPC.ai && (MyPC.apiLevel || 0) >= 10) && cfg().tts && !aiOff; }
     function setAi(on) { aiOn = !!on; }
 
@@ -71,10 +77,13 @@ window.HM_VOICE = (function () {
 
     // the first AI service of My PC that can speak (NVIDIA's voice has no Arabic)
     async function provider() {
-        if (prov !== undefined) return prov;
+        if (prov || (prov === null && Date.now() - provT < 60000)) return prov;          // no service: asked again after a minute
+        provT = Date.now();
         try {
-            const list = await MyPC.ai.providers();
-            prov = (list || []).find(p => p.tasks && p.tasks.speech && !(lang === 'ar' && /nvidia/i.test(p.type || p.preset || ''))) || null;
+            const list = (await MyPC.ai.providers()) || [];
+            const ok = p => !(lang === 'ar' && /nvidia/i.test(p.type || p.preset || ''));
+            prov = list.find(p => p.isDefault && p.tasks && p.tasks.speech && ok(p)) || list.find(p => p.tasks && p.tasks.speech && ok(p)) ||
+                   list.find(p => /gemini/i.test(p.type || p.preset || '')) || null;
         } catch (e) { prov = null; }
         return prov;
     }
@@ -84,6 +93,8 @@ window.HM_VOICE = (function () {
         const p = await provider(); if (!p) return null;
         const v = TTS_VOICE[who] || TTS_VOICE.narrator, kind = String(p.type || p.preset || '').toLowerCase();
         const req = { task: 'speech', provider: p.id, language: lang, prompt: text.slice(0, 600) };
+        const mk = kind.indexOf('gemini') >= 0 ? 'gemini' : kind.indexOf('nvidia') >= 0 || /nvidia/i.test(p.preset || '') ? 'nvidia' : 'openai';
+        req.model = cfg().model || TTS_MODEL[mk];
         if (kind.indexOf('gemini') >= 0) { req.voice = v[0]; req.prompt = 'Say it as a ' + v[1] + ', in natural ' + ({ en: 'English', fr: 'French', es: 'Spanish', ar: 'Arabic' }[lang] || 'English') + ': ' + text.slice(0, 600); }
         else if (kind.indexOf('nvidia') < 0) { req.voice = v[2]; req.format = 'mp3'; }
         try {
@@ -91,23 +102,35 @@ window.HM_VOICE = (function () {
             const part = res && res.parts ? res.parts.find(x => x.type === 'audio' && x.data) : null;
             if (!part) return null;
             const url = URL.createObjectURL(new Blob([part.data], { type: part.mime || 'audio/wav' }));
-            keep(speech, text, url, 16);
+            keep(speech, text, url, 16); fails = 0;
             return url;
         } catch (e) {
-            if (e && (e.code === 'denied' || e.code === 'no-provider' || e.code === 'unsupported')) aiOff = true;   // stop asking for this session
+            const code = e && e.code;
+            if (code === 'denied' || code === 'no-provider' || code === 'unsupported' || ++fails >= 4) {   // stop asking for this session
+                aiOff = true;
+                if (code !== 'denied' && code !== 'no-provider' && window.MyPC && MyPC.report) MyPC.report(new Error('AI voice: ' + (code || '') + ' ' + ((e && e.message) || '')));
+            }
             return null;
         }
     }
 
     // speak one dialogue line; key = recorded clip name (or null), who = speaker id (null = narrator)
+    const asking = new Map();                           // text -> the AI request already on its way
+    function aiFor(text, who) {
+        if (speech.has(text)) return Promise.resolve(speech.get(text));
+        if (asking.has(text)) return asking.get(text);
+        const pr = fromAi(text, who || 'narrator').finally(() => asking.delete(text));
+        asking.set(text, pr);
+        return pr;
+    }
     function say(key, text, who) {
         stop();
         const t = token, file = fromFile(key).catch(() => null);
         let pick;
-        if (aiOn && aiReady()) {
-            const ai = fromAi(text, who || 'narrator');
-            const slow = new Promise(r => setTimeout(() => r(null), 3500));
-            pick = Promise.race([ai, slow]).then(u => u || file).then(u => u || ai);
+        if (aiOn && aiReady() && text) {
+            const ai = aiFor(text, who);
+            const slow = new Promise(r => setTimeout(() => r(null), 8000));
+            pick = Promise.race([ai, slow]).then(u => u || file);
         } else pick = file;
         pick.then(url => {
             const p = out();
@@ -116,8 +139,11 @@ window.HM_VOICE = (function () {
             p.play().catch(() => { playing = false; HM_AUDIO.duck(false); });
         });
     }
-    // warm up the next recorded line (never AI: that would cost usage for lines nobody reaches)
-    function prefetch(key) { if (key) fromFile(key).catch(() => null); }
+    // warm up the next line of the conversation: its recorded clip, and with AI voices its AI voice
+    function prefetch(key, text, who) {
+        if (key) fromFile(key).catch(() => null);
+        if (text && aiOn && aiReady()) aiFor(text, who).catch(() => null);
+    }
 
     function stop() {
         token++;

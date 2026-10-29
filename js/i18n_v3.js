@@ -3,6 +3,7 @@
 (function () {
     const M = {
         en: { ui: {
+            heroFxRow: 'Hero effects', heroFxSub: 'Attacks, special attacks and gear shine in full, whatever the graphics. Off: lighter.', healSub: 'Heals 40% of your health', powerSub: 'A slam with a wide quake that hits everything around you', distantSub: 'Thrown with your weapon: your sword spins out and back, a fire arrow, a big orb, or a shell that explodes',
             ch3Go: 'A third light burns in the north: talk to Sela at her boat on Larkspur harbour and sail to the Veilscar Frontier.', ch3GoHome: 'A third light burns in the north: ask Sela at the Mirefen Shore to sail you to the Veilscar Frontier.',
             ch3Name: 'The Veilscar Frontier', c3sailNorth: 'Sail north to the Veilscar Frontier',
             trackHint: 'OK on a quest: the arrow follows it', tracked: 'Followed', actN: 'Act {n}', mainQuest: 'Main story', storySoFar: 'The story so far', relics: 'Relics',
@@ -16,6 +17,7 @@
             runic_robe: 'Runic robe', wyrm_boots: 'Wyrm boots', dawnbreaker: 'Dawnbreaker', sylvan_warbow: 'Sylvan Warbow', thunderforge: 'Thunderforge', veilstaff: 'Veilstaff'
         } },
         fr: { ui: {
+            heroFxRow: 'Effets des héros', heroFxSub: 'Attaques, attaques spéciales et éclat de l’équipement en entier, quels que soient les graphismes. Non : plus léger.', healSub: 'Soigne 40 % de votre santé', powerSub: 'Un coup au sol avec un large séisme qui frappe tout autour de vous', distantSub: 'Selon votre arme : l’épée lancée qui revient, une flèche de feu, un grand orbe, ou un obus qui explose',
             ch3Go: 'Une troisième lumière brille au nord : parlez à Sela, à son bateau sur le port de Larkspur, pour naviguer vers la Frontière du Voile.', ch3GoHome: 'Une troisième lumière brille au nord : demandez à Sela, sur la Rive de la Fangemare, de vous emmener à la Frontière du Voile.',
             ch3Name: 'La Frontière du Voile', c3sailNorth: 'Naviguer au nord vers la Frontière du Voile',
             trackHint: 'OK sur une quête : la flèche la suit', tracked: 'Suivie', actN: 'Acte {n}', mainQuest: 'Histoire principale', storySoFar: 'L’histoire jusqu’ici', relics: 'Reliques',
@@ -29,6 +31,7 @@
             runic_robe: 'Robe runique', wyrm_boots: 'Bottes de wyrm', dawnbreaker: 'Brise-Aube', sylvan_warbow: 'Arc sylvestre', thunderforge: 'Forge-Tonnerre', veilstaff: 'Bâton du Voile'
         } },
         es: { ui: {
+            heroFxRow: 'Efectos de los héroes', heroFxSub: 'Ataques, ataques especiales y brillo del equipo completos, sean cuales sean los gráficos. No: más ligero.', healSub: 'Cura el 40 % de tu salud', powerSub: 'Un golpe al suelo con un gran temblor que alcanza todo a tu alrededor', distantSub: 'Según tu arma: la espada lanzada que vuelve, una flecha de fuego, un gran orbe o un proyectil que explota',
             ch3Go: 'Una tercera luz arde en el norte: habla con Sela junto a su barca en el puerto de Larkspur y navega a la Frontera del Velo.', ch3GoHome: 'Una tercera luz arde en el norte: pide a Sela, en la Orilla de Lodomar, que te lleve a la Frontera del Velo.',
             ch3Name: 'La Frontera del Velo', c3sailNorth: 'Navegar al norte, a la Frontera del Velo',
             trackHint: 'OK en una misión: la flecha la sigue', tracked: 'Seguida', actN: 'Acto {n}', mainQuest: 'Historia principal', storySoFar: 'La historia hasta ahora', relics: 'Reliquias',
@@ -42,6 +45,7 @@
             runic_robe: 'Túnica rúnica', wyrm_boots: 'Botas de sierpe', dawnbreaker: 'Rompealbas', sylvan_warbow: 'Arco silvano', thunderforge: 'Forjatruenos', veilstaff: 'Bastón del Velo'
         } },
         ar: { ui: {
+            heroFxRow: 'مؤثرات الأبطال', heroFxSub: 'الهجمات والهجمات الخاصة ولمعان المعدات كاملة مهما كانت جودة الرسوم. لا: أخف.', healSub: 'يعيد 40٪ من صحتك', powerSub: 'ضربة على الأرض بزلزال واسع تصيب كل من حولك', distantSub: 'حسب سلاحك: سيف يُرمى ويعود، سهم نار، كرة كبيرة، أو قذيفة تنفجر',
             ch3Go: 'نور ثالث يشتعل في الشمال: كلّم سيلا عند قاربها في ميناء لاركسبير وأبحر إلى حدود الحجاب.', ch3GoHome: 'نور ثالث يشتعل في الشمال: اطلب من سيلا عند شاطئ ميرفن أن تأخذك إلى حدود الحجاب.',
             ch3Name: 'حدود الحجاب', c3sailNorth: 'أبحر شمالًا إلى حدود الحجاب',
             trackHint: 'اضغط OK على مهمة: السهم يتبعها', tracked: 'متبوعة', actN: 'الفصل {n}', mainQuest: 'القصة الأساسية', storySoFar: 'القصة حتى الآن', relics: 'الكنوز',

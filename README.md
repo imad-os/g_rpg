@@ -1,6 +1,6 @@
 # Hollowmere
 
-**Version 3.0.1** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 3.1.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 to 4 players**, told in chapters.
 
@@ -74,6 +74,31 @@ chapter 2, Sela's boat in Larkspur can **sail north** (when `ch3` is in the app 
 - **The Hollow Charger:** a ghostly winged steed of the Veil, made from the open-source horse sprite (an ice-blue
   palette, feathered wings and a mane of blue fire), the fastest mount, and it flies. It answers the hero who beats
   the Hollow King.
+
+## New in 3.1
+
+- **The Sunken Vault** (chapter 3): a hidden dungeon of five floors. Its stairs hide in the south-west corner of the
+  Elderwood, behind the trees past the druids' camp. Each floor is deeper, darker and full of stronger foes, with
+  chests of frontier gear; at the bottom the **Deep Tyrant** (four kinds of attack, and a charge and a rain of fire as
+  it weakens) guards a hoard: the first time a legendary weapon of every kind (sword, bow, gun, staff), then one of a
+  random kind each time. It wakes again each time you come down from the wood.
+- **Special attacks:** the distant attack takes the shape of your weapon (a sword thrown spinning that comes back, a
+  big fire arrow that bursts into flame, a large orb in the opposite colour of your staff, a heavy shell that
+  explodes); the slam reaches twice as far, with a quake, cracks in the ground and a second shock wave; the heal gives
+  back 40% of your health.
+- **The hero grows with the level:** +1 attack for every level and +1 armour every 4 levels, before the gear's stats.
+  Armour past 10 points still helps (less and less, up to 80% less damage).
+- **Hero effects** (Settings): the heroes' attacks, special attacks and gear shine keep their full effects whatever the
+  TV's graphics or the Effects row; switch it off for a lighter game.
+- **Weapon sounds:** layered sounds made by the game (a flintlock with its hammer, crack, boom and echo; a bow string
+  and the arrow's whoosh; a steel swish; a magic shimmer), and their own sounds for every special attack.
+- **Flying mounts** fly over trees and houses; tall pines and ancient trees, towers and big buildings stay in the way.
+- **Co-op:** a menu belongs to the player who opened it until it is closed; only the host talks to the villagers.
+- **AI voices** always ask for a speech model (Gemini's TTS model...), so they work when the app config names a text
+  model such as `gemini-2.5-flash`; the next line is asked for while one is spoken (`ttsModel` in the app config
+  picks another speech model).
+- **Faster:** a black "Loading..." screen while a map is built, chapter 3 maps build several times faster, and
+  people and foes off the screen are no longer drawn.
 
 ## New in 3.0 (every chapter)
 
@@ -246,7 +271,7 @@ the optional Kokoro engine.
 | `tools/release.js` | sets a new version everywhere (see below) |
 | `js/audio.js` | synthesized music and sound (Web Audio) |
 | `js/voice.js` | spoken dialogue (recordings, then Gemini TTS) |
-| `chapters/ch3/` | Chapter 3: `quests.json` (the main story as data), `text.js`, `maps.js`, `art.js`, `chapter.js` |
+| `chapters/ch3/` | Chapter 3: `quests.json` (the main story as data), `text.js`, `maps.js`, `depths.js` (the Sunken Vault), `art.js`, `chapter.js` |
 | `js/i18n_v3.js` | texts of 3.0 (journal, effects, AI voices, the Hollow Charger, tier 5 gear) |
 | `audio/sfx/` | recorded sounds (Kenney's RPG Audio, CC0) |
 | `tools/voices/` | voice generator (Python, not loaded by the game) |

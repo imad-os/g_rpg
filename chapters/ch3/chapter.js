@@ -598,7 +598,8 @@ HM_CHAPTERS.def.ch3 = function (api) {
         rootbound:     { hp: 2600, dmg: 16, spd: 0, r: 30, xp: 600, coin: 300, def: 4, boss: 1, upd: rootUpd, draw: rootDraw },
         veyr:          { hp: 3000, dmg: 18, spd: 1.2, r: 16, xp: 700, coin: 350, def: 6, boss: 1, upd: veyrUpd, draw: veyrDraw },
         colossus:      { hp: 3200, dmg: 20, spd: 0.45, r: 30, xp: 800, coin: 400, def: 8, boss: 1, upd: colUpd, draw: colDraw },
-        hollowking:    { hp: 4200, dmg: 20, spd: 0.6, r: 20, xp: 1200, coin: 600, def: 6, boss: 1, upd: kingUpd, draw: kingDraw }
+        hollowking:    { hp: 4200, dmg: 20, spd: 0.6, r: 20, xp: 1200, coin: 600, def: 6, boss: 1, upd: kingUpd, draw: kingDraw },
+        dtyrant:       { hp: 6400, dmg: 22, spd: 0.75, r: 26, xp: 1500, coin: 800, def: 8, boss: 1, upd: tyrantUpd, draw: tyrantDraw }
     };
 
     /* ---------------- side quests, gear, shops ---------------- */
@@ -613,6 +614,90 @@ HM_CHAPTERS.def.ch3 = function (api) {
         { id: 'c3_cultists', giver: 'kesh', type: 'kill', foe: 'veilcultist', n: 5, stage: 27, reward: { coins: 360, item: 'frost_plate' } }
     ];
     const REP_GIFT = { guard: 'warden_helm', grove: 'runic_robe', ash: 'wyrm_boots' };
+    // the Deep Tyrant, at the bottom of the Sunken Vault (chapters/ch3/depths.js): a giant of molten iron.
+    // The ground breaks in a line toward you, spirals of fire, the dead it calls up; from half health a charge on a
+    // red line; under a quarter fire also rains on every hero
+    function tyrantUpd(f, p, d, tx, ty, rw, rh) {
+        if (!p) return;
+        const ph = f.hp < f.max * 0.25 ? 3 : f.hp < f.max * 0.5 ? 2 : 1, dmg = f.d.dmg + f.bonus;
+        f.walk += 0.04;
+        if (ph !== f.ph) { if (f.ph) { api.SND.fx('roar'); api.shake = 14; api.ringFx(f.x, f.y - 30, 110, '#ff6a2a'); } f.ph = ph; }
+        if (ph === 3 && ++f.sum % 70 === 0) for (const q of api.P) if (q.on && !q.down) api.hazard(q.x, q.y, 34, 50, dmg - 4, 0, '#ff7a2a');
+        switch (f.st) {
+            case 0:
+                api.chase(f, tx, ty, d > 70 ? f.d.spd * (ph === 3 ? 1.4 : 1) : 0, rw, rh);
+                if (++f.tm > (ph === 1 ? 80 : 60)) { f.tm = 0; f.pt = (f.pt + 1) % (ph === 1 ? 3 : 4); f.st = f.pt + 1; f.wt = 0; towards(f, p); }
+                break;
+            case 1:                                            // the slam: the ground breaks in a line toward the hero
+                if (f.wt === 0) api.SND.fx('slam');
+                if (f.wt % 6 === 0 && f.wt <= 48) { const k = f.wt / 6 + 1; api.hazard(f.x + f.vx * k * 34, f.y + f.vy * k * 24, 30, 30, dmg, 0, '#ff8a3a'); }
+                if (++f.wt > 60) f.st = 0;
+                break;
+            case 2:                                            // spirals of fire
+                if (f.wt % 8 === 0 && f.wt <= 64) { for (let k = 0; k < 8; k++) { const a = k * 0.7854 + f.wt * 0.05; api.shot(f.x, f.y - 40, Math.cos(a) * 2.2, Math.sin(a) * 2.2, dmg - 6, 7, 8, 0); } api.SND.fx('shoot'); }
+                if (++f.wt > 80) f.st = 0;
+                break;
+            case 3:                                            // the dead rise around it
+                if (f.wt === 0) {
+                    api.SND.fx('roar');
+                    for (let k = 0; k < (ph === 1 ? 2 : 3) && api.minions() < 5; k++) {
+                        const a = Math.random() * 6.2832, m = api.spawnFoe(k & 1 ? 'cryptbones' : 'riftwisp', f.x + Math.cos(a) * 70, f.y + Math.sin(a) * 50, true);
+                        if (m) api.burst(m.x, m.y - 10, 12, '#ff6a2a', 2);
+                    }
+                }
+                if (++f.wt > 40) f.st = 0;
+                break;
+            case 4:                                            // the charge, after a red line shows where
+                if (f.wt < 40) { if (f.wt < 30) towards(f, p); f.wt++; break; }
+                if (f.wt === 40) { api.SND.fx('swing'); api.shake = 8; }
+                f.wt++;
+                if (api.moveEnt(f, f.vx * 7, f.vy * 7, rw, rh) || f.wt > 70) { f.st = 0; api.SND.fx('slam'); api.shake = 12; api.hazard(f.x, f.y, 70, 1, dmg, 0, '#ff6a2a'); }
+                for (const q of api.P) if (q.on && !q.down && api.dist(q.x, q.y, f.x, f.y) < f.r + 14) api.hurt(q, dmg + 4, f.x, f.y);
+                break;
+        }
+    }
+    function tyrantDraw(x, f, X, Y, w) {
+        const ph = f.ph || 1, t = api.tick, b = Math.sin(f.walk * 2) * 2, hotC = ph === 3 ? '#ff3a1a' : ph === 2 ? '#ff7a2a' : '#ffb040';
+        if (f.st === 4 && f.wt < 40) { x.globalAlpha = 0.35 + (t & 4 ? 0.3 : 0); x.strokeStyle = '#ff3a3a'; x.lineWidth = 6; x.beginPath(); x.moveTo(X, Y - 6); x.lineTo(X + f.vx * 260, Y - 6 + f.vy * 260); x.stroke(); x.globalAlpha = 1; }
+        oval(x, X, Y, 36, 10, 'rgba(0,0,0,0.4)');
+        x.globalAlpha = 0.4 + Math.sin(t * 0.08) * 0.12; x.drawImage(api.glow(hotC), X - 64, Y - 128, 128, 128); x.globalAlpha = 1;
+        const dark = w ? '#fff' : '#241c22', iron = w ? '#fff' : '#4a3a40', edge = w ? '#fff' : '#6a5258', hot = w ? '#fff' : hotC;
+        const step = Math.sin(f.walk * 2.4) * 3;
+        x.fillStyle = dark; x.fillRect(X - 24, Y - 32 + step, 15, 32 - step); x.fillRect(X + 9, Y - 32 - step, 15, 32 + step);
+        x.fillStyle = iron; x.beginPath(); x.moveTo(X - 30, Y - 30 + b); x.lineTo(X - 40, Y - 86 + b); x.lineTo(X + 40, Y - 86 + b); x.lineTo(X + 30, Y - 30 + b); x.closePath(); x.fill();
+        x.fillStyle = edge; x.beginPath(); x.moveTo(X - 40, Y - 86 + b); x.lineTo(X - 20, Y - 92 + b); x.lineTo(X + 20, Y - 92 + b); x.lineTo(X + 40, Y - 86 + b); x.fill();
+        x.strokeStyle = hot; x.lineWidth = 2; x.globalAlpha = 0.8 + Math.sin(t * 0.2) * 0.2;
+        x.beginPath(); x.moveTo(X - 22, Y - 40 + b); x.lineTo(X - 12, Y - 58 + b); x.lineTo(X - 18, Y - 72 + b); x.moveTo(X + 20, Y - 38 + b); x.lineTo(X + 10, Y - 54 + b); x.lineTo(X + 16, Y - 76 + b); x.stroke();
+        x.globalAlpha = 1;
+        x.globalAlpha = 0.7; x.drawImage(api.glow(hotC), X - 16, Y - 74 + b, 32, 32); x.globalAlpha = 1;
+        x.fillStyle = w ? '#fff' : '#fff2c0'; x.beginPath(); x.arc(X, Y - 58 + b, 5, 0, 6.2832); x.fill();
+        const up = f.st === 1 && f.wt < 12 ? -22 : f.st === 3 && f.wt < 20 ? -16 : 0;
+        x.fillStyle = dark; x.beginPath(); x.ellipse(X - 48, Y - 68 + b + up, 13, 28, 0.25, 0, 6.2832); x.ellipse(X + 48, Y - 68 + b + up, 13, 28, -0.25, 0, 6.2832); x.fill();
+        x.fillStyle = hot; x.beginPath(); x.arc(X - 54, Y - 40 + b + up, 9, 0, 6.2832); x.arc(X + 54, Y - 40 + b + up, 9, 0, 6.2832); x.fill();
+        x.fillStyle = iron; x.fillRect(X - 15, Y - 112 + b, 30, 24);
+        x.strokeStyle = edge; x.lineWidth = 5; x.lineCap = 'round';
+        x.beginPath(); x.moveTo(X - 13, Y - 108 + b); x.quadraticCurveTo(X - 30, Y - 118 + b, X - 26, Y - 136 + b); x.moveTo(X + 13, Y - 108 + b); x.quadraticCurveTo(X + 30, Y - 118 + b, X + 26, Y - 136 + b); x.stroke();
+        x.lineCap = 'butt';
+        x.fillStyle = hot; x.fillRect(X - 10, Y - 102 + b, 7, 4); x.fillRect(X + 3, Y - 102 + b, 7, 4);
+        for (let k = 0; k < 4; k++) { const hx = X - 12 + k * 8; x.beginPath(); x.moveTo(hx - 3, Y - 112 + b); x.lineTo(hx, Y - 120 - (k & 1) * 5 + b); x.lineTo(hx + 3, Y - 112 + b); x.fill(); }
+        if ((t & 3) === 0) api.part(f.x + (Math.random() - 0.5) * 50, f.y - 40 - Math.random() * 40, 10, (Math.random() - 0.5) * 0.4, 0, 0.6, 26, hotC, 2, -0.01);
+    }
+    // the hoard: the first time a legendary weapon of each kind (sword, bow, gun, staff), afterwards one of a random kind
+    function tyrantHoard(f) {
+        const c = C(), first = !c.tyrant, KINDS = ['sword', 'bow', 'gun', 'staff'], I = api.ITEMS;
+        c.tyrant = (c.tyrant || 0) + 1;
+        const pick = k => {
+            const plain = [], sup = [];
+            for (const id in I) { const it = I[id]; if (it.slot === 'weapon' && it.kind === k && it.tier >= 4) (it.super ? sup : plain).push(id); }
+            const from = sup.length && Math.random() < 0.25 ? sup : plain;
+            return from[(Math.random() * from.length) | 0];
+        };
+        const list = first ? KINDS.slice().sort(() => Math.random() - 0.5) : [KINDS[(Math.random() * 4) | 0]];
+        list.forEach((k, i) => { const id = pick(k); if (id) api.dropGear(f.x + (i - (list.length - 1) / 2) * 28, f.y + 24, api.makeItem(id, 3)); });
+        api.coins(f.x, f.y, api.loot(300)); api.addXp(400);
+        setTimeout(() => api.toast(first ? T().ui.c3deepFirst : T().ui.c3deepAgain), 1400);
+        api.save();
+    }
     const BOSS_GIFT = { rootbound: 'sylvan_warbow', veyr: 'dawnbreaker', colossus: 'thunderforge', hollowking: 'veilstaff' };
     const SHOP_BRANN = ['tide_blade', 'gale_bow', 'storm_musket', 'tide_staff', 'coral_helm', 'tide_mail', 'wave_boots', 'frost_blade', 'runed_bow'];
     const SHOP_TOV = ['frost_blade', 'runed_bow', 'ash_musket', 'grove_staff', 'warden_helm', 'frost_plate', 'runic_robe', 'wyrm_boots'];
@@ -729,6 +814,7 @@ HM_CHAPTERS.def.ch3 = function (api) {
     function bossDown(f) {
         const c = C(), s = step(), b = api.Z.def.boss;
         if (b && b.t === f.t) S()[b.flag] = true;
+        if (f.t === 'dtyrant') return tyrantHoard(f);
         if (BOSS_GIFT[f.t]) api.dropGear(f.x, f.y + 20, api.makeItem(BOSS_GIFT[f.t], 3));
         if (!s || s.type !== 'boss' || s.boss !== f.t) return api.save();
         if (f.t === 'rootbound') { c.root = true; complete(); }
@@ -777,7 +863,7 @@ HM_CHAPTERS.def.ch3 = function (api) {
             wave = null;
         }
         // the boss only waits for you when the story has brought you to it
-        if (api.boss && api.boss.on && !(s && s.type === 'boss' && s.boss === api.boss.t)) { api.boss.on = false; api.boss = null; }
+        if (api.boss && api.boss.on && api.boss.t !== 'dtyrant' && !(s && s.type === 'boss' && s.boss === api.boss.t)) { api.boss.on = false; api.boss = null; }
         if (s && s.type === 'collect' && s.zone === id) spawnPicks();
         buff = '';
     }
@@ -787,6 +873,10 @@ HM_CHAPTERS.def.ch3 = function (api) {
         if (s && s.type === 'reach' && s.zone === id) { complete(); return; }
         if ((id === 'c3_veil' || id === 'c3_citadel') && c.banner && c.st >= IDX.veil) { buff = c.banner; setTimeout(() => api.toast(T().ui['c3buff_' + c.banner]), 2600); }
         if (id === 'c3_dawn' && c.great && c.rise) { c.rise = false; api.save(); }
+        if (id === 'c3_deep1') {                            // the Sunken Vault: the Tyrant waits again below
+            if (S().c3tyrant) { delete S().c3tyrant; api.save(); setTimeout(() => api.toast(T().ui.c3deepWake), 2600); }
+            else if (!c.seen.deep) { c.seen.deep = 1; api.save(); setTimeout(() => api.toast(T().ui.c3deepIn), 2600); }
+        }
     }
     let buff = '';
     const MODS = { take: 1, deal: 1 };
@@ -880,10 +970,10 @@ HM_CHAPTERS.def.ch3 = function (api) {
         id: 'ch3', home: 'c3_dawn', maps: MAPS, quests: QUESTS, pool: window.HM_C3_POOL || [], chests: {}, looks: LOOK, foes: FOES,
         get shop() { return shopOf === 'tov' ? SHOP_TOV : SHOP_BRANN; },
         talkers: { aldric: 1, ysolde: 1, fenna: 1, kragg: 1 }, noWolf: true, preload: false, solid: '^PkLcGRBq', hard: 1,
-        parent: { c3_elder: 'c3_dawn', c3_ashen: 'c3_dawn', c3_keep: 'c3_ashen', c3_frost: 'c3_dawn', c3_veil: 'c3_frost', c3_citadel: 'c3_veil' },
-        dust: { c3_dawn: '#b8a07a', c3_elder: '#6a8a5a', c3_ashen: '#8a8078', c3_keep: '#5a5660', c3_frost: '#e8f0f8', c3_veil: '#8a6aaa', c3_citadel: '#6a5a8a' },
+        parent: { c3_deep1: 'c3_elder', c3_deep2: 'c3_deep1', c3_deep3: 'c3_deep2', c3_deep4: 'c3_deep3', c3_deep5: 'c3_deep4', c3_elder: 'c3_dawn', c3_ashen: 'c3_dawn', c3_keep: 'c3_ashen', c3_frost: 'c3_dawn', c3_veil: 'c3_frost', c3_citadel: 'c3_veil' },
+        dust: { c3_deep1: '#5a5660', c3_deep2: '#5a5660', c3_deep3: '#5a5660', c3_deep4: '#6a5a8a', c3_deep5: '#6a5a8a', c3_dawn: '#b8a07a', c3_elder: '#6a8a5a', c3_ashen: '#8a8078', c3_keep: '#5a5660', c3_frost: '#e8f0f8', c3_veil: '#8a6aaa', c3_citadel: '#6a5a8a' },
         treasures: { c3_dawn: 1, c3_elder: 4, c3_ashen: 4, c3_frost: 4, c3_veil: 3 },
-        beasts: ['thornstalker', 'grimwolf', 'riftwisp', 'stonebrute', 'hollowsoldier', 'ashenarcher', 'cryptbones', 'veilcultist', 'frostfang', 'yeti', 'riftborn', 'rootbound', 'veyr', 'colossus', 'hollowking'],
+        beasts: ['thornstalker', 'grimwolf', 'riftwisp', 'stonebrute', 'hollowsoldier', 'ashenarcher', 'cryptbones', 'veilcultist', 'frostfang', 'yeti', 'riftborn', 'rootbound', 'veyr', 'colossus', 'hollowking', 'dtyrant'],
         songs: ['c3_dawn', 'c3_dawn_lit', 'c3_elder', 'c3_ashen', 'c3_keep', 'c3_frost', 'c3_veil', 'c3_citadel', 'c3_boss'], bossSong: 'c3_boss',
         songDefs: {
             c3_dawn:     { root: 174.6, scale: [0, 2, 3, 5, 7, 9, 10, 12], chords: [0, 3, 4, 3], rate: 3, beats: 64, pad: 'triangle', lead: 'flute', drums: 'soft', echo: 0.3, busy: 0.5, seed: 31 },
@@ -902,6 +992,8 @@ HM_CHAPTERS.def.ch3 = function (api) {
         },
         stop() { wave = null; buff = ''; },
         build(Z, def) { ART.build(Z, def, api); },
+        // the chests of the Sunken Vault also hold a piece of frontier gear
+        chestLoot(c) { if (api.Z.def.depth) api.dropGear(c.cx, c.cy + 18, api.rollItem(5, 1)); },
         drawUnder(x, cx, cy, t) { ART.drawUnder(x, api.Z, cx, cy, t); },
         drawOver(x, cx, cy, t) { ART.drawOver(x, api.Z, cx, cy, t, api.glow); },
         objective, story, idle, extras, news, visible, tile, interact, onKill, bossDown, onZone, arrive, update, target, score, npcExtra, questDone, mods, pickup, journal, zoneOpen,

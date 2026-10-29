@@ -11,8 +11,8 @@ window.HM_CHAPTERS = (function () {
         ch1: { files: ['js/maps.js', 'js/pool.js', 'js/rift.js', 'chapters/ch1/story.js'], home: 'village', globals: ['HM_MAPS', 'HM_POOL', 'HM_RIFT'] },
         ch2: { files: ['chapters/ch2/text.js', 'chapters/ch2/maps.js', 'chapters/ch2/art.js', 'chapters/ch2/chapter.js'], home: 'c2_bay', globals: ['HM_C2_MAPS', 'HM_C2_ART', 'HM_C2_POOL', 'HM_C2_TEXT'] },
         // data: JSON files read before the scripts, each into a global (chapter 3's main quests live in quests.json)
-        ch3: { data: { HM_C3_QUESTS: 'chapters/ch3/quests.json' }, files: ['chapters/ch3/text.js', 'chapters/ch3/maps.js', 'chapters/ch3/art.js', 'chapters/ch3/chapter.js'], home: 'c3_dawn',
-               globals: ['HM_C3_QUESTS', 'HM_C3_MAPS', 'HM_C3_ART', 'HM_C3_POOL', 'HM_C3_TEXT'] }
+        ch3: { data: { HM_C3_QUESTS: 'chapters/ch3/quests.json' }, files: ['chapters/ch3/text.js', 'chapters/ch3/maps.js', 'chapters/ch3/depths.js', 'chapters/ch3/art.js', 'chapters/ch3/chapter.js'], home: 'c3_dawn',
+               globals: ['HM_C3_QUESTS', 'HM_C3_MAPS', 'HM_C3_ART', 'HM_C3_POOL', 'HM_C3_TEXT', 'HM_C3_DEPTHS'] }
     };
     const def = {}, loaded = {}, tags = {};
 

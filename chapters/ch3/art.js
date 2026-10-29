@@ -17,10 +17,27 @@ window.HM_C3_ART = (function () {
     function ski(x, i, dx, dy, s) { x.imageSmoothingEnabled = false; x.drawImage(SKI, (i % 12) * 16, ((i / 12) | 0) * 16, 16, 16, dx, dy, 16 * s, 16 * s); }
 
     function hash(x, y, s) { let h = (x * 374761393 + y * 668265263 + (s || 0) * 982451653) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+    // a soft round patch of colour: one gradient sprite per colour, drawn stretched and turned (old TVs choke on
+    // a thousand gradients while a map is built)
+    const BLOB = {};
+    function blobSprite(rgb, a) {
+        const k = rgb + a; if (BLOB[k]) return BLOB[k];
+        const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+        const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+        x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+        return (BLOB[k] = c);
+    }
     function blob(x, gx, gy, r, sy, rot, rgb, a) {
-        x.save(); x.translate(gx, gy); x.rotate(rot); x.scale(1, sy);
-        const g = x.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
-        x.fillStyle = g; x.fillRect(-r, -r, r * 2, r * 2); x.restore();
+        x.setTransform(Math.cos(rot), Math.sin(rot), -Math.sin(rot) * sy, Math.cos(rot) * sy, gx, gy);
+        x.drawImage(blobSprite(rgb, a), -r, -r, r * 2, r * 2);
+        x.setTransform(1, 0, 0, 1, 0, 0);
+    }
+    // blobs painted on a layer, kept only where the mask has tiles, then laid on the ground (no clip per blob)
+    function masked(x, area, paintFn) {
+        const w = x.canvas.width, h = x.canvas.height, L = document.createElement('canvas'); L.width = w; L.height = h;
+        const l = L.getContext('2d'); paintFn(l);
+        l.globalCompositeOperation = 'destination-in'; l.fillStyle = '#000'; l.fill(area);
+        x.drawImage(L, 0, 0); L.width = L.height = 0;
     }
     function mk(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); fn(x); return c; }
     function cached(key, w, h, fn) { return CACHE[key] || (CACHE[key] = mk(w, h, fn)); }
@@ -562,25 +579,23 @@ window.HM_C3_ART = (function () {
         BASE = true;
         const n = cols * rows, low = api.tier === 'low';
         if (!low) {
-            x.save(); x.clip(soft);
             const light = theme === 'frost' ? '255,255,255' : theme === 'elder' ? '140,255,220' : '255,250,200';
-            for (let k = 0; k < n * 0.4; k++) {
+            masked(x, soft, l => { for (let k = 0; k < n * 0.4; k++) {
                 const gx = hash(k, 1, 31) * cols * TS, gy = hash(k, 2, 33) * rows * TS, r = 18 + hash(k, 3, 35) * 50, dark = hash(k, 4, 37) < 0.55;
-                blob(x, gx, gy, r * 1.4, 0.5 + hash(k, 5, 39) * 0.4, hash(k, 6, 41) * 3, dark ? (theme === 'frost' ? '120,150,200' : '0,0,0') : light, dark ? 0.1 : 0.09);
-            }
-            x.restore();
-            x.save(); x.clip(wet);
-            for (let k = 0; k < n * 0.15; k++) {
+                blob(l, gx, gy, r * 1.4, 0.5 + hash(k, 5, 39) * 0.4, hash(k, 6, 41) * 3, dark ? (theme === 'frost' ? '120,150,200' : '0,0,0') : light, dark ? 0.1 : 0.09);
+            } });
+            masked(x, wet, l => { for (let k = 0; k < n * 0.15; k++) {
                 const gx = hash(k, 7, 43) * cols * TS, gy = hash(k, 8, 45) * rows * TS, r = 30 + hash(k, 9, 47) * 70;
-                blob(x, gx, gy, r * 1.3, 0.5, 0, theme === 'veil' || theme === 'citadel' ? '120,40,200' : '10,40,80', 0.18);
-            }
-            x.restore();
+                blob(l, gx, gy, r * 1.3, 0.5, 0, theme === 'veil' || theme === 'citadel' ? '120,40,200' : '10,40,80', 0.18);
+            } });
         }
+        const gr = x.createLinearGradient(0, 0, 0, 14); gr.addColorStop(0, 'rgba(0,0,0,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = gr;
         for (let ty = 1; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {
             if (raised(tx, ty) || !raised(tx, ty - 1)) continue;
-            const gr = x.createLinearGradient(0, ty * TS, 0, ty * TS + 14); gr.addColorStop(0, 'rgba(0,0,0,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-            x.fillStyle = gr; x.fillRect(tx * TS, ty * TS, TS, 14);
+            x.setTransform(1, 0, 0, 1, tx * TS, ty * TS); x.fillRect(0, 0, TS, 14);
         }
+        x.setTransform(1, 0, 0, 1, 0, 0);
         for (let ty = 0; ty < rows; ty++) for (let tx = 0; tx < cols; tx++) {
             if (!raised(tx, ty)) continue;
             const c = at(tx, ty), px = tx * TS, py = ty * TS, south = raised(tx, ty + 1), north = raised(tx, ty - 1);
@@ -619,7 +634,7 @@ window.HM_C3_ART = (function () {
         }
         Z.c3props = [];
         for (const p of def.props) {
-            if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let k = p.x; k < p.x + p.w; k++) if (y >= 0 && k >= 0 && y < rows && k < cols) Z.block[y * cols + k] = 1;
+            if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let k = p.x; k < p.x + p.w; k++) if (y >= 0 && k >= 0 && y < rows && k < cols) Z.block[y * cols + k] = api.blockOf ? api.blockOf(p) : 1;
             const sx = p.x * TS, base = (p.y + p.h) * TS;
             if (p.k === 'house') { api.addStatic('house', house(p.w, p.h, p.roof || 'red', p.kind || '', p.b !== undefined && (ST().beacons || 0) < p.b ? 1 : 0), sx, p.y * TS - 44, base, p.w * TS, p.h * TS + 44); continue; }
             const img = bigProp(p); if (!img) continue;

@@ -425,7 +425,7 @@ window.HM_C2_ART = (function () {
         }
         // buildings and big props
         for (const p of def.props) {
-            if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let k = p.x; k < p.x + p.w; k++) if (y >= 0 && k >= 0 && y < rows && k < cols) Z.block[y * cols + k] = 1;
+            if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let k = p.x; k < p.x + p.w; k++) if (y >= 0 && k >= 0 && y < rows && k < cols) Z.block[y * cols + k] = api.blockOf ? api.blockOf(p) : 1;
             const sx = p.x * TS, base = (p.y + p.h) * TS;
             if (p.k === 'house') api.addStatic('house', house(p.w, p.h, p.roof || 'red', p.kind || ''), sx, p.y * TS - 44, base, p.w * TS, p.h * TS + 44);
             else {

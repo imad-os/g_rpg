@@ -28,6 +28,7 @@ window.HM_AUDIO = (function () {
         sfx = ac.createGain(); sfx.connect(master);
         voice = ac.createGain(); voice.connect(master);       // spoken dialogue follows the sound-effects volume
         setVolume(vol);
+        bakeAll();
     }
     function setVolume(v) { vol = v || vol; if (!ac) return; music.gain.value = 0.32 * vol.music; sfx.gain.value = 0.55 * vol.sfx; voice.gain.value = 1.1 * vol.sfx; }
     function pause() { if (ac && ac.state === 'running') ac.suspend(); }
@@ -191,7 +192,14 @@ window.HM_AUDIO = (function () {
         beam: () => { tone(110, 90, 0.9, 'sawtooth', 0.12); hiss(0.8, 0.12, 2400); },
         bell: () => { [1, 2.76, 5.4].forEach((k, i) => tone(392 * k, 0, 2.2 - i * 0.6, 'sine', 0.2 / (i + 1))); },
         wave: () => { hiss(1.2, 0.3, 400); tone(80, 50, 1.2, 'sine', 0.2); },
-        wings: () => { hiss(0.22, 0.18, 380); tone(70, 50, 0.2, 'sine', 0.15); }
+        wings: () => { hiss(0.22, 0.18, 380); tone(70, 50, 0.2, 'sine', 0.15); },
+        // the special attacks until their baked sounds are ready
+        throw: () => { hiss(0.4, 0.35, 1800); tone(1800, 1200, 0.3, 'sine', 0.06); },
+        fireArrow: () => { tone(900, 300, 0.12, 'triangle', 0.18); hiss(0.5, 0.35, 700); },
+        cannon: () => { hiss(0.6, 0.7, 500); tone(120, 30, 0.5, 'square', 0.3); },
+        arcane: () => { tone(300, 1200, 0.5, 'sawtooth', 0.08); tone(1400, 2600, 0.4, 'sine', 0.06, 0.1); },
+        boom: () => { tone(90, 30, 0.5, 'sine', 0.4); hiss(0.4, 0.4, 500); },
+        burn: () => hiss(0.4, 0.3, 700)
     };
     let hoofStep = false;
     function voiceHit(f1, f2, formant) {
@@ -219,6 +227,209 @@ window.HM_AUDIO = (function () {
         const s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; g.gain.value = SAMPLE_VOL[name] || 0.8;
         s.connect(g); g.connect(sfx); s.start();
         return true;
+    }
+    /* Baked sounds: the weapons and the special attacks are computed sample by sample once, a few after the start
+     * (so the TV never stalls), and kept as buffers: noise through moving filters, plucked strings (Karplus-Strong),
+     * ringing metal, fire crackle, a low thump and echoes. Until a sound is ready the oscillator version plays. */
+    const BAKE = {
+        // a flintlock: the hammer clicks, then a sharp crack, a deep boom and its echo off the hills
+        gun: [1.3, 0.9, function* (d, R) {
+            const lp = flt(0, 0.8), hp = flt(2, 0.9), lp2 = flt(0, 0.7); let ph = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R, u = t - 0.022;
+                let v = t < 0.005 ? hp(N(), 4000) * (1 - t / 0.005) * 0.5 : 0;
+                if (u >= 0) {
+                    v += hp(N(), 2200) * env(u, 0.0008, 0.014) * 1.5;
+                    v += lp(N(), 180 + 6000 * Math.exp(-u / 0.045)) * env(u, 0.002, 0.15) * 1.9;
+                    ph += 6.2832 * (42 + 120 * Math.exp(-u / 0.04)) / R; v += Math.sin(ph) * env(u, 0.002, 0.11) * 1.1;
+                    v += lp2(N(), 400) * env(u, 0.03, 0.35) * 0.5;
+                }
+                d[i] = v;
+            }
+            yield* echo(d, R, 0.12, 0.32); yield* echo(d, R, 0.29, 0.16);
+        }],
+        // the special shell: the same, heavier and longer, with debris rattling down after
+        cannon: [2.0, 1, function* (d, R) {
+            const lp = flt(0, 0.7), hp = flt(2, 0.9), lp2 = flt(0, 0.6), cr = flt(2, 1); let ph = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R, u = t - 0.03;
+                let v = t < 0.006 ? hp(N(), 3500) * (1 - t / 0.006) * 0.6 : 0;
+                if (u >= 0) {
+                    v += hp(N(), 1800) * env(u, 0.001, 0.025) * 1.6;
+                    v += lp(N(), 120 + 5000 * Math.exp(-u / 0.07)) * env(u, 0.003, 0.3) * 2.2;
+                    ph += 6.2832 * (30 + 100 * Math.exp(-u / 0.07)) / R; v += Math.sin(ph) * env(u, 0.003, 0.25) * 1.4;
+                    v += lp2(N(), 160) * env(u, 0.05, 0.7) * 0.9;
+                    if (u > 0.15 && Math.random() < 0.0016 * Math.exp(-u / 0.6)) crackle = 1;
+                    crackle *= 0.985; v += cr(N(), 3000) * crackle * 0.5;
+                }
+                d[i] = v;
+            }
+            yield* echo(d, R, 0.15, 0.35); yield* echo(d, R, 0.34, 0.2);
+        }],
+        // a bow: the string twangs (a plucked string) as the arrow whooshes away
+        bow: [0.75, 0.85, function* (d, R) {
+            const s1 = pluck(R, 165, 0.994, d.length), s2 = pluck(R, 82, 0.996, d.length), bp = flt(1, 0.7), hp = flt(2, 1);
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R;
+                let v = s1[i] * env(t, 0.001, 0.09) * 0.9 + s2[i] * env(t, 0.001, 0.14) * 0.6;
+                v += t < 0.006 ? hp(N(), 3000) * (1 - t / 0.006) * 0.7 : 0;
+                const u = t - 0.015; if (u >= 0) v += bp(N(), 600 + 2600 * Math.exp(-u / 0.12)) * env(u, 0.025, 0.12) * 1.3;
+                d[i] = v;
+            }
+        }],
+        // the special: a fire arrow, the string plus a roaring, crackling flame
+        fireArrow: [1.3, 0.9, function* (d, R) {
+            const s1 = pluck(R, 150, 0.994, d.length), bp = flt(1, 0.6), fl = flt(0, 0.9), cr = flt(2, 1); let c = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R;
+                let v = s1[i] * env(t, 0.001, 0.1) * 0.8;
+                v += bp(N(), 500 + 2200 * Math.exp(-t / 0.2)) * env(t - 0.01, 0.03, 0.2) * 1.2;
+                v += fl(N(), 500 + 300 * Math.sin(t * 40)) * env(t, 0.05, 0.45) * 1.6;
+                if (Math.random() < 0.004 * Math.exp(-t / 0.5)) c = 1; c *= 0.97; v += cr(N(), 2500) * c * 0.8;
+                d[i] = v;
+            }
+        }],
+        // a sword: a sharp swish of air with a faint ring of steel
+        swing: [0.36, 0.7, function* (d, R) {
+            const bp = flt(1, 0.35);
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R, k = t < 0.24 ? Math.sin(Math.PI * t / 0.24) : 0;
+                let v = bp(N(), 700 + 3800 * k) * k * k * 1.4;
+                v += (Math.sin(t * 16570) + Math.sin(t * 24830) * 0.6 + Math.sin(t * 33140) * 0.4) * env(t, 0.004, 0.09) * 0.07;
+                d[i] = v;
+            }
+        }],
+        // the special: the blade rings out as it leaves the hand, then whirls through the air
+        throw: [1.2, 0.85, function* (d, R) {
+            const bp = flt(1, 0.3);
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R, spin = Math.pow(0.5 + 0.5 * Math.sin(6.2832 * 11 * t), 2);
+                let v = (Math.sin(t * 11300) + Math.sin(t * 17000) * 0.7 + Math.sin(t * 25800) * 0.5 + Math.sin(t * 38900) * 0.3) * env(t, 0.002, 0.25) * 0.22;
+                v += bp(N(), 1200 + 1400 * spin) * spin * env(t, 0.05, 0.45) * 1.3;
+                d[i] = v;
+            }
+        }],
+        // a staff: a shimmer of rising bells over a soft swoop
+        magic: [0.6, 0.7, function* (d, R) {
+            const bp = flt(1, 0.5), F = [1320, 1760, 2090, 2640, 3520]; let ph = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R; let v = 0;
+                for (let k = 0; k < 5; k++) { const u = t - k * 0.03; if (u > 0) v += Math.sin(6.2832 * F[k] * u * (1 + u * 0.8)) * env(u, 0.004, 0.12) * 0.18; }
+                ph += 6.2832 * (260 + 500 * t) / R; v += Math.sin(ph) * env(t, 0.02, 0.15) * 0.35;
+                v += bp(N(), 5000) * env(t, 0.01, 0.1) * 0.3;
+                d[i] = v;
+            }
+        }],
+        // the special: a big orb: a chord swells through an opening filter, sparkles and a low boom
+        arcane: [1.6, 0.9, function* (d, R) {
+            const lp = flt(0, 0.4), bp = flt(1, 0.5), F = [110, 165, 220, 330]; let sub = 0;
+            const sp = [1760, 2350, 2790, 3520, 4700];
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R; let saw = 0;
+                for (const f of F) saw += ((t * f) % 1) * 2 - 1;
+                let v = lp(saw * 0.3, 300 + 3200 * Math.min(1, t / 0.35)) * env(t, 0.18, 0.5) * 1.2;
+                for (let k = 0; k < 5; k++) { const u = t - 0.05 - k * 0.05; if (u > 0) v += Math.sin(6.2832 * sp[k] * u) * env(u, 0.003, 0.2) * 0.12; }
+                sub += 6.2832 * (55 - 20 * Math.min(1, t)) / R; v += Math.sin(sub) * env(t, 0.01, 0.35) * 0.8;
+                v += bp(N(), 6000) * env(t, 0.1, 0.4) * 0.15;
+                d[i] = v;
+            }
+        }],
+        // the slam: a crack, a heavy thud, the ground rumbling and stones falling back
+        slam: [1.8, 1, function* (d, R) {
+            const hp = flt(2, 0.9), lp = flt(0, 0.8), cr = flt(2, 1); let ph = 0, c = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R;
+                let v = hp(N(), 1500) * env(t, 0.001, 0.03) * 1.2;
+                ph += 6.2832 * (26 + 60 * Math.exp(-t / 0.08)) / R; v += Math.sin(ph) * env(t, 0.003, 0.35) * 1.5;
+                v += lp(N(), 90 + 400 * Math.exp(-t / 0.15)) * env(t, 0.01, 0.6) * 2.4;
+                if (t > 0.1 && Math.random() < 0.003 * Math.exp(-t / 0.5)) c = 1; c *= 0.98; v += cr(N(), 2000) * c * 0.6;
+                d[i] = v;
+            }
+            yield* echo(d, R, 0.14, 0.3);
+        }],
+        // a shell or a fire arrow bursting on a foe
+        boom: [1.1, 0.9, function* (d, R) {
+            const hp = flt(2, 0.9), lp = flt(0, 0.7); let ph = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R;
+                let v = hp(N(), 2000) * env(t, 0.001, 0.02) * 1.2 + lp(N(), 150 + 4000 * Math.exp(-t / 0.05)) * env(t, 0.002, 0.25) * 2;
+                ph += 6.2832 * (35 + 80 * Math.exp(-t / 0.05)) / R; v += Math.sin(ph) * env(t, 0.002, 0.15) * 1.1;
+                d[i] = v;
+            }
+            yield* echo(d, R, 0.11, 0.25);
+        }],
+        burn: [0.8, 0.7, function* (d, R) {
+            const fl = flt(0, 0.8), cr = flt(2, 1); let c = 0;
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R; let v = fl(N(), 700) * env(t, 0.01, 0.3) * 1.6;
+                if (Math.random() < 0.006 * Math.exp(-t / 0.3)) c = 1; c *= 0.96; v += cr(N(), 3000) * c * 0.8;
+                d[i] = v;
+            }
+        }],
+        // the heal: a warm chord of bells rising
+        heal: [1.6, 0.6, function* (d, R) {
+            const F = [523.3, 659.3, 784, 1046.5];
+            for (let i = 0; i < d.length; i++) {
+                if ((i & 511) === 511) yield;
+                const t = i / R; let v = 0;
+                for (let k = 0; k < 4; k++) { const u = t - k * 0.08; if (u > 0) v += (Math.sin(6.2832 * F[k] * u) + Math.sin(6.2832 * F[k] * 2.76 * u) * 0.2) * env(u, 0.005, 0.5) * 0.25; }
+                v += Math.sin(6.2832 * 261.6 * t) * env(t, 0.25, 0.6) * 0.15;
+                d[i] = v;
+            }
+        }]
+    };
+    let crackle = 0;
+    const N = () => Math.random() * 2 - 1;
+    const env = (t, a, k) => t < 0 ? 0 : t < a ? t / a : Math.exp(-(t - a) / k);
+    // a state-variable filter with a moving cutoff; mode 0 low-pass, 1 band-pass, 2 high-pass; q: damping (lower rings more)
+    let SR = 48000;
+    function flt(mode, q) {
+        let lo = 0, bd = 0;
+        const sr = SR;
+        return (x, fc) => { const g = 2 * Math.sin(Math.PI * Math.min(fc, sr / 7) / sr), hi = x - lo - q * bd; bd += g * hi; lo += g * bd; return mode === 0 ? lo : mode === 1 ? bd : hi; };
+    }
+    // a plucked string (Karplus-Strong)
+    function pluck(R, freq, damp, n) {
+        const p = Math.max(2, Math.round(R / freq)), b = new Float32Array(p), out = new Float32Array(n);
+        for (let i = 0; i < p; i++) b[i] = N();
+        for (let i = 0; i < n; i++) { const j = i % p, v = b[j]; b[j] = (v + b[(j + 1) % p]) * 0.5 * damp; out[i] = v; }
+        return out;
+    }
+    // an echo that keeps fading (each repeat a little duller)
+    function* echo(d, R, sec, g) { const k = Math.round(sec * R); let lp = 0; for (let i = k; i < d.length; i++) { lp += (d[i - k] - lp) * 0.35; d[i] += lp * g; if ((i & 2047) === 2047) yield; } }
+    // one sound at a time, a slice every few milliseconds, so the game keeps running while they are made
+    function* bakeOne(name) {
+        const b = BAKE[name]; if (!ac || !b || SAMPLES[name]) return;
+        const R = 24000, n = Math.ceil(b[0] * R), buf = ac.createBuffer(1, n, R), d = buf.getChannelData(0);
+        SR = R; crackle = 0;
+        yield* b[2](d, R);
+        let pk = 0;
+        for (let i = 0; i < n; i++) { const v = Math.tanh(d[i] * 1.3); d[i] = v; if (v > pk) pk = v; else if (-v > pk) pk = -v; if ((i & 4095) === 4095) yield; }
+        const k = pk > 0 ? 0.95 / pk : 1;
+        for (let i = 0; i < n; i++) d[i] *= k;
+        for (let i = Math.max(0, n - 300); i < n; i++) d[i] *= (n - i) / 300;              // no click at the end
+        SAMPLES[name] = buf; SAMPLE_VOL[name] = b[1];
+    }
+    function bakeAll() {
+        const names = Object.keys(BAKE); let i = 0, job = null;
+        const next = () => {
+            if (!ac) return;
+            if (!job) { if (i >= names.length) return; job = bakeOne(names[i++]); }
+            try { if (job.next().done) job = null; } catch (e) { job = null; }
+            setTimeout(next, 4);
+        };
+        setTimeout(next, 300);
     }
     // a name with a recorded sound plays it (door, buy, cut, equip also keep a little synth under it); others are synthesized
     const MIX = { door: 1, chest: 1 };

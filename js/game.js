@@ -104,8 +104,12 @@
     // fx: how many effects the legendary gear, super weapons and spells show ('auto' follows the TV's speed)
     // aiVoice: speak lines that have no recording with My PC's AI (MyPC.ai text to speech), for every language
     const FX_LEVELS = ['auto', 'low', 'mid', 'high'];
-    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold', pad: {}, padBack: undefined, fx: 'auto', aiVoice: true };
+    const SET = { voice: 1, zoom: 1, btn: Object.assign({}, BTN_DEFAULT), back: 'hold', pad: {}, padBack: undefined, fx: 'auto', aiVoice: true, heroFx: true };
     const fxLevel = () => SET.fx === 'auto' ? tier : SET.fx;
+    // the heroes' own effects (attacks, special attacks, legendary gear) have their own setting: the graphics quality
+    // of the TV or the Effects row never takes them away
+    const heroLv = () => SET.heroFx === false ? 'low' : 'high';
+    let HFX = 0;                                  // > 0 while a hero's attack or shot makes its sparks
     // real controller buttons (js/gamepad.js): index of the physical button for each function; -1 = none
     const PAD_DEFAULT = { attack: 0, heal: 1, power: 2, distant: 3 }, PAD_BACK = 1;
     const padOf = f => SET.pad[f] !== undefined ? SET.pad[f] : (PAD_DEFAULT[f] !== undefined ? PAD_DEFAULT[f] : -1);
@@ -123,6 +127,7 @@
             if (Number.isInteger(s.padBack) && s.padBack >= -1 && s.padBack < 12) SET.padBack = s.padBack;
             if (FX_LEVELS.indexOf(s.fx) >= 0) SET.fx = s.fx;
             if (typeof s.aiVoice === 'boolean') SET.aiVoice = s.aiVoice;
+            if (typeof s.heroFx === 'boolean') SET.heroFx = s.heroFx;
         }
         VOICE.setRate(SET.voice); VOICE.setAi(SET.aiVoice);
     }
@@ -204,7 +209,7 @@
         vx: 0, vy: 0, kx: 0, ky: 0, hurt: 0, r: 10, sy: 0, active: false, minion: false, mask: 0, ring: 0, alpha: 1, wt: 0, sum: 0, pt: 0, walk: 0, side: 0, sdx: 0, sdy: 0, elite: '', ename: '', bonus: 0 });
     // k: 0 mud, 1 rock, 2 orb, 3 bone (hurt heroes) | 10 arrow, 11 bullet (hurt foes)
     // hostile k: 4 arrow, 5 bullet, 6 homing orb, 7 bomb (lobbed to tx,ty), 8 fireball | friendly 12 light bolt, 13 staff magic
-    const SHOTS = []; for (let i = 0; i < 120; i++) SHOTS.push({ on: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, dmg: 0, r: 5, k: 0, pierce: 0, owner: 0, hit: null, tx: 0, ty: 0, m: 1, col: "", fx: "", lg: false });
+    const SHOTS = []; for (let i = 0; i < 120; i++) SHOTS.push({ on: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, dmg: 0, r: 5, k: 0, pierce: 0, owner: 0, hit: null, tx: 0, ty: 0, m: 1, col: "", col2: "", fx: "", lg: false, back: false });
     // ground warnings: a circle fills up, then bursts (kind 0) or burns for a while (kind 1)
     const HAZ = []; for (let i = 0; i < 48; i++) HAZ.push({ on: false, x: 0, y: 0, r: 0, t: 0, m: 1, burn: 0, dmg: 0, kind: 0, col: '#ff5a3c', mask: 0 });
     function hazard(x, y, r, warn, dmg, kind, col) {
@@ -240,10 +245,10 @@
             ctx.globalAlpha = 1;
         }
     }
-    const PARTS = []; for (let i = 0; i < 260; i++) PARTS.push({ on: false, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, life: 0, max: 1, col: '#fff', sz: 2, g: 0.15 });
+    const PARTS = []; for (let i = 0; i < 420; i++) PARTS.push({ on: false, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, life: 0, max: 1, col: '#fff', sz: 2, g: 0.15 });
     const DROPS = []; for (let i = 0; i < 32; i++) DROPS.push({ on: false, kind: 5, k: 0, x: 0, y: 0, z: 0, vz: 0, vx: 0, vy: 0, t: 0, v: 0, sy: 0, it: null, qg: '', icon: '' });
     const FLOATS = []; for (let i = 0; i < 28; i++) FLOATS.push({ on: false, x: 0, y: 0, t: 0, s: '', col: '#fff', big: false });
-    const RINGS = []; for (let i = 0; i < 16; i++) RINGS.push({ on: false, x: 0, y: 0, r: 0, max: 0, col: '#fff', w: 3 });
+    const RINGS = []; for (let i = 0; i < 32; i++) RINGS.push({ on: false, x: 0, y: 0, r: 0, max: 0, col: '#fff', w: 3 });
     // the cat follows hero 1: half the hero's attack, defence and health, one and a half times the speed
     const PET = { on: false, kind: 7, x: 0, y: 0, sy: 0, hp: 5, max: 5, down: 0, cd: 0, walk: 0, fx: 1, inv: 0, hurt: 0, regen: 0, lunge: 0, gx: -20, gy: 8, gt: 0, idle: 0, sit: false, sniff: false };
     const DL = new Array(1800); let dlN = 0;
@@ -258,7 +263,7 @@
     function recalc(p) {
         const e = S.eq[p.i], wi = itemOf(e.weapon), w = ITEMS[wi ? wi.id : 'stick'], st = p.st;
         st.atk = w.atk + (wi ? wi.up * upStep(w) : 0); st.cd = w.cd; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e';
-        st.def = 0; st.spd = 0; st.crit = w.kind === 'gun' ? 18 : 10; st.hp = 0; st.gold = 0;
+        st.atk += lvlAtk(); st.def = lvlDef(); st.spd = 0; st.crit = w.kind === 'gun' ? 18 : 10; st.hp = 0; st.gold = 0;
         for (let k = 0; k < SLOTS.length; k++) {
             const it = itemOf(e[SLOTS[k]]); if (!it) continue;
             const base = ITEMS[it.id];
@@ -274,6 +279,11 @@
         if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
     function recalcAll() { for (const p of P) recalc(p); }
+    // the hero's own strength grows with the level, before the gear adds its stats
+    function lvlAtk() { return S ? S.lvl - 1 : 0; }
+    function lvlDef() { return S ? S.lvl >> 2 : 0; }
+    // armour: 6% less damage per point up to 10 points (60%), then less and less for each point, never more than 80%
+    function defCut(d) { return d <= 10 ? d * 0.06 : 0.6 + 0.2 * (1 - 10 / d); }
     function rollBonuses(id, r) {
         const base = ITEMS[id], pool = LOOT.bonuses[base.slot === 'weapon' ? 'weapon' : 'armour'].slice(), out = [], t = Math.max(1, base.tier || 1);
         for (let k = 0; k < r && pool.length; k++) {
@@ -499,14 +509,20 @@
     const Z = { id: '', def: null, cols: 0, rows: 0, tiles: null, block: null, ground: null, theme: 'grass', rs: [], npcs: [], statics: [], picks: [],
         pots: [], chests: [], lights: [], lantern: null, boats: [], field: null, fq: null, ftx: -1, fty: -1, dust: '#b8a27a' };
 
-    const FLY_OVER = new Uint8Array(128); '~rfpbhlkcCv'.split('').forEach(c => { FLY_OVER[c.charCodeAt(0)] = 1; });
+    // what a flying mount passes over: water, rocks, fences, pots, crates, bushes, chests... and trees ('T');
+    // tall pines and ancient trees ('P') and walls stay in the way
+    const FLY_OVER = new Uint8Array(128); '~rfpbhlkcCvT'.split('').forEach(c => { FLY_OVER[c.charCodeAt(0)] = 1; });
+    // buildings: Z.block is 2 under a house a flying mount can pass over, 1 under a tower or a big building it cannot
+    const TALL = { windmill: 1, lighthouse: 1, lantern: 1, tower: 1, keep: 1, beacon: 1, pyre: 1, shrine: 1, throne: 1, bell: 1, statue: 1 };
+    function blockOf(p) { return TALL[p.k] || p.w * p.h > 18 ? 1 : 2; }
     let flyMove = false;                                    // true while a hero on the dragon moves
     function solidAt(x, y) {
         const tx = Math.floor(x / TS), ty = Math.floor(y / TS);
         if (tx < 0 || ty < 0 || tx >= Z.cols || ty >= Z.rows) return true;
         const i = ty * Z.cols + tx;
-        if (flyMove && FLY_OVER[Z.tiles[i]] === 1 && Z.block[i] !== 1) return false;
-        return SOLID[Z.tiles[i]] === 1 || Z.block[i] === 1;
+        const b = Z.block[i];
+        if (flyMove && (b === 2 || (b === 0 && FLY_OVER[Z.tiles[i]] === 1))) return false;
+        return SOLID[Z.tiles[i]] === 1 || b !== 0;
     }
     function codeAt(x, y) {
         const tx = Math.floor(x / TS), ty = Math.floor(y / TS);
@@ -563,7 +579,7 @@
     function buildClassic(id, def) {
         const sp = ART.sprites(Z.theme), mi = ART.misc(), K = KN.ok, kt = K ? KN.trees(Z.theme) : null;
         for (const p of def.props) {
-            if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) Z.block[y * Z.cols + x] = 1;
+            if (p.w) for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) Z.block[y * Z.cols + x] = blockOf(p);
             if (p.k === 'lantern') Z.lantern = addStatic('lantern', mi.lanternOff, p.x * TS, (p.y + p.h) * TS - 150, (p.y + p.h) * TS, 64, 150, { cx: (p.x + 1) * TS, cy: (p.y + p.h) * TS });
             else if (p.k === 'boat') Z.boats.push(addStatic('boat', mi.boat, p.x * TS - 28, p.y * TS - 14, p.y * TS + 10, 56, 28, { cx: p.x * TS, cy: p.y * TS }));
             else if (p.k === 'bell') { Z.block[Math.floor(p.y) * Z.cols + Math.floor(p.x)] = 1; addStatic('bell', mi.bell, p.x * TS - 22, p.y * TS - 56, p.y * TS + 8, 44, 64); }
@@ -637,7 +653,7 @@
         return null;
     }
     function part(x, y, z, vx, vy, vz, life, col, sz, g) {
-        if (tier === 'low' && (tick & 1)) return;
+        if (HFX ? SET.heroFx === false && (tick & 1) : tier === 'low' && (tick & 1)) return;
         for (const p of PARTS) if (!p.on) { p.on = true; p.x = x; p.y = y; p.z = z; p.vx = vx; p.vy = vy; p.vz = vz; p.life = p.max = life; p.col = col; p.sz = sz; p.g = g === undefined ? 0.15 : g; return; }
     }
     function burst(x, y, n, col, spd) { for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, s = spd * (0.4 + Math.random()); part(x, y, 6, Math.cos(a) * s, Math.sin(a) * s * 0.6, 1 + Math.random() * 2, 30 + Math.random() * 20, col, 2 + Math.random() * 2); } }
@@ -661,7 +677,7 @@
     }
     function coins(x, y, total) { while (total > 0) { const v = total >= 10 ? 5 : 1; drop(x, y, 0, v); total -= v; } }
     function shot(x, y, vx, vy, dmg, r, k, owner) {
-        for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : k === 12 ? 70 : k === 13 ? 64 : k === 4 ? 100 : k === 5 ? 80 : k === 8 ? 160 : 240; s.m = s.life; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; s.col = ''; s.fx = ''; s.lg = false; return s; }
+        for (const s of SHOTS) if (!s.on) { s.on = true; s.x = x; s.y = y; s.vx = vx; s.vy = vy; s.dmg = dmg; s.r = r; s.k = k; s.life = k === 10 ? 48 : k === 11 ? 36 : k === 12 ? 70 : k === 13 ? 64 : k === 15 ? 84 : k === 16 ? 60 : k === 17 ? 80 : k === 18 ? 46 : k === 4 ? 100 : k === 5 ? 80 : k === 8 ? 160 : 240; s.m = s.life; s.pierce = k === 11 ? 1 : 0; s.owner = owner || 0; s.hit = null; s.col = ''; s.col2 = ''; s.fx = ''; s.lg = false; s.back = false; return s; }
         return null;
     }
     function bomb(x, y, tx, ty, time, dmg) {
@@ -805,7 +821,7 @@
         if (!D.wait) {
             MyPC.announce((who ? $('dname').textContent + ': ' : '') + pg[1] + (lastPage && D.choices ? '. ' + D.choices[D.sel].label : ''));
             if (pg[2] === 0) VOICE.stop(); else VOICE.say(pg[2] || null, pg[1], who ? baseId(who) : null);
-            if (!lastPage) VOICE.prefetch(D.pages[D.i + 1][2]);
+            if (!lastPage) { const nx = D.pages[D.i + 1]; VOICE.prefetch(nx[2], nx[2] === 0 ? '' : nx[1], nx[0] ? baseId(nx[0]) : null); }
         } else VOICE.stop();
         SND.fx('talk');
     }
@@ -996,7 +1012,7 @@
         if (k && k.star) { S.star = true; if (qState('stariron') === 1) S.sq.stariron = 2; say(lines(null, 'starFound')); }
         else if (k && k.flag) { S[k.flag] = true; if (k.item) giveItem(k.item, false, k.r || 1); if (CH.chest) CH.chest(k); }
         else if (k && k.item) giveItem(k.item, false, 1);
-        else { const n = loot((k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0)); coins(c.cx, c.cy, n); S.iron += 2; shareNow({ o: 2 }); toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); }
+        else { const n = loot((k && k.coins) || 30 + ((ART.hash(c.cx, c.cy, 3) * 30) | 0)); coins(c.cx, c.cy, n); S.iron += 2; shareNow({ o: 2 }); toast(txt(T.ui.gotCoins, { n }) + '   ·   ' + txt(T.ui.gotIron, { n: 2 })); if (CH.chestLoot) CH.chestLoot(c); }
         save();
     }
     function breakPot(s) {
@@ -1061,8 +1077,8 @@
         box.appendChild(el('div', 'snext', '▶ ' + T.ui.ok));
         ovShow(box); MyPC.announce(OV.slides[OV.i]);
         const clip = OV.clips[OV.i];
-        if (clip === undefined || clip === 0) VOICE.stop(); else VOICE.say(clip, OV.slides[OV.i], null);
-        if (OV.clips[OV.i + 1]) VOICE.prefetch(OV.clips[OV.i + 1]);
+        if (clip === 0 || (clip === undefined && !VOICE.aiReady())) VOICE.stop(); else VOICE.say(clip || null, OV.slides[OV.i], null);
+        if (OV.clips[OV.i + 1] || OV.slides[OV.i + 1]) VOICE.prefetch(OV.clips[OV.i + 1], OV.clips[OV.i + 1] === 0 ? '' : OV.slides[OV.i + 1], null);
     }
     // the journal: every active quest is a row; OK on one makes the yellow guide arrow follow it (side quests too)
     function journalScreen(sel) {
@@ -1320,7 +1336,7 @@
         if (EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
         const box = el('div', 'gearbox'), head = el('div', 'lhead'), st = P[EQ.hero].st;
         head.appendChild(el('div', 'ltitle', T.ui.equip + (nPlayers() > 1 ? ': ' + heroName(EQ.hero) : '')));
-        head.appendChild(el('div', 'linfo', T.ui.atk + ' ' + (st.atk + ((S.lvl - 1) >> 1)) + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'));
+        head.appendChild(el('div', 'linfo', T.ui.atk + ' ' + st.atk + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'));
         box.appendChild(head);
         const tb = el('div', 'gtabs');
         tabs.forEach((t, i) => tb.appendChild(el('div', 'gt' + (i === EQ.si && i < 4 ? ' cur' : '') + (EQ.focus === 'tabs' && i === EQ.ti ? ' sel' : ''),
@@ -1496,6 +1512,7 @@
     }
     function cycleZoom(dir) { SET.zoom = ZOOMS[(ZOOMS.indexOf(SET.zoom) + dir + ZOOMS.length) % ZOOMS.length]; applyZoom(); saveSettings(); }
     function cycleFx(dir) { SET.fx = FX_LEVELS[(FX_LEVELS.indexOf(SET.fx) + dir + FX_LEVELS.length) % FX_LEVELS.length]; saveSettings(); }
+    function toggleHeroFx() { SET.heroFx = !SET.heroFx; saveSettings(); renderList(); }
     function toggleAiVoice() {
         SET.aiVoice = !SET.aiVoice; VOICE.setAi(SET.aiVoice); saveSettings(); renderList();
         if (SET.aiVoice) VOICE.say(null, T.ui.aiVoiceTest, null);                 // a sample, read by My PC's AI
@@ -1509,6 +1526,7 @@
                     { label: txt(T.ui.zoomRow, { n: Math.round(SET.zoom * 100) }), sub: T.ui.zoomSub, right: '◀ ▶', side: d => cycleZoom(rtl() ? -d : d), fn: () => cycleZoom(1) },
                     { label: T.ui.buttons, sub: T.ui.buttonsSub, right: '▸', fn: () => buttonsScreen() },
                     { label: T.ui.fxRow, sub: T.ui.fxSub, right: '◀ ' + T.ui['fx_' + SET.fx] + ' ▶', side: d => cycleFx(rtl() ? -d : d), fn: () => cycleFx(1) },
+                    { label: T.ui.heroFxRow, sub: T.ui.heroFxSub, right: SET.heroFx ? T.ui.on : T.ui.off, side: () => toggleHeroFx(), fn: () => toggleHeroFx() },
                     { label: T.ui.aiVoice, sub: VOICE.aiReady() ? T.ui.aiVoiceSub : T.ui.aiVoiceNone, right: SET.aiVoice ? T.ui.on : T.ui.off, side: () => toggleAiVoice(), fn: () => toggleAiVoice() }];
                 for (const q of P) if (q.on) { const tg = () => setGender(q.i, 1 - S.gender[q.i]); r.push({ label: txt(T.ui.lookOf, { name: heroName(q.i) }), right: S.gender[q.i] ? T.ui.female : T.ui.male, side: tg, fn: () => { tg(); renderList(); } }); }
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
@@ -1588,7 +1606,7 @@
         else if (OV.kind === 'list') listInput(a);
         else if (OV.kind === 'gear') gearInput(a);
     }
-    function toPlay() { if (remoteMenu) { HM_COOP.sendMenu(remoteDev, []); remoteMenu = null; remoteDev = ''; } mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
+    function toPlay() { menuDev = ''; if (remoteMenu) { HM_COOP.sendMenu(remoteDev, []); remoteMenu = null; remoteDev = ''; } mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
 
     function newGame() {
         S = fresh();
@@ -1607,8 +1625,15 @@
         recalcAll();
         for (const q of P) { q.hp = maxHp(q); q.down = false; }
         if (S.zone === 'rift') { if (S.rift.floor > 0) MAPS.rift = window.HM_RIFT.build(S.rift.floor, S.rift.seed); else { S.zone = 'village'; S.x = 12.5; S.y = 6.2; } }
-        loadZone(S.zone); placePlayers(S.x, S.y);
-        ovHide(); toPlay(); banner(S.zone === 'rift' ? txt(T.ui.riftFloor, { n: S.rift.floor }) : T.zone[S.zone]);
+        ovHide(); mode = 'fade'; fadeT = 20;
+        loading(() => { loadZone(S.zone); placePlayers(S.x, S.y); toPlay(); mode = 'fade'; banner(S.zone === 'rift' ? txt(T.ui.riftFloor, { n: S.rift.floor }) : T.zone[S.zone]); });
+    }
+    // a map takes a while to build on a TV: the black "Loading..." screen is shown first, then the map is built
+    function loading(fn) {
+        fadeHold = true;
+        let done = false;
+        const go = () => { if (done) return; done = true; setTimeout(() => { try { fn(); } finally { fadeHold = false; } }, 0); };
+        requestAnimationFrame(go); setTimeout(go, 150);                  // after the next frame is shown (or soon, if no frame comes)
     }
     /* ------------------------------------------------------------------ fade */
 
@@ -1624,11 +1649,11 @@
     function changeZone(to, tx, ty) {
         const ch = CHAPTERS.of(to);
         startFade(() => {
-            const go = () => {
+            const go = () => loading(() => {
                 loadZone(to); placePlayers(tx, ty); S.zone = to; S.x = tx; S.y = ty; save(); banner(T.zone[to] || '');
                 if (Z.def.dark && S.mount) setTimeout(() => toast(T.ui.noRideDark), 2400);
                 if (CH.arrive) CH.arrive(to);
-            };
+            });
             if (ch === CHID) return go();
             fadeHold = true;
             enterChapter(ch).then(() => { fadeHold = false; go(); }).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
@@ -1667,7 +1692,7 @@
 
     // what a chapter can use (see docs/CHAPTER_API.md)
     const API = {
-        TS, get W() { return W; }, get H() { return H; }, P, Z, FOES, SHOTS, DROPS, PET, TEXT, ITEMS, MOUNTS, TUNE, KN, ART, SND, VOICE, HERO: HEROART, FOE,
+        TS, get W() { return W; }, get H() { return H; }, P, Z, FOES, SHOTS, DROPS, PET, TEXT, ITEMS, MOUNTS, TUNE, KN, ART, SND, VOICE, HERO: HEROART, FOE, blockOf,
         get S() { return S; }, get T() { return T; }, get L() { return L; }, get tick() { return tick; }, get ctx() { return ctx; }, get GT() { return GT; },
         get mode() { return mode; }, set mode(v) { mode = v; }, get boss() { return boss; }, set boss(f) { boss = f; },
         get shake() { return shake; }, set shake(v) { shake = v; }, set flash(v) { flashT = v; }, set freeze(v) { freeze = v; },
@@ -1860,8 +1885,7 @@
     }
 
     function damage(p) {
-        let d = p.st.atk + ((S.lvl - 1) >> 1);
-        return d;
+        return p.st.atk;
     }
     // turn the hero toward the nearest foe within range (true if there was one)
     // cone: bows, guns, staffs and the distant attack only aim at foes within 30° each side of where the hero faces (60° in all)
@@ -1882,10 +1906,11 @@
         if (Math.abs(p.ax) > Math.abs(p.ay) * 0.6) { p.fx = p.ax < 0 ? -1 : 1; p.fy = 0; p.lfx = p.fx; } else { p.fx = 0; p.fy = p.ay < 0 ? -1 : 1; }
         return true;
     }
-    function attack(p) {
+    function attack(p) { HFX++; try { attack_(p); } finally { HFX--; } }
+    function attack_(p) {
         if (flying(p)) { if (toastT < 60) toast(T.ui.flyNoAttack); return; }
         combatT = 0;
-        const st = p.st, fx = ITEMS[p.gear.weapon] ? ITEMS[p.gear.weapon].fx || '' : '', lv = fxLevel();
+        const st = p.st, fx = ITEMS[p.gear.weapon] ? ITEMS[p.gear.weapon].fx || '' : '', lv = heroLv();
         aimAt(p, st.kind === 'sword' ? 64 : 290, st.kind !== 'sword');
         p.atk = st.cd; p.swing = 12; p.lean = 8; p.anim = st.kind;
         if (p.wr >= 3 && lv !== 'low') for (let i = 0; i < (lv === 'high' ? 5 : 2); i++) part(p.x + p.ax * 14, p.y - 12 + p.ay * 6, 8, p.ax * (1 + Math.random()) + (Math.random() - 0.5), p.ay * (1 + Math.random()) + (Math.random() - 0.5), 0.6, 16, i & 1 ? '#ffd23f' : st.col, 2, 0);
@@ -1936,43 +1961,108 @@
     /* ---------- abilities: heal, power attack (a ground slam), distant attack (a piercing bolt) ---------- */
     const CD_KEY = { heal: 'cdHeal', power: 'cdPower', distant: 'cdDistant' };
     // quiet: say nothing when it cannot be used (OK twice then just attacks again)
-    function ability(p, a, quiet) {
+    function ability(p, a, quiet) { HFX++; try { return ability_(p, a, quiet); } finally { HFX--; } }
+    function ability_(p, a, quiet) {
         if (!p.on || p.down || mode !== 'play') return false;
         if (a !== 'heal' && flying(p)) { if (!quiet && toastT < 60) toast(T.ui.flyNoAttack); return false; }
         const ab = ABIL[a], k = CD_KEY[a];
         let why = p[k] > 0 ? T.ui[a] + ': ' + T.ui.cooling + ' ' + Math.ceil(p[k] / 60) + ' s' : p.sta < ab.cost ? T.ui.noStamina : a === 'heal' && p.hp >= maxHp(p) ? T.ui.healFullHp : '';
         if (why) { if (!quiet) { SND.fx('move'); if (toastT < 100) toast(why); } return false; }
         p.sta -= ab.cost; p[k] = ab.cd; p.aura = 30;
-        if (a === 'heal') {
-            const n = Math.max(1, Math.ceil(maxHp(p) * 0.2));
+        if (a === 'heal') {                              // 40% of the hero's health
+            const n = Math.max(1, Math.ceil(maxHp(p) * 0.4));
             p.hp = Math.min(maxHp(p), p.hp + n); p.auraCol = '#7ef0a0';
-            SND.fx('heal'); SND.fx('level');
+            SND.fx('heal');
             floater(p.x, p.y - 34, n, '#7ef0a0', true);
             ringFx(p.x, p.y - 4, 50, '#7ef0a0'); ringFx(p.x, p.y - 4, 30, '#d8ffe0');
             for (let i = 0; i < 26; i++) part(p.x + (Math.random() - 0.5) * 26, p.y - Math.random() * 10, 2, (Math.random() - 0.5) * 0.4, 0, 1 + Math.random() * 1.6, 50 + Math.random() * 20, i & 1 ? '#7ef0a0' : '#ffffff', 3, -0.01);
-        } else if (a === 'power') {
+        } else if (a === 'power') {                      // a ground slam: twice the old reach, a quake, cracks and a second shock wave
+            const R = 168;
             p.auraCol = '#ffb040'; p.swing = 16; p.lean = 10; p.anim = 'sword'; p.atk = Math.max(p.atk, 16);
             SND.fx('slam'); SND.fx('crit');
-            shake = 16; freeze = 6; flashT = 4;
-            ringFx(p.x, p.y, 84, '#ffb040'); ringFx(p.x, p.y, 60, '#fff2c0'); ringFx(p.x, p.y, 34, '#ff6a3a');
-            for (let i = 0; i < 36; i++) { const an = i / 36 * 6.2832, s = 2.5 + Math.random() * 2.5; part(p.x, p.y - 2, 2, Math.cos(an) * s, Math.sin(an) * s * 0.55, 1.5 + Math.random() * 2.5, 30 + Math.random() * 15, i % 3 ? Z.dust : '#ffb040', 3 + (i & 1)); }
+            shake = 22; freeze = 7; flashT = 5;
+            ringFx(p.x, p.y, R, '#ffb040'); ringFx(p.x, p.y, R * 0.75, '#fff2c0'); ringFx(p.x, p.y, R * 0.5, '#ff6a3a'); ringFx(p.x, p.y, R * 0.28, '#ffffff');
+            quake(p.x, p.y, R);
+            for (let i = 0; i < 64; i++) { const an = i / 64 * 6.2832, sp = 3 + Math.random() * 4; part(p.x, p.y - 2, 2, Math.cos(an) * sp, Math.sin(an) * sp * 0.55, 1.5 + Math.random() * 3, 34 + Math.random() * 18, i % 3 ? Z.dust : '#ffb040', 3 + (i & 1)); }
+            for (let i = 0; i < 26; i++) { const an = Math.random() * 6.2832, d = Math.random() * R * 0.8; part(p.x + Math.cos(an) * d, p.y + Math.sin(an) * d * 0.5, 0, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.4, 3 + Math.random() * 3, 40 + Math.random() * 20, i & 1 ? '#ffd76a' : '#8a6a4a', 3); }
+            smoke(p.x, p.y, 10);
             const dmg = damage(p) * 3;
             for (const f of FOES) {
                 if (!f.on || f.alpha < 0.5) continue;
                 const d = dist(p.x, p.y, f.x, f.y);
-                if (d < 84 + f.r) { const ux = (f.x - p.x) / (d || 1), uy = (f.y - p.y) / (d || 1); hitFoe(f, p, dmg, ux, uy); if (f.on && !f.d.boss) { f.kx = ux * 12; f.ky = uy * 12; } }
+                if (d < R + f.r) { const ux = (f.x - p.x) / (d || 1), uy = (f.y - p.y) / (d || 1); hitFoe(f, p, dmg, ux, uy); if (f.on && !f.d.boss) { f.kx = ux * 14; f.ky = uy * 14; } if (f.on) burst(f.x, f.y - 8, 6, '#ffb040', 1.8); }
             }
-            for (const s of Z.pots) if (s.on && dist(p.x, p.y, s.cx, s.cy) < 80) breakPot(s);
-        } else {
-            aimAt(p, 320, true); p.auraCol = '#7ad8ff'; p.swing = 10; p.lean = 6;
-            SND.fx('shoot'); SND.fx('bow'); flashT = 2; shake = Math.max(shake, 5);
-            const s = shot(p.x + p.ax * 14, p.y - 10 + p.ay * 6, p.ax * 7, p.ay * 7, Math.round(damage(p) * 2.5), 11, 12, p.i + 1);
-            if (s) s.pierce = 99;
-            ringFx(p.x + p.ax * 14, p.y - 6 + p.ay * 6, 26, '#7ad8ff');
-            sparks(p.x + p.ax * 16, p.y - 10 + p.ay * 6, p.ax, p.ay, 10, '#bff0ff');
-            p.kx -= p.ax * 3; p.ky -= p.ay * 3;
-        }
+            for (const s of Z.pots) if (s.on && dist(p.x, p.y, s.cx, s.cy) < R - 8) breakPot(s);
+        } else distant(p);
         return true;
+    }
+    // the distant attack takes the shape of the hero's weapon: a thrown sword that comes back, a big fire arrow,
+    // a large orb of another colour, or a heavy shell that explodes
+    function distant(p) {
+        aimAt(p, 340, true); p.swing = 10; p.lean = 6;
+        const st = p.st, kind = st.kind, k = kind === 'bow' ? 16 : kind === 'staff' ? 17 : kind === 'gun' ? 18 : 15;
+        const sp = k === 18 ? 10 : k === 16 ? 8 : k === 15 ? 7 : 5.5, ox = p.x + p.ax * 16, oy = p.y - 11 + p.ay * 7;
+        const s = shot(ox, oy, p.ax * sp, p.ay * sp, Math.round(damage(p) * 2.5), k === 17 ? 18 : k === 15 ? 16 : k === 18 ? 9 : 10, k, p.i + 1);
+        if (!s) return;
+        s.pierce = k === 18 ? 3 : 99; s.lg = p.wr >= 3;
+        s.col = k === 17 ? otherHue(st.col) : st.col; s.col2 = st.col2;
+        p.auraCol = k === 16 ? '#ff8a2a' : k === 17 ? s.col : k === 18 ? '#ffd76a' : st.col;
+        flashT = 2;
+        if (k === 15) {
+            SND.fx('throw'); shake = Math.max(shake, 4);
+            ringFx(ox, oy + 6, 26, st.col); sparks(ox, oy, p.ax, p.ay, 10, '#ffffff');
+        } else if (k === 16) {
+            SND.fx('fireArrow'); shake = Math.max(shake, 5);
+            ringFx(ox, oy + 6, 30, '#ff8a2a'); sparks(ox, oy, p.ax, p.ay, 14, '#ffb040'); burst(ox, oy, 8, '#ff5a1a', 1.4);
+            p.kx -= p.ax * 2; p.ky -= p.ay * 2;
+        } else if (k === 17) {
+            SND.fx('arcane'); shake = Math.max(shake, 5);
+            ringFx(ox, oy + 6, 40, s.col); ringFx(p.x, p.y, 30, '#ffffff'); burst(ox, oy, 14, s.col, 2);
+        } else {
+            SND.fx('cannon'); p.flash = 10; shake = Math.max(shake, 12); flashT = 4;
+            smoke(ox + p.ax * 8, oy, 14); sparks(ox + p.ax * 6, oy, p.ax, p.ay, 20, '#ffd76a'); ringFx(ox + p.ax * 6, oy + 6, 44, '#ffd76a');
+            p.kx -= p.ax * 6; p.ky -= p.ay * 6;
+        }
+    }
+    // the colour of the staff's special orb: the colour's complement, brightened (cyan becomes rose, green violet...)
+    const HUE = {};
+    function otherHue(hex) {
+        if (HUE[hex]) return HUE[hex];
+        if (!hex || hex[0] !== '#' || hex.length !== 7) return '#ff7ad8';
+        const n = parseInt(hex.slice(1), 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255], mx = Math.max(c[0], c[1], c[2]), mn = Math.min(c[0], c[1], c[2]);
+        const o = c.map(v => Math.min(255, Math.round((mx + mn - v) * 0.75 + 70)));
+        return (HUE[hex] = '#' + o.map(v => (v < 16 ? '0' : '') + v.toString(16)).join(''));
+    }
+    // the slam's quake: cracks that run out on the ground and fade, and a second shock wave
+    const QUAKE = { t: 0, x: 0, y: 0, r: 0, seed: 1 };
+    function quake(x, y, r) { QUAKE.t = 50; QUAKE.x = x; QUAKE.y = y; QUAKE.r = r; QUAKE.seed = (Math.random() * 1000) | 0; }
+    function updQuake() {
+        if (QUAKE.t <= 0) return;
+        QUAKE.t--; HFX++;
+        if (QUAKE.t === 40) { ringFx(QUAKE.x, QUAKE.y, QUAKE.r * 1.05, '#ffd76a'); ringFx(QUAKE.x, QUAKE.y, QUAKE.r * 0.6, '#ff8a3a'); }
+        if (QUAKE.t > 30 && (QUAKE.t & 1)) { const an = Math.random() * 6.2832, d = QUAKE.r * (0.3 + Math.random() * 0.6); part(QUAKE.x + Math.cos(an) * d, QUAKE.y + Math.sin(an) * d * 0.5, 0, 0, 0, 2 + Math.random() * 2, 30, '#ffb040', 2, 0.05); }
+        HFX--;
+    }
+    function drawQuake(cx, cy) {
+        if (QUAKE.t <= 0) return;
+        const k = Math.min(1, QUAKE.t / 30), grow = Math.min(1, (50 - QUAKE.t) / 8);
+        ctx.globalAlpha = k * 0.85; ctx.lineCap = 'round';
+        for (let i = 0; i < 12; i++) {
+            let a = (i / 12) * 6.2832 + ((QUAKE.seed * (i + 3)) % 7) * 0.05, x = QUAKE.x - cx, y = QUAKE.y - cy;
+            ctx.beginPath(); ctx.moveTo(x, y);
+            for (let j = 1; j <= 5; j++) {
+                a += (((QUAKE.seed + i * 7 + j * 13) % 11) - 5) * 0.06;
+                const d = QUAKE.r * 0.18 * grow; x += Math.cos(a) * d; y += Math.sin(a) * d * 0.5; ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#2a1a10'; ctx.lineWidth = 3.5; ctx.stroke();
+            ctx.strokeStyle = '#ffb040'; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+        ctx.globalAlpha = 1; ctx.lineCap = 'butt';
+    }
+    // a shell or a fire arrow bursts: every foe around takes part of the blow
+    function blast(x, y, p, dmg, skip, r, col) {
+        ringFx(x, y, r, col); ringFx(x, y, r * 0.55, '#ffffff'); burst(x, y - 6, 16, col, 2.6); smoke(x, y, 6);
+        for (const o of FOES) if (o.on && o !== skip && o.alpha > 0.5 && dist(o.x, o.y - 8, x, y) < r + o.r) { const d = dist(o.x, o.y, x, y) || 1; hitFoe(o, p, Math.max(1, Math.round(dmg * 0.5)), (o.x - x) / d, (o.y - y) / d); }
     }
     function gainStamina(n) { for (const p of P) if (p.on && !p.down) p.sta = Math.min(STA_MAX, p.sta + n); }
     function potion(p) {                                   // the mapped potion button: a small one, else a big one
@@ -2004,7 +2094,7 @@
     function padPress(i) {
         if (!started) return;
         if (OV.kind === 'assign') return assignPad(i);
-        if (mode === 'overlay' || mode === 'dialog') { if (i === padBackOf() && i !== 0) goBack(); return; }
+        if (mode === 'overlay' || mode === 'dialog') { if (i === padBackOf() && i !== 0 && ownsMenu(P[0].dev)) goBack(); return; }
         if (mode !== 'play' || i >= 12) return;
         const p = P[0]; if (p.down) return;
         for (const f of FNS) if (padOf(f) === i) { if (f === 'attack' && interact(p)) return; doFn(p, f, false); return; }
@@ -2033,7 +2123,7 @@
     }
     // a legendary weapon's blow: golden sparks and a small ring (fewer on slow TVs)
     function legendHit(f, p, dx, dy) {
-        const lv = fxLevel(), col = ITEMS[p.gear.weapon] && ITEMS[p.gear.weapon].fx ? p.st.col : '#ffd23f';
+        const lv = heroLv(), col = ITEMS[p.gear.weapon] && ITEMS[p.gear.weapon].fx ? p.st.col : '#ffd23f';
         if (lv !== 'low') sparks(f.x, f.y - 14, -dx, -dy, lv === 'high' ? 6 : 3, col);
         if (lv === 'high' && (tick & 1)) ringFx(f.x, f.y - 6, 22, col);
     }
@@ -2056,7 +2146,7 @@
     }
     // void: a burst that hurts every foe around the place a bolt landed
     function voidBurst(x, y, p, dmg, skip) {
-        ringFx(x, y, 46, '#b07aff'); if (fxLevel() !== 'low') burst(x, y - 6, 12, '#d8b0ff', 2.2);
+        ringFx(x, y, 46, '#b07aff'); if (heroLv() !== 'low') burst(x, y - 6, 12, '#d8b0ff', 2.2);
         for (const o of FOES) if (o.on && o !== skip && o.alpha > 0.5 && dist(o.x, o.y - 8, x, y) < 46 + o.r) { const d = dist(o.x, o.y, x, y) || 1; hitFoe(o, p, Math.max(1, Math.round(dmg * 0.45)), (o.x - x) / d, (o.y - y) / d); }
     }
     function killFoe(f) {
@@ -2081,7 +2171,7 @@
         while (S.lvl < 20 && S.xp >= need(S.lvl)) {
             S.lvl++;
             for (const p of P) if (p.on) { p.hp = maxHp(p); p.down = false; burst(p.x, p.y - 10, 20, '#ffe66a', 2); ringFx(p.x, p.y - 8, 60, '#ffe66a'); }
-            SND.fx('level'); toast(txt(T.ui.lvup, { n: S.lvl }));
+            recalcAll(); SND.fx('level'); toast(txt(T.ui.lvup, { n: S.lvl }));
         }
     }
     // ground: a blow or something on the ground (a flying hero is out of reach)
@@ -2090,7 +2180,7 @@
         if (ground && flying(p)) return;
         combatT = 0;
         const md = CH && CH.mods ? CH.mods() : null;
-        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * coopMul() * (md ? md.take : 1) * (1 - Math.min(0.6, p.st.def * 0.06))));
+        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * coopMul() * (md ? md.take : 1) * (1 - defCut(p.st.def))));
         p.hp = Math.max(0, p.hp - dmg); p.inv = 60; SND.fx('hurt'); SND.fx(p.i ? 'ouch2' : 'ouch'); shake = 6; freeze = 3;
         const d = dist(p.x, p.y, sx, sy) || 1; p.kx = (p.x - sx) / d * 5; p.ky = (p.y - sy) / d * 5;
         floater(p.x, p.y - 30, dmg, '#ff5a5a');
@@ -2104,13 +2194,13 @@
     function allDown() {
         if (Z.def.rift) return endRift(true);
         toast(T.ui.allDown);
-        startFade(() => {
+        startFade(() => loading(() => {
             S.coins = Math.floor(S.coins * 0.9);
             loadZone(Z.id);
             const sp = Z.def.spawn; placePlayers(sp[0], sp[1]);
             for (const p of P) { p.hp = maxHp(p); p.down = false; }
             save();
-        });
+        }));
     }
 
     // picking something up (the hero or the cat; the cat's finds go to hero 1)
@@ -2175,7 +2265,7 @@
     }
     function petHurt(dmg, sx, sy) {
         const pet = PET; if (!pet.on || pet.down || pet.inv > 0) return;
-        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - Math.min(0.6, (P[0].st.def / 2) * 0.06))));
+        dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * (1 - defCut(P[0].st.def / 2))));
         pet.hp -= dmg; pet.inv = 50; pet.hurt = 8; floater(pet.x, pet.y - 20, dmg, '#ff9a9a');
         const d = dist(pet.x, pet.y, sx, sy) || 1; moveEnt(pet, (pet.x - sx) / d * 8, (pet.y - sy) / d * 8, 4, 3);
         if (pet.hp <= 0) { pet.hp = 0; pet.down = 600; burst(pet.x, pet.y - 6, 10, '#c9cfdc', 1.5); toast(T.ui.petDown); }
@@ -2214,7 +2304,7 @@
             }
         } else p.walk = 0;
         if (p.kx || p.ky) { flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false; p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
-        p.sy = p.y;
+        p.sy = flying(p) ? p.y + 200 : p.y;                // in the air: drawn over the roofs and trees it passes
         // riding the wolf: it bites what you run into
         if (riding(p) && MOUNTS[S.mount].bite && --p.bite <= 0) {
             for (const f of FOES) if (f.on && f.alpha > 0.5 && dist(f.x, f.y, p.x, p.y) < f.r + 16) { p.bite = 30; SND.fx('hit'); petHit(f, Math.max(1, damage(p) >> 1), p.ax, p.ay); break; }
@@ -2440,6 +2530,7 @@
     function updShots() {
         for (const s of SHOTS) {
             if (!s.on) continue;
+            HFX = s.owner ? 1 : 0;
             s.x += s.vx; s.y += s.vy;
             const c = codeAt(s.x, s.y);
             if (s.owner && c === C_p) {                       // arrows and bullets break pots
@@ -2456,12 +2547,13 @@
                 for (const o of FOES) if (o.on && o.alpha > 0.5 && o !== s.hit) { const d2 = (o.x - s.x) * (o.x - s.x) + (o.y - 10 - s.y) * (o.y - 10 - s.y); if (d2 < bd) { bd = d2; best = o; } }
                 if (best) { const dd = Math.sqrt(bd) || 1, sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy); s.vx += ((best.x - s.x) / dd * sp - s.vx) * 0.12; s.vy += ((best.y - 10 - s.y) / dd * sp - s.vy) * 0.12; }
             }
-            if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) { s.on = false; if (s.fx === 'void' && s.owner) voidBurst(s.x, s.y, P[s.owner - 1] || P[0], s.dmg, null); if (s.k === 14) { if (fxLevel() !== 'low') burst(s.x, s.y, 8, s.col || '#fff2b0', 1.6); continue; } if (s.k === 12) { burst(s.x, s.y, 16, '#7ad8ff', 2.2); ringFx(s.x, s.y + 8, 30, '#7ad8ff'); } else if (s.k === 13 || s.k === 6 || s.k === 8) burst(s.x, s.y, 8, s.k === 6 ? '#c77dff' : s.k === 8 ? '#ff8a3a' : s.col || '#7fd8ff', 1.6); else burst(s.x, s.y, 3, s.k === 2 ? '#8a8fb8' : s.k === 11 ? '#ffd76a' : '#6a5a40', 1); continue; }
+            if (s.k >= 15 && heroShot(s, c)) continue;
+            if (s.k < 15 && (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y)))) { s.on = false; if (s.fx === 'void' && s.owner) voidBurst(s.x, s.y, P[s.owner - 1] || P[0], s.dmg, null); if (s.k === 14) { if (heroLv() !== 'low') burst(s.x, s.y, 8, s.col || '#fff2b0', 1.6); continue; } if (s.k === 12) { burst(s.x, s.y, 16, '#7ad8ff', 2.2); ringFx(s.x, s.y + 8, 30, '#7ad8ff'); } else if (s.k === 13 || s.k === 6 || s.k === 8) burst(s.x, s.y, 8, s.k === 6 ? '#c77dff' : s.k === 8 ? '#ff8a3a' : s.col || '#7fd8ff', 1.6); else burst(s.x, s.y, 3, s.k === 2 ? '#8a8fb8' : s.k === 11 ? '#ffd76a' : '#6a5a40', 1); continue; }
             if (s.k === 11 && (tick & 1)) part(s.x, s.y, 10, 0, 0, 0, 10, '#ffe9a8', 2, 0);
             else if (s.k === 13 && (tick & 1)) part(s.x, s.y, 10, -s.vx * 0.1, -s.vy * 0.1, 0.1, 14, s.col || '#7fd8ff', 3, 0);
             else if ((s.k === 6 || s.k === 8) && (tick & 3) === 0) part(s.x, s.y, 10, 0, 0, 0.2, 16, s.k === 6 ? '#c77dff' : '#ffb040', 3, 0);
             else if (s.k === 12) { part(s.x + (Math.random() - 0.5) * 8, s.y + (Math.random() - 0.5) * 8, 10, -s.vx * 0.1, -s.vy * 0.1, 0.2, 18, tick & 1 ? '#7ad8ff' : '#ffffff', 3, 0); }
-            if ((s.lg || s.k === 14) && (tick & (fxLevel() === 'high' ? 0 : 1)) === 0 && fxLevel() !== 'low') part(s.x, s.y, 10, -s.vx * 0.08, -s.vy * 0.08, 0.1, 14, s.fx === 'leaf' ? (tick & 2 ? '#7ef0a0' : '#e8ffe0') : s.fx === 'chain' ? (tick & 2 ? '#ffe9a8' : '#9ad8ff') : s.col || '#ffd23f', 2, 0);
+            if ((s.lg || s.k === 14) && (tick & (heroLv() === 'high' ? 0 : 1)) === 0 && heroLv() !== 'low') part(s.x, s.y, 10, -s.vx * 0.08, -s.vy * 0.08, 0.1, 14, s.fx === 'leaf' ? (tick & 2 ? '#7ef0a0' : '#e8ffe0') : s.fx === 'chain' ? (tick & 2 ? '#ffe9a8' : '#9ad8ff') : s.col || '#ffd23f', 2, 0);
             if (s.owner) {
                 for (const f of FOES) {
                     if (!f.on || f.alpha < 0.5 || f === s.hit) continue;
@@ -2470,6 +2562,8 @@
                         hitFoe(f, hp, s.dmg, s.vx / sp, s.vy / sp);
                         if (s.fx === 'chain') chainHit(f, hp, s.dmg);
                         else if (s.fx === 'void') { voidBurst(s.x, s.y, hp, s.dmg, f); s.fx = ''; }
+                        if (s.k === 16) { blast(s.x, s.y, hp, s.dmg * 0.6, f, 34, '#ff7a2a'); SND.fx('burn'); }
+                        else if (s.k === 18) { blast(s.x, s.y, hp, s.dmg, f, 56, '#ffb040'); SND.fx('boom'); shake = Math.max(shake, 8); }
                         if (s.pierce-- > 0) { s.hit = f; } else { s.on = false; }
                         break;
                     }
@@ -2480,7 +2574,44 @@
             }
         }
     }
+    // the heroes' special shots (the distant attack): how each one flies, what it leaves behind and how it ends
+    function heroShot(s, c) {
+        const hp = P[s.owner - 1] || P[0], lv = heroLv();
+        if (s.k === 15) {                                   // the thrown sword spins out, slows, then flies back to the hero
+            hp.thrown = tick + 2;
+            const t = s.m - s.life;
+            if (!s.back && t > 28) { s.back = true; s.hit = null; }
+            if (s.back) {
+                const dd = dist(hp.x, hp.y - 12, s.x, s.y) || 1, sp = Math.min(10, 4 + (t - 28) * 0.15);
+                s.vx += ((hp.x - s.x) / dd * sp - s.vx) * 0.25; s.vy += ((hp.y - 12 - s.y) / dd * sp - s.vy) * 0.25;
+                if (dd < 18 || !hp.on) { s.on = false; SND.fx('equip'); sparks(hp.x, hp.y - 12, 0, -1, 6, '#ffffff'); return true; }
+            } else { s.vx *= 0.975; s.vy *= 0.975; }
+            if (--s.life <= 0) { s.on = false; return true; }
+            if (lv !== 'low' || (tick & 1)) part(s.x + (Math.random() - 0.5) * 14, s.y + (Math.random() - 0.5) * 14, 10, 0, 0, 0.1, 14, tick & 1 ? s.col || '#ffffff' : '#ffffff', 2, 0);
+            return false;                                   // it flies over walls and comes back
+        }
+        if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) {
+            s.on = false;
+            if (s.k === 16) { blast(s.x, s.y, hp, s.dmg * 0.6, null, 34, '#ff7a2a'); SND.fx('burn'); }
+            else if (s.k === 18) { blast(s.x, s.y, hp, s.dmg, null, 56, '#ffb040'); SND.fx('boom'); shake = Math.max(shake, 8); }
+            else { burst(s.x, s.y, 22, s.col, 2.6); ringFx(s.x, s.y + 8, 44, s.col); ringFx(s.x, s.y + 8, 24, '#ffffff'); SND.fx('zap'); }
+            return true;
+        }
+        const n = lv === 'low' ? (tick & 1) : 2;
+        for (let i = 0; i < n; i++) {
+            if (s.k === 16) part(s.x - s.vx * Math.random(), s.y - s.vy * Math.random(), 10, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, 0.4 + Math.random() * 0.4, 18 + Math.random() * 10, i ? '#ffd23f' : '#ff5a1a', 3, -0.02);
+            else if (s.k === 17) { const a = tick * 0.4 + i * 3.14; part(s.x + Math.cos(a) * 14, s.y + Math.sin(a) * 14, 10, -s.vx * 0.1, -s.vy * 0.1, 0.1, 22, i ? '#ffffff' : s.col, 3, 0); }
+            else part(s.x - s.vx * 0.5, s.y - s.vy * 0.5, 10, (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, 0.3, 26, i ? '#a8a8b0' : '#ffd76a', i ? 4 : 2, -0.01);
+        }
+        if (s.k === 17) {                                   // the orb drifts toward the nearest foe
+            let best = null, bd = 120 * 120;
+            for (const o of FOES) if (o.on && o.alpha > 0.5 && o !== s.hit) { const d2 = (o.x - s.x) * (o.x - s.x) + (o.y - 10 - s.y) * (o.y - 10 - s.y); if (d2 < bd) { bd = d2; best = o; } }
+            if (best) { const dd = Math.sqrt(bd) || 1, sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy); s.vx += ((best.x - s.x) / dd * sp - s.vx) * 0.08; s.vy += ((best.y - 10 - s.y) / dd * sp - s.vy) * 0.08; }
+        }
+        return false;
+    }
     function updParts() {
+        HFX = 0;
         for (const p of PARTS) {
             if (!p.on) continue;
             p.x += p.vx; p.y += p.vy; p.z += p.vz; p.vz -= p.g;
@@ -2600,7 +2731,7 @@
             if (mode === 'play') updPet();
             if (mode === 'play') {
                 for (const f of FOES) if (f.on) updFoe(f);
-                updShots();
+                updShots(); HFX = 0;
                 updHaz();
                 if (CH.update) CH.update();
             }
@@ -2611,7 +2742,7 @@
             }
             hud();
         } else if (mode === 'overlay' && OV.kind === 'menu') { camX += 0.15; }
-        updParts();
+        updParts(); updQuake();
         if ((mode !== 'overlay' || OV.kind !== 'menu') && !(mode === 'scene' && SC.steps && SC.steps[SC.i] && SC.steps[SC.i].cam)) follow(false);
     }
 
@@ -2646,6 +2777,7 @@
             ctx.beginPath(); ctx.ellipse(r.x - cx, r.y - cy, r.r, r.r * 0.45, 0, 0, 6.2832); ctx.stroke();
         }
         ctx.globalAlpha = 1;
+        drawQuake(cx, cy);
         drawHaz(cx, cy);
         if (CH.drawUnder) CH.drawUnder(ctx, cx, cy, tick);
         dlN = 0;
@@ -2654,10 +2786,11 @@
             const row = Z.rs[r];
             for (let i = 0; i < row.length; i++) { const s = row[i]; if (s.on && s.dx + s.dw > cx && s.dx < cx + W) DL[dlN++] = s; }
         }
-        for (const n of Z.npcs) if (npcVisible(n.id)) DL[dlN++] = n;
+        // people, foes and drops off the screen are not drawn (big foes keep a wider margin for their attacks)
+        for (const n of Z.npcs) if (n.x > cx - 60 && n.x < cx + W + 60 && n.y > cy - 40 && n.y < cy + H + 90 && npcVisible(n.id)) DL[dlN++] = n;
         for (const p of P) if (p.on) DL[dlN++] = p;
-        for (const f of FOES) if (f.on) DL[dlN++] = f;
-        for (const d of DROPS) if (d.on) DL[dlN++] = d;
+        for (const f of FOES) if (f.on) { const m = f.d && f.d.boss ? 400 : 60 + f.r * 3; if (f.x > cx - m && f.x < cx + W + m && f.y > cy - m && f.y < cy + H + m + 60) DL[dlN++] = f; }
+        for (const d of DROPS) if (d.on && d.x > cx - 40 && d.x < cx + W + 40 && d.y > cy - 40 && d.y < cy + H + 60) DL[dlN++] = d;
         if (PET.on) DL[dlN++] = PET;
         for (let i = 1; i < dlN; i++) { const v = DL[i], k = v.sy; let j = i - 1; while (j >= 0 && DL[j].sy > k) { DL[j + 1] = DL[j]; j--; } DL[j + 1] = v; }
         const mi = ART.misc();
@@ -2739,7 +2872,8 @@
             dctx.drawImage(mi.light, x - 110 - fl / 2, y - 100 - fl / 2, 220 + fl, 200 + fl);
         }
         for (const p of P) if (p.on) { const r = p.flash > 0 ? 300 : 230; dctx.drawImage(mi.light, p.x - cx - r / 2, p.y - cy - 12 - r / 2, r, r); }
-        for (const s of SHOTS) if (s.on && (s.k === 11 || s.k === 12 || s.k === 13 || s.k === 6 || s.k === 8)) dctx.drawImage(mi.light, s.x - cx - 40, s.y - cy - 40, 80, 80);
+        if (boss && boss.on && boss.active) { const r = 200 + boss.r * 4; dctx.drawImage(mi.light, boss.x - cx - r / 2, boss.y - cy - 50 - r / 2, r, r); }   // a boss shows itself
+        for (const s of SHOTS) if (s.on && (s.k >= 11 && s.k !== 14 || s.k === 6 || s.k === 8)) { const r = s.k >= 15 ? 80 : 40; dctx.drawImage(mi.light, s.x - cx - r, s.y - cy - r, r * 2, r * 2); }
         dctx.globalCompositeOperation = 'source-over';
         ctx.globalAlpha = 0.9; ctx.drawImage(darkC, 0, 0, W, H); ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = 'lighter';
@@ -2752,7 +2886,7 @@
     }
 
     function drawShots(cx, cy) {
-        const lv = fxLevel();
+        const lv = heroLv();
         for (const b of BOLTS) {                           // chain lightning of the Thunderforge
             if (!b.on) continue;
             if (--b.t <= 0) { b.on = false; continue; }
@@ -2773,6 +2907,7 @@
                 ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
                 continue;
             }
+            if (s.k >= 15) { drawHeroShot(s, x, y, lv); continue; }
             if (s.k === 10) {                                  // arrow
                 const sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy), ux = s.vx / sp, uy = s.vy / sp;
                 ctx.strokeStyle = '#d8c8a0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - ux * 12, y - uy * 12); ctx.lineTo(x + ux * 4, y + uy * 4); ctx.stroke();
@@ -2816,6 +2951,42 @@
         }
     }
 
+    // the special shots of the distant attack (see heroShot)
+    function drawHeroShot(s, x, y, lv) {
+        const a = Math.atan2(s.vy, s.vx), ux = Math.cos(a), uy = Math.sin(a), hi = lv !== 'low';
+        if (s.k === 15) {                                   // the hero's own sword, spinning, twice its size
+            if (hi) { ctx.globalAlpha = 0.5; ctx.drawImage(glowSprite(s.col && s.col.length === 7 ? s.col : '#ffffff'), x - 26, y - 26, 52, 52); }
+            ctx.globalAlpha = 0.35; ctx.strokeStyle = s.col || '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 20, tick * 0.55, tick * 0.55 + 4.2); ctx.stroke(); ctx.globalAlpha = 1;
+            ctx.save(); ctx.translate(x, y); ctx.rotate(tick * 0.55); ctx.scale(2.2, 2.2);
+            drawHeld('sword', s.col || '#d8e2ee', s.col2, -8, 0, 0, s.lg ? 3 : 0, 0, 0);
+            ctx.restore();
+        } else if (s.k === 16) {                            // a big arrow on fire
+            const fl = Math.sin(tick * 0.9) * 2;
+            if (hi) { ctx.globalAlpha = 0.7; ctx.drawImage(glowSprite('#ff7a2a'), x - 34, y - 34, 68, 68); ctx.globalAlpha = 1; }
+            for (let k = 0; k < 3; k++) {                   // flames streaming back from the head
+                const L = 24 + k * 8 + fl * 1.5, w = 9 - k * 2.4;
+                ctx.globalAlpha = 0.85 - k * 0.2; ctx.fillStyle = k === 0 ? '#fff2a8' : k === 1 ? '#ffb040' : '#ff5a1a';
+                ctx.beginPath(); ctx.moveTo(x + ux * 6, y + uy * 6); ctx.lineTo(x - ux * L - uy * w, y - uy * L + ux * w); ctx.lineTo(x - ux * (L - 4), y - uy * (L - 4)); ctx.lineTo(x - ux * L + uy * w, y - uy * L - ux * w); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = '#5a3a1e'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(x - ux * 26, y - uy * 26); ctx.lineTo(x + ux * 6, y + uy * 6); ctx.stroke();
+            ctx.fillStyle = '#ffe9c8'; ctx.beginPath(); ctx.moveTo(x + ux * 14, y + uy * 14); ctx.lineTo(x - uy * 6, y + ux * 6); ctx.lineTo(x + uy * 6, y - ux * 6); ctx.fill();
+            ctx.fillStyle = '#c84a3a'; ctx.beginPath(); ctx.moveTo(x - ux * 26, y - uy * 26); ctx.lineTo(x - ux * 32 - uy * 6, y - uy * 32 + ux * 6); ctx.lineTo(x - ux * 20, y - uy * 20); ctx.lineTo(x - ux * 32 + uy * 6, y - uy * 32 - ux * 6); ctx.fill();
+        } else if (s.k === 17) {                            // a large orb in the other colour, with a white heart and a ring
+            const pu = 1 + Math.sin(tick * 0.35) * 0.12, r = 40 * pu;
+            ctx.globalAlpha = 0.9; ctx.drawImage(glowSprite(s.col), x - r, y - r, r * 2, r * 2);
+            if (hi) { ctx.globalAlpha = 0.5; ctx.drawImage(glowSprite(s.col), x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2); }
+            ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(x, y, 16 * pu, 6 * pu, tick * 0.12, 0, 6.2832); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, 9 * pu, 0, 6.2832); ctx.fill();
+        } else {                                            // a heavy glowing shell with a long tracer and a shock ring
+            if (hi) { ctx.globalAlpha = 0.6; ctx.drawImage(glowSprite('#ffb040'), x - 22, y - 22, 44, 44); }
+            ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffb040'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(x - s.vx * 3.2, y - s.vy * 3.2); ctx.lineTo(x, y); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.strokeStyle = '#fff2c0'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x - s.vx * 2.2, y - s.vy * 2.2); ctx.lineTo(x, y); ctx.stroke();
+            ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x - ux * 10, y - uy * 10, 5 + (tick % 6), 9 + (tick % 6) * 1.4, a, 0, 6.2832); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 6.2832); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
     function drawNpc(n, cx, cy) {
         const id = baseId(n.id);
         let x = n.x - cx, y = n.sy - cy;
@@ -2975,7 +3146,7 @@
     // legendary armour shines a little (a gold rim at the feet, twinkles on the legendary pieces); fewer on slow TVs
     function legendAura(p, x, y) {
         const m = p.lgMask; if (!m) return;
-        const lv = fxLevel(), t = tick + p.i * 13;
+        const lv = heroLv(), t = tick + p.i * 13;
         ctx.globalAlpha = 0.28 + Math.sin(t * 0.08) * 0.1; ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.ellipse(x, y, 11, 4, 0, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1;
         if (lv === 'low') return;
@@ -3010,7 +3181,7 @@
             : horse && mdir !== 2 ? y - 30 : ride ? y - (horse ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
         // where the rider sits: on the dragon's back (behind its neck), in the horse's saddle
         const rx = charger ? x - (mdir === 2 ? mfx * 3 : 0) : fly ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : horse && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
-        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, fxLevel() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && fxLevel() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
+        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
         else if (fly) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
         else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.38, 'horse');
         else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
@@ -3035,6 +3206,7 @@
     const PCOL = ['#8af0e0', '#ffb38a', '#c9a8ff', '#a8e88a'];       // the colour of each hero's label and HUD name
     function drawHeroWeapon(p, x, y, dir, flip) {
         const st = p.st;
+        if (p.thrown > tick) return;                         // the sword is flying (the distant attack)
         if (st.kind === 'sword' && p.swing > 0) {          // slash: a bright arc with a fading trail
             const a = Math.atan2(p.ay, p.ax), t = p.swing / 12, from = a - 1.4, to = a - 1.4 + (1 - t) * 2.8 + 0.2;
             for (let k = 0; k < 3; k++) {
@@ -3061,7 +3233,7 @@
         if (rar >= 2) {
             const gc = LOOT.colors[rar], len = kind === 'staff' ? 18 : 10;
             ctx.globalAlpha = 0.35 + Math.sin(tick * 0.12) * 0.15; ctx.drawImage(glowSprite(gc), hx + ca * len - 13, hy + sa * len - 13, 26, 26);
-            if (rar >= 3 && fxLevel() !== 'low') {         // legendary: a second, slower glow in the weapon's own colour along the blade
+            if (rar >= 3 && heroLv() !== 'low') {          // legendary: a second, slower glow in the weapon's own colour along the blade
                 ctx.globalAlpha = 0.25 + Math.sin(tick * 0.07 + hx) * 0.12;
                 ctx.drawImage(glowSprite(col && col.length === 7 ? col : gc), hx + ca * len * 1.4 - 10, hy + sa * len * 1.4 - 10, 20, 20);
             }
@@ -3378,7 +3550,7 @@
                 const nx = x + (k === 0 ? 1 : k === 1 ? -1 : 0), ny = y + (k === 2 ? 1 : k === 3 ? -1 : 0);
                 if (nx < 0 || ny < 0 || nx >= cols || ny >= Z.rows) continue;
                 const i = ny * cols + nx, c = Z.tiles[i];
-                if (F[i] >= 0 || (SOLID[c] === 1 && c !== C_g && c !== C_S && c !== C_b) || Z.block[i] === 1) continue;
+                if (F[i] >= 0 || (SOLID[c] === 1 && c !== C_g && c !== C_S && c !== C_b) || Z.block[i] !== 0) continue;
                 F[i] = dv; if (qt < n * 2) { Q[qt++] = nx; Q[qt++] = ny; }
             }
         }
@@ -3455,6 +3627,10 @@
     /* ------------------------------------------------------------------ input (SDK only) */
 
     const devHero = dev => P.find(q => q.on && q.dev === dev);
+    // co-op: a menu belongs to the player who opened it until it is closed; conversations, shops and everything
+    // the villagers open belong to the host (hero 1)
+    let menuDev = '';
+    function ownsMenu(dev) { return nPlayers() < 2 || (mode === 'overlay' && menuDev ? dev === menuDev : dev === P[0].dev); }
     function onInput(a, pressed, repeat, dev) {
         dev = dev || 'keys';
         if (!repeat) { const d = DEV[dev] || (DEV[dev] = {}); d[a] = pressed; }
@@ -3463,13 +3639,13 @@
         if (pressed && HM_PAD.live && dev.indexOf('net') !== 0 && HM_PAD.holding() && (dev === 'keys' || dev === P[0].dev) &&
             ((mode === 'play' && (a === 'jump' || a === 'run' || a === 'cancel')) || ((mode === 'overlay' || mode === 'dialog') && a === 'cancel'))) return;          // the "press the button" modal listens to everything
         // with Return on "hold OK", OK in menus and conversations acts when released (a long press is Return)
-        if (a === 'confirm' && !pressed && okDown >= 0) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
+        if (a === 'confirm' && !pressed && okDown >= 0 && ownsMenu(dev)) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
         if (!pressed || !started) return;
         // a phone on the network ('net1'...) only plays: it never takes hero 1, opens menus or answers dialogs
         const remote = dev.indexOf('net') === 0;
         if (remote) {
             if (mode === 'play') {
-                if (a === 'menu') { const rp = devHero(dev); if (rp && !remoteMenu) { remoteMenu = rp; remoteDev = dev; quickMenu(rp); } return; }       // that hero's own menu: gear, mounts, abilities
+                if (a === 'menu') { const rp = devHero(dev); if (rp && !remoteMenu) { remoteMenu = rp; remoteDev = dev; menuDev = dev; quickMenu(rp); } return; }       // that hero's own menu: gear, mounts, abilities
                 if (a === 'confirm' || a === 'pause') return;
             } else {
                 if (remoteMenu && remoteDev === dev && mode === 'overlay' && OV.kind === 'journal') { if (a === 'jump' || a === 'cancel') { ovHide(); toPlay(); } return; }
@@ -3483,10 +3659,10 @@
         if (P[0].dev === '' && !remote) P[0].dev = dev;
         if (dev !== P[0].dev && !repeat) joinSeen = true;
         if (tick < lockUntil && (a === 'confirm' || a === 'jump')) return;
-        if (a === 'menu') { if (mode === 'play') quickMenu(devHero(dev) || P[0]); else if (mode === 'overlay' || mode === 'dialog') goBack(); return; }
+        if (a === 'menu') { if (mode === 'play') { menuDev = dev; quickMenu(devHero(dev) || P[0]); } else if ((mode === 'overlay' || mode === 'dialog') && ownsMenu(dev)) goBack(); return; }
         if (mode === 'scene') { if (a === 'confirm' && SC.t > 0 && !repeat) { SC.t = 0; nextStep(); } return; }
         if (mode === 'overlay' || mode === 'dialog') {
-            if (nPlayers() > 1 && dev !== P[0].dev && !(remoteMenu && remoteDev === dev)) return;       // in co-op only hero 1 answers villagers and runs the menus
+            if (!ownsMenu(dev)) return;                    // in co-op only the one who opened the menu runs it (hero 1 answers villagers)
             if (a === 'jump') return;
             if (a === SET.back) { goBack(); return; }
             if (a === 'confirm' && SET.back === 'hold') { if (!repeat) { okDown = tick; okBack = false; } return; }
@@ -3506,12 +3682,15 @@
     window.HM_REMOTE = {
         input: (a, down, dev) => onInput(a, down, false, dev),
         setName: (dev, n) => { devName[dev] = cleanName(n); const q = devHero(dev); if (q) { pNames[q.i] = devName[dev]; refreshNames(); } },
-        leave: dev => { leaveHero(devHero(dev)); delete devName[dev]; DEV[dev] = {}; if (remoteDev === dev && remoteMenu) { remoteMenu = null; remoteDev = ''; } }
+        leave: dev => {
+            leaveHero(devHero(dev)); delete devName[dev]; DEV[dev] = {}; if (remoteDev === dev && remoteMenu) { remoteMenu = null; remoteDev = ''; }
+            if (menuDev === dev && mode === 'overlay') { ovHide(); toPlay(); }                // the menu of a player who left closes
+        }
     };
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
 
     /* ------------------------------------------------------------------ lifecycle */
 
