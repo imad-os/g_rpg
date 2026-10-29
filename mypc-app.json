@@ -6,7 +6,7 @@
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "scores": true,
   "config": {
     "tts": true,

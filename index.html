@@ -52,7 +52,6 @@
   .ab u { position: absolute; left: 0; right: 0; bottom: 0; text-decoration: none; font-size: calc(var(--u) * 1.8); line-height: 1.1; color: #ffd23f; }
   .ab.ready { border-color: #7ad8ff; box-shadow: 0 0 calc(var(--u) * 1) rgba(122,216,255,0.7); }
   .ab.low { color: #6a7080; }
-  #join { position: absolute; bottom: 6%; inset-inline-end: 4%; font-size: calc(var(--u) * 2.6); color: #ffb38a; background: rgba(10,12,20,0.6); padding: calc(var(--u) * 0.5) calc(var(--u) * 1.2); border-radius: calc(var(--u) * 0.8); }
   #hint { position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); font-size: calc(var(--u) * 2.4); color: rgba(255,255,255,0.65); white-space: nowrap; }
   #bossBox { position: absolute; bottom: 14%; left: 22%; right: 22%; text-align: center; }
   #bossName { font-size: calc(var(--u) * 3.4); font-weight: 800; color: #ffd0a0; }
@@ -151,6 +150,22 @@
   .gds .up { color: #7ef0a0; } .gds .dn { color: #ff7a7a; }
   .gdh { font-size: calc(var(--u) * 2.3); color: #ffd23f; margin-top: calc(var(--u) * 1.2); }
   .ghelp { font-size: calc(var(--u) * 2.2); color: #8a90a0; margin-top: calc(var(--u) * 0.8); }
+  /* the gear screen: the hero, the four worn pieces (or the pieces of one kind), the stats */
+  .gdoll { width: 24%; flex: none; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 60%, rgba(138,180,255,0.14), rgba(0,0,0,0) 70%); border-radius: calc(var(--u) * 1.4); }
+  .gdoll canvas { width: 100%; height: auto; max-height: 100%; image-rendering: pixelated; }
+  .gmid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 0.9); min-height: 0; }
+  .gmid .ggrid { grid-template-columns: repeat(3, 1fr); overflow: hidden; flex: 1; }
+  .gs { display: flex; align-items: center; gap: calc(var(--u) * 1.2); padding: calc(var(--u) * 0.6) calc(var(--u) * 1); border: calc(var(--u) * 0.35) solid rgba(255,255,255,0.12); border-radius: calc(var(--u) * 1.2); background: rgba(255,255,255,0.05); cursor: pointer; }
+  .gs.sel { border-color: #ffd23f; box-shadow: 0 0 calc(var(--u) * 1.6) rgba(255,210,63,0.6); background: rgba(255,210,63,0.08); }
+  .gs.gsx { justify-content: center; padding: calc(var(--u) * 0.5); }
+  .gsi { width: calc(var(--u) * 10); height: calc(var(--u) * 10); flex: none; border-radius: calc(var(--u) * 1); border: calc(var(--u) * 0.35) dashed #444a5a; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); }
+  .gsi.r0 { border-style: solid; } .gsi.r1 { border: calc(var(--u) * 0.35) solid #3a7ad0; } .gsi.r2 { border: calc(var(--u) * 0.35) solid #8a4ad0; } .gsi.r3 { border: calc(var(--u) * 0.35) solid #ffb020; box-shadow: inset 0 0 calc(var(--u) * 1.4) rgba(255,176,32,0.4); }
+  .gsi canvas { width: 86%; height: 86%; image-rendering: pixelated; }
+  .gst { min-width: 0; } .gsk { font-size: calc(var(--u) * 2.2); color: #9fb0c8; font-weight: 700; }
+  .gsn { font-size: calc(var(--u) * 2.8); font-weight: 800; color: #c8c8d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gsn.r1 { color: #5ab0ff; } .gsn.r2 { color: #c77dff; } .gsn.r3 { color: #ffc23a; text-shadow: 0 0 calc(var(--u) * 1) rgba(255,176,32,0.65); }
+  .gsl { font-size: calc(var(--u) * 2.8); font-weight: 800; color: #e8e0c8; }
+  .gi { cursor: pointer; }
   #paused { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: calc(var(--u) * 12); font-weight: 900; color: #fff; }
 
   /* ---------- 3.0: a modern look for every menu (dark glass panels, an amber accent, clear focus from 3 m away).
@@ -219,7 +234,6 @@
       <div class="pbar" id="pb3" style="display:none"><div class="pn" id="pn3"></div><div class="bar"><i id="hp3"></i></div><div class="bar sbar"><i id="sp3"></i></div>
         <div class="abil"><span class="ab" id="ab3h">✚<b></b><u></u></span><span class="ab" id="ab3p">✸<b></b><u></u></span><span class="ab" id="ab3d">➶<b></b><u></u></span></div></div>
     </div>
-    <div id="join" style="display:none"></div>
     <div id="hint"></div>
     <div id="bossBox" style="display:none"><div id="bossName"></div><div class="bar"><i id="bossFill"></i></div></div>
     <div id="banner"></div>
@@ -230,28 +244,28 @@
   <div id="paused" style="display:none">II</div>
 </div>
 <script src="https://imad-os.github.io/g/sdk/mypc-sdk.js"></script>
-<script>window.HM_VERSION = '3.1.0';</script>
-<script src="js/i18n.js?v=3.1.0"></script>
-<script src="js/i18n_more.js?v=3.1.0"></script>
-<script src="js/i18n_talk.js?v=3.1.0"></script>
-<script src="js/i18n_pets.js?v=3.1.0"></script>
-<script src="js/i18n_rift.js?v=3.1.0"></script>
-<script src="js/i18n_play.js?v=3.1.0"></script>
-<script src="js/i18n_coop.js?v=3.1.0"></script>
-<script src="js/i18n_assign.js?v=3.1.0"></script>
-<script src="js/i18n_look.js?v=3.1.0"></script>
-<script src="js/i18n_players.js?v=3.1.0"></script>
-<script src="js/i18n_v3.js?v=3.1.0"></script>
-<script src="js/items.js?v=3.1.0"></script>
-<script src="js/kenney.js?v=3.1.0"></script>
-<script src="js/hero.js?v=3.1.0"></script>
-<script src="js/mounts.js?v=3.1.0"></script>
-<script src="js/chapters.js?v=3.1.0"></script>
-<script src="js/art.js?v=3.1.0"></script>
-<script src="js/audio.js?v=3.1.0"></script>
-<script src="js/voice.js?v=3.1.0"></script>
-<script src="js/gamepad.js?v=3.1.0"></script>
-<script src="js/coop.js?v=3.1.0"></script>
-<script src="js/game.js?v=3.1.0"></script>
+<script>window.HM_VERSION = '3.1.1';</script>
+<script src="js/i18n.js?v=3.1.1"></script>
+<script src="js/i18n_more.js?v=3.1.1"></script>
+<script src="js/i18n_talk.js?v=3.1.1"></script>
+<script src="js/i18n_pets.js?v=3.1.1"></script>
+<script src="js/i18n_rift.js?v=3.1.1"></script>
+<script src="js/i18n_play.js?v=3.1.1"></script>
+<script src="js/i18n_coop.js?v=3.1.1"></script>
+<script src="js/i18n_assign.js?v=3.1.1"></script>
+<script src="js/i18n_look.js?v=3.1.1"></script>
+<script src="js/i18n_players.js?v=3.1.1"></script>
+<script src="js/i18n_v3.js?v=3.1.1"></script>
+<script src="js/items.js?v=3.1.1"></script>
+<script src="js/kenney.js?v=3.1.1"></script>
+<script src="js/hero.js?v=3.1.1"></script>
+<script src="js/mounts.js?v=3.1.1"></script>
+<script src="js/chapters.js?v=3.1.1"></script>
+<script src="js/art.js?v=3.1.1"></script>
+<script src="js/audio.js?v=3.1.1"></script>
+<script src="js/voice.js?v=3.1.1"></script>
+<script src="js/gamepad.js?v=3.1.1"></script>
+<script src="js/coop.js?v=3.1.1"></script>
+<script src="js/game.js?v=3.1.1"></script>
 </body>
 </html>

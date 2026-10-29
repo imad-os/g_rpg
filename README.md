@@ -1,6 +1,6 @@
 # Hollowmere
 
-**Version 3.1.0** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
+**Version 3.1.1** · a game for [My PC](https://imad-os.github.io/g/) (Samsung TVs 2024+ and desktop browsers)
 
 A 2.5D story RPG for **1 to 4 players**, told in chapters.
 
@@ -74,6 +74,15 @@ chapter 2, Sela's boat in Larkspur can **sail north** (when `ch3` is in the app 
 - **The Hollow Charger:** a ghostly winged steed of the Veil, made from the open-source horse sprite (an ice-blue
   palette, feathered wings and a mane of blue fire), the fastest mount, and it flies. It answers the hero who beats
   the Hollow King.
+
+## New in 3.1.1
+
+- **Equipment screen:** the hero, drawn big, next to the four worn pieces; OK on one lists only the pieces of that
+  kind, and the hero shows the one you are on. Each stat shows its change against what is worn, like ATK 28 (+6) in
+  green or SPD +7% (-1%) in red. A mouse works too.
+- **Pets in co-op:** hero 1 keeps their pet with two heroes (not with three or four).
+- The "press OK on another controller" hint is gone from the screen.
+- A new icon: the Veilscar torn open over Dawnwatch's towers, with the Hollow King's crown in its light.
 
 ## New in 3.1
 

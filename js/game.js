@@ -728,8 +728,6 @@
             for (const q of P) $('pb' + q.i).style.display = q.on ? '' : 'none';
             HP_LAST.fill(-1); AB_LAST.fill(-1); STA_LAST.fill(-1); refreshMenu();
         }
-        const j = joinSeen && np < MAXP;
-        if (j !== hudLast.join) { hudLast.join = j; $('join').style.display = j ? '' : 'none'; }
         hudAbil();
         if (boss && boss.active && boss.on && boss.hp !== hudLast.boss) { hudLast.boss = boss.hp; $('bossFill').style.width = (100 * Math.max(0, boss.hp) / boss.max) + '%'; }
     }
@@ -777,7 +775,7 @@
             renderDlg(); return true;                       // a choice that must be made: just show it
         }
         if (mode !== 'overlay') return false;
-        if (OV.kind === 'gear') { SND.fx('ok'); closeList(); return true; }
+        if (OV.kind === 'gear') { if (gearBack()) return true; SND.fx('ok'); closeList(); return true; }
         if (OV.kind === 'journal') { SND.fx('ok'); ovHide(); toPlay(); return true; }
         if (OV.kind === 'menu' && OV.coop) { SND.fx('ok'); coopClose(); return true; }
         if (OV.kind === 'list') {
@@ -1034,7 +1032,7 @@
     function mirrorMenu() {
         if (!remoteMenu) return;
         const rows = [];
-        $('ov').querySelectorAll('.ltitle,.linfo,.gt,.li,.gi,.gdn,.gdk,.gds,.mi,.jtitle,.jzone,.jobj,.jq,.jrow').forEach(e => {
+        $('ov').querySelectorAll('.ltitle,.linfo,.gt,.li,.gs,.gi,.gdn,.gdk,.gds,.mi,.jtitle,.jzone,.jobj,.jq,.jrow').forEach(e => {
             const t = e.textContent.replace(/\s+/g, ' ').trim().slice(0, 70);
             if (t) rows.push((e.classList.contains('sel') ? '▶ ' : '') + t);
         });
@@ -1291,8 +1289,6 @@
         });
     }
     // equipment: boxes with pictures (name on top), tabs for the slots, and the details of the chosen piece
-    const EQ = { hero: 0, si: 0, focus: 'grid', ti: 0, gi: 0 };
-    const GCOLS = 5;
     function rtl() { return document.documentElement.dir === 'rtl'; }
     function gearImg(id) {
         const c = document.createElement('canvas'); c.width = c.height = 32;
@@ -1321,6 +1317,35 @@
         for (const b of it.b) { if (b[0] === 'a') o.atk += b[1]; else if (b[0] === 'd') o.def += b[1]; else if (b[0] === 'c') o.crit += b[1]; else if (b[0] === 's') o.spd += b[1]; else if (b[0] === 'h') o.hp += b[1]; else if (b[0] === 'g') o.gold += b[1]; }
         return o;
     }
+    function nextHero(i) { for (let k = 1; k <= MAXP; k++) { const j = (i + k) % MAXP; if (P[j].on) return j; } return i; }
+    /* The gear screen: on the left the hero as it would look, in the middle the four worn pieces (OK on one lists the
+     * pieces of that kind, with the one you are on worn by the preview), on the right the stats of the piece you are on,
+     * each with its change against what is worn: atk 4 (-1) in red, (+2) in green. A mouse works too. */
+    const EQ = { hero: 0, si: 0, focus: 'slots', ri: 0, gi: 0 };
+    const GCOLS = 3;
+    function eqRows() { const r = SLOTS.slice(); if (nPlayers() > 1) r.push('hero'); r.push('close'); return r; }
+    function equipScreen(h) { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = h || 0; EQ.si = 0; EQ.ri = 0; EQ.focus = 'slots'; EQ.gi = 0; renderGear(); }
+    // the hero drawn big, wearing the worn gear with one piece swapped for the one being looked at
+    function gearPreview(swap) {
+        const c = document.createElement('canvas'); c.width = 120; c.height = 150;
+        const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+        try {
+            const p = P[EQ.hero], g = Object.assign({}, p.gear), st = { kind: p.st.kind, col: p.st.col, col2: p.st.col2 };
+            let wr = p.wr;
+            if (swap !== undefined) {
+                const sl = SLOTS[EQ.si];
+                if (sl === 'weapon') { const w = ITEMS[swap ? swap.id : 'stick']; g.weapon = swap ? swap.id : 'stick'; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e'; wr = swap ? swap.r : 0; }
+                else g[sl] = swap ? swap.id : '';
+            }
+            ctx.drawImage(glowSprite(wr >= 3 ? '#ffb020' : '#8ab4ff'), 10, 30, 100, 100);
+            ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(60, 132, 26, 8, 0, 0, 6.2832); ctx.fill();
+            ctx.setTransform(2.6, 0, 0, 2.6, 60, 130);
+            const fake = { st, swing: 0, ax: 1, ay: 0.4, wr, flash: 0, thrown: 0 };
+            HEROART.draw(ctx, 0, 0, heroLook(EQ.hero), g, 3, false, 0, 0, false, 1);
+            drawHeroWeapon(fake, 0, 0, 3, false);
+        } finally { ctx = saved; }
+        return c;
+    }
     function gearItems() {
         const e = S.eq[EQ.hero], sl = SLOTS[EQ.si];
         const list = S.bag.filter(it => ITEMS[it.id] && ITEMS[it.id].slot === sl);
@@ -1328,80 +1353,100 @@
         if (sl !== 'weapon') list.push(null);             // the last box takes the piece off
         return list;
     }
-    function nextHero(i) { for (let k = 1; k <= MAXP; k++) { const j = (i + k) % MAXP; if (P[j].on) return j; } return i; }
-    function gearTabs() { const t = SLOTS.slice(); if (nPlayers() > 1) t.push('hero'); t.push('close'); return t; }
-    function equipScreen(h) { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = h || 0; EQ.si = 0; EQ.focus = 'grid'; EQ.ti = 0; EQ.gi = 0; renderGear(); }
+    function gearDetails(det, it, cur) {
+        if (!it) { det.appendChild(el('div', 'gdk', EQ.focus === 'list' ? T.ui.takeOff : T.ui.noneWorn)); return; }
+        const base = ITEMS[it.id];
+        det.appendChild(el('div', 'gdn r' + it.r, itemLabel(it)));
+        det.appendChild(el('div', 'gdk', T.ui['slot_' + base.slot] + (base.slot === 'weapon' ? ' · ' + T.ui[base.kind] : '') + ' · ' + txt(T.ui.tier, { n: base.tier || 0 })));
+        const a = itemStats(it), b = itemStats(cur), same = cur === it;
+        const rows = [['atk', T.ui.atk, ''], ['def', T.ui.def, ''], ['spd', T.ui.spd, '%'], ['crit', T.ui.critL, '%'], ['hp', T.ui.hpL, ''], ['gold', T.ui.goldL, '%']];
+        for (const r of rows) {
+            if (!a[r[0]] && !b[r[0]]) continue;
+            const row = el('div', 'gds'); row.appendChild(el('span', '', r[1]));
+            const v = el('span', '', (a[r[0]] > 0 && r[2] ? '+' : '') + a[r[0]] + r[2]);
+            const d = a[r[0]] - b[r[0]];
+            if (!same && d) v.appendChild(el('span', d > 0 ? 'up' : 'dn', ' (' + (d > 0 ? '+' : '') + d + r[2] + ')'));
+            row.appendChild(v); det.appendChild(row);
+        }
+        if (it.up) det.appendChild(el('div', 'gds', txt(T.ui.upgradeLv, { n: it.up })));
+        const who = P.filter(q => q.on && S.eq[q.i][base.slot] === it.u).map(q => heroName(q.i)).join(', ');
+        det.appendChild(el('div', 'gdh', who ? txt(T.ui.worn, { name: who }) : cur ? T.ui.compare : T.ui.noneWorn));
+    }
     function renderGear() {
-        const e = S.eq[EQ.hero], sl = SLOTS[EQ.si], items = gearItems(), tabs = gearTabs();
-        if (EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
+        const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list';
+        if (!list) EQ.si = Math.min(EQ.ri, 3);
+        const sl = SLOTS[EQ.si], items = list ? gearItems() : null, cur = itemOf(e[sl]);
+        if (list && EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
+        const look = list ? items[EQ.gi] : EQ.ri < 4 ? cur : null;
         const box = el('div', 'gearbox'), head = el('div', 'lhead'), st = P[EQ.hero].st;
         head.appendChild(el('div', 'ltitle', T.ui.equip + (nPlayers() > 1 ? ': ' + heroName(EQ.hero) : '')));
         head.appendChild(el('div', 'linfo', T.ui.atk + ' ' + st.atk + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'));
         box.appendChild(head);
-        const tb = el('div', 'gtabs');
-        tabs.forEach((t, i) => tb.appendChild(el('div', 'gt' + (i === EQ.si && i < 4 ? ' cur' : '') + (EQ.focus === 'tabs' && i === EQ.ti ? ' sel' : ''),
-            t === 'hero' ? '⇄ ' + heroName(nextHero(EQ.hero)) : t === 'close' ? T.ui.close : T.ui['slot_' + t])));
-        box.appendChild(tb);
-        const main = el('div', 'gmain'), grid = el('div', 'ggrid');
-        items.forEach((it, i) => {
-            const sel = EQ.focus === 'grid' && i === EQ.gi;
-            if (!it) { grid.appendChild(el('div', 'gi empty' + (sel ? ' sel' : '') + (!e[sl] ? ' worn' : ''), T.ui.takeOff)); return; }
-            const g = el('div', 'gi r' + it.r + (sel ? ' sel' : '') + (e[sl] === it.u ? ' worn' : ''));
-            g.appendChild(el('div', 'gn r' + it.r, itemName(it.id)));
-            g.appendChild(gearImg(it.id));
-            if (it.up) g.appendChild(el('div', 'gup', '+' + it.up));
-            grid.appendChild(g);
-        });
-        main.appendChild(grid);
-        // details: the chosen box, or what is worn in this slot while the tabs have the focus
-        const det = el('div', 'gdet'), cur = itemOf(e[sl]);
-        const it = EQ.focus === 'grid' ? items[EQ.gi] : cur;
-        if (it) {
-            const base = ITEMS[it.id];
-            det.appendChild(el('div', 'gdn r' + it.r, itemLabel(it)));
-            det.appendChild(el('div', 'gdk', T.ui['slot_' + base.slot] + (base.slot === 'weapon' ? ' · ' + T.ui[base.kind] : '') + ' · ' + txt(T.ui.tier, { n: base.tier || 0 })));
-            det.appendChild(gearImg(it.id));
-            const a = itemStats(it), b = itemStats(cur), same = cur === it;
-            const rows = [['atk', T.ui.atk, ''], ['def', T.ui.def, ''], ['spd', T.ui.spd, '%'], ['crit', T.ui.critL, '%'], ['hp', T.ui.hpL, ''], ['gold', T.ui.goldL, '%']];
-            for (const r of rows) {
-                if (!a[r[0]] && !b[r[0]]) continue;
-                const row = el('div', 'gds'); row.appendChild(el('span', '', r[1]));
-                const v = el('span', '', (a[r[0]] > 0 && r[2] ? '+' : '') + a[r[0]] + r[2]);
-                const d = a[r[0]] - b[r[0]];
-                if (!same && d) v.appendChild(el('span', d > 0 ? 'up' : 'dn', '  ' + (d > 0 ? '▲' : '▼') + Math.abs(d)));
-                row.appendChild(v); det.appendChild(row);
-            }
-            if (it.up) det.appendChild(el('div', 'gds', txt(T.ui.upgradeLv, { n: it.up })));
-            const who = P.filter(q => q.on && S.eq[q.i][base.slot] === it.u).map(q => heroName(q.i)).join(', ');
-            det.appendChild(el('div', 'gdh', who ? txt(T.ui.worn, { name: who }) : cur ? T.ui.compare : T.ui.noneWorn));
-        } else det.appendChild(el('div', 'gdk', EQ.focus === 'grid' ? T.ui.takeOff : T.ui.noneWorn));
-        det.appendChild(el('div', 'ghelp', EQ.focus === 'grid' ? T.ui.gearHelp : T.ui.gearHelpTabs));
+        const main = el('div', 'gmain');
+        const doll = el('div', 'gdoll'); doll.appendChild(gearPreview(list ? look : undefined));
+        main.appendChild(doll);
+        const mid = el('div', 'gmid');
+        if (!list) {                                     // the four worn pieces, then switch hero and close
+            rows.forEach((r, i) => {
+                const sel = i === EQ.ri, row = el('div', 'gs' + (sel ? ' sel' : '') + (r === 'close' || r === 'hero' ? ' gsx' : ''));
+                if (r === 'close') row.appendChild(el('div', 'gsl', T.ui.close));
+                else if (r === 'hero') row.appendChild(el('div', 'gsl', '⇄ ' + heroName(nextHero(EQ.hero))));
+                else {
+                    const it = itemOf(e[r]);
+                    const ic = el('div', 'gsi' + (it ? ' r' + it.r : '')); if (it) ic.appendChild(gearImg(it.id)); row.appendChild(ic);
+                    const tx = el('div', 'gst'); tx.appendChild(el('div', 'gsk', T.ui['slot_' + r]));
+                    tx.appendChild(el('div', 'gsn' + (it ? ' r' + it.r : ''), it ? itemLabel(it) : T.ui.noneWorn)); row.appendChild(tx);
+                }
+                row.onmouseenter = () => { if (EQ.focus === 'slots' && EQ.ri !== i) { EQ.ri = i; renderGear(); } };
+                row.onclick = () => { EQ.focus = 'slots'; EQ.ri = i; gearInput('confirm'); };
+                mid.appendChild(row);
+            });
+        } else {                                         // the pieces of that kind
+            mid.appendChild(el('div', 'gsk', '◀ ' + T.ui['slot_' + sl]));
+            const grid = el('div', 'ggrid');
+            items.forEach((it, i) => {
+                const sel = i === EQ.gi;
+                const g = !it ? el('div', 'gi empty' + (sel ? ' sel' : '') + (!e[sl] ? ' worn' : ''), T.ui.takeOff) : el('div', 'gi r' + it.r + (sel ? ' sel' : '') + (e[sl] === it.u ? ' worn' : ''));
+                if (it) { g.appendChild(el('div', 'gn r' + it.r, itemName(it.id))); g.appendChild(gearImg(it.id)); if (it.up) g.appendChild(el('div', 'gup', '+' + it.up)); }
+                g.onmouseenter = () => { if (EQ.gi !== i) { EQ.gi = i; renderGear(); } };
+                g.onclick = () => { EQ.gi = i; gearInput('confirm'); };
+                grid.appendChild(g);
+            });
+            mid.appendChild(grid);
+        }
+        main.appendChild(mid);
+        const det = el('div', 'gdet');
+        if (list || EQ.ri < 4) gearDetails(det, look, cur);
+        det.appendChild(el('div', 'ghelp', list ? T.ui.gearHelpList : T.ui.gearHelpSlots));
         main.appendChild(det);
         box.appendChild(main);
         ovShow(box);
-        const selEl = EQ.focus === 'grid' ? grid.children[EQ.gi] : null;
-        if (selEl) grid.scrollTop = Math.max(0, selEl.offsetTop - grid.clientHeight / 2 + selEl.offsetHeight / 2);
-        MyPC.announce(EQ.focus === 'grid' ? (it ? itemLabel(it) + '. ' + statLine(it) : T.ui.takeOff) : tb.children[EQ.ti].textContent);
+        if (list) { const grid = mid.querySelector('.ggrid'), selEl = grid.children[EQ.gi]; if (selEl) grid.scrollTop = Math.max(0, selEl.offsetTop - grid.clientHeight / 2 + selEl.offsetHeight / 2); }
+        MyPC.announce(list ? (look ? itemLabel(look) + '. ' + statLine(look) : T.ui.takeOff) : rows[EQ.ri] === 'close' ? T.ui.close : rows[EQ.ri] === 'hero' ? heroName(nextHero(EQ.hero)) : T.ui['slot_' + rows[EQ.ri]] + ': ' + (cur ? itemLabel(cur) : T.ui.noneWorn));
     }
+    // Return in the list goes back to the four pieces (the screen closes from there)
+    function gearBack() { if (EQ.focus === 'list') { EQ.focus = 'slots'; SND.fx('ok'); renderGear(); return true; } return false; }
     function gearInput(a) {
-        const items = gearItems(), tabs = gearTabs(), e = S.eq[EQ.hero], sl = SLOTS[EQ.si];
+        const e = S.eq[EQ.hero], rows = eqRows();
         const dx = a === 'left' ? -1 : a === 'right' ? 1 : 0, h = rtl() ? -dx : dx;    // in Arabic the boxes run right to left
-        if (EQ.focus === 'tabs') {
-            if (h) { EQ.ti = (EQ.ti + h + tabs.length) % tabs.length; if (EQ.ti < 4) { EQ.si = EQ.ti; EQ.gi = 0; } }
-            else if (a === 'down') { if (EQ.ti >= 4) EQ.ti = EQ.si; EQ.focus = 'grid'; EQ.gi = 0; }
+        if (EQ.focus === 'slots') {
+            if (a === 'up' || a === 'down') EQ.ri = (EQ.ri + (a === 'down' ? 1 : -1) + rows.length) % rows.length;
             else if (a === 'confirm') {
-                const t = tabs[EQ.ti]; SND.fx('ok');
-                if (t === 'close') return closeList();
-                if (t === 'hero') EQ.hero = nextHero(EQ.hero); else { EQ.si = EQ.ti; EQ.focus = 'grid'; EQ.gi = 0; }
-            } else return;
+                const r = rows[EQ.ri]; SND.fx('ok');
+                if (r === 'close') return closeList();
+                if (r === 'hero') EQ.hero = nextHero(EQ.hero);
+                else { EQ.si = EQ.ri; EQ.focus = 'list'; const its = gearItems(); EQ.gi = Math.max(0, its.findIndex(it => it && e[r] === it.u)); }
+            } else if (a === 'right' || a === 'left') { if (h > 0 && EQ.ri < 4) return gearInput('confirm'); return; }
+            else return;
         } else {
-            if (h) EQ.gi = Math.max(0, Math.min(items.length - 1, EQ.gi + h));
+            const items = gearItems(), sl = SLOTS[EQ.si];
+            if (h) { if (h < 0 && EQ.gi % GCOLS === 0) return gearBack(); EQ.gi = Math.max(0, Math.min(items.length - 1, EQ.gi + h)); }
             else if (a === 'down') { if (EQ.gi + GCOLS < items.length) EQ.gi += GCOLS; else if (((EQ.gi / GCOLS) | 0) < (((items.length - 1) / GCOLS) | 0)) EQ.gi = items.length - 1; }
-            else if (a === 'up') { if (EQ.gi >= GCOLS) EQ.gi -= GCOLS; else { EQ.focus = 'tabs'; EQ.ti = EQ.si; } }
+            else if (a === 'up') { if (EQ.gi >= GCOLS) EQ.gi -= GCOLS; }
             else if (a === 'confirm') {
                 const it = items[EQ.gi];
                 if (!it || (e[sl] === it.u && sl !== 'weapon')) e[sl] = 0; else e[sl] = it.u;
-                recalcAll(); SND.fx('equip'); save();
+                recalcAll(); SND.fx('equip'); save(); EQ.focus = 'slots';
             } else return;
         }
         if (a !== 'confirm') SND.fx('move');
@@ -2228,8 +2273,10 @@
     }
     function updPet() {
         const pet = PET, p = P[0];
-        pet.on = !!S.pet && p.on && nPlayers() === 1;                         // no pets in co-op
+        const was = pet.on;
+        pet.on = !!S.pet && p.on && nPlayers() <= 2;                          // hero 1's pet stays with two heroes, not with three or four
         if (!pet.on) return;
+        if (!was) { pet.x = p.x - 18; pet.y = p.y + 6; pet.sy = pet.y; }
         pet.max = Math.max(4, Math.floor(maxHp(p) / 2)); if (pet.hp > pet.max) pet.hp = pet.max;
         if (pet.inv > 0) pet.inv--; if (pet.cd > 0) pet.cd--; if (pet.hurt > 0) pet.hurt--; if (pet.lunge > 0) pet.lunge--;
         if (pet.down > 0) { if (--pet.down === 0) pet.hp = pet.max; pet.sy = pet.y; return; }
@@ -3730,7 +3777,6 @@
             vignette = ART.vignette(W, H);
             darkC = document.createElement('canvas'); darkC.width = W; darkC.height = H; dctx = darkC.getContext('2d');
             $('questLbl').textContent = T.ui.quest;
-            $('join').textContent = T.ui.p2join;
             $('dai').textContent = '✦ ' + T.ui.ai;
             refreshNames();
             MyPC.progress(0.3);
