@@ -96,6 +96,12 @@
         const c = (window.MyPC && MyPC.app_config) || {};
         for (const k in TUNE) { const v = +c[k]; if (c[k] !== undefined && c[k] !== '' && isFinite(v)) TUNE[k] = Math.max(k === 'coinDrops' || k === 'gearDrops' ? 0 : 0.2, Math.min(TUNE_MAX[k], v)); }
     }
+    function isDevMod() {
+        const c = (window.MyPC && MyPC.app_config) || {};
+        if (c.dev_mod === true || c.dev_mod === 'true' || c.dev_mode === true || c.devMode === true) return true;
+        if (typeof location !== 'undefined' && /[?&]dev_mod(=true|1)?\b/i.test(location.search)) return true;
+        return false;
+    }
     function loot(n) { return n > 0 && TUNE.coinDrops > 0 ? Math.max(1, Math.round(n * TUNE.coinDrops)) : 0; }
 
     // abilities: they burn stamina (filled by defeating foes) and then wait for their cooldown (frames)
@@ -1084,7 +1090,7 @@
         const hasSave = !!MyPC.load('save', null);
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
-        if (CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
+        if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
         OV.items.push({ label: T.ui.newg, fn: () => hasSave ? confirmNew() : newGame() });
         if (HM_COOP.usable()) OV.items.push({ label: T.ui.coopJoin, fn: joinFriend });
         OV.sel = 0; OV.head = [T.ui.title, chapterTitle()];
@@ -1092,7 +1098,7 @@
     }
     function confirmNew() {
         OV.items = [{ label: T.ui.no, fn: showTitle }];
-        if (CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
+        if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
         OV.items.push({ label: T.ui.yes, fn: newGame });
         OV.sel = 0; OV.head = [T.ui.newg, T.ui.newConfirm]; renderMenu();
     }
@@ -1651,7 +1657,7 @@
                     const tp = d => { setPetKind(PET_KINDS[(idx + (d || 1) + PET_KINDS.length) % PET_KINDS.length]); renderList(); };
                     r.push({ label: txt(T.ui.petRow, { val: T.ui['pet_' + pk] || pk }), sub: T.ui.petSub, right: '◀ ' + (T.ui['pet_' + pk] || pk) + ' ▶', side: d => tp(rtl() ? -d : d), fn: () => tp(1) });
                 }
-                if (CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
+                if (isDevMod() && CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
                 return r;
             }
@@ -1689,7 +1695,7 @@
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
-                if (CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
+                if (isDevMod() && CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
                 if (coopAvail()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
@@ -1841,6 +1847,7 @@
     }
 
     function devScreen() {
+        if (!isDevMod()) return;
         const c4Zones = [
             ['c4_river', 22.5, 25.5, 'The Riverlands (Riverrun Camp)'],
             ['c4_kings', 24.5, 30.5, 'King\'s Landing & Red Keep'],
@@ -4213,7 +4220,7 @@
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, playChapter4, prepareChapter4Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
 
     /* ------------------------------------------------------------------ lifecycle */
 
@@ -4223,7 +4230,7 @@
         S = fresh();
         const saved = MyPC.load('save', null);
         if (saved) S = migrate(Object.assign(fresh(), saved));
-        if (/[?&]ch=?4\b/i.test(location.search) && CHAPTERS.enabled('ch4')) {
+        if (isDevMod() && /[?&]ch=?4\b/i.test(location.search) && CHAPTERS.enabled('ch4')) {
             S = prepareChapter4Save(S);
             if (CHAPTERS.of(S.zone) !== 'ch4') { S.zone = 'c4_river'; S.x = 22.5; S.y = 25.5; }
             save();

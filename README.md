@@ -201,6 +201,7 @@ multiplier; numbers out of range are clamped.
 | `enemyDifficulty` | 1.3 | foes' attack and health (1 = version 1.7, 2 = twice as tough) |
 | `mountSpeed` | 1 | how much faster the horse and the wolf are than walking |
 | `petSpeed` | 1.5 | the cat's speed, times the hero's |
+| `dev_mod` | false | enables developer mode and the Chapter 4 & Dev Tools menu (teleport, max gear, skip step, unlock gates) |
 
 ## Story design (no dead ends)
 

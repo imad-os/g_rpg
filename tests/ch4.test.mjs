@@ -270,3 +270,13 @@ test('audio/voices/<lang>/index.json and .ogg files exist for Chapter 4 scenes i
     }
   }
 });
+
+test('mypc-app.json defaults dev_mod to false and only enables dev mode when dev_mod is true in MyPC.app_config', () => {
+  const appJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'mypc-app.json'), 'utf8'));
+  assert.equal(appJson.config.dev_mod, false, 'mypc-app.json config.dev_mod must be false by default');
+
+  const gameCode = fs.readFileSync(path.join(ROOT, 'js/game.js'), 'utf8');
+  assert.ok(gameCode.includes('function isDevMod('), 'js/game.js must define isDevMod()');
+  assert.ok(gameCode.includes('c.dev_mod === true'), 'isDevMod must check c.dev_mod === true');
+  assert.ok(gameCode.includes('if (isDevMod() && CHAPTERS.enabled(\'ch4\'))'), 'dev tools in menus must be guarded by isDevMod()');
+});
