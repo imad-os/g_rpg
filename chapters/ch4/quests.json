@@ -1,0 +1,415 @@
+{
+  "about": "Hollowmere, Chapter 4: A Song of Ice & Fire. Set in Westeros and Essos (Game of Thrones / A Song of Ice and Fire universe). 8 main quests across 4 Acts.",
+  "quests": [
+    {
+      "id": "c4q1", "act": 1,
+      "title": { "en": "The Burning Riverlands", "fr": "Le Conflans en flammes", "es": "Las Tierras de los Ríos en llamas", "ar": "أراضي الأنهار المشتعلة" },
+      "story": {
+        "en": "The War of the Five Kings ravages the Riverlands. Aid Robb Stark at Riverrun and drive back the raiders.",
+        "fr": "La Guerre des Cinq Rois ravage le Conflans. Aidez Robb Stark à Vivesaigues et repoussez les pillards.",
+        "es": "La Guerra de los Cinco Reyes arrasa las Tierras de los Ríos. Ayuda a Robb Stark en Aguasdulces.",
+        "ar": "حرب الملوك الخمسة تحرق أراضي الأنهار. ساعد روب ستارك في ريفررن واطرد الغزاة."
+      },
+      "steps": [
+        {
+          "id": "meet_robb", "type": "talk", "npc": "robb", "zone": "c4_river", "at": [22.5, 16.6],
+          "goal": { "en": "Speak with Robb Stark at the Riverrun war camp.", "fr": "Parlez à Robb Stark au camp de guerre de Vivesaigues.", "es": "Habla con Robb Stark en el campamento de Aguasdulces.", "ar": "تحدث مع روب ستارك في معسكر ريفررن." },
+          "say": {
+            "who": "robb",
+            "en": ["You sailed from the eastern shores? Welcome to Westeros—though you arrive in dark times.", "Five kings claim the realm, and the Riverlands bleed between the Trident and Harrenhal. Outriders burned three villages along the Red Fork last night.", "Search the burned steadings west and east of camp, and strike down the raiders still looting the roads."],
+            "fr": ["Vous venez des côtes de l'est ? Bienvenue à Westeros, même si l'heure est sombre.", "Cinq rois réclament le royaume, et le Conflans saigne entre le Trident et Harrenhal. Des éclaireurs ont brûlé trois villages cette nuit.", "Fouillez les fermes brûlées à l'ouest et à l'est du camp, et chassez les pillards sur les routes."],
+            "es": ["¿Vienes de las costas del este? Bienvenido a Poniente, aunque llegas en tiempos oscuros.", "Cinco reyes reclaman el reino y las Tierras de los Ríos sangran entre el Tridente y Harrenhal. Quemaron tres aldeas anoche.", "Registra las granjas quemadas al oeste y al este, y acaba con los saqueadores en los caminos."],
+            "ar": ["أبحرت من الشواطئ الشرقية؟ مرحبًا بك في ويستروس، رغم أنك جئت في زمن مظلم.", "خمسة ملوك يطالبون بالعرش، وأراضي الأنهار تنزف بين الترايدنت وهارنهال. أحرق الغزاة ثلاث قرى الليلة الماضية.", "فتش القرى المحترقة غرب وشرق المعسكر، واقضِ على الغزاة الذين ينهبون الطرقات."]
+          }
+        },
+        {
+          "id": "villages", "type": "interact", "zone": "c4_river", "n": 3, "spots": [[10.5, 11.5], [38.5, 10.5], [14.5, 22.5]],
+          "goal": { "en": "Inspect the burned villages and Harrenhal outposts ({n}/{m}).", "fr": "Inspectez les villages brûlés et les avant-postes ({n}/{m}).", "es": "Inspecciona las aldeas quemadas y los puestos ({n}/{m}).", "ar": "افحص القرى المحترقة ومواقع هارنهال ({n}/{m})." },
+          "each": {
+            "en": ["Charred timbers near the Twins crossing. Crimson cloaks and broken Frey arrows lie in the mud.", "Scorched stones in the shadow of Harrenhal. A raven's scroll speaks of Wildfire being brewed in King's Landing.", "A ruined mill by the Red Fork. Boot tracks of pillagers lead along the riverbank."],
+            "fr": ["Des poutres calcinées près des Jumeaux. Des capes cramoisies et des flèches Frey brisées gisent dans la boue.", "Des pierres noircies à l'ombre d'Harrenhal. Un parchemin parle de feu grégeois préparé à Port-Réal.", "Un moulin en ruine près de la Ruffurque. Les traces des pillards suivent la rive."],
+            "es": ["Vigas carbonizadas cerca de los Gemelos. Capas carmesí y flechas Frey rotas yacen en el barro.", "Piedras quemadas a la sombra de Harrenhal. Un pergamino habla de fuego valyrio en Desembarco del Rey.", "Un molino en ruinas junto al Forca Roja. Las huellas de los saqueadores siguen la orilla."],
+            "ar": ["أخشاب متفحمة قرب معبر التوأمين. عباءات قرمزية وسهام مكسورة في الطين.", "حجارة محترقة في ظل هارنهال. رسالة غراب تتحدث عن النار البرية في كينغز لاندينغ.", "طاحونة مدمرة قرب النهر الأحمر. آثار أقدام الغزاة تتجه على طول الضفة."]
+          },
+          "say": { "who": null, "en": ["The outriders are still nearby. Drive them from the Riverlands!"], "fr": ["Les pillards sont encore proches. Chassez-les du Conflans !"], "es": ["Los saqueadores siguen cerca. ¡Expúlsalos de las Tierras de los Ríos!"], "ar": ["الغزاة ما زالوا قريبين. اطردهم من أراضي الأنهار!"] }
+        },
+        {
+          "id": "raiders", "type": "kill", "zone": "c4_river", "foes": ["raider", "archer"], "n": 5, "at": [35, 15],
+          "goal": { "en": "Defeat the pillagers and archers in the Riverlands ({n}/{m}).", "fr": "Vainquez les pillards et archers dans le Conflans ({n}/{m}).", "es": "Derrota a los saqueadores y arqueros en las Tierras de los Ríos ({n}/{m}).", "ar": "اهزم الغزاة والرماة في أراضي الأنهار ({n}/{m})." },
+          "say": { "who": null, "en": ["The river roads are clear. Lady Catelyn Stark awaits word at the command pavilion."], "fr": ["Les routes du fleuve sont libres. Lady Catelyn Stark attend votre rapport au pavillon."], "es": ["Los caminos del río están despejados. Lady Catelyn Stark espera noticias en el pabellón."], "ar": ["طرق النهر صارت آمنة. الليدي كاتلين ستارك تنتظر الأخبار في خيمة القيادة."] }
+        },
+        {
+          "id": "catelyn", "type": "talk", "npc": "catelyn", "zone": "c4_river", "at": [19.5, 12.6],
+          "goal": { "en": "Report to Lady Catelyn Stark at Riverrun camp.", "fr": "Faites votre rapport à Lady Catelyn Stark au camp.", "es": "Informa a Lady Catelyn Stark en el campamento.", "ar": "أبلغ الليدي كاتلين ستارك في معسكر ريفررن." },
+          "set": { "beacons": 1, "open": "south" },
+          "say": {
+            "who": "catelyn",
+            "en": ["Family, Duty, Honor. You have defended the smallfolk of the Trident when few others would.", "Word has come down the Kingsroad: Stannis Baratheon's fleet sails on Blackwater Bay, and Tyrion Lannister prepares volatile Wildfire beneath the Red Keep.", "I have had the southern Kingsroad gate opened. Ride south to King's Landing and learn what transpires in the capital."],
+            "fr": ["Famille, Devoir, Honneur. Vous avez défendu le peuple du Trident quand peu l'osaient.", "Des nouvelles arrivent par la Route Royale : la flotte de Stannis Baratheon approche de la Néra, et Tyrion Lannister prépare du feu grégeois sous le Donjon Rouge.", "J'ai fait ouvrir la porte sud de la Route Royale. Allez à Port-Réal découvrir ce qui se trame."],
+            "es": ["Familia, Deber, Honor. Has defendido al pueblo del Tridente cuando pocos lo harían.", "Llegan noticias por el Camino Real: la flota de Stannis Baratheon navega hacia el Aguasnegras y Tyrion Lannister prepara fuego valyrio bajo la Fortaleza Roja.", "He hecho abrir la puerta sur del Camino Real. Ve a Desembarco del Rey y averigua qué ocurre."],
+            "ar": ["العائلة، الواجب، الشرف. لقد دافعت عن أهل الترايدنت حين تخلى عنهم الآخرون.", "وصلت أنباء عبر طريق الملك: أسطول ستانيس باراثيون يبحر نحو خليج بلاكووتر، وتيريون لانيستر يحضر النار البرية تحت القلعة الحمراء.", "أمرت بفتح البوابة الجنوبية لطريق الملك. اتجه جنوبًا إلى كينغز لاندينغ واكتشف ما يجري في العاصمة."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4q2", "act": 1,
+      "title": { "en": "Wildfire on the Blackwater", "fr": "Feu grégeois sur la Néra", "es": "Fuego valyrio en el Aguasnegras", "ar": "النار البرية في بلاكووتر" },
+      "story": {
+        "en": "Enter King's Landing, secure the unstable Wildfire caches in Flea Bottom, and uncover the Spider's whispers.",
+        "fr": "Entrez dans Port-Réal, sécurisez les jarres de feu grégeois à Culpucier et écoutez les murmures de l'Araignée.",
+        "es": "Entra en Desembarco del Rey, asegura el fuego valyrio en el Lecho de Pulgas y escucha a la Araña.",
+        "ar": "ادخل كينغز لاندينغ، وأمّن جرار النار البرية الخطيرة، واستمع إلى همسات العنكبوت فاريس."
+      },
+      "steps": [
+        {
+          "id": "reach_kings", "type": "reach", "zone": "c4_kings", "at": [22.5, 2.5],
+          "goal": { "en": "Take the southern Kingsroad to King's Landing.", "fr": "Prenez la Route Royale au sud vers Port-Réal.", "es": "Toma el Camino Real hacia el sur hasta Desembarco del Rey.", "ar": "اسلك طريق الملك الجنوبي إلى كينغز لاندينغ." },
+          "say": { "who": null, "en": ["The red walls of King's Landing rise above Blackwater Bay. Gold Cloaks patrol the gates while war drums echo from the harbour."], "fr": ["Les murs rouges de Port-Réal dominent la baie de la Néra. Les Manteaux d'Or patrouillent pendant que les tambours résonnent."], "es": ["Los muros rojos de Desembarco del Rey se alzan sobre el Aguasnegras. Los Capas Doradas patrullan las puertas."], "ar": ["ترتفع الأسوار الحمراء لكينغز لاندينغ فوق خليج بلاكووتر. العباءات الذهبية تحرس البوابات وطبول الحرب تدق في الميناء."] }
+        },
+        {
+          "id": "tyrion", "type": "talk", "npc": "tyrion", "zone": "c4_kings", "at": [22.5, 14.6],
+          "goal": { "en": "Speak with Tyrion Lannister in the Red Keep courtyard.", "fr": "Parlez à Tyrion Lannister dans la cour du Donjon Rouge.", "es": "Habla con Tyrion Lannister en el patio de la Fortaleza Roja.", "ar": "تحدث مع تيريون لانيستر في ساحة القلعة الحمراء." },
+          "say": {
+            "who": "tyrion",
+            "en": ["A traveler from the Riverlands with all their limbs still attached? I drink and I know things, friend, and I know a capable blade when I see one.", "The Alchemists' Guild hid three crates of unstable Wildfire jars in the alleys of Flea Bottom and along the Blackwater mudgate. One stray spark and half the city goes up in green flame.", "Bring me those three Wildfire caches before cutthroats or saboteurs detonate them."],
+            "fr": ["Un voyageur du Conflans encore en un seul morceau ? Je bois et je sais des choses, mon ami, et je reconnais une fine lame.", "La Guilde des Alchimistes a laissé trois caisses de feu grégeois instable dans les ruelles de Culpucier et près de la Porte de la Boue. Une étincelle et la moitié de la ville brûle en vert.", "Rapportez-moi ces trois caisses de feu grégeois avant que des saboteurs ne les fassent sauter."],
+            "es": ["¿Un viajero de las Tierras de los Ríos de una pieza? Bebo y sé cosas, amigo, y reconozco una buena espada cuando la veo.", "El Gremio de Alquimistas dejó tres cajas de fuego valyrio inestable en el Lecho de Pulgas y la Puerta del Barro. Una chispa y media ciudad arderá en llamas verdes.", "Tráeme esas tres cajas de fuego valyrio antes de que los saboteadores las detonen."],
+            "ar": ["مسافر من أراضي الأنهار وما زال سالمًا؟ أنا أشرب وأعرف أشياء يا صديقي، وأعرف المقاتل الماهر حين أراه.", "نقابة الخيميائيين تركت ثلاث صناديق من جرار النار البرية غير المستقرة في أزقة فلي بوتوم وقرب بوابة الطين. شرارة واحدة وستحترق نصف المدينة بلهب أخضر.", "أحضر لي شحنات النار البرية الثلاث قبل أن يفجرها المخربون."]
+          }
+        },
+        {
+          "id": "wildfire", "type": "collect", "zone": "c4_kings", "n": 3, "spots": [[8, 18], [38, 18], [14, 26]], "icon": "wildfire",
+          "goal": { "en": "Secure the unstable Wildfire caches around King's Landing ({n}/{m}).", "fr": "Sécurisez les caisses de feu grégeois dans Port-Réal ({n}/{m}).", "es": "Asegura las cajas de fuego valyrio en Desembarco del Rey ({n}/{m}).", "ar": "أمّن جرار النار البرية في كينغز لاندينغ ({n}/{m})." },
+          "say": { "who": null, "en": ["All three Wildfire caches are secured, glowing with an eerie emerald light. Lord Varys gestures from the Red Keep colonnade."], "fr": ["Les trois caisses de feu grégeois sont en sécurité, luisant d'une lueur émeraude. Lord Varys vous fait signe."], "es": ["Las tres cajas de fuego valyrio están seguras, brillando con luz esmeralda. Lord Varys te hace una seña."], "ar": ["تم تأمين شحنات النار البرية الثلاث، وهي تتوهج بضوء زمردي غريب. اللورد فاريس يشير إليك من أروقة القلعة الحمراء."] }
+        },
+        {
+          "id": "varys", "type": "talk", "npc": "varys", "zone": "c4_kings", "at": [17.5, 11.6],
+          "goal": { "en": "Speak with Lord Varys, the Master of Whisperers.", "fr": "Parlez à Lord Varys, le Maître des Chuchoteurs.", "es": "Habla con Lord Varys, el Consejero de los Rumores.", "ar": "تحدث مع اللورد فاريس، سيد الهمسات." },
+          "set": { "open": "storm" },
+          "say": {
+            "who": "varys",
+            "en": ["My little birds sing of your deeds. You saved thousands in Flea Bottom today—the realm owes you a quiet debt.", "Yet a darker sorcery stirs on the coast of the Stormlands and Dragonstone. A Red Priestess from Asshai has birthed a living shadow to slay those who stand in her way.", "Take the eastern coastal road to Storm's End and Dragonstone. Ser Davos Seaworth and Brienne of Tarth need your steel."],
+            "fr": ["Mes petits oiseaux chantent vos exploits. Vous avez sauvé des milliers d'âmes à Culpucier aujourd'hui.", "Mais une magie plus sombre s'éveille sur la côte des Terres de l'Orage et de Peyredragon. Une prêtresse rouge d'Asshai a engendré une ombre vivante.", "Prenez la route côtière à l'est vers Accalmie et Peyredragon. Ser Davos Mervault et Brienne de Torth ont besoin de votre acier."],
+            "es": ["Mis pajaritos cantan tus hazañas. Hoy salvaste a miles en el Lecho de Pulgas.", "Pero una magia más oscura se agita en las Tierras de la Tormenta y Rocadragón. Una sacerdotisa roja de Asshai ha engendrado una sombra viviente.", "Toma el camino costero del este hacia Bastión de Tormentas y Rocadragón. Ser Davos Seaworth y Brienne de Tarth necesitan tu acero."],
+            "ar": ["عصافيري الصغيرة تغني بأفعالك. لقد أنقذت الآلاف في فلي بوتوم اليوم.", "لكن سحرًا أكثر ظلمة يتحرك على ساحل أراضي العاصفة ودراغونستون. كاهنة حمراء من آشاي ولّدت ظلًا حيًا ليغتال خصومها.", "اسلك الطريق الساحلي الشرقي إلى ستورمز إند ودراغونستون. السير دافوس وبريين التارثية يحتاجان إلى سيفك."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4q3", "act": 2,
+      "title": { "en": "The Shadow of Dragonstone", "fr": "L'Ombre de Peyredragon", "es": "La Sombra de Rocadragón", "ar": "ظل دراغونستون" },
+      "story": {
+        "en": "Brave the gales of Shipbreaker Bay, disrupt the Red Priestess's shadow braziers, and banish the Shadow Assassin.",
+        "fr": "Bravez la baie des Naufrageurs, brisez les braseros d'ombre et bannissez l'Assassin de l'Ombre.",
+        "es": "Enfrenta la Bahía de los Naufragios, apaga los braseros de sombra y destierra al Asesino de la Sombra.",
+        "ar": "واجه عواصف خليج محطم السفن، وأطفئ مواقد الظل، واهزم قاتل الظل."
+      },
+      "steps": [
+        {
+          "id": "reach_storm", "type": "reach", "zone": "c4_storm", "at": [3.5, 17.5],
+          "goal": { "en": "Follow the east road from King's Landing to the Stormlands & Dragonstone.", "fr": "Suivez la route de l'est de Port-Réal vers les Terres de l'Orage.", "es": "Sigue el camino del este desde Desembarco del Rey hasta las Tierras de la Tormenta.", "ar": "اتبع الطريق الشرقي من كينغز لاندينغ إلى أراضي العاصفة ودراغونستون." },
+          "say": { "who": null, "en": ["Thunder rolls over Shipbreaker Bay. Ancient dragon-carved battlements loom above the crashing surf."], "fr": ["Le tonnerre gronde sur la baie des Naufrageurs. Des remparts sculptés de dragons dominent les vagues."], "es": ["El trueno retumba sobre la Bahía de los Naufragios. Almenas talladas con dragones se alzan sobre las olas."], "ar": ["يرعد البرق فوق خليج محطم السفن. ترتفع أسوار منحوتة على شكل تنانين فوق الأمواج العاتية."] }
+        },
+        {
+          "id": "davos", "type": "talk", "npc": "davos", "zone": "c4_storm", "at": [12.5, 22.6],
+          "goal": { "en": "Speak with Ser Davos Seaworth near the coastal cliffs.", "fr": "Parlez à Ser Davos Mervault près des falaises.", "es": "Habla con Ser Davos Seaworth cerca de los acantilados.", "ar": "تحدث مع السير دافوس سيوورث قرب المنحدرات الساحلية." },
+          "say": {
+            "who": "davos",
+            "en": ["Mind your footing on these wet stones. I've smuggled onions into Storm's End in worse gales, but I've never feared the wind like I fear what walks that keep.", "The Red Woman lit three night-fires along the cliff shrines. While they burn, the Shadow Assassin cannot be harmed by mortal steel.", "Extinguish the three R'hllor braziers and defeat the fanatics guarding them. Then Brienne and I will help you corner the shadow in the Painted Hall."],
+            "fr": ["Attention aux pierres glissantes. J'ai passé des oignons en contrebande à Accalmie par pire tempête, mais je n'ai jamais eu aussi peur que de ce qui rôde là-haut.", "La Femme Rouge a allumé trois feux nocturnes sur les falaises. Tant qu'ils brûlent, l'Assassin de l'Ombre est invulnérable.", "Éteignez les trois braseros de R'hllor et battez leurs gardes. Puis affrontez l'ombre dans la Salle de la Table Peinte."],
+            "es": ["Cuidado con las piedras mojadas. He contrabandeado cebollas en Bastión de Tormentas con peores tormentas, pero nunca temí tanto como a lo que camina ahí arriba.", "La Mujer Roja encendió tres fuegos nocturnos en los acantilados. Mientras ardan, el Asesino de la Sombra no puede ser herido.", "Apaga los tres braseros de R'hllor y derrota a sus guardias. Luego acorralaremos a la sombra en la Sala de la Mesa Pintada."],
+            "ar": ["انتبه لقدميك على هذه الصخور المبللة. لقد هربت البصل إلى ستورمز إند في عواصف أشد، لكنني لم أخف يومًا مما يمشي في تلك القلعة.", "المرأة الحمراء أشعلت ثلاثة مواقد ليلية على المنحدرات. ما دامت مشتعلة، لا يمكن لأي سيف أن يؤذي قاتل الظل.", "أطفئ مواقد رهلور الثلاثة واهزم حراسها. بعدها سنحاصر الظل في قاعة الطاولة المرسومة."]
+          }
+        },
+        {
+          "id": "braziers", "type": "waves", "zone": "c4_storm", "n": 3, "spots": [[16, 12.8], [32, 12.8], [24, 20.8]], "wave": ["raider", "archer", "raider"], "last": "shadow",
+          "goal": { "en": "Douse the three night-fire braziers in the Stormlands ({n}/{m}).", "fr": "Éteignez les trois braseros nocturnes ({n}/{m}).", "es": "Apaga los tres braseros nocturnos ({n}/{m}).", "ar": "أطفئ مواقد الليل الثلاثة في أراضي العاصفة ({n}/{m})." },
+          "each": {
+            "en": ["The first brazier hisses out! Fanatics and shadows leap from the smoke!", "The second night-fire dies! The storm howls across the bay!", "The final brazier shatters! The dark veil around Dragonstone tears open!"],
+            "fr": ["Le premier brasero s'éteint ! Des fanatiques bondissent de la fumée !", "Le deuxième feu meurt ! La tempête hurle sur la baie !", "Le dernier brasero se brise ! Le voile d'ombre se déchire !"],
+            "es": ["¡El primer brasero se apaga! ¡Fanáticos saltan del humo!", "¡El segundo fuego muere! ¡La tormenta aúlla en la bahía!", "¡El último brasero se rompe! ¡El velo de sombra se desgarra!"],
+            "ar": ["انطفأ الموقد الأول! يقفز المتعصبون من الدخان!", "ماتت النار الثانية! تعصف الريح فوق الخليج!", "تحطم الموقد الأخير! تمزق حجاب الظلام حول دراغونستون!"]
+          },
+          "say": { "who": null, "en": ["With the night-fires cold, the Shadow Assassin is bound to physical form inside the Painted Hall!"], "fr": ["Les feux éteints, l'Assassin de l'Ombre est forcé de prendre forme dans la Salle Peinte !"], "es": ["¡Con los fuegos apagados, el Asesino de la Sombra toma forma física en la Sala Pintada!"], "ar": ["بعد انطفاء النيران، صار قاتل الظل مجبرًا على التجسد داخل القاعة المرسومة!"] }
+        },
+        {
+          "id": "shadow_boss", "type": "boss", "boss": "shadow", "zone": "c4_storm", "at": [25, 6.5],
+          "goal": { "en": "Defeat the Shadow Assassin in the Painted Hall of Dragonstone.", "fr": "Vainquez l'Assassin de l'Ombre dans la Salle Peinte.", "es": "Derrota al Asesino de la Sombra en la Sala Pintada.", "ar": "اهزم قاتل الظل في قاعة الطاولة المرسومة." },
+          "set": { "beacons": 2, "open": "north" },
+          "say": {
+            "who": null,
+            "en": ["The Shadow Assassin dissolves into ash before the Painted Table of Westeros.", "A raven arrives from Winterfell: the northern Kingsroad is open, and strange cold winds blow down from the Neck."],
+            "fr": ["L'Assassin de l'Ombre se dissipe en cendres devant la Table Peinte de Westeros.", "Un corbeau arrive de Winterfell : la Route Royale du nord est ouverte."],
+            "es": ["El Asesino de la Sombra se disuelve en cenizas ante la Mesa Pintada de Poniente.", "Un cuervo llega desde Invernalia: el Camino Real del norte está abierto."],
+            "ar": ["يتلاشى قاتل الظل إلى رماد أمام الطاولة المرسومة لويستروس.", "يصل غراب من وينترفيل: طريق الملك الشمالي مفتوح، ورياح باردة تهب من الشمال."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4q4", "act": 2,
+      "title": { "en": "Winterfell & The Four Banners", "fr": "Winterfell et les Quatre Bannières", "es": "Invernalia y los Cuatro Estandartes", "ar": "وينترفيل والرايات الأربع" },
+      "story": {
+        "en": "March north to Winterfell, rescue the lost northern scouts, commune with the Weirwood Heart Tree, and pledge your banner.",
+        "fr": "Marchez au nord vers Winterfell, sauvez les éclaireurs, touchez l'Arbre-Cœur et choisissez votre bannière.",
+        "es": "Marcha al norte hacia Invernalia, rescata a los exploradores, toca el Árbol Corazón y jura tu estandarte.",
+        "ar": "اتجه شمالًا إلى وينترفيل، أنقذ الكشافة، المس شجرة القلب في غابة الآلهة، واختر راية ولائك."
+      },
+      "steps": [
+        {
+          "id": "reach_north", "type": "reach", "zone": "c4_north", "at": [23.5, 36.5],
+          "goal": { "en": "Travel north from the Riverlands to Winterfell and the North.", "fr": "Voyagez au nord du Conflans vers Winterfell.", "es": "Viaja al norte desde las Tierras de los Ríos hasta Invernalia.", "ar": "اتجه شمالًا من أراضي الأنهار إلى وينترفيل والشمال." },
+          "say": { "who": null, "en": ["Snow falls softly over the grey granite walls of Winterfell. Direwolf banners snap in the northern wind."], "fr": ["La neige tombe doucement sur les murs de granit gris de Winterfell. Les bannières au loup géant claquent au vent."], "es": ["La nieve cae suavemente sobre los muros de granito gris de Invernalia. Los estandartes del lobo huargo ondean al viento."], "ar": ["يتساقط الثلج بهدوء فوق أسوار الغرانيت الرمادية في وينترفيل. رايات الذئب الرهيب ترفرف في ريح الشمال."] }
+        },
+        {
+          "id": "arya", "type": "talk", "npc": "arya", "zone": "c4_north", "at": [20.5, 26.6],
+          "goal": { "en": "Speak with Arya Stark in the courtyard of Winterfell.", "fr": "Parlez à Arya Stark dans la cour de Winterfell.", "es": "Habla con Arya Stark en el patio de Invernalia.", "ar": "تحدث مع آريا ستارك في ساحة وينترفيل." },
+          "say": {
+            "who": "arya",
+            "en": ["Stick them with the pointy end! You move faster than the guards here.", "Three of our northern scouts went out toward the Wolfswood and the Dreadfort road. They haven't come back, and wild wights have been spotted in the snow.", "Find the three scouts, then look at the ancient Weirwood tree in the Godswood. Its red leaves have been weeping all morning."],
+            "fr": ["Pique-les avec le bout pointu ! Vous bougez plus vite que nos gardes.", "Trois de nos éclaireurs sont partis vers le Bois-aux-Loups et la route de Fort-Terreur. Ils ne sont pas revenus.", "Retrouvez les trois éclaireurs, puis examinez le barral ancestral dans le Bois Sacré."],
+            "es": ["¡Clávales el extremo puntiagudo! Te mueves más rápido que nuestros guardias.", "Tres de nuestros exploradores salieron hacia el Bosque de los Lobos y el camino de Fuerte Terror. No han regresado.", "Encuentra a los tres exploradores y luego mira el arciano ancestral en el Bosque de Dioses."],
+            "ar": ["اطعنهم بالطرف المدبب! أنت تتحرك أسرع من الحراس هنا.", "خرج ثلاثة من كشافتنا نحو غابة الذئاب وطريق الدريدفورت ولم يعودوا.", "اعثر على الكشافة الثلاثة، ثم انظر إلى شجرة الويروود القديمة في غابة الآلهة."]
+          }
+        },
+        {
+          "id": "scouts", "type": "rescue", "zone": "c4_north", "n": 3, "npcs": ["scout1", "scout2", "scout3"],
+          "goal": { "en": "Rescue the lost northern scouts in the Wolfswood ({n}/{m}).", "fr": "Sauvez les éclaireurs du Nord dans le Bois-aux-Loups ({n}/{m}).", "es": "Rescata a los exploradores del Norte en el Bosque de los Lobos ({n}/{m}).", "ar": "أنقذ كشافة الشمال الضائعين في غابة الذئاب ({n}/{m})." },
+          "each": {
+            "en": ["The cold came out of nowhere! Dead men with blue eyes rose from the snowdrifts!", "Thank the Old Gods! Direwolves kept the wights off me until you arrived.", "The Night's Watch sent distress horns from Castle Black—the dead are gathering Beyond the Wall!"],
+            "fr": ["Le froid est venu d'un coup ! Des morts aux yeux bleus sont sortis des congères !", "Merci aux Anciens Dieux ! Des loups géants m'ont protégé jusqu'à votre arrivée.", "La Garde de Nuit a sonné du cor à Châteaunoir : les morts se rassemblent au-delà du Mur !"],
+            "es": ["¡El frío surgió de la nada! ¡Muertos con ojos azules salieron de la nieve!", "¡Gracias a los Antiguos Dioses! Los lobos huargo me protegieron hasta que llegaste.", "¡La Guardia de la Noche tocó los cuernos en el Castillo Negro: los muertos se reúnen Más Allá del Muro!"],
+            "ar": ["جاء البرد فجأة! موتى بعيون زرقاء خرجوا من الثلوج!", "شكرًا للآلهة القديمة! الذئاب الرهيبة حمتني حتى وصلت.", "حرس الليل أطلقوا أبواق الاستغاثة من القلعة السوداء: الموتى يتجمعون خلف الجدار!"]
+          },
+          "say": { "who": null, "en": ["All three scouts are safe. Enter the Godswood at the north of Winterfell and touch the Weirwood Heart Tree."], "fr": ["Les trois éclaireurs sont saufs. Entrez dans le Bois Sacré au nord de Winterfell et touchez l'Arbre-Cœur."], "es": ["Los tres exploradores están a salvo. Entra en el Bosque de Dioses al norte de Invernalia y toca el Árbol Corazón."], "ar": ["الكشافة الثلاثة بأمان. ادخل غابة الآلهة شمال وينترفيل والمس شجرة القلب."] }
+        },
+        {
+          "id": "weirwood", "type": "interact", "zone": "c4_north", "n": 1, "spots": [[24, 9.6]],
+          "goal": { "en": "Touch the carved face of the Weirwood Heart Tree in the Godswood.", "fr": "Touchez le visage gravé de l'Arbre-Cœur dans le Bois Sacré.", "es": "Toca el rostro tallado del Árbol Corazón en el Bosque de Dioses.", "ar": "المس الوجه المنحوت على شجرة القلب في غابة الآلهة." },
+          "say": {
+            "who": null,
+            "en": ["As your hand touches the white bark, a vision flashes through your mind: across the Narrow Sea in Braavos, ancient Valyrian fire stirs—and far north Beyond the Wall, the Night King raises his icy spear.", "Return to Robb Stark at Riverrun camp to unite the realm under one banner before sailing across the Narrow Sea."],
+            "fr": ["Lorsque votre main touche l'écorce blanche, une vision vous traverse : au-delà du Détroit à Braavos, le feu valyrien s'éveille, et au-delà du Mur, le Roi de la Nuit lève sa lance de glace.", "Retournez voir Robb Stark au camp de Vivesaigues pour choisir votre bannière avant de traverser le Détroit."],
+            "es": ["Al tocar la corteza blanca, una visión cruza tu mente: al otro lado del Mar Angosto en Braavos arde el fuego valyrio, y Más Allá del Muro el Rey de la Noche alza su lanza de hielo.", "Vuelve con Robb Stark en Aguasdulces para elegir tu estandarte antes de cruzar el Mar Angosto."],
+            "ar": ["حين تلمس يدك اللحاء الأبيض، تومض رؤيا في ذهنك: عبر البحر الضيق في برافوس تستيقظ نار فاليريا القديمة، وخلف الجدار يرفع ملك الليل رمحه الجليدي.", "عد إلى روب ستارك في معسكر ريفررن لتوحيد الراية قبل الإبحار عبر البحر الضيق."]
+          }
+        },
+        {
+          "id": "pledge", "type": "choice", "npc": "robb", "zone": "c4_river", "at": [22.5, 16.6],
+          "goal": { "en": "Return to Robb Stark in the Riverlands and pledge your allegiance to one of the Four Great Houses.", "fr": "Retournez voir Robb Stark dans le Conflans et prêtez allégeance à l'une des Quatre Grandes Maisons.", "es": "Vuelve con Robb Stark en las Tierras de los Ríos y jura lealtad a una de las Cuatro Grandes Casas.", "ar": "عد إلى روب ستارك في أراضي الأنهار وأعلن ولاءك لإحدى العائلات الأربع الكبرى." },
+          "set": { "open": "essos" },
+          "say": {
+            "who": "robb",
+            "en": ["If the dead truly march on the Wall, the War of the Five Kings will be nothing but ashes unless someone carries a banner beyond the Narrow Sea and up to Castle Black.", "Four Great Houses offer their strength for the war to come: Stark of Winterfell, Baratheon of Dragonstone, Lannister of Casterly Rock, and Targaryen across the sea.", "Which House will you carry into the Long Night? Their champions will stand beside you at the end."],
+            "fr": ["Si les morts marchent vraiment sur le Mur, la Guerre des Cinq Rois ne sera que cendres à moins qu'un héros ne porte une bannière au-delà du Détroit et jusqu'à Châteaunoir.", "Quatre Grandes Maisons offrent leur force : Stark de Winterfell, Baratheon de Peyredragon, Lannister de Castral Roc et Targaryen au-delà des mers.", "Quelle Maison porterez-vous dans la Longue Nuit ? Leurs champions combattront à vos côtés."],
+            "es": ["Si los muertos realmente marchan hacia el Muro, la Guerra de los Cinco Reyes no será más que cenizas a menos que alguien lleve un estandarte hasta el Castillo Negro.", "Cuatro Grandes Casas ofrecen su fuerza: Stark de Invernalia, Baratheon de Rocadragón, Lannister de Roca Casterly y Targaryen al otro lado del mar.", "¿Qué Casa llevarás hacia la Larga Noche? Sus campeones lucharán a tu lado al final."],
+            "ar": ["إذا كان الموتى يزحفون حقًا نحو الجدار، فلن تكون حرب الملوك الخمسة سوى رماد ما لم يحمل بطل راية عبر البحر الضيق وحتى القلعة السوداء.", "أربع عائلات كبرى تقدم قوتها للمعركة القادمة: ستارك من وينترفيل، باراثيون من دراغونستون، لانيستر من كاسترلي روك، وتارغاريان عبر البحر.", "أي عائلة ستحمل رايتها في الليلة الطويلة؟ أبطالهم سيقفون بجانبك في النهاية."]
+          },
+          "picks": [
+            { "id": "stark", "who": "robb",
+              "label": { "en": "House Stark — 'Winter is Coming'", "fr": "Maison Stark — « L'hiver vient »", "es": "Casa Stark — «Se acerca el invierno»", "ar": "آل ستارك — «الشتاء قادم»" },
+              "en": ["The North remembers! The direwolf banner and our finest northern blades will march with you to the very end of winter."],
+              "fr": ["Le Nord se souvient ! La bannière au loup géant et nos meilleures lames du Nord marcheront avec vous jusqu'au bout de l'hiver."],
+              "es": ["¡El Norte recuerda! El estandarte del lobo huargo y nuestras mejores espadas marcharán contigo hasta el fin del invierno."],
+              "ar": ["الشمال يتذكر! راية الذئب الرهيب وأمهر سيوف الشمال ستسير معك حتى نهاية الشتاء."] },
+            { "id": "baratheon", "who": "davos",
+              "label": { "en": "House Baratheon — 'Ours is the Fury'", "fr": "Maison Baratheon — « Nôtre est la fureur »", "es": "Casa Baratheon — «Nuestra es la furia»", "ar": "آل باراثيون — «لنا الغضب»" },
+              "en": ["Ours is the Fury! The crowned stag of Storm's End and Dragonstone will stand like an iron wall beside you."],
+              "fr": ["Nôtre est la fureur ! Le cerf couronné d'Accalmie et de Peyredragon tiendra comme un mur de fer à vos côtés."],
+              "es": ["¡Nuestra es la furia! El ciervo coronado de Bastión de Tormentas se mantendrá como un muro de hierro a tu lado."],
+              "ar": ["لنا الغضب! الوعل المتوج من ستورمز إند ودراغونستون سيقف كجدار من حديد بجانبك."] },
+            { "id": "lannister", "who": "tyrion",
+              "label": { "en": "House Lannister — 'Hear Me Roar'", "fr": "Maison Lannister — « Je rugis »", "es": "Casa Lannister — «¡Oye mi rugido!»", "ar": "آل لانيستر — «اسمع زئيري»" },
+              "en": ["A Lannister always pays his debts! Casterly gold, crimson steel, and our sharpest minds are yours for the war ahead."],
+              "fr": ["Un Lannister paie toujours ses dettes ! L'or de Castral Roc et nos meilleures lames sont à vous pour la guerre à venir."],
+              "es": ["¡Un Lannister siempre paga sus deudas! El oro de Roca Casterly y nuestras mejores espadas son tuyos."],
+              "ar": ["اللانيستر يدفع ديونه دائمًا! ذهب كاسترلي روك وسيوفنا القرمزية رهن إشارتك في الحرب القادمة."] },
+            { "id": "targaryen", "who": "daenerys",
+              "label": { "en": "House Targaryen — 'Fire and Blood'", "fr": "Maison Targaryen — « Feu et Sang »", "es": "Casa Targaryen — «Fuego y Sangre»", "ar": "آل تارغاريان — «النار والدم»" },
+              "en": ["Fire and Blood! The three-headed dragon will burn away the endless winter and light your path."],
+              "fr": ["Feu et Sang ! Le dragon à trois têtes brûlera l'hiver sans fin et éclairera votre chemin."],
+              "es": ["¡Fuego y Sangre! El dragón de tres cabezas quemará el invierno eterno e iluminará tu camino."],
+              "ar": ["النار والدم! التنين ثلاثي الرؤوس سيحرق الشتاء الأبدي ويضيء طريقك."] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c4q5", "act": 3,
+      "title": { "en": "The Free City of Braavos", "fr": "La Cité Libre de Braavos", "es": "La Ciudad Libre de Braavos", "ar": "مدينة برافوس الحرة" },
+      "story": {
+        "en": "Sail across the Narrow Sea to Braavos, aid Daenerys Targaryen and Ser Jorah, and slay the Elder Firewyrm of Valyria.",
+        "fr": "Traversez le Détroit jusqu'à Braavos, aidez Daenerys Targaryen et Ser Jorah, et terrassez l'Ancien Ver de Feu.",
+        "es": "Cruza el Mar Angosto hasta Braavos, ayuda a Daenerys Targaryen y Ser Jorah, y abate al Antiguo Gusano de Fuego.",
+        "ar": "أبحر عبر البحر الضيق إلى برافوس، وساعد دينيريس تارغاريان والسير جوراه، واقضِ على دودة النار الفاليرية العجوز."
+      },
+      "steps": [
+        {
+          "id": "reach_essos", "type": "reach", "zone": "c4_essos", "at": [22.5, 28.5],
+          "goal": { "en": "Speak with Captain Salladhor Saan at the Riverlands dock or take the eastern port to sail to Braavos (Essos).", "fr": "Prenez le bateau au quai vers Braavos (Essos).", "es": "Toma el barco en el muelle hacia Braavos (Essos).", "ar": "أبحر من الرصيف نحو برافوس في إيسوس." },
+          "say": { "who": null, "en": ["You pass beneath the bronze legs of the Titan of Braavos. Canals, stone bridges, the Iron Bank, and the House of Black and White shimmer in the mist."], "fr": ["Vous passez sous les jambes de bronze du Titan de Braavos. Les canaux, la Banque de Fer et la Demeure du Noir et du Blanc brillent dans la brume."], "es": ["Pasas bajo las piernas de bronce del Titán de Braavos. Los canales, el Banco de Hierro y la Casa de Blanco y Negro brillan en la niebla."], "ar": ["تمر تحت قدمي عملاق برافوس البرونزي. القنوات المائية والبنك الحديدي وبيت الأسود والأبيض تلمع في الضباب."] }
+        },
+        {
+          "id": "daenerys", "type": "talk", "npc": "daenerys", "zone": "c4_essos", "at": [22.5, 14.6],
+          "goal": { "en": "Speak with Daenerys Targaryen in the plaza of Braavos.", "fr": "Parlez à Daenerys Targaryen sur la place de Braavos.", "es": "Habla con Daenerys Targaryen en la plaza de Braavos.", "ar": "تحدث مع دينيريس تارغاريان في ساحة برافوس." },
+          "say": {
+            "who": "daenerys",
+            "en": ["I am Daenerys Stormborn of House Targaryen. We came to Braavos seeking ships and Valyrian steel, for only fire and Valyrian blades can end the Long Night in Westeros.", "Monsters from the Smoking Sea—Krakens and subterranean Firewyrms—have risen from the old Valyrian vaults beneath the eastern ruins, blocking our ships.", "Clear the canals of five Krakens and Firewyrms, then slay the Elder Firewyrm guarding the Valyrian sanctum."],
+            "fr": ["Je suis Daenerys du Typhon de la Maison Targaryen. Nous sommes venus à Braavos chercher des navires et de l'acier valyrien, car seuls le feu et les lames valyriennes peuvent arrêter la Longue Nuit.", "Des monstres de la Mer Fumeuse — des Krakens et des Vers de Feu — ont surgi des ruines valyriennes et bloquent nos navires.", "Purgez les canaux de cinq Krakens et Vers de Feu, puis terrassez l'Ancien Ver de Feu."],
+            "es": ["Soy Daenerys de la Tormenta de la Casa Targaryen. Vinimos a Braavos buscando barcos y acero valyrio, pues solo el fuego y las hojas valyrias pueden detener la Larga Noche.", "Monstruos del Mar Humeante —Krakens y Gusanos de Fuego— han surgido de las ruinas valyrias y bloquean nuestros barcos.", "Limpia los canales de cinco Krakens y Gusanos de Fuego, y luego abate al Antiguo Gusano de Fuego."],
+            "ar": ["أنا دينيريسوليدة العاصفة من آل تارغاريان. جئنا إلى برافوس طلبًا للسفن والفولاذ الفاليري، فلا شيء يوقف الليلة الطويلة في ويستروس إلا النار والنصال الفاليرية.", "وحوش من البحر المدخن — الكراكن وديدان النار — خرجت من أطلال فاليريا القديمة وحاصرت سفننا.", "طهّر القنوات من خمسة من الكراكن وديدان النار، ثم اقضِ على دودة النار العجوز التي تحرس المعبد الفاليري."]
+          }
+        },
+        {
+          "id": "canals", "type": "kill", "zone": "c4_essos", "foes": ["kraken", "firewyrm"], "n": 5, "at": [22, 22],
+          "goal": { "en": "Slay the Krakens and Firewyrms along the Braavosi canals ({n}/{m}).", "fr": "Tuez les Krakens et les Vers de Feu dans les canaux de Braavos ({n}/{m}).", "es": "Abate a los Krakens y Gusanos de Fuego en los canales de Braavos ({n}/{m}).", "ar": "اقضِ على الكراكن وديدان النار في قنوات برافوس ({n}/{m})." },
+          "say": { "who": null, "en": ["The waters of the lagoon settle, but the stone courtyard ahead trembles as the Elder Firewyrm erupts from the Valyrian fissure!"], "fr": ["Les eaux de la lagune s'apaisent, mais la cour de pierre tremble lorsque l'Ancien Ver de Feu jaillit de la faille valyrienne !"], "es": ["Las aguas de la laguna se calman, pero el patio tiembla cuando el Antiguo Gusano de Fuego emerge de la fisura valyria."], "ar": ["هدأت مياه البحيرة، لكن الساحة الحجرية ترتجف مع خروج دودة النار العجوز من الشق الفاليري!"] }
+        },
+        {
+          "id": "elderwyrm", "type": "boss", "boss": "elderwyrm", "zone": "c4_essos", "at": [24, 5.5],
+          "goal": { "en": "Defeat the Elder Firewyrm in the Valyrian courtyard of Essos.", "fr": "Vainquez l'Ancien Ver de Feu dans la cour valyrienne d'Essos.", "es": "Derrota al Antiguo Gusano de Fuego en el patio valyrio de Essos.", "ar": "اهزم دودة النار العجوز في الساحة الفاليرية." },
+          "set": { "beacons": 3, "open": "wall" },
+          "say": {
+            "who": "daenerys",
+            "en": ["The Elder Firewyrm is slain! Beneath the eastern ruins lies the staircase to the five floors of Old Valyria, where ancient Valyrian steel sleeps.", "And the northern road past Winterfell to Castle Black and The Wall now stands open. Ride to the Wall whenever you are ready—Jon Snow and the Night's Watch need you."],
+            "fr": ["L'Ancien Ver de Feu est vaincu ! Sous les ruines à l'est s'ouvrent les cinq étages de l'Ancienne Valyria, où dort l'acier valyrien.", "Et la route au nord de Winterfell vers Châteaunoir et le Mur est désormais ouverte. Rejoignez Jon Snow et la Garde de Nuit !"],
+            "es": ["¡El Antiguo Gusano de Fuego ha caído! Bajo las ruinas del este se abren los cinco pisos de la Antigua Valyria, donde duerme el acero valyrio.", "Y el camino al norte de Invernalia hacia el Castillo Negro y el Muro ya está abierto. ¡Únete a Jon Nieve y la Guardia de la Noche!"],
+            "ar": ["سقطت دودة النار العجوز! تحت الأطلال الشرقية يمتد الدرج إلى طوابق فاليريا القديمة الخمسة، حيث يرقد الفولاذ الفاليري الأسطوري.", "والطريق الشمالي بعد وينترفيل نحو القلعة السوداء والجدار صار مفتوحًا الآن. اذهب إلى الجدار، فجون سنو وحرس الليل بحاجة إليك."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4q6", "act": 3,
+      "title": { "en": "The Sword in the Darkness", "fr": "L'Épée dans les Ténèbres", "es": "La Espada en la Oscuridad", "ar": "السيف في الظلام" },
+      "story": {
+        "en": "Stand with Jon Snow and Samwell Tarly at Castle Black, arm the Watch with Dragonglass, and hold the tunnel gate of The Wall.",
+        "fr": "Rejoignez Jon Snow et Samwell Tarly à Châteaunoir, armez la Garde de verredragon et tenez le tunnel du Mur.",
+        "es": "Únete a Jon Nieve y Samwell Tarly en el Castillo Negro, arma a la Guardia con vidriagón y defiende el Muro.",
+        "ar": "قف مع جون سنو وسامويل تارلي في القلعة السوداء، وسلّح الحرس بزجاج التنين، واحمِ بوابة الجدار."
+      },
+      "steps": [
+        {
+          "id": "reach_wall", "type": "reach", "zone": "c4_wall", "at": [23.5, 34.5],
+          "goal": { "en": "March north from Winterfell to Castle Black and The Wall.", "fr": "Marchez au nord de Winterfell jusqu'à Châteaunoir et le Mur.", "es": "Marcha al norte desde Invernalia hasta el Castillo Negro y el Muro.", "ar": "اتجه شمالًا من وينترفيل إلى القلعة السوداء والجدار." },
+          "say": { "who": null, "en": ["Before you towers The Wall: seven hundred feet of ancient blue ice stretching from sea to sea. The black brothers of the Night's Watch man the torches of Castle Black."], "fr": ["Devant vous se dresse le Mur : sept cents pieds de glace bleue millénaire. Les frères jurés de la Garde de Nuit veillent sur Châteaunoir."], "es": ["Ante ti se alza el Muro: setecientos pies de hielo azul ancestral. Los hermanos negros de la Guardia de la Noche vigilan el Castillo Negro."], "ar": ["يرتفع أمامك الجدار العظيم: سبعمئة قدم من الجليد الأزرق القديم الممتد من البحر إلى البحر. إخوة حرس الليل يحملون المشاعل في القلعة السوداء."] }
+        },
+        {
+          "id": "jon", "type": "talk", "npc": "jon", "zone": "c4_wall", "at": [23.5, 18.6],
+          "goal": { "en": "Speak with Lord Commander Jon Snow in Castle Black.", "fr": "Parlez à Jon Snow dans la cour de Châteaunoir.", "es": "Habla con Jon Nieve en el patio del Castillo Negro.", "ar": "تحدث مع جون سنو في ساحة القلعة السوداء." },
+          "say": {
+            "who": "jon",
+            "en": ["Night gathers, and now my watch begins. Robb sent word that you were coming—and not an hour too soon.", "The Army of the Dead is massing in the Haunted Forest. Ordinary iron shatters against the White Walkers, but Samwell Tarly found records in the library: Dragonglass and Valyrian steel kill them instantly.", "Gather the three caches of Dragonglass daggers buried around the yard and the ice stairs, then help us hold the northern tunnel gate!"],
+            "fr": ["La nuit se regroupe, et maintenant ma garde commence. Robb m'a prévenu de votre venue, juste à temps.", "L'armée des morts se rassemble dans la Forêt Hantée. Le fer ordinaire se brise contre les Marcheurs Blancs, mais Samwell Tarly a découvert que le verredragon et l'acier valyrien les tuent.", "Ramassez les trois caches de dagues en verredragon dans la cour, puis aidez-nous à tenir la porte du tunnel nord !"],
+            "es": ["La noche se avecina, ahora empieza mi guardia. Robb me avisó de tu llegada, justo a tiempo.", "El Ejército de los Muertos se reúne en el Bosque Encantado. El hierro común se rompe contra los Caminantes Blancos, pero Samwell Tarly descubrió que el vidriagón y el acero valyrio los destruyen.", "Recoge los tres alijos de dagas de vidriagón y ayúdanos a defender la puerta del túnel norte."],
+            "ar": ["يتجمع الليل، والآن تبدأ حراستي. أرسل روب خبر قدومك في الوقت المناسب تمامًا.", "جيش الموتى يحتشد في الغابة المسكونة. الحديد العادي يتحطم أمام السائرين البيض، لكن سامويل تارلي وجد في الكتب القديمة أن زجاج التنين والفولاذ الفاليري يقضيان عليهم فورًا.", "اجمع صناديق خناجر زجاج التنين الثلاثة، ثم ساعدنا في الدفاع عن بوابة النفق الشمالي!"]
+          }
+        },
+        {
+          "id": "dragonglass", "type": "collect", "zone": "c4_wall", "n": 3, "spots": [[8, 24], [38, 24], [14, 14]], "icon": "dragonglass",
+          "goal": { "en": "Gather the Dragonglass caches at Castle Black ({n}/{m}).", "fr": "Ramassez les caches de verredragon à Châteaunoir ({n}/{m}).", "es": "Recoge los alijos de vidriagón en el Castillo Negro ({n}/{m}).", "ar": "اجمع خناجر زجاج التنين في القلعة السوداء ({n}/{m})." },
+          "say": { "who": "samwell", "en": ["You found all the Dragonglass! Three horn blasts from the top of the Wall—White Walkers! Man the northern gate barricades!"], "fr": ["Vous avez tout le verredragon ! Trois coups de cor au sommet du Mur : les Marcheurs Blancs ! Aux barricades du tunnel nord !"], "es": ["¡Encontraste todo el vidriagón! ¡Tres toques de cuerno en lo alto del Muro: Caminantes Blancos! ¡A las barricadas del norte!"], "ar": ["لقد وجدت كل زجاج التنين! ثلاث نفخات بوق من أعلى الجدار — السائرون البيض! إلى متاريس البوابة الشمالية!"] }
+        },
+        {
+          "id": "watch_gate", "type": "waves", "zone": "c4_wall", "n": 2, "spots": [[18, 9.8], [29, 9.8]], "wave": ["wight", "wight", "icespider", "whitewalker"], "last": "giant",
+          "goal": { "en": "Light the pitch barrels and defend the Tunnel Gate against the dead ({n}/{m}).", "fr": "Allumez les barils de poix et défendez la porte du tunnel ({n}/{m}).", "es": "Enciende los barriles de brea y defiende la puerta del túnel ({n}/{m}).", "ar": "أشعل براميل القطران ودافع عن بوابة النفق ضد الموتى ({n}/{m})." },
+          "each": {
+            "en": ["The western barricade flares! Wights and Pale Ice Spiders pour from the tunnel!", "The eastern barricade ignites! A Frost Giant and a White Walker charge the gate!"],
+            "fr": ["La barricade ouest s'embrase ! Des spectres et des araignées de glace surgissent du tunnel !", "La barricade est s'allume ! Un géant et un Marcheur Blanc chargent la porte !"],
+            "es": ["¡La barricada oeste arde! ¡Espectros y arañas de hielo salen del túnel!", "¡La barricada este se enciende! ¡Un gigante y un Caminante Blanco cargan contra la puerta!"],
+            "ar": ["اشتعل المتراس الغربي! الموتى وعناكب الجليد يتدفقون من النفق!", "اشتعل المتراس الشرقي! عملاق جليدي وسائر أبيض يقتحمان البوابة!"]
+          },
+          "set": { "open": "beyond" },
+          "say": {
+            "who": "jon",
+            "en": ["The vanguard of the dead is broken! The outer iron gate of the tunnel is open.", "If we wait behind the Wall, the Night King's blizzard will bury the world. March Beyond the Wall into the Haunted Forest and strike at the Heart of Winter!"],
+            "fr": ["L'avant-garde des morts est brisée ! La grille extérieure du tunnel est ouverte.", "Si nous attendons derrière le Mur, le blizzard du Roi de la Nuit ensevelira le monde. Marchez au-delà du Mur et frappez au Cœur de l'Hiver !"],
+            "es": ["¡La vanguardia de los muertos ha caído! La reja exterior del túnel está abierta.", "Si esperamos tras el Muro, la ventisca del Rey de la Noche sepultará el mundo. ¡Marcha Más Allá del Muro y golpea el Corazón del Invierno!"],
+            "ar": ["انكسرت طليعة الموتى! البوابة الحديدية للنفق مفتوحة الآن.", "إن انتظرنا خلف الجدار فستدفن عاصفة ملك الليل العالم كله. تقدم خلف الجدار إلى الغابة المسكونة واضرب قلب الشتاء!"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4q7", "act": 4,
+      "title": { "en": "Hardhome & The Ice Dragon", "fr": "Hardhome et le Dragon de Glace", "es": "Casa Austera y el Dragón de Hielo", "ar": "هاردهوم وتنين الجليد" },
+      "story": {
+        "en": "Venture Beyond the Wall, shatter the White Walkers' ice spirals with the Free Folk and the Children of the Forest, and face Undead Viserion.",
+        "fr": "Aventurez-vous au-delà du Mur, brisez les spirales de glace avec le Peuple Libre et les Enfants de la Forêt, et affrontez Viserion.",
+        "es": "Aventúrate Más Allá del Muro, rompe las espirales de hielo con el Pueblo Libre y los Hijos del Bosque, y enfréntate a Viserion.",
+        "ar": "توغل خلف الجدار، وحطم دوامات الجليد مع الشعب الحر وأطفال الغابة، وواجه تنين الجليد فيسيريون."
+      },
+      "steps": [
+        {
+          "id": "reach_beyond", "type": "reach", "zone": "c4_beyond", "at": [23.5, 35.5],
+          "goal": { "en": "Pass through the tunnel of Castle Black into the lands Beyond the Wall.", "fr": "Traversez le tunnel de Châteaunoir vers les terres au-delà du Mur.", "es": "Cruza el túnel del Castillo Negro hacia las tierras Más Allá del Muro.", "ar": "اعبر نفق القلعة السوداء إلى الأراضي خلف الجدار." },
+          "say": { "who": null, "en": ["The Haunted Forest and the frozen wastes of Hardhome stretch into the white mist. Your sworn allies stand ready by the watchfire."], "fr": ["La Forêt Hantée et les terres gelées de Hardhome s'étendent dans la brume blanche. Vos alliés vous attendent près du feu."], "es": ["El Bosque Encantado y los páramos helados de Casa Austera se extienden en la niebla. Tus aliados te esperan junto al fuego."], "ar": ["تمتد الغابة المسكونة وأراضي هاردهوم المتجمدة في الضباب الأبيض. حلفاؤك يقفون على أهبة الاستعداد قرب النار."] }
+        },
+        {
+          "id": "mance", "type": "talk", "npc": "mance", "zone": "c4_beyond", "at": [15.5, 29.6],
+          "goal": { "en": "Speak with Mance Rayder and the Children of the Forest at the Free Folk camp.", "fr": "Parlez à Mance Rayder au camp du Peuple Libre.", "es": "Habla con Mance Rayder en el campamento del Pueblo Libre.", "ar": "تحدث مع مانس رايدر في مخيم الشعب الحر." },
+          "say": {
+            "who": "mance",
+            "en": ["Free Folk and kneelers fighting side by side—I never thought I'd live to see the day, friend. Up here, there is only one war: the living against the dead.", "The White Walkers raised three cursed Ice Spirals across the Fist of the First Men. Their frost feeds the undead dragon Viserion circling above the glacier.", "Shatter all three Ice Spirals to break the blizzard barrier, and bring that ice dragon down to earth!"],
+            "fr": ["Le Peuple Libre et les gens du Sud côte à côte... Ici, il n'y a qu'une seule guerre : les vivants contre les morts.", "Les Marcheurs Blancs ont dressé trois Spirales de Glace maudites sur le Poing des Premiers Hommes. Leur givre nourrit le dragon mort-vivant Viserion.", "Brisez les trois Spirales de Glace pour dissiper la barrière de blizzard, et abattez ce dragon de glace !"],
+            "es": ["El Pueblo Libre y los sureños luchando codo con codo... Aquí arriba solo hay una guerra: los vivos contra los muertos.", "Los Caminantes Blancos alzaron tres Espirales de Hielo malditas en el Puño de los Primeros Hombres. Su escarcha alimenta al dragón no-muerto Viserion.", "¡Rompe las tres Espirales de Hielo para disipar la ventisca y derriba a ese dragón de hielo!"],
+            "ar": ["الشعب الحر وأهل الجنوب يقاتلون جنبًا إلى جنب... هنا لا توجد سوى حرب واحدة: الأحياء ضد الأموات.", "أقام السائرون البيض ثلاث دوامات جليدية ملعونة فوق قبضة الرجال الأوائل. صقيعها يغذي التنين الميت فيسيريون الذي يحوم فوق الجليد.", "حطم دوامات الجليد الثلاث لكسر حاجز العاصفة، وأسقط تنين الجليد إلى الأرض!"]
+          }
+        },
+        {
+          "id": "obelisks", "type": "waves", "zone": "c4_beyond", "n": 3, "spots": [[9, 20.8], [38, 20.8], [23, 15.8]], "wave": ["wight", "whitewalker", "icespider", "wight"], "last": "whitewalker",
+          "goal": { "en": "Shatter the three White Walker Ice Spirals Beyond the Wall ({n}/{m}).", "fr": "Brisez les trois Spirales de Glace au-delà du Mur ({n}/{m}).", "es": "Rompe las tres Espirales de Hielo Más Allá del Muro ({n}/{m}).", "ar": "حطم دوامات الجليد الثلاث خلف الجدار ({n}/{m})." },
+          "each": {
+            "en": ["The western Ice Spiral cracks! Wights claw out of the frozen earth!", "The eastern Ice Spiral splinters! White Walkers ride out of the snowstorm!", "The central Ice Spiral shatters! A deafening dragon roar shakes the glacier!"],
+            "fr": ["La Spirale ouest se fend ! Des spectres sortent de la terre gelée !", "La Spirale est vole en éclats ! Des Marcheurs Blancs surgissent du blizzard !", "La Spirale centrale se brise ! Un rugissement de dragon fait trembler le glacier !"],
+            "es": ["¡La Espiral oeste se agrieta! ¡Salen espectros de la tierra helada!", "¡La Espiral este se rompe! ¡Caminantes Blancos surgen de la ventisca!", "¡La Espiral central estalla! ¡Un rugido de dragón sacude el glaciar!"],
+            "ar": ["تصدعت الدوامة الغربية! يخرج الموتى من الأرض المتجمدة!", "تهشمت الدوامة الشرقية! يظهر السائرون البيض من العاصفة الثلجية!", "تحطمت الدوامة الوسطى! زئير تنين يصم الآذان ويهز الجليد!"]
+          },
+          "say": { "who": null, "en": ["Blue flames tear across the sky as Undead Viserion descends upon the glacier!"], "fr": ["Des flammes bleues déchirent le ciel alors que Viserion s'abat sur le glacier !"], "es": ["¡Llamas azules rasgan el cielo mientras Viserion desciende sobre el glaciar!"], "ar": ["تمزق النيران الزرقاء السماء مع هبوط التنين الميت فيسيريون فوق الجليد!"] }
+        },
+        {
+          "id": "viserion", "type": "boss", "boss": "viserion", "zone": "c4_beyond", "at": [24, 9.5],
+          "goal": { "en": "Defeat Undead Viserion on the glacier. Watch out for blue dragonfire!", "fr": "Vainquez Viserion sur le glacier. Attention au feu bleu !", "es": "Derrota a Viserion en el glaciar. ¡Cuidado con el fuego azul!", "ar": "اهزم التنين الميت فيسيريون فوق الجليد. احذر من نيرانه الزرقاء!" },
+          "set": { "beacons": 4, "open": "altar" },
+          "say": {
+            "who": null,
+            "en": ["Undead Viserion crashes into the snow, the cold blue light fading from its eyes.", "Ahead, the ice wall to the Heart of Winter splits open. At the ancient weirwood altar stands The Night King."],
+            "fr": ["Viserion s'écrase dans la neige, la lueur bleue s'éteignant dans ses yeux.", "Devant vous, le mur de glace du Cœur de l'Hiver s'ouvre. Près de l'autel se tient le Roi de la Nuit."],
+            "es": ["Viserion cae sobre la nieve y la luz azul se apaga en sus ojos.", "Delante, el muro de hielo del Corazón del Invierno se abre. En el altar aguarda el Rey de la Noche."],
+            "ar": ["يسقط فيسيريون على الثلج، وينطفئ الضوء الأزرق البارد في عينيه.", "أمامك ينشق جدار الجليد المؤدي إلى قلب الشتاء، حيث يقف ملك الليل عند المذبح القديم."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4q8", "act": 4,
+      "title": { "en": "A Song of Ice and Fire", "fr": "Le Trône de Fer et la Longue Nuit", "es": "Canción de Hielo y Fuego", "ar": "أغنية الجليد والنار" },
+      "story": {
+        "en": "Confront The Night King at the Heart of Winter, shatter the Long Night, and light the Great Watchfire of the Realm.",
+        "fr": "Affrontez le Roi de la Nuit au Cœur de l'Hiver, brisez la Longue Nuit et allumez le Grand Brasero du Royaume.",
+        "es": "Enfréntate al Rey de la Noche en el Corazón del Invierno, acaba con la Larga Noche y enciende la Gran Almenara.",
+        "ar": "واجه ملك الليل في قلب الشتاء، وانهِ الليلة الطويلة، وأشعل منارة الممالك السبع الكبرى."
+      },
+      "steps": [
+        {
+          "id": "nightking", "type": "boss", "boss": "nightking", "zone": "c4_beyond", "at": [24, 4.5],
+          "goal": { "en": "Defeat The Night King at the Heart of Winter.", "fr": "Vainquez le Roi de la Nuit au Cœur de l'Hiver.", "es": "Derrota al Rey de la Noche en el Corazón del Invierno.", "ar": "اهزم ملك الليل في قلب الشتاء." },
+          "say": {
+            "who": null,
+            "en": ["Your blade strikes true into the Night King's chest! With a sound like a thousand frozen lakes cracking at once, the Night King and every White Walker shatter into crystalline dust.", "Sunlight breaks through the storm clouds over the Wall for the first time in years."],
+            "fr": ["Votre lame frappe le Roi de la Nuit en plein cœur ! Dans un fracas de glace brisée, le Roi de la Nuit et tous les Marcheurs Blancs volent en éclats de cristal.", "La lumière du soleil perce enfin les nuages au-dessus du Mur."],
+            "es": ["¡Tu hoja golpea el pecho del Rey de la Noche! Con el estruendo de mil lagos helados rompiéndose, el Rey de la Noche y todos los Caminantes Blancos estallan en polvo de cristal.", "La luz del sol atraviesa las nubes sobre el Muro por primera vez en años."],
+            "ar": ["يصيب نصلك صدر ملك الليل! وبصوت يشبه تكسر آلاف البحيرات المتجمدة معًا، يتحطم ملك الليل وكل السائرين البيض إلى غبار من الكريستال.", "تشرق أشعة الشمس عبر غيوم العاصفة فوق الجدار لأول مرة منذ سنين."]
+          }
+        },
+        {
+          "id": "light", "type": "interact", "zone": "c4_river", "n": 1, "spots": [[25, 10.2]],
+          "goal": { "en": "Return to the Riverlands camp and light the Great Watchfire of the Seven Kingdoms.", "fr": "Retournez au camp du Conflans et allumez le Grand Brasero des Sept Couronnes.", "es": "Vuelve al campamento de las Tierras de los Ríos y enciende la Gran Almenara de los Siete Reinos.", "ar": "عد إلى معسكر أراضي الأنهار وأشعل المنارة الكبرى للممالك السبع." },
+          "say": { "who": null, "en": [], "fr": [], "es": [], "ar": [] }
+        }
+      ]
+    }
+  ]
+}

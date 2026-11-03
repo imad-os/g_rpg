@@ -31,7 +31,29 @@ window.HM_VOICE = (function () {
         veyr: ['Charon', 'cold, hollow voice of a dead general', 'onyx'],
         hollowking: ['Enceladus', 'ancient, sad and menacing king, echoing', 'echo'],
         nessa: ['Vindemiatrix', 'friendly sailor', 'nova'],
-        pim: ['Puck', 'excited small child', 'alloy']
+        pim: ['Puck', 'excited small child', 'alloy'],
+        robb: ['Alnilam', 'young, noble northern king, determined and resolute', 'onyx'],
+        catelyn: ['Gacrux', 'dignified, sorrowful northern lady, fierce mother', 'shimmer'],
+        arya: ['Kore', 'sharp, fearless young girl, quick and defiant', 'alloy'],
+        sansa: ['Leda', 'poised, courteous young noblewoman with quiet strength', 'nova'],
+        jon: ['Enceladus', 'brooding, honourable northern ranger, quiet gravity', 'echo'],
+        samwell: ['Puck', 'gentle, nervous, bookish scholar, earnest', 'fable'],
+        aemon: ['Charon', 'ancient, frail, deeply wise blind maester', 'fable'],
+        tyrion: ['Orus', 'witty, sardonic nobleman, clever and theatrical', 'echo'],
+        varys: ['Aoede', 'silky, soft-spoken spymaster, polite and enigmatic', 'shimmer'],
+        jaime: ['Alnilam', 'confident, weary knight, dry irony', 'onyx'],
+        davos: ['Algenib', 'humble, plain-spoken old smuggler and loyal advisor', 'onyx'],
+        brienne: ['Vindemiatrix', 'steadfast, solemn warrior woman, deeply honourable', 'nova'],
+        melisandre: ['Aoede', 'mystical, hypnotic red priestess, serene and fiery', 'shimmer'],
+        daenerys: ['Leda', 'regal, commanding young queen, calm then fierce', 'nova'],
+        jorah: ['Algenib', 'weathered, devoted exiled knight, grave and loyal', 'onyx'],
+        jaqen: ['Charon', 'serene, rhythmic, mysterious assassin speaking in third person', 'fable'],
+        mance: ['Orus', 'warm, charismatic free folk leader, rugged', 'onyx'],
+        child: ['Kore', 'ancient, ethereal forest spirit in a childlike voice', 'shimmer'],
+        gendry: ['Alnilam', 'earnest, strong young blacksmith', 'echo'],
+        qyburn: ['Charon', 'quiet, clinical, unsettling old scholar', 'fable'],
+        salladhor: ['Orus', 'flamboyant, cheerful pirate prince', 'echo'],
+        nightking: ['Charon', 'freezing, hollow, ancient glacial whisper', 'onyx']
     };
     let lang = 'en', index = null, indexP = null, token = 0, rate = 1, player = null, playerCtx = null, playing = false;
     let aiOn = true, aiOff = false, prov, provT = 0;                  // prov: undefined until asked, null when no service can speak

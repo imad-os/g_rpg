@@ -12,10 +12,34 @@
             fxRow: 'Effects', fxSub: 'Shine of legendary gear and weapons, sparks and trails. Lower is faster on old TVs.', fx_auto: 'Auto', fx_low: 'Low', fx_mid: 'Medium', fx_high: 'High',
             aiVoice: 'AI voices', aiVoiceSub: 'My PC\'s AI reads every line aloud, with a voice for each person, in your language.', aiVoiceNone: 'Needs an AI service in My PC (App Store Manager > AI services).',
             aiVoiceTest: 'This is how the people of Hollowmere will sound.', on: 'On', off: 'Off',
-            charger: 'Hollow Charger', chargerSub: 'A ghostly winged steed of the Veil. Flies over water, the void and low things; the fastest of all', chargerHow: 'The Hollow Charger answers only the one who defeats the Hollow King, in Chapter 3.'
+            charger: 'Hollow Charger', chargerSub: 'A ghostly winged steed of the Veil. Flies over water, the void and low things; the fastest of all', chargerHow: 'The Hollow Charger answers only the one who defeats the Hollow King, in Chapter 3.',
+            shadowmane: 'Shadowmane', shadowmaneSub: 'An armored black northern destrier. Very fast, and tramples smaller foes in your path', shadowmaneHow: 'Buy Shadowmane from Hana, or win him in Chapter 4: A Song of Ice & Fire.',
+            frostfang: 'Frostfang', frostfangSub: 'A giant white direwolf of the North. Swift on snow and stone, and tears at nearby foes with icy jaws', frostfangHow: 'Buy Frostfang from Hana, or win him in Chapter 4: A Song of Ice & Fire.',
+            axes: 'Dual Axes', pistols: 'Dual Guns', hammer: 'Warhammer',
+            petRow: 'Companion pet', petSub: 'Choose which loyal companion follows you once you have rescued a pet.', pet_cat: 'Lantern Cat', pet_direwolf: 'Direwolf Pup', pet_babydragon: 'Baby Dragon',
+            clothRow: 'House colours of {name}', clothSub: 'Change the tunic and cloak colours of each hero so everyone stands out in co-op.',
+            cloth0: 'Stark Winter Grey', cloth1: 'Lannister Crimson & Gold', cloth2: 'Targaryen Obsidian & Flame', cloth3: 'Baratheon Storm Gold',
+            cloth4: 'Tyrell Highgarden Green', cloth5: 'Martell Sunspear Copper', cloth6: 'Arryn Eyrie Azure', cloth7: 'Greyjoy Iron Teal',
+            ch4Name: 'A Song of Ice & Fire', c4sailWest: 'Sail west to Westeros (Chapter 4)',
+            ch4Go: 'Ravens fly from the west: speak to Nessa at Dawnwatch harbour (or Sela at the dock) to sail to Westeros for Chapter 4: A Song of Ice & Fire.',
+            playCh4: '⚔ Chapter 4: A Song of Ice & Fire',
+            devTools: '⚔ Chapter 4 & Dev Tools',
+            devSub: 'Jump straight to Chapter 4 or any Westeros zone, unlock gates, or grant gear while keeping your save.',
+            devJumpCh4: '▶ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)',
+            devUnlockAll: '🔓 Unlock All Chapter 4 Gates & Zones',
+            devSkipStep: '⏭ Complete Current Quest Step',
+            devMaxGear: '★ Grant Lv 30, +8 Valyrian Arsenal & All Mounts',
+            devTeleport: 'Teleport: {zone}',
+            devChSwitch: 'Switch to Chapter {n} (Keep Save)',
+            sideQuestLbl: 'SIDE QUEST'
         }, items: {
             frost_blade: 'Frost blade', runed_bow: 'Runed bow', ash_musket: 'Ash musket', grove_staff: 'Grove staff', warden_helm: 'Warden helm', frost_plate: 'Frost plate',
-            runic_robe: 'Runic robe', wyrm_boots: 'Wyrm boots', dawnbreaker: 'Dawnbreaker', sylvan_warbow: 'Sylvan Warbow', thunderforge: 'Thunderforge', veilstaff: 'Veilstaff'
+            runic_robe: 'Runic robe', wyrm_boots: 'Wyrm boots', dawnbreaker: 'Dawnbreaker', sylvan_warbow: 'Sylvan Warbow', thunderforge: 'Thunderforge', veilstaff: 'Veilstaff',
+            ironwood_axes: 'Ironwood Dual Axes', twin_flintlocks: 'Twin Flintlocks', valyrian_blade: 'Valyrian Steel Blade', weirwood_bow: 'Weirwood Longbow',
+            braavosi_pistols: 'Braavosi Dual Pistols', dothraki_axes: 'Dothraki War Axes', wildfire_staff: 'Wildfire Staff', baratheon_hammer: 'Baratheon Warhammer',
+            stark_wolfhelm: 'Stark Direwolf Helm', kingsguard_plate: 'Kingsguard White Plate', targaryen_scale: 'Dragonscale Armor', watch_cloak: 'Night\'s Watch Cloak',
+            dornish_boots: 'Dornish Sand Boots', valyrian_greaves: 'Valyrian Steel Greaves', winters_fang: 'Winter\'s Fang', stormbreaker: 'Stormbreaker',
+            valyrian_axes: 'Dragonbone Dual Axes', golden_pistols: 'Golden Company Pistols'
         } },
         fr: { ui: {
             gearHelpSlots: 'Haut / bas : choisir · OK : voir les pièces de ce type', gearHelpList: 'Flèches : choisir · OK : porter ou retirer · Retour : revenir',
@@ -27,10 +51,34 @@
             fxRow: 'Effets', fxSub: 'Éclat de l’équipement légendaire, étincelles et traînées. Plus bas, c’est plus rapide sur les vieilles TV.', fx_auto: 'Auto', fx_low: 'Bas', fx_mid: 'Moyen', fx_high: 'Haut',
             aiVoice: 'Voix IA', aiVoiceSub: 'L’IA de My PC lit chaque réplique à voix haute, avec une voix par personnage, dans votre langue.', aiVoiceNone: 'Il faut un service d’IA dans My PC (App Store Manager > services d’IA).',
             aiVoiceTest: 'Voici comment parleront les gens de Hollowmere.', on: 'Oui', off: 'Non',
-            charger: 'Destrier Creux', chargerSub: 'Un destrier fantôme et ailé du Voile. Vole au-dessus de l’eau, du vide et des petits obstacles ; le plus rapide de tous', chargerHow: 'Le Destrier Creux ne répond qu’à celui qui bat le Roi Creux, au chapitre 3.'
+            charger: 'Destrier Creux', chargerSub: 'Un destrier fantôme et ailé du Voile. Vole au-dessus de l’eau, du vide et des petits obstacles ; le plus rapide de tous', chargerHow: 'Le Destrier Creux ne répond qu’à celui qui bat le Roi Creux, au chapitre 3.',
+            shadowmane: 'Crin-d’Ombre', shadowmaneSub: 'Un destrier noir caparaçonné du Nord. Très rapide, il renverse les ennemis sur votre route', shadowmaneHow: 'Achetez Crin-d’Ombre chez Hana, ou gagnez-le au chapitre 4 : Le Trône de Fer.',
+            frostfang: 'Croc-de-Givre', frostfangSub: 'Un loup-garou géant du Nord. Rapide sur la neige et la pierre, il mord les ennemis proches', frostfangHow: 'Achetez Croc-de-Givre chez Hana, ou gagnez-le au chapitre 4 : Le Trône de Fer.',
+            axes: 'Doubles haches', pistols: 'Doubles pistolets', hammer: 'Marteau de guerre',
+            petRow: 'Compagnon', petSub: 'Choisissez quel fidèle compagnon vous suit une fois un animal secouru.', pet_cat: 'Chat de la Lanterne', pet_direwolf: 'Louveteau géant', pet_babydragon: 'Bébé dragon',
+            clothRow: 'Couleurs de {name}', clothSub: 'Changez les couleurs de tunique et de cape de chaque héros pour bien les distinguer.',
+            cloth0: 'Gris d’Hiver Stark', cloth1: 'Pourpre et Or Lannister', cloth2: 'Obsidienne Targaryen', cloth3: 'Or d’Orage Baratheon',
+            cloth4: 'Vert Hautjardin Tyrell', cloth5: 'Cuivre Lancehelion Martell', cloth6: 'Azur des Eyrié Arryn', cloth7: 'Sarcelle de Fer Greyjoy',
+            ch4Name: 'Le Chant de la Glace et du Feu', c4sailWest: 'Naviguer à l’ouest vers Westeros (Chapitre 4)',
+            ch4Go: 'Des corbeaux viennent de l’ouest : parlez à Nessa au port d’Aubeveille (ou à Sela au quai) pour voguer vers Westeros au Chapitre 4.',
+            playCh4: '⚔ Chapitre 4 : Le Chant de la Glace et du Feu',
+            devTools: '⚔ Chapitre 4 et Outils Dev',
+            devSub: 'Aller directement au Chapitre 4 ou dans n’importe quelle zone de Westeros tout en gardant votre sauvegarde.',
+            devJumpCh4: '▶ Jouer au Chapitre 4 maintenant (Garder la sauvegarde)',
+            devUnlockAll: '🔓 Débloquer toutes les portes et zones du Chapitre 4',
+            devSkipStep: '⏭ Terminer l’étape de quête actuelle',
+            devMaxGear: '★ Donner Niv. 30, Arsenal Valyrien +8 et Montures',
+            devTeleport: 'Téléporter : {zone}',
+            devChSwitch: 'Aller au Chapitre {n} (Garder la sauvegarde)',
+            sideQuestLbl: 'QUÊTE ANNEXE'
         }, items: {
             frost_blade: 'Lame de givre', runed_bow: 'Arc runique', ash_musket: 'Mousquet de cendre', grove_staff: 'Bâton du bosquet', warden_helm: 'Heaume du gardien', frost_plate: 'Plaque de givre',
-            runic_robe: 'Robe runique', wyrm_boots: 'Bottes de wyrm', dawnbreaker: 'Brise-Aube', sylvan_warbow: 'Arc sylvestre', thunderforge: 'Forge-Tonnerre', veilstaff: 'Bâton du Voile'
+            runic_robe: 'Robe runique', wyrm_boots: 'Bottes de wyrm', dawnbreaker: 'Brise-Aube', sylvan_warbow: 'Arc sylvestre', thunderforge: 'Forge-Tonnerre', veilstaff: 'Bâton du Voile',
+            ironwood_axes: 'Doubles haches en ferbois', twin_flintlocks: 'Pistolets jumeaux', valyrian_blade: 'Lame en acier valyrien', weirwood_bow: 'Grand arc de barral',
+            braavosi_pistols: 'Doubles pistolets de Braavos', dothraki_axes: 'Haches de guerre dothraki', wildfire_staff: 'Bâton de feu grégeois', baratheon_hammer: 'Marteau de guerre Baratheon',
+            stark_wolfhelm: 'Heaume du Loup Stark', kingsguard_plate: 'Armure blanche de la Garde Royale', targaryen_scale: 'Armure d’écailles de dragon', watch_cloak: 'Manteau de la Garde de Nuit',
+            dornish_boots: 'Bottes des sables de Dorne', valyrian_greaves: 'Grèves en acier valyrien', winters_fang: 'Croc de l’Hiver', stormbreaker: 'Brise-Tempête',
+            valyrian_axes: 'Doubles haches en os de dragon', golden_pistols: 'Pistolets de la Compagnie Dorée'
         } },
         es: { ui: {
             gearHelpSlots: 'Arriba / abajo: elegir · OK: ver las piezas de ese tipo', gearHelpList: 'Flechas: elegir · OK: poner o quitar · Volver: atrás',
@@ -42,10 +90,34 @@
             fxRow: 'Efectos', fxSub: 'Brillo del equipo legendario, chispas y estelas. Más bajo es más rápido en televisores viejos.', fx_auto: 'Auto', fx_low: 'Bajo', fx_mid: 'Medio', fx_high: 'Alto',
             aiVoice: 'Voces IA', aiVoiceSub: 'La IA de My PC lee cada frase en voz alta, con una voz para cada persona, en tu idioma.', aiVoiceNone: 'Necesita un servicio de IA en My PC (App Store Manager > servicios de IA).',
             aiVoiceTest: 'Así sonará la gente de Hollowmere.', on: 'Sí', off: 'No',
-            charger: 'Corcel Hueco', chargerSub: 'Un corcel fantasma y alado del Velo. Vuela sobre el agua, el vacío y obstáculos bajos; el más rápido de todos', chargerHow: 'El Corcel Hueco solo responde a quien derrota al Rey Hueco, en el capítulo 3.'
+            charger: 'Corcel Hueco', chargerSub: 'Un corcel fantasma y alado del Velo. Vuela sobre el agua, el vacío y obstáculos bajos; el más rápido de todos', chargerHow: 'El Corcel Hueco solo responde a quien derrota al Rey Hueco, en el capítulo 3.',
+            shadowmane: 'Crin Sombría', shadowmaneSub: 'Un corcel negro acorazado del Norte. Muy veloz, arrolla a los enemigos menores a tu paso', shadowmaneHow: 'Compra a Crin Sombría en la tienda de Hana o gánalo en el capítulo 4: Canción de Hielo y Fuego.',
+            frostfang: 'Colmillo Escarcha', frostfangSub: 'Un lobo huargo gigante del Norte. Veloz en nieve y roca, muerde a los enemigos cercanos', frostfangHow: 'Compra a Colmillo Escarcha en la tienda de Hana o gánalo en el capítulo 4: Canción de Hielo y Fuego.',
+            axes: 'Hachas dobles', pistols: 'Pistolas dobles', hammer: 'Martillo de guerra',
+            petRow: 'Mascota compañera', petSub: 'Elige qué fiel compañero te sigue cuando hayas rescatado una mascota.', pet_cat: 'Gato del Farol', pet_direwolf: 'Cachorro de lobo huargo', pet_babydragon: 'Cría de dragón',
+            clothRow: 'Colores de {name}', clothSub: 'Cambia los colores de túnica y capa de cada héroe para distinguirlos en cooperativo.',
+            cloth0: 'Gris Invernal Stark', cloth1: 'Carmesí y Oro Lannister', cloth2: 'Obsidiana Targaryen', cloth3: 'Oro Tormenta Baratheon',
+            cloth4: 'Verde Altojardín Tyrell', cloth5: 'Cobre Lanza del Sol Martell', cloth6: 'Azur Nido de Águilas Arryn', cloth7: 'Verde Hierro Greyjoy',
+            ch4Name: 'Canción de Hielo y Fuego', c4sailWest: 'Navegar al oeste hacia Poniente (Capítulo 4)',
+            ch4Go: 'Vuelan cuervos desde el oeste: habla con Nessa en el puerto de Alba (o con Sela en el muelle) para zarpar hacia Poniente en el Capítulo 4.',
+            playCh4: '⚔ Capítulo 4: Canción de Hielo y Fuego',
+            devTools: '⚔ Capítulo 4 y Herramientas Dev',
+            devSub: 'Salta directamente al Capítulo 4 o a cualquier zona de Poniente conservando tu partida guardada.',
+            devJumpCh4: '▶ Jugar al Capítulo 4 ahora (Conservar partida)',
+            devUnlockAll: '🔓 Desbloquear todas las puertas y zonas del Capítulo 4',
+            devSkipStep: '⏭ Completar paso de misión actual',
+            devMaxGear: '★ Dar Niv. 30, Arsenal Valyrio +8 y Monturas',
+            devTeleport: 'Teletransportar: {zone}',
+            devChSwitch: 'Cambiar al Capítulo {n} (Conservar partida)',
+            sideQuestLbl: 'MISIÓN SECUNDARIA'
         }, items: {
             frost_blade: 'Hoja de escarcha', runed_bow: 'Arco rúnico', ash_musket: 'Mosquete de ceniza', grove_staff: 'Bastón de la arboleda', warden_helm: 'Yelmo del guardián', frost_plate: 'Placas de escarcha',
-            runic_robe: 'Túnica rúnica', wyrm_boots: 'Botas de sierpe', dawnbreaker: 'Rompealbas', sylvan_warbow: 'Arco silvano', thunderforge: 'Forjatruenos', veilstaff: 'Bastón del Velo'
+            runic_robe: 'Túnica rúnica', wyrm_boots: 'Botas de sierpe', dawnbreaker: 'Rompealbas', sylvan_warbow: 'Arco silvano', thunderforge: 'Forjatruenos', veilstaff: 'Bastón del Velo',
+            ironwood_axes: 'Hachas dobles de arciano', twin_flintlocks: 'Pistolas gemelas', valyrian_blade: 'Espada de acero valyrio', weirwood_bow: 'Arco largo de arciano',
+            braavosi_pistols: 'Pistolas dobles de Braavos', dothraki_axes: 'Hachas de guerra dothraki', wildfire_staff: 'Bastón de fuego valyrio', baratheon_hammer: 'Martillo de guerra Baratheon',
+            stark_wolfhelm: 'Yelmo de lobo Stark', kingsguard_plate: 'Armadura blanca de la Guardia Real', targaryen_scale: 'Armadura de escamas de dragón', watch_cloak: 'Capa de la Guardia de la Noche',
+            dornish_boots: 'Botas de arena dornienses', valyrian_greaves: 'Grebas de acero valyrio', winters_fang: 'Colmillo del Invierno', stormbreaker: 'Rompetormentas',
+            valyrian_axes: 'Hachas dobles de hueso de dragón', golden_pistols: 'Pistolas de la Compañía Dorada'
         } },
         ar: { ui: {
             gearHelpSlots: 'فوق / تحت: اختر · OK: شاهد القطع من هذا النوع', gearHelpList: 'الأسهم: اختر · OK: البس أو انزع · رجوع: عودة',
@@ -57,11 +129,36 @@
             fxRow: 'المؤثرات', fxSub: 'لمعان المعدات الأسطورية والشرارات والآثار. الأقل أسرع على التلفزيونات القديمة.', fx_auto: 'تلقائي', fx_low: 'قليل', fx_mid: 'متوسط', fx_high: 'كثير',
             aiVoice: 'أصوات الذكاء الاصطناعي', aiVoiceSub: 'ذكاء My PC يقرأ كل جملة بصوت عالٍ، بصوت لكل شخصية، بلغتك.', aiVoiceNone: 'يحتاج إلى خدمة ذكاء اصطناعي في My PC (مدير المتجر > خدمات الذكاء الاصطناعي).',
             aiVoiceTest: 'هكذا سيتكلم أهل هولومير.', on: 'نعم', off: 'لا',
-            charger: 'الجواد الأجوف', chargerSub: 'جواد شبح بأجنحة من الحجاب. يطير فوق الماء والفراغ والأشياء الصغيرة؛ الأسرع على الإطلاق', chargerHow: 'الجواد الأجوف لا يلبي إلا من يهزم الملك الأجوف، في الفصل الثالث.'
+            charger: 'الجواد الأجوف', chargerSub: 'جواد شبح بأجنحة من الحجاب. يطير فوق الماء والفراغ والأشياء الصغيرة؛ الأسرع على الإطلاق', chargerHow: 'الجواد الأجوف لا يلبي إلا من يهزم الملك الأجوف، في الفصل الثالث.',
+            shadowmane: 'شادومين', shadowmaneSub: 'جواد حربي أسود مدرع من الشمال. سريع جدًا ويدهس الأعداء في طريقك', shadowmaneHow: 'اشترِ شادومين من متجر هانا، أو اربحه في الفصل الرابع: أغنية الجليد والنار.',
+            frostfang: 'ناب الصقيع', frostfangSub: 'ذئب رهيب عملاق من الشمال. سريع على الثلج والصخر ويعض الأعداء القريبين', frostfangHow: 'اشترِ ناب الصقيع من متجر هانا، أو اربحه في الفصل الرابع: أغنية الجليد والنار.',
+            axes: 'فأسان مزدوجان', pistols: 'مسدسان مزدوجان', hammer: 'مطرقة حرب',
+            petRow: 'الحيوان المرافق', petSub: 'اختر أي رفيق وفيّ يتبعك بعد إنقاذ حيوان أليف.', pet_cat: 'قط الفانوس', pet_direwolf: 'جرو الذئب الرهيب', pet_babydragon: 'تنين صغير',
+            clothRow: 'ألوان {name}', clothSub: 'غيّر ألوان سترة وعباءة كل بطل لتمييز الجميع في اللعب الجماعي.',
+            cloth0: 'رمادي الشتاء ستارك', cloth1: 'قرمزي وذهبي لانيستر', cloth2: 'أسود وناري تارغاريان', cloth3: 'ذهبي العاصفة باراثيون',
+            cloth4: 'أخضر هايجاردن تايرل', cloth5: 'نحاسي دورن مارتيل', cloth6: 'أزرق العش آرين', cloth7: 'أزرق الحديد غريجوي',
+            ch4Name: 'أغنية الجليد والنار', c4sailWest: 'أبحر غربًا إلى ويستروس (الفصل الرابع)',
+            ch4Go: 'غربان تطير من الغرب: تحدث إلى نيسا في ميناء دونووتش (أو سيلا عند الرصيف) للإبحار إلى ويستروس في الفصل الرابع.',
+            playCh4: '⚔ الفصل الرابع: أغنية الجليد والنار',
+            devTools: '⚔ الفصل الرابع وأدوات المطور',
+            devSub: 'انتقل مباشرة إلى الفصل الرابع أو أي منطقة في ويستروس مع الاحتفاظ ببياناتك المحفوظة.',
+            devJumpCh4: '▶ العب الفصل الرابع الآن (مع حفظ تقدمك)',
+            devUnlockAll: '🔓 فتح جميع بوابات ومناطق الفصل الرابع',
+            devSkipStep: '⏭ إكمال خطوة المهمة الحالية',
+            devMaxGear: '★ منح المستوى 30، أسلحة فاليريا +8 والمطايا',
+            devTeleport: 'انتقال فوري: {zone}',
+            devChSwitch: 'الانتقال إلى الفصل {n} (مع حفظ التقدم)',
+            sideQuestLbl: 'مهمة جانبية'
         }, items: {
             frost_blade: 'سيف الصقيع', runed_bow: 'القوس الروني', ash_musket: 'بندقية الرماد', grove_staff: 'عصا البستان', warden_helm: 'خوذة الحارس', frost_plate: 'درع الصقيع',
-            runic_robe: 'الرداء الروني', wyrm_boots: 'حذاء التنين', dawnbreaker: 'كاسر الفجر', sylvan_warbow: 'قوس الغابة', thunderforge: 'مطرقة الرعد', veilstaff: 'عصا الحجاب'
+            runic_robe: 'الرداء الروني', wyrm_boots: 'حذاء التنين', dawnbreaker: 'كاسر الفجر', sylvan_warbow: 'قوس الغابة', thunderforge: 'مطرقة الرعد', veilstaff: 'عصا الحجاب',
+            ironwood_axes: 'فأسا الخشب الحديدي', twin_flintlocks: 'مسدسا الصوان التوأمان', valyrian_blade: 'نصل الفولاذ الفاليري', weirwood_bow: 'قوس الويروود الطويل',
+            braavosi_pistols: 'مسدسا برافوس المزدوجان', dothraki_axes: 'فأسا حرب الدوثراكي', wildfire_staff: 'عصا النار البرية', baratheon_hammer: 'مطرقة حرب باراثيون',
+            stark_wolfhelm: 'خوذة ذئب ستارك', kingsguard_plate: 'درع الحرس الملكي الأبيض', targaryen_scale: 'درع حراشف التنين', watch_cloak: 'عباءة حرس الليل',
+            dornish_boots: 'حذاء رمال دورن', valyrian_greaves: 'واقيات الفولاذ الفاليري', winters_fang: 'ناب الشتاء', stormbreaker: 'كاسر العواصف',
+            valyrian_axes: 'فأسا عظم التنين', golden_pistols: 'مسدسا الفرقة الذهبية'
         } }
     };
     for (const l in M) { Object.assign(window.HM_TEXT[l].ui, M[l].ui); Object.assign(window.HM_TEXT[l].items, M[l].items); }
 })();
+

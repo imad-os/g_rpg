@@ -23,10 +23,13 @@ HM_CHAPTERS.def.ch3 = function (api) {
         return list.map(t => [who, t, null]);
     }
     function eachPages(s, i, who) { const l = s.each ? (s.each[api.L] || s.each.en) : null; return l && l[i] ? [[who === undefined ? null : who, l[i], null]] : []; }
+    const ch4Open = () => { const c = C(); return !!(c && (c.great || c.lit)) && HM_CHAPTERS.enabled('ch4') && !S().c4; };
     function objective(lang) {
         const c = C(); if (!c) return '';
+        const t = api.TEXT[lang] || api.TEXT.en;
+        if (ch4Open() && t.ui.ch4Go) return t.ui.ch4Go;
         const e = STEPS[c.st];
-        if (!e) return (api.TEXT[lang] || api.TEXT.en).ui.c3free;
+        if (!e) return t.ui.c3free;
         const s = e.s, g = s.goal[lang] || s.goal.en;
         return api.txt(g, { n: Math.min(s.n || 0, c.c), m: s.n || 0 });
     }
@@ -737,14 +740,16 @@ HM_CHAPTERS.def.ch3 = function (api) {
         return key ? lines(id, key) : null;
     }
     function extras(id, ch) {
-        const t = T(), s = S();
+        const t = T(), s = S(), c = C();
         if (id === 'brann') ch.push({ label: t.ui.browseForge, fn: () => { shopOf = 'brann'; api.closeDlg(); api.forgeScreen(); } });
         if (id === 'tov') ch.push({ label: t.ui.c3browseQuarter, fn: () => { shopOf = 'tov'; api.closeDlg(); api.forgeScreen(); } });
         if (id === 'mira') ch.push({ label: t.ui.browsePotions, fn: () => { api.closeDlg(); api.potionScreen(); } });
+        if (id === 'nessa' && HM_CHAPTERS.enabled('ch4') && (c.great || c.lit || s.c4)) ch.push({ label: t.ui.c4sailWest, fn: () => { api.closeDlg(); api.travel('c4_river', 22.5, 25.5); } });
         if (id === 'nessa') ch.push({ label: t.ui.c3sailBack, fn: () => { api.closeDlg(); api.travel('c2_bay', 23.5, 23.6); } });
     }
     function news(id) {
         const s = step(), c = C();
+        if (id === 'nessa' && ch4Open()) return true;
         if (!s) return id === 'ivo' && c.lore === 15 && !c.ivo;
         if ((s.type === 'talk' || s.type === 'choice') && s.npc === id) return true;
         if (s.type === 'rescue' && s.npcs.indexOf(id) >= 0) return !(c.m & (1 << s.npcs.indexOf(id)));
@@ -933,6 +938,11 @@ HM_CHAPTERS.def.ch3 = function (api) {
     function npcAt(id) { for (const n of api.Z.npcs) if (n.id === id) { GT.x = n.x; GT.y = n.y; return true; } return false; }
     function target() {
         const c = C(), s = step(), Z = api.Z;
+        if (ch4Open()) {
+            if (Z.id !== 'c3_dawn') return api.hop('c3_dawn');
+            if (npcAt('nessa')) return true;
+            GT.x = 22.5 * TS; GT.y = 24.5 * TS; return true;
+        }
         if (!s) return false;
         if (s.zone !== Z.id) return api.hop(s.zone);
         if ((s.type === 'talk' || s.type === 'choice') && npcAt(s.npc)) return true;

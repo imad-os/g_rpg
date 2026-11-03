@@ -82,6 +82,16 @@ def load_texts():
             t["topic"].update(m.get("topic", {})); t.setdefault("talk", {}).update(m.get("talk", {}))
             t["c2ending"] = m.get("c2ending", [])
         pool = pool + _js_array("chapters/ch2/text.js", "HM_C2_POOL")
+    # chapter 4 (chapters/ch4/text.js): Game of Thrones lines, quests, topics, talk, c4ending and pool
+    c4 = os.path.join(ROOT, "chapters", "ch4", "text.js")
+    if os.path.exists(c4):
+        ch4 = _js_object("chapters/ch4/text.js", "HM_C4_TEXT")
+        for lang, m in ch4.items():
+            t = texts[lang]
+            t["lines"].update(m.get("lines", {})); t["quests"].update(m.get("quests", {}))
+            t["topic"].update(m.get("topic", {})); t.setdefault("talk", {}).update(m.get("talk", {}))
+            t["c4ending"] = m.get("c4ending", [])
+        pool = pool + _js_array("chapters/ch4/text.js", "HM_C4_POOL")
     for lang in texts:
         texts[lang]["pool"] = [{"id": q["id"], "giver": q["giver"], "to": q.get("to"), "look": (q.get("who") or {}).get("look"),
                                 "t": q["t"].get(lang, q["t"]["en"])} for q in pool]
@@ -91,12 +101,18 @@ def load_texts():
 LOOK_VOICE = {"kid": "pip", "miner": "bram", "fisher": "odo", "lostkid": "nell"}
 QUEST_GIVER = {"biscuit": "pip", "wolves": "bram", "tam": "bram", "crawlers": "hana", "mites": "odo", "stariron": "tobin",
                "kitten": "hana", "pup": "bram", "bramble": "odo",
-               "c2_crabs": "bo", "finn": "nell", "c2_boars": "ada", "c2_imps": "gus", "c2_hexers": "juna"}
-# chapter 2 lines: who speaks each key (by its start)
+               "c2_crabs": "bo", "finn": "nell", "c2_boars": "ada", "c2_imps": "gus", "c2_hexers": "juna",
+               "c4_frey": "robb", "c4_spies": "varys", "c4_harpy": "jorah", "c4_wights": "jon"}
+# chapter 2 & 4 lines: who speaks each key (by its start)
 C2_SPEAKER = [("c2arrive", "sela2"), ("c2hello", "odile"), ("c2odile", "odile"), ("c2rise", "odile"), ("c2lit", "odile"), ("c2ada", "ada"),
               ("c2rook", "rook"), ("c2mirelle", "mirelle"), ("c2marta", "marta"), ("c2witch", "witch"), ("c2choir", "choir"), ("c2gus", "gus"),
               ("c2juna", "juna"), ("c2bo", "bo"), ("c2nell", "nell"), ("c2tuck", "tuck"), ("c2pell", "pell"), ("c2sela", "sela2"),
-              ("c2folk1", "folk1"), ("c2folk2", "folk2"), ("c2folkLit", "folk1"), ("c2finnHome", "finn"), ("finnFound", "finn")]
+              ("c2folk1", "folk1"), ("c2folk2", "folk2"), ("c2folkLit", "folk1"), ("c2finnHome", "finn"), ("finnFound", "finn"),
+              ("c4arrive", "salladhor"), ("c4robb", "robb"), ("c4catelyn", "catelyn"), ("c4arya", "arya"), ("c4sansa", "sansa"),
+              ("c4jon", "jon"), ("c4samwell", "samwell"), ("c4aemon", "aemon"), ("c4tyrion", "tyrion"), ("c4varys", "varys"),
+              ("c4jaime", "jaime"), ("c4davos", "davos"), ("c4brienne", "brienne"), ("c4melisandre", "melisandre"),
+              ("c4daenerys", "daenerys"), ("c4jorah", "jorah"), ("c4jaqen", "jaqen"), ("c4mance", "mance"), ("c4child", "child"),
+              ("c4gendry", "gendry"), ("c4qyburn", "qyburn"), ("c4salladhor", "salladhor"), ("c4nkHi", "nightking")]
 
 
 def speaker_for(key):
@@ -127,6 +143,8 @@ def clips_for(T):
         yield "ending-%d" % i, "narrator", s
     for i, s in enumerate(T.get("c2ending", [])):
         yield "c2ending-%d" % i, "narrator", s
+    for i, s in enumerate(T.get("c4ending", [])):
+        yield "c4ending-%d" % i, "narrator", s
     for key, pages in T["lines"].items():
         for i, s in enumerate(pages):
             if "{" in s:

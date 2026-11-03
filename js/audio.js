@@ -79,7 +79,7 @@ window.HM_AUDIO = (function () {
         const sp = SPECS[key], rate = 22050, beats = sp.beats || 64, len = beats / sp.rate;
         const o = new OAC(1, Math.ceil(len * rate), rate);
         const out = o.createGain(); out.gain.value = 0.9; out.connect(o.destination);
-        if (sp.echo) { const dl = o.createDelay(1), fb = o.createGain(); dl.delayTime.value = 3 / sp.rate; fb.gain.value = sp.echo; out.connect(dl); dl.connect(fb); fb.connect(dl); fb.connect(o.destination); }
+        if (sp.echo) { const dl = o.createDelay(2), fb = o.createGain(); dl.delayTime.value = Math.min(1.5, 3 / sp.rate); fb.gain.value = sp.echo; out.connect(dl); dl.connect(fb); fb.connect(dl); fb.connect(o.destination); }
         const note = n => sp.root * Math.pow(2, n / 12), deg = d => sp.scale[((d % 8) + 8) % 8] + 12 * Math.floor(d / 8);
         const nb = o.createBuffer(1, rate * 0.3, rate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
         const osc = (type, fr, t, dur, v, f2) => { const os = o.createOscillator(), g = o.createGain(); os.type = type; os.frequency.setValueAtTime(fr, t); if (f2) os.frequency.exponentialRampToValueAtTime(f2, t + dur); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + dur); os.connect(g); g.connect(out); os.start(t); os.stop(t + dur + 0.05); return os; };

@@ -1,0 +1,377 @@
+{
+ "lang": "fr",
+ "clips": {
+  "c4ending-0": {
+   "file": "c4ending-0.ogg",
+   "who": "narrator",
+   "dur": 14.38,
+   "hash": "2e364a651479"
+  },
+  "c4ending-1": {
+   "file": "c4ending-1.ogg",
+   "who": "narrator",
+   "dur": 1.62,
+   "hash": "c709f49d64c4"
+  },
+  "c4ending-2": {
+   "file": "c4ending-2.ogg",
+   "who": "narrator",
+   "dur": 13.63,
+   "hash": "e2d85b07975b"
+  },
+  "c4ending-3": {
+   "file": "c4ending-3.ogg",
+   "who": "narrator",
+   "dur": 14.67,
+   "hash": "11659244b2b5"
+  },
+  "c4arrive-0": {
+   "file": "c4arrive-0.ogg",
+   "who": "salladhor",
+   "dur": 16.01,
+   "hash": "add273bfff3e"
+  },
+  "c4arrive-1": {
+   "file": "c4arrive-1.ogg",
+   "who": "salladhor",
+   "dur": 11.05,
+   "hash": "ea8dd4ea8c38"
+  },
+  "c4shadowHi-0": {
+   "file": "c4shadowHi-0.ogg",
+   "who": "narrator",
+   "dur": 11.23,
+   "hash": "165fb285e779"
+  },
+  "c4wyrmHi-0": {
+   "file": "c4wyrmHi-0.ogg",
+   "who": "narrator",
+   "dur": 13.81,
+   "hash": "84a1c0cccaf9"
+  },
+  "c4visHi-0": {
+   "file": "c4visHi-0.ogg",
+   "who": "narrator",
+   "dur": 14.15,
+   "hash": "eeaaade3d344"
+  },
+  "c4nkHi-0": {
+   "file": "c4nkHi-0.ogg",
+   "who": "nightking",
+   "dur": 15.63,
+   "hash": "66281bfd629b"
+  },
+  "c4nkScene-0": {
+   "file": "c4nkScene-0.ogg",
+   "who": "narrator",
+   "dur": 13.37,
+   "hash": "f605d818ac2c"
+  },
+  "c4salladhor-0": {
+   "file": "c4salladhor-0.ogg",
+   "who": "salladhor",
+   "dur": 13.5,
+   "hash": "861bcdfc0198"
+  },
+  "c4robbIdle-0": {
+   "file": "c4robbIdle-0.ogg",
+   "who": "robb",
+   "dur": 9.23,
+   "hash": "aeebf82c565e"
+  },
+  "c4catelynIdle-0": {
+   "file": "c4catelynIdle-0.ogg",
+   "who": "catelyn",
+   "dur": 10.03,
+   "hash": "e4f2d58ad35b"
+  },
+  "c4aryaIdle-0": {
+   "file": "c4aryaIdle-0.ogg",
+   "who": "arya",
+   "dur": 7.17,
+   "hash": "5bfe7d35fa3f"
+  },
+  "c4sansaIdle-0": {
+   "file": "c4sansaIdle-0.ogg",
+   "who": "sansa",
+   "dur": 18.05,
+   "hash": "96b40608a497"
+  },
+  "c4tyrionIdle-0": {
+   "file": "c4tyrionIdle-0.ogg",
+   "who": "tyrion",
+   "dur": 9.36,
+   "hash": "7967952dc630"
+  },
+  "c4varysIdle-0": {
+   "file": "c4varysIdle-0.ogg",
+   "who": "varys",
+   "dur": 10.44,
+   "hash": "41c70630f172"
+  },
+  "c4jaimeIdle-0": {
+   "file": "c4jaimeIdle-0.ogg",
+   "who": "jaime",
+   "dur": 10.2,
+   "hash": "f6782c8560f7"
+  },
+  "c4davosIdle-0": {
+   "file": "c4davosIdle-0.ogg",
+   "who": "davos",
+   "dur": 10.45,
+   "hash": "cdb89aa62110"
+  },
+  "c4brienneIdle-0": {
+   "file": "c4brienneIdle-0.ogg",
+   "who": "brienne",
+   "dur": 9.15,
+   "hash": "32aaa27ca969"
+  },
+  "c4melisandreIdle-0": {
+   "file": "c4melisandreIdle-0.ogg",
+   "who": "melisandre",
+   "dur": 8.63,
+   "hash": "97605ec86587"
+  },
+  "c4daenerysIdle-0": {
+   "file": "c4daenerysIdle-0.ogg",
+   "who": "daenerys",
+   "dur": 13.23,
+   "hash": "b32d2bdda293"
+  },
+  "c4jorahIdle-0": {
+   "file": "c4jorahIdle-0.ogg",
+   "who": "jorah",
+   "dur": 8.6,
+   "hash": "973414bede3d"
+  },
+  "c4jaqenIdle-0": {
+   "file": "c4jaqenIdle-0.ogg",
+   "who": "jaqen",
+   "dur": 9.55,
+   "hash": "7e8772706590"
+  },
+  "c4jonIdle-0": {
+   "file": "c4jonIdle-0.ogg",
+   "who": "jon",
+   "dur": 12,
+   "hash": "94923ce046f5"
+  },
+  "c4samwellIdle-0": {
+   "file": "c4samwellIdle-0.ogg",
+   "who": "samwell",
+   "dur": 13.75,
+   "hash": "22ca280f4d39"
+  },
+  "c4aemonIdle-0": {
+   "file": "c4aemonIdle-0.ogg",
+   "who": "aemon",
+   "dur": 12.65,
+   "hash": "cd26436dbfee"
+  },
+  "c4aemonDone-0": {
+   "file": "c4aemonDone-0.ogg",
+   "who": "aemon",
+   "dur": 11.62,
+   "hash": "42556ef4402a"
+  },
+  "c4aemonDone-1": {
+   "file": "c4aemonDone-1.ogg",
+   "who": "aemon",
+   "dur": 14.19,
+   "hash": "186f17c66013"
+  },
+  "c4manceIdle-0": {
+   "file": "c4manceIdle-0.ogg",
+   "who": "mance",
+   "dur": 10.27,
+   "hash": "892c8ecdd3e7"
+  },
+  "c4childIdle-0": {
+   "file": "c4childIdle-0.ogg",
+   "who": "child",
+   "dur": 12,
+   "hash": "340db53ebe65"
+  },
+  "c4gendry-0": {
+   "file": "c4gendry-0.ogg",
+   "who": "gendry",
+   "dur": 11.59,
+   "hash": "4c6e0f157dd9"
+  },
+  "c4qyburn-0": {
+   "file": "c4qyburn-0.ogg",
+   "who": "qyburn",
+   "dur": 8.59,
+   "hash": "2449f2fbe854"
+  },
+  "c4scoutIdle-0": {
+   "file": "c4scoutIdle-0.ogg",
+   "who": "narrator",
+   "dur": 9.77,
+   "hash": "f8a00b8165dc"
+  },
+  "c4folk1-0": {
+   "file": "c4folk1-0.ogg",
+   "who": "narrator",
+   "dur": 11.51,
+   "hash": "6a4bd2ccc9b2"
+  },
+  "c4folk2-0": {
+   "file": "c4folk2-0.ogg",
+   "who": "narrator",
+   "dur": 6.9,
+   "hash": "4e96e1692ae5"
+  },
+  "c4folkLit-0": {
+   "file": "c4folkLit-0.ogg",
+   "who": "narrator",
+   "dur": 9.16,
+   "hash": "0b51b6b1a414"
+  },
+  "c4ally_stark-0": {
+   "file": "c4ally_stark-0.ogg",
+   "who": "narrator",
+   "dur": 7.86,
+   "hash": "aeb8e9098faf"
+  },
+  "c4ally_baratheon-0": {
+   "file": "c4ally_baratheon-0.ogg",
+   "who": "narrator",
+   "dur": 7.97,
+   "hash": "d7349c434429"
+  },
+  "c4ally_lannister-0": {
+   "file": "c4ally_lannister-0.ogg",
+   "who": "narrator",
+   "dur": 7.02,
+   "hash": "9fe1142ab084"
+  },
+  "c4ally_targaryen-0": {
+   "file": "c4ally_targaryen-0.ogg",
+   "who": "narrator",
+   "dur": 8.64,
+   "hash": "2ae7aea532c9"
+  },
+  "c4lore0-0": {
+   "file": "c4lore0-0.ogg",
+   "who": "narrator",
+   "dur": 13.47,
+   "hash": "30110584b869"
+  },
+  "c4lore1-0": {
+   "file": "c4lore1-0.ogg",
+   "who": "narrator",
+   "dur": 12.34,
+   "hash": "f4342fc0c598"
+  },
+  "c4lore2-0": {
+   "file": "c4lore2-0.ogg",
+   "who": "narrator",
+   "dur": 16.09,
+   "hash": "378684f41244"
+  },
+  "c4lore3-0": {
+   "file": "c4lore3-0.ogg",
+   "who": "narrator",
+   "dur": 13.26,
+   "hash": "1d0ad4a10358"
+  },
+  "c4loreKeeper-0": {
+   "file": "c4loreKeeper-0.ogg",
+   "who": "narrator",
+   "dur": 7.12,
+   "hash": "965c59369ab7"
+  },
+  "c4pyre-0": {
+   "file": "c4pyre-0.ogg",
+   "who": "narrator",
+   "dur": 10.44,
+   "hash": "44ac25b5c3f0"
+  },
+  "c4pyreLit-0": {
+   "file": "c4pyreLit-0.ogg",
+   "who": "narrator",
+   "dur": 5.91,
+   "hash": "639734b91ca2"
+  },
+  "topic-robb-lore": {
+   "file": "topic-robb-lore.ogg",
+   "who": "robb",
+   "dur": 9.68,
+   "hash": "1bb6e6b1b3cf"
+  },
+  "topic-robb-about": {
+   "file": "topic-robb-about.ogg",
+   "who": "robb",
+   "dur": 6.76,
+   "hash": "169c97d855e2"
+  },
+  "topic-tyrion-lore": {
+   "file": "topic-tyrion-lore.ogg",
+   "who": "tyrion",
+   "dur": 7.9,
+   "hash": "c8fd74120180"
+  },
+  "topic-tyrion-about": {
+   "file": "topic-tyrion-about.ogg",
+   "who": "tyrion",
+   "dur": 5.95,
+   "hash": "6c0415ca9c6e"
+  },
+  "topic-daenerys-lore": {
+   "file": "topic-daenerys-lore.ogg",
+   "who": "daenerys",
+   "dur": 12.57,
+   "hash": "8c4e6b35eb77"
+  },
+  "topic-daenerys-about": {
+   "file": "topic-daenerys-about.ogg",
+   "who": "daenerys",
+   "dur": 7.31,
+   "hash": "d64f9be6edd3"
+  },
+  "topic-jon-lore": {
+   "file": "topic-jon-lore.ogg",
+   "who": "jon",
+   "dur": 10.91,
+   "hash": "4e793c92e17a"
+  },
+  "topic-jon-about": {
+   "file": "topic-jon-about.ogg",
+   "who": "jon",
+   "dur": 8.31,
+   "hash": "4e523b33bf27"
+  },
+  "talk-robb-0": {
+   "file": "talk-robb-0.ogg",
+   "who": "robb",
+   "dur": 10.76,
+   "hash": "87ed8adc3583"
+  },
+  "talk-robb-1": {
+   "file": "talk-robb-1.ogg",
+   "who": "robb",
+   "dur": 7.22,
+   "hash": "2755ec5dbc73"
+  },
+  "talk-tyrion-0": {
+   "file": "talk-tyrion-0.ogg",
+   "who": "tyrion",
+   "dur": 10.38,
+   "hash": "651f2f6054d2"
+  },
+  "talk-daenerys-0": {
+   "file": "talk-daenerys-0.ogg",
+   "who": "daenerys",
+   "dur": 13.11,
+   "hash": "09f2fd77f16e"
+  },
+  "talk-jon-0": {
+   "file": "talk-jon-0.ogg",
+   "who": "jon",
+   "dur": 11.53,
+   "hash": "9afb295e4ab3"
+  }
+ }
+}

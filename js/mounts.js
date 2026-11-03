@@ -12,7 +12,13 @@ window.HM_MOUNTART = (function () {
     function load(version) {
         for (const n of ['horse_walk', 'horse_run', 'horse_idle', 'dragon']) {
             const im = new Image();
-            im.onload = () => { IMG[n] = im; if (n === 'horse_run' || n === 'horse_idle') IMG['ghost_' + n] = ghostly(im); };
+            im.onload = () => {
+                IMG[n] = im;
+                if (n === 'horse_run' || n === 'horse_idle') {
+                    IMG['ghost_' + n] = ghostly(im);
+                    IMG['shadow_' + n] = darkHorse(im);
+                }
+            };
             im.src = 'assets/mounts/' + n + '.png?v=' + version;
         }
     }
@@ -38,6 +44,23 @@ window.HM_MOUNTART = (function () {
         x.putImageData(d, 0, 0);
         return c;
     }
+    // Shadowmane: obsidian warhorse coat with dark steel sheen and subtle crimson-gold rim
+    function darkHorse(im) {
+        const w = im.width, h = im.height, c = document.createElement('canvas'); c.width = w; c.height = h;
+        const x = c.getContext('2d'); x.drawImage(im, 0, 0);
+        let d; try { d = x.getImageData(0, 0, w, h); } catch (e) { return null; }
+        const a = d.data, src = new Uint8ClampedArray(a);
+        const ramp = [[18, 20, 28], [42, 46, 60], [88, 96, 118], [175, 185, 205]];
+        for (let i = 0; i < a.length; i += 4) {
+            if (!src[i + 3]) continue;
+            const l = (src[i] * 0.3 + src[i + 1] * 0.59 + src[i + 2] * 0.11) / 255, t = Math.min(2.999, 0.3 + l * 3.8), k = t | 0, f = t - k;
+            a[i] = ramp[k][0] + (ramp[k + 1][0] - ramp[k][0]) * f;
+            a[i + 1] = ramp[k][1] + (ramp[k + 1][1] - ramp[k][1]) * f;
+            a[i + 2] = ramp[k][2] + (ramp[k + 1][2] - ramp[k][2]) * f;
+        }
+        x.putImageData(d, 0, 0);
+        return c;
+    }
     // a horse standing on y (feet), centred on x; fx: 1 = facing right; s: scale; moving: run cycle
     function horse(ctx, x, y, walk, fx, s, moving, t) {
         const sheet = moving ? IMG.horse_run : IMG.horse_idle;
@@ -50,24 +73,92 @@ window.HM_MOUNTART = (function () {
         return true;
     }
     // a horse seen from the front (dir 0) or the back (dir 1), drawn in code
-    const HPAL = { horse: ['#8a5a34', '#5a3a22', '#3a2416'], charger: ['#5ab8f0', '#1e3a7a', '#bff4ff'] };
+    const HPAL = { horse: ['#8a5a34', '#5a3a22', '#3a2416'], charger: ['#5ab8f0', '#1e3a7a', '#bff4ff'], shadowmane: ['#2a2e3a', '#181a22', '#a82424'] };
     function horseFB(ctx, x, y, walk, dir, s, kind) {
         const p = HPAL[kind] || HPAL.horse, l = Math.sin(walk * 1.6) * 2.5 * s, b = walk ? Math.abs(Math.sin(walk * 1.6)) * 1.5 : 0, gh = kind === 'charger';
         if (!gh) { ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, 13 * s, 5 * s, 0, 0, 6.2832); ctx.fill(); }
         if (gh) ctx.globalAlpha = 0.9;
         ctx.fillStyle = p[1]; ctx.fillRect(x - 8 * s, y - 13 * s + l, 4 * s, 13 * s - l); ctx.fillRect(x + 4 * s, y - 13 * s - l, 4 * s, 13 * s + l);
         ctx.fillStyle = p[0]; ctx.beginPath(); ctx.ellipse(x, y - 17 * s - b, 11 * s, 9 * s, 0, 0, 6.2832); ctx.fill();
+        if (kind === 'shadowmane') {
+            ctx.fillStyle = '#8a1c1c'; ctx.fillRect(x - 10 * s, y - 21 * s - b, 20 * s, 5 * s);
+            ctx.fillStyle = '#d8b04a'; ctx.fillRect(x - 10 * s, y - 17 * s - b, 20 * s, 1.5 * s);
+        }
         if (dir === 0) {                                                            // front: the long face and the chest
             ctx.beginPath(); ctx.ellipse(x, y - 30 * s - b, 5 * s, 10 * s, 0, 0, 6.2832); ctx.fill();
             ctx.fillStyle = p[2]; ctx.fillRect(x - 1.5 * s, y - 40 * s - b, 3 * s, 8 * s);
             ctx.fillStyle = p[1]; ctx.fillRect(x - 6 * s, y - 39 * s - b, 3 * s, 4 * s); ctx.fillRect(x + 3 * s, y - 39 * s - b, 3 * s, 4 * s);
-            ctx.fillStyle = gh ? '#ffffff' : '#1b1820'; ctx.fillRect(x - 4 * s, y - 32 * s - b, 2 * s, 2 * s); ctx.fillRect(x + 2 * s, y - 32 * s - b, 2 * s, 2 * s);
+            ctx.fillStyle = gh ? '#ffffff' : kind === 'shadowmane' ? '#ff4a3a' : '#1b1820'; ctx.fillRect(x - 4 * s, y - 32 * s - b, 2 * s, 2 * s); ctx.fillRect(x + 2 * s, y - 32 * s - b, 2 * s, 2 * s);
         } else {                                                                    // back: the tail
             ctx.strokeStyle = p[2]; ctx.lineWidth = 3 * s; ctx.beginPath(); ctx.moveTo(x, y - 18 * s - b); ctx.quadraticCurveTo(x + Math.sin(walk + 1) * 4 * s, y - 8 * s, x, y - 2 * s); ctx.stroke();
             ctx.fillStyle = p[0]; ctx.beginPath(); ctx.ellipse(x, y - 30 * s - b, 4 * s, 6 * s, 0, 0, 6.2832); ctx.fill();
             ctx.fillStyle = p[1]; ctx.fillRect(x - 5 * s, y - 37 * s - b, 3 * s, 4 * s); ctx.fillRect(x + 2 * s, y - 37 * s - b, 3 * s, 4 * s);
         }
         ctx.globalAlpha = 1;
+    }
+    // Shadowmane: armored black northern warhorse with steel chanfron & crimson-gold barding
+    function shadowmane(ctx, x, y, walk, dir, fx, s, moving, t) {
+        if (dir !== 2) { horseFB(ctx, x, y, walk, dir, s, 'shadowmane'); return true; }
+        const sheet = moving ? IMG.shadow_horse_run : IMG.shadow_horse_idle;
+        const b = moving ? Math.abs(Math.sin(walk * 1.5)) * 1.5 : 0;
+        ctx.fillStyle = 'rgba(0,0,0,0.34)'; ctx.beginPath(); ctx.ellipse(x, y, 25 * s, 5.5 * s, 0, 0, 6.2832); ctx.fill();
+        if (sheet) {
+            const n = (sheet.width / HW) | 0, f = moving ? ((walk * 1.5) | 0) % n : ((t / 10) | 0) % n;
+            ctx.save(); ctx.translate(x, y + 1); if (fx > 0) ctx.scale(-1, 1);
+            ctx.drawImage(sheet, f * HW, 0, HW, HH, -HW / 2 * s, -HH * s, HW * s, HH * s);
+            // steel & crimson barding saddlecloth + armored chanfron
+            ctx.fillStyle = '#8a1c1c'; ctx.fillRect(-8 * s, -22 * s - b, 16 * s, 7 * s);
+            ctx.fillStyle = '#d8b04a'; ctx.fillRect(-8 * s, -16 * s - b, 16 * s, 1.5 * s);
+            ctx.fillStyle = '#9aa6b8'; ctx.beginPath(); ctx.moveTo(-22 * s, -27 * s - b); ctx.lineTo(-16 * s, -29 * s - b); ctx.lineTo(-19 * s, -20 * s - b); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#ff3a2a'; ctx.fillRect(-19 * s, -25 * s - b, 2 * s, 1.5 * s);
+            ctx.restore();
+            return true;
+        }
+        horseFB(ctx, x, y, walk, 0, s, 'shadowmane');
+        return true;
+    }
+    // Frostfang: giant white-grey northern direwolf mount with winter mane and glowing eyes
+    function frostfang(ctx, x, y, walk, dir, fx, s, moving, t, bite) {
+        const l = Math.sin(walk * 2) * 3.5 * s, b = moving ? Math.abs(Math.sin(walk * 2)) * 1.5 * s : 0;
+        ctx.fillStyle = 'rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 24 : 15) * s, 5.5 * s, 0, 0, 6.2832); ctx.fill();
+        if (dir !== 2) {
+            ctx.fillStyle = '#b8c4d4'; ctx.fillRect(x - 9 * s, y - 13 * s + l * 0.5, 4 * s, 13 * s); ctx.fillRect(x + 5 * s, y - 13 * s - l * 0.5, 4 * s, 13 * s);
+            ctx.fillStyle = '#e8eef6'; ctx.beginPath(); ctx.ellipse(x, y - 17 * s - b, 13 * s, 10 * s, 0, 0, 6.2832); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(x, y - 22 * s - b, 11 * s, 6 * s, 0, 0, 6.2832); ctx.fill();
+            if (dir === 0) {
+                ctx.fillStyle = '#e8eef6'; ctx.beginPath(); ctx.ellipse(x, y - 29 * s - b, 7.5 * s, 7 * s, 0, 0, 6.2832); ctx.fill();
+                ctx.fillStyle = '#b8c4d4'; ctx.beginPath(); ctx.moveTo(x - 7 * s, y - 33 * s - b); ctx.lineTo(x - 4 * s, y - 41 * s - b); ctx.lineTo(x - 1 * s, y - 34 * s - b); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 1 * s, y - 34 * s - b); ctx.lineTo(x + 4 * s, y - 41 * s - b); ctx.lineTo(x + 7 * s, y - 33 * s - b); ctx.fill();
+                ctx.fillStyle = '#ff3a3a'; ctx.fillRect(x - 4.5 * s, y - 30 * s - b, 2.2 * s, 2.2 * s); ctx.fillRect(x + 2.3 * s, y - 30 * s - b, 2.2 * s, 2.2 * s);
+            } else {
+                ctx.strokeStyle = '#d8e2ee'; ctx.lineWidth = 5 * s; ctx.beginPath(); ctx.moveTo(x, y - 17 * s - b); ctx.quadraticCurveTo(x + Math.sin(walk) * 5 * s, y - 7 * s, x, y - 2 * s); ctx.stroke();
+            }
+            return true;
+        }
+        ctx.save(); ctx.translate(x, y); if (fx < 0) ctx.scale(-1, 1);
+        ctx.fillStyle = '#b8c4d4';
+        ctx.fillRect(-15 * s, -12 * s + l, 4 * s, 12 * s); ctx.fillRect(-7 * s, -12 * s - l, 4 * s, 12 * s);
+        ctx.fillRect(8 * s, -12 * s - l, 4 * s, 12 * s); ctx.fillRect(15 * s, -12 * s + l, 4 * s, 12 * s);
+        ctx.fillStyle = '#e8eef6'; ctx.beginPath(); ctx.ellipse(0, -16 * s - b, 21 * s, 9.5 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(9 * s, -19 * s - b, 11 * s, 8.5 * s, 0, 0, 6.2832); ctx.fill();
+        // saddle strap
+        ctx.fillStyle = '#4a3628'; ctx.fillRect(-6 * s, -25 * s - b, 10 * s, 5 * s);
+        ctx.fillStyle = '#d8b04a'; ctx.fillRect(-4 * s, -24 * s - b, 6 * s, 1.5 * s);
+        // head & jaws
+        ctx.fillStyle = '#e8eef6'; ctx.beginPath(); ctx.ellipse(19 * s, -23 * s - b, 8 * s, 6.5 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = '#d8e2ee'; ctx.fillRect(23 * s, -24 * s - b, 9 * s, 4 * s);
+        if (bite > 0) {
+            ctx.fillRect(23 * s, -19 * s - b, 8 * s, 2.8 * s);
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(26 * s, -20.5 * s - b, 2 * s, 2 * s); ctx.fillRect(29 * s, -20.5 * s - b, 2 * s, 2 * s);
+        }
+        ctx.fillStyle = '#1b1820'; ctx.fillRect(30 * s, -24 * s - b, 2.2 * s, 2 * s);
+        ctx.fillStyle = '#ff3a3a'; ctx.fillRect(21 * s, -25 * s - b, 2.5 * s, 2.2 * s);
+        ctx.fillStyle = '#b8c4d4';
+        ctx.beginPath(); ctx.moveTo(14 * s, -27 * s - b); ctx.lineTo(16 * s, -35 * s - b); ctx.lineTo(20 * s, -28 * s - b); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(18 * s, -27 * s - b); ctx.lineTo(21 * s, -34 * s - b); ctx.lineTo(23 * s, -27 * s - b); ctx.fill();
+        ctx.strokeStyle = '#d8e2ee'; ctx.lineWidth = 4.5 * s; ctx.beginPath(); ctx.moveTo(-19 * s, -18 * s - b); ctx.quadraticCurveTo(-29 * s, -23 * s, -31 * s, -13 * s + Math.sin(t * 0.15) * 2); ctx.stroke();
+        ctx.restore();
+        return true;
     }
     // feathered wings of light, beating (no gradients per frame: three cached feather colours)
     const FEATHER = ['rgba(90,180,255,0.85)', 'rgba(150,215,255,0.7)', 'rgba(230,250,255,0.55)'];
@@ -122,5 +213,5 @@ window.HM_MOUNTART = (function () {
         ctx.globalAlpha = 1;
         return true;
     }
-    return { load, horse, horseFB, dragon, charger, get ready() { return !!(IMG.horse_run && IMG.dragon); }, get hasDragon() { return !!IMG.dragon; } };
+    return { load, horse, horseFB, dragon, charger, shadowmane, frostfang, get ready() { return !!(IMG.horse_run && IMG.dragon); }, get hasDragon() { return !!IMG.dragon; } };
 })();

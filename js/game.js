@@ -25,9 +25,21 @@
                        { skin: '#e2b48c', hair: '#c0582e', style: 1, pants: '#4a3a5a', shoes: '#4a3020', trim: '#f4d35e' }];
     const LOOK_SETS = [[['#2a9d8f', '#1f6f66'], ['#c0582e', '#8a3a1e'], ['#7a4fb0', '#4e2f7a'], ['#7a8f2a', '#4a5a1a']],
                        [['#e76f51', '#a8432e'], ['#2a9d8f', '#1f6f66'], ['#d85a9a', '#9a3a6a'], ['#4a7ad8', '#2a4a9a']]];
+    const CLOTH_PALS = [
+        ['#4a5668', '#2a323e', '#d8e0ec'], // 0: Stark Wolf-Grey
+        ['#a82424', '#6e1414', '#f4d35e'], // 1: Lannister Crimson
+        ['#1e1a22', '#8a181e', '#e8d8c8'], // 2: Targaryen Black & Blood
+        ['#d49b24', '#242018', '#f4d35e'], // 3: Baratheon Gold
+        ['#2a7a42', '#1a4e2a', '#f4d35e'], // 4: Tyrell Rose-Green
+        ['#d86828', '#8a3214', '#f4d35e'], // 5: Martell Sun-Orange
+        ['#3a7ad0', '#204a8a', '#f2f6ff'], // 6: Arryn Sky-Blue
+        ['#242c34', '#161c22', '#e0b848']  // 7: Greyjoy Sea-Iron
+    ];
     const GLOOKS = LOOK_BASE.map((b, g) => LOOK_SETS[g].map(c => Object.assign({}, b, { tunic: c[0], cape: c[1] })));
+    const CLOOKS = LOOK_BASE.map(b => CLOTH_PALS.map(c => Object.assign({}, b, { tunic: c[0], cape: c[1], trim: c[2] })));
     function heroLook(i) {
         const g = S && S.gender ? S.gender : [0, 1, 0, 1];
+        if (S && Array.isArray(S.cloth) && S.cloth[i] !== undefined) return CLOOKS[g[i] ? 1 : 0][S.cloth[i] & 7];
         let k = 0; for (let j = 0; j < i; j++) if (g[j] === g[i]) k++;                  // the first of a gender wears the main colours, the next ones the others
         return GLOOKS[g[i] ? 1 : 0][k];
     }
@@ -177,7 +189,7 @@
         if (id.indexOf('q:') === 0) { const d = poolDef(S.pq[id.slice(2)]); return d ? d.who.name[L] || d.who.name.en : ''; }
         return (T.names && T.names[id]) || (TEXT.en.names && TEXT.en.names[id]) || id;
     }
-    function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : m === 'charger' ? T.ui.charger : T.ui.wolfMount; }
+    function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : m === 'charger' ? T.ui.charger : m === 'shadowmane' ? T.ui.shadowmane : m === 'frostfang' ? T.ui.frostfang : T.ui.wolfMount; }
     // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
     const cleanName = n => String(n || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
     const pNames = ['', '', '', ''], devName = {};          // the friends' profile names, by hero and by connected phone
@@ -259,14 +271,14 @@
     // every piece of gear is its own item: { u, id, r: rarity 0-3, up: +0..+5, b: [[bonus, value]] }
     function itemOf(u) { if (!u) return null; for (const it of S.bag) if (it.u === u) return it; return null; }
     function newItem(id, r, b) { return { u: ++S.uid, id, r: r || 0, up: 0, b: b || [] }; }
-    function upStep(base) { return base.kind === 'gun' ? 2 : 1; }
+    function upStep(base) { return base.kind === 'gun' || base.kind === 'hammer' || base.kind === 'pistols' || base.kind === 'axes' ? 2 : 1; }
     function recalc(p) {
-        const e = S.eq[p.i], wi = itemOf(e.weapon), w = ITEMS[wi ? wi.id : 'stick'], st = p.st;
-        st.atk = w.atk + (wi ? wi.up * upStep(w) : 0); st.cd = w.cd; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e';
-        st.atk += lvlAtk(); st.def = lvlDef(); st.spd = 0; st.crit = w.kind === 'gun' ? 18 : 10; st.hp = 0; st.gold = 0;
+        const e = S.eq[p.i], wi = itemOf(e.weapon), w = (wi && ITEMS[wi.id]) || ITEMS.stick, st = p.st;
+        st.atk = w.atk + (wi && ITEMS[wi.id] ? wi.up * upStep(w) : 0); st.cd = w.cd; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e';
+        st.atk += lvlAtk(); st.def = lvlDef(); st.spd = 0; st.crit = w.kind === 'gun' || w.kind === 'pistols' || (wi && wi.id === 'winters_fang') ? 20 : 10; st.hp = 0; st.gold = 0;
         for (let k = 0; k < SLOTS.length; k++) {
             const it = itemOf(e[SLOTS[k]]); if (!it) continue;
-            const base = ITEMS[it.id];
+            const base = ITEMS[it.id]; if (!base) continue;
             if (k > 0) { st.def += (base.def || 0) + it.up; st.spd += base.spd || 0; }
             for (const b of it.b) {
                 if (b[0] === 'a') st.atk += b[1]; else if (b[0] === 'd') st.def += b[1]; else if (b[0] === 'c') st.crit += b[1];
@@ -362,9 +374,10 @@
     function acceptQuest(q) {
         S.sq[q.id] = 1; S.sqc[q.id] = 0;
         if (q.type === 'fetch' && S.star) S.sq[q.id] = 2;
+        S.track = 'sq:' + q.id; GT.ok = false; hudLast.obj = '';
         SND.fx('quest'); toast(txt(T.ui.qNew, { name: T.quests[q.id].title })); save();
     }
-    function questReady(q) { S.sq[q.id] = 2; SND.fx('quest'); toast(txt(T.ui.qDoneGo, { name: T.quests[q.id].title, npc: npcName(q.giver) })); save(); }
+    function questReady(q) { S.sq[q.id] = 2; GT.ok = false; hudLast.obj = ''; SND.fx('quest'); toast(txt(T.ui.qDoneGo, { name: T.quests[q.id].title, npc: npcName(q.giver) })); save(); }
     function rewardText(r) {
         const parts = [];
         if (r.coins) parts.push(txt(T.ui.nCoins, { n: loot(r.coins) }));
@@ -377,6 +390,7 @@
     function handIn(q) {
         const r = q.reward;
         S.sq[q.id] = 3; S.qdone++; if (CH.questDone) CH.questDone(q);
+        if (S.track === 'sq:' + q.id) { S.track = 'main'; GT.ok = false; hudLast.obj = ''; }
         S.coins += loot(r.coins || 0); S.big += r.big || 0;
         shareNow({ c: loot(r.coins || 0), b: r.big || 0, pet: r.pet || '', mount: r.mount || '' }); shareQuest('s', q.id, q.stage, q.after);
         if (r.item) giveItem(r.item, true, 1);
@@ -420,13 +434,15 @@
     }
     function acceptPool(npc, d) {
         S.pq[npc] = { id: d.id, st: 1, c: 0, rw: poolReward(d) }; delete S.pqOffer[npc];
+        S.track = 'pq:' + npc; GT.ok = false; hudLast.obj = '';
         SND.fx('quest'); toast(txt(T.ui.qNew, { name: pt(d).title })); save();
         if (d.zone === Z.id) spawnPool();
     }
-    function poolReady(npc) { const q = S.pq[npc]; if (!q || q.st !== 1) return; q.st = 2; SND.fx('quest'); toast(txt(T.ui.qDoneGo, { name: pt(poolDef(q)).title, npc: npcName(npc) })); save(); }
+    function poolReady(npc) { const q = S.pq[npc]; if (!q || q.st !== 1) return; q.st = 2; GT.ok = false; hudLast.obj = ''; SND.fx('quest'); toast(txt(T.ui.qDoneGo, { name: pt(poolDef(q)).title, npc: npcName(npc) })); save(); }
     function poolHandIn(npc) {
         const q = S.pq[npc], d = poolDef(q), rw = q.rw;
         delete S.pq[npc]; if (S.pqDone.indexOf(d.id) < 0) S.pqDone.push(d.id); S.qdone++; if (CH.questDone) CH.questDone(d);
+        if (S.track === 'pq:' + npc) { S.track = 'main'; GT.ok = false; hudLast.obj = ''; }
         S.coins += rw.coins; S.iron += rw.ore;
         shareNow({ c: rw.coins, o: rw.ore }); shareQuest('p', d.id, d.stage, '');
         if (rw.gear) addToBag(rollItem(zoneTier(), 1), true);
@@ -706,10 +722,30 @@
     function toast(s) { const t = $('toast'); t.textContent = s; t.className = 'show'; toastT = 170; MyPC.announce(s); }
     function banner(s) { const b = $('banner'); b.textContent = s; b.className = 'show'; bannerT = 140; }
 
+    function hudQuestText() {
+        if (S && S.track && S.track !== 'main') {
+            if (S.track.indexOf('sq:') === 0) {
+                const q = qDef(S.track.slice(3)), st = q ? qState(q.id) : 0;
+                if (q && (st === 1 || st === 2) && T.quests && T.quests[q.id]) return T.quests[q.id].title + ': ' + qText(q);
+            } else if (S.track.indexOf('pq:') === 0) {
+                const npc = S.track.slice(3), q = S.pq[npc], d = poolDef(q);
+                if (q && d) return pt(d).title + ': ' + poolGoal(npc);
+            }
+        }
+        return objective(L);
+    }
+
     function hud() {
         if (!S) return;
-        const o = objective(L);
-        if (o !== hudLast.obj) { hudLast.obj = o; $('questTxt').textContent = o; hudLast.objTick = tick; }
+        const isSide = !!(S.track && S.track !== 'main' && ((S.track.indexOf('sq:') === 0 && (qState(S.track.slice(3)) === 1 || qState(S.track.slice(3)) === 2)) || (S.track.indexOf('pq:') === 0 && S.pq[S.track.slice(3)])));
+        const o = (isSide ? 'S:' : 'M:') + hudQuestText();
+        if (o !== hudLast.obj) {
+            hudLast.obj = o;
+            $('questLbl').textContent = isSide ? (T.ui.sideQuestLbl || 'SIDE QUEST') : T.ui.quest;
+            $('questLbl').style.color = isSide ? '#36e86c' : '';
+            $('questTxt').textContent = o.slice(2);
+            hudLast.objTick = tick;
+        }
         // the quest box folds into a small badge 10 seconds after each new step
         const mini = tick - hudLast.objTick > 600;
         if (mini !== hudLast.mini) { hudLast.mini = mini; $('questBox').className = mini ? 'mini' : ''; }
@@ -848,7 +884,7 @@
         if (CH.extras) CH.extras(id, c);
         const q = qOffer(id);
         if (q) c.push({ label: T.ui.askWork, fn: () => offer(id, q) });
-        else if (S.pq[id] && S.pq[id].st === 1) c.push({ label: T.ui.qAbandon, fn: () => { delete S.pq[id]; for (const o of DROPS) if (o.on && o.qg === id) o.on = false; save(); closeDlg(); toast(T.ui.qDropped); } });
+        else if (S.pq[id] && S.pq[id].st === 1) c.push({ label: T.ui.qAbandon, fn: () => { delete S.pq[id]; if (S.track === 'pq:' + id) S.track = 'main'; GT.ok = false; hudLast.obj = ''; for (const o of DROPS) if (o.on && o.qg === id) o.on = false; save(); closeDlg(); toast(T.ui.qDropped); } });
         else { const d = poolOffer(id); if (d) c.push({ label: T.ui.askWork, fn: () => offerPool(id, d) }); }
         return c;
     }
@@ -1048,13 +1084,16 @@
         const hasSave = !!MyPC.load('save', null);
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
+        if (CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
         OV.items.push({ label: T.ui.newg, fn: () => hasSave ? confirmNew() : newGame() });
         if (HM_COOP.usable()) OV.items.push({ label: T.ui.coopJoin, fn: joinFriend });
         OV.sel = 0; OV.head = [T.ui.title, chapterTitle()];
         renderMenu();
     }
     function confirmNew() {
-        OV.items = [{ label: T.ui.no, fn: showTitle }, { label: T.ui.yes, fn: newGame }];
+        OV.items = [{ label: T.ui.no, fn: showTitle }];
+        if (CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
+        OV.items.push({ label: T.ui.yes, fn: newGame });
         OV.sel = 0; OV.head = [T.ui.newg, T.ui.newConfirm]; renderMenu();
     }
     function renderMenu() {
@@ -1279,8 +1318,8 @@
                     S.coins -= p.price; if (p.id === 'small') S.potions++; else S.big++;
                     SND.fx('buy'); save(); renderList();
                 }
-            })).concat(['horse', 'wolf'].filter(m => S.mounts.indexOf(m) < 0 && !(m === 'wolf' && CH.noWolf)).map(m => ({
-                label: mountName(m), sub: m === 'horse' ? T.ui.horseSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
+            })).concat((CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0 && !(m === 'wolf' && CH.noWolf)).map(m => ({
+                label: mountName(m), sub: m === 'horse' ? T.ui.horseSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
                 fn: () => {
                     if (S.coins < MOUNTS[m].price) return toast(T.ui.poor);
                     S.coins -= MOUNTS[m].price; S.mounts.push(m); S.mount = m; refreshMenu();
@@ -1294,7 +1333,7 @@
         const c = document.createElement('canvas'); c.width = c.height = 32;
         const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
         const icon = KN.ok && KN.gearIcon(id), base = ITEMS[id];
-        if (icon) { x.drawImage(icon, 0, 0, 32, 32); return c; }
+        if (icon && base.kind !== 'axes' && base.kind !== 'pistols' && base.kind !== 'hammer') { x.drawImage(icon, 0, 0, 32, 32); return c; }
         x.fillStyle = base.col; x.strokeStyle = base.col; x.lineWidth = 3;
         if (base.kind === 'staff') {                           // a staff with a glowing orb
             x.strokeStyle = base.col2; x.lineWidth = 3; x.beginPath(); x.moveTo(8, 28); x.lineTo(21, 9); x.stroke();
@@ -1302,6 +1341,19 @@
         } else if (base.kind === 'gun') {                      // a flintlock: wooden stock, dark barrel
             x.fillStyle = base.col2 || '#6b4a2e'; x.beginPath(); x.moveTo(4, 22); x.lineTo(13, 15); x.lineTo(15, 19); x.lineTo(8, 27); x.closePath(); x.fill();
             x.fillStyle = '#8a8f9a'; x.fillRect(12, 13, 17, 4); x.fillStyle = '#c9a43a'; x.fillRect(12, 17, 4, 3); x.fillStyle = '#ffffff'; x.fillRect(26, 13, 3, 1);
+        } else if (base.kind === 'pistols') {                  // dual pistols crossed
+            x.fillStyle = base.col2 || '#6b4a2e'; x.fillRect(4, 18, 6, 8); x.fillRect(22, 18, 6, 8);
+            x.fillStyle = base.col; x.fillRect(6, 10, 12, 4); x.fillRect(14, 15, 12, 4);
+            x.fillStyle = '#ffd23f'; x.fillRect(15, 10, 3, 2); x.fillRect(14, 15, 3, 2);
+        } else if (base.kind === 'axes') {                     // crossed twin battle axes
+            x.strokeStyle = base.col2 || '#6b4a2e'; x.lineWidth = 3;
+            x.beginPath(); x.moveTo(6, 26); x.lineTo(24, 6); x.moveTo(26, 26); x.lineTo(8, 6); x.stroke();
+            x.fillStyle = base.col;
+            x.beginPath(); x.arc(21, 9, 6, -0.8, 1.4); x.fill();
+            x.beginPath(); x.arc(11, 9, 6, 1.7, 3.9); x.fill();
+        } else if (base.kind === 'hammer') {                   // heavy two-handed warhammer
+            x.strokeStyle = base.col2 || '#5a3e28'; x.lineWidth = 3; x.beginPath(); x.moveTo(6, 27); x.lineTo(23, 10); x.stroke();
+            x.fillStyle = base.col; x.fillRect(15, 5, 12, 8); x.fillStyle = '#ffffff'; x.fillRect(16, 6, 10, 2);
         } else if (base.slot === 'weapon') { x.beginPath(); x.moveTo(7, 25); x.lineTo(25, 7); x.stroke(); x.fillStyle = base.col2 || '#6b4a2e'; x.fillRect(5, 21, 8, 3); }
         else if (base.slot === 'head') { x.beginPath(); x.arc(16, 20, 10, Math.PI, 0); x.fill(); x.fillRect(5, 20, 22, 3); }
         else if (base.slot === 'body') { x.fillRect(8, 8, 16, 18); x.fillRect(4, 8, 5, 9); x.fillRect(23, 8, 5, 9); }
@@ -1463,6 +1515,8 @@
             if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
             else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
             else if (m === 'charger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite('#7ad8ff'));
+            else if (m === 'shadowmane') MOUNTART.shadowmane(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
+            else if (m === 'frostfang') MOUNTART.frostfang(ctx, 46, 84, 0, 2, 1, 1.35, false, 0);
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
         } catch (e) {}
         ctx = saved; if (m) MICONS[m] = c;
@@ -1472,10 +1526,12 @@
         listScreen({
             title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
             rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
-                .concat(['horse', 'wolf', 'dragon', 'charger'].map(m => {
+                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang'].map(m => {
                     const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100, home = m === 'wolf' && CH.noWolf;
-                    return { label: mountName(m), sub: home ? T.ui.wolfStays : (m === 'horse' ? T.ui.horseSub : m === 'dragon' ? T.ui.dragonSub : m === 'charger' ? T.ui.chargerSub : T.ui.wolfSub) + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
-                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(m === 'dragon' ? T.ui.dragonHow : m === 'charger' ? T.ui.chargerHow : T.ui.notOwnedLong); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
+                    const sub = m === 'horse' ? T.ui.horseSub : m === 'dragon' ? T.ui.dragonSub : m === 'charger' ? T.ui.chargerSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub;
+                    const how = m === 'dragon' ? T.ui.dragonHow : m === 'charger' ? T.ui.chargerHow : m === 'shadowmane' ? T.ui.shadowmaneHow : m === 'frostfang' ? T.ui.frostfangHow : T.ui.notOwnedLong;
+                    return { label: mountName(m), sub: home ? T.ui.wolfStays : sub + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
+                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(how); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
                 }))
                 .concat([{ label: T.ui.close, fn: closeList }])
         });
@@ -1546,9 +1602,19 @@
     }
     // the look of a hero: 0 male, 1 female (Settings, and the tailor and the barber of the village)
     function setGender(i, g) {
-        if (!S.gender) S.gender = [0, 1];
+        if (!S.gender) S.gender = [0, 1, 0, 1];
         S.gender[i] = g ? 1 : 0; save(); SND.fx('ok');
         toast(txt(T.ui.lookDone, { name: heroName(i), to: g ? T.ui.female : T.ui.male }));
+    }
+    function setCloth(i, c) {
+        if (!S.cloth) S.cloth = [0, 1, 2, 3];
+        S.cloth[i] = (c + 8) & 7; delete MICONS['']; save(); SND.fx('ok');
+        toast(txt(T.ui.clothRow, { name: heroName(i) }) + ': ' + (T.ui['cloth' + S.cloth[i]] || S.cloth[i]));
+    }
+    const PET_KINDS = ['cat', 'direwolf', 'babydragon'];
+    function setPetKind(k) {
+        S.petKind = k; if (!S.pet) S.pet = '1'; save(); SND.fx('ok');
+        toast(T.ui.petRow + ': ' + (T.ui['pet_' + k] || k));
     }
     function cycleVoice(dir) {
         const i = Math.max(0, Math.min(VOICE_RATES.length - 1, VOICE_RATES.indexOf(SET.voice) + dir));
@@ -1573,7 +1639,19 @@
                     { label: T.ui.fxRow, sub: T.ui.fxSub, right: '◀ ' + T.ui['fx_' + SET.fx] + ' ▶', side: d => cycleFx(rtl() ? -d : d), fn: () => cycleFx(1) },
                     { label: T.ui.heroFxRow, sub: T.ui.heroFxSub, right: SET.heroFx ? T.ui.on : T.ui.off, side: () => toggleHeroFx(), fn: () => toggleHeroFx() },
                     { label: T.ui.aiVoice, sub: VOICE.aiReady() ? T.ui.aiVoiceSub : T.ui.aiVoiceNone, right: SET.aiVoice ? T.ui.on : T.ui.off, side: () => toggleAiVoice(), fn: () => toggleAiVoice() }];
-                for (const q of P) if (q.on) { const tg = () => setGender(q.i, 1 - S.gender[q.i]); r.push({ label: txt(T.ui.lookOf, { name: heroName(q.i) }), right: S.gender[q.i] ? T.ui.female : T.ui.male, side: tg, fn: () => { tg(); renderList(); } }); }
+                for (const q of P) if (q.on) {
+                    const tg = () => setGender(q.i, 1 - S.gender[q.i]);
+                    r.push({ label: txt(T.ui.lookOf, { name: heroName(q.i) }), right: S.gender[q.i] ? T.ui.female : T.ui.male, side: tg, fn: () => { tg(); renderList(); } });
+                    const curC = (S.cloth && S.cloth[q.i] !== undefined) ? S.cloth[q.i] : q.i;
+                    const tc = d => { setCloth(q.i, curC + (d || 1)); renderList(); };
+                    r.push({ label: txt(T.ui.clothRow, { name: heroName(q.i), val: T.ui['cloth' + curC] || curC }), sub: T.ui.clothSub, right: '◀ ' + (T.ui['cloth' + curC] || curC) + ' ▶', side: d => tc(rtl() ? -d : d), fn: () => tc(1) });
+                }
+                if (S.pet || CHID === 'ch4' || S.c4) {
+                    const pk = S.petKind || 'cat', idx = Math.max(0, PET_KINDS.indexOf(pk));
+                    const tp = d => { setPetKind(PET_KINDS[(idx + (d || 1) + PET_KINDS.length) % PET_KINDS.length]); renderList(); };
+                    r.push({ label: txt(T.ui.petRow, { val: T.ui['pet_' + pk] || pk }), sub: T.ui.petSub, right: '◀ ' + (T.ui['pet_' + pk] || pk) + ' ▶', side: d => tp(rtl() ? -d : d), fn: () => tp(1) });
+                }
+                if (CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
                 return r;
             }
@@ -1611,6 +1689,7 @@
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
+                if (CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
                 if (coopAvail()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
@@ -1664,6 +1743,148 @@
         };
         if (CHID === 'ch1') go(); else { ovHide(); mode = 'fade'; fadeT = 20; fadeHold = true; enterChapter('ch1').then(() => { fadeHold = false; mode = 'overlay'; go(); }); }
     }
+    // Preserve 100% of existing save data while ensuring Chapters 1, 2, and 3 are marked complete
+    // so the player can jump straight into Chapter 4 without losing any progress or replaying prior chapters.
+    function prepareChapter4Save(s) {
+        const saved = MyPC.load('save', null);
+        const base = fresh();
+        const a = saved ? migrate(Object.assign(fresh(), saved)) : base;
+        const b = s ? migrate(Object.assign(fresh(), s)) : base;
+        const bBetter = b.lvl > a.lvl || (b.lvl === a.lvl && (b.coins > a.coins || b.stage > a.stage || (b.bag && b.bag.length > (a.bag ? a.bag.length : 0))));
+        s = migrate(Object.assign(base, bBetter ? a : b, bBetter ? b : a));
+        s.lvl = Math.max(a.lvl || 1, b.lvl || 1);
+        s.coins = Math.max(a.coins || 0, b.coins || 0);
+        s.iron = Math.max(a.iron || 0, b.iron || 0);
+        s.potions = Math.max(a.potions || 0, b.potions || 0);
+        s.big = Math.max(a.big || 0, b.big || 0);
+        s.qdone = Math.max(a.qdone || 0, b.qdone || 0);
+        s.sq = Object.assign({}, a.sq || {}, b.sq || {});
+        s.sqc = Object.assign({}, a.sqc || {}, b.sqc || {});
+        s.stage = Math.max(s.stage || 0, 12);
+        s.lit = true; s.sword = true; s.key = true; s.gate = true; s.seal = true;
+        s.hearth = true; s.tide = true; s.stone = true; s.heart = true;
+        if (!s.c2) s.c2 = { st: 10, kills: 0, gate: true, low: true, lit: true, rise: true, letter: 2, seen: {} };
+        else { s.c2.lit = true; s.c2.gate = true; s.c2.low = true; if (s.c2.st < 10) s.c2.st = 10; }
+        if (!s.c3) s.c3 = { st: 36, c: 0, m: 0, beacons: 4, great: true, open: { east: 1, north: 1, breach: 1, citadel: 1 }, banner: 'guard', lore: 15, rep: { guard: 2, grove: 2, ash: 2 }, gift: {}, wards: 7, levers: 3, runes: 7, anchors: 3, root: true, seed: true, ivo: true, seen: {} };
+        else { s.c3.great = true; s.c3.beacons = 4; if (s.c3.st < 36) s.c3.st = 36; }
+        if (!s.c4) s.c4 = { st: 0, c: 0, m: 0, beacons: 0, great: false, open: {}, banner: '', lore: 0, rep: {}, gift: {}, wards: 0, anchors: 0, aemon: false, seen: {} };
+        for (const m of ['horse', 'wolf', 'dragon', 'charger']) if (s.mounts.indexOf(m) < 0) s.mounts.push(m);
+        if (!s.pet) s.pet = '1';
+        if (!s.petKind || s.petKind === 'cat') s.petKind = 'direwolf';
+        if (s.lvl < 18) {
+            s.lvl = 18; s.xp = 0;
+            s.coins = Math.max(s.coins || 0, 1200);
+            s.iron = Math.max(s.iron || 0, 20);
+            s.potions = Math.max(s.potions || 0, 5);
+            s.big = Math.max(s.big || 0, 3);
+        }
+        const hasRealWeapon = s.bag.some(it => it && it.id !== 'stick' && ITEMS[it.id] && ITEMS[it.id].slot === 'weapon' && ITEMS[it.id].tier >= 3);
+        if (!hasRealWeapon) {
+            const starter = [['frost_blade', 2, 3], ['warden_helm', 2, 2], ['frost_plate', 2, 2], ['wyrm_boots', 2, 2]];
+            for (const [gid, r, up] of starter) {
+                if (ITEMS[gid] && !s.bag.some(it => it.id === gid)) {
+                    const it = { u: ++s.uid, id: gid, r, up, b: rollBonuses(gid, r) };
+                    s.bag.push(it);
+                    const sl = ITEMS[gid].slot;
+                    for (let i = 0; i < MAXP; i++) {
+                        const cur = s.bag.find(x => x.u === s.eq[i][sl]);
+                        if (!cur || cur.id === 'stick') s.eq[i][sl] = it.u;
+                    }
+                }
+            }
+        }
+        return s;
+    }
+
+    function playChapter4(toZone, tx, ty) {
+        S = prepareChapter4Save(S);
+        const inCh4 = CHAPTERS.of(S.zone) === 'ch4';
+        const z = toZone || (inCh4 ? S.zone : 'c4_river');
+        const x = tx !== undefined ? tx : (inCh4 && !toZone ? S.x : 22.5);
+        const y = ty !== undefined ? ty : (inCh4 && !toZone ? S.y : 25.5);
+        S.zone = z; S.x = x; S.y = y;
+        recalcAll(); save();
+        for (const q of P) { q.hp = maxHp(q); q.down = false; }
+        ovHide(); mode = 'fade'; fadeT = 20; fadeHold = true;
+        return enterChapter('ch4').then(() => new Promise(resolve => {
+            fadeHold = false;
+            loading(() => {
+                loadZone(z); placePlayers(x, y); toPlay(); mode = 'fade';
+                banner(T.zone[z] || T.ui.ch4Name);
+                if (CH.arrive) CH.arrive(z);
+                resolve();
+            });
+        })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
+    }
+
+    function devGrantMaxGear() {
+        S = prepareChapter4Save(S);
+        S.lvl = 30; S.xp = 0; S.coins += 5000; S.iron += 50; S.potions = Math.max(S.potions, 10); S.big = Math.max(S.big, 5);
+        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang']) if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
+        if (!S.mount) S.mount = 'frostfang';
+        const maxGear = ['winters_fang', 'stormbreaker', 'valyrian_axes', 'golden_pistols', 'dragonbone_bow', 'rhllor_scepter', 'stark_wolfhelm', 'targaryen_scale', 'valyrian_greaves'];
+        for (const gid of maxGear) {
+            if (!ITEMS[gid]) continue;
+            let it = S.bag.find(x => x.id === gid);
+            if (!it && S.bag.length < LOOT.bagSize) {
+                it = { u: ++S.uid, id: gid, r: 3, up: 8, b: rollBonuses(gid, 3) };
+                S.bag.push(it);
+            } else if (it) { it.r = 3; it.up = 8; }
+            if (it && (gid === 'winters_fang' || gid === 'stark_wolfhelm' || gid === 'targaryen_scale' || gid === 'valyrian_greaves')) {
+                S.eq[0][ITEMS[gid].slot] = it.u;
+            }
+        }
+        recalcAll();
+        for (const q of P) { q.hp = maxHp(q); q.down = false; }
+        save(); refreshMenu(); SND.fx('level');
+        toast(T.ui.devMaxGear || 'Granted Lv 30 & +8 Valyrian Arsenal!');
+    }
+
+    function devScreen() {
+        const c4Zones = [
+            ['c4_river', 22.5, 25.5, 'The Riverlands (Riverrun Camp)'],
+            ['c4_kings', 24.5, 30.5, 'King\'s Landing & Red Keep'],
+            ['c4_storm', 24.5, 30.5, 'Storm\'s End & Dragonstone'],
+            ['c4_north', 24.5, 31.5, 'Winterfell & The North'],
+            ['c4_essos', 22.5, 28.5, 'Braavos & Free Cities (Essos)'],
+            ['c4_val1', 13.5, 21.5, 'Ruins of Old Valyria (Floor 1)'],
+            ['c4_val5', 15.5, 22.5, 'Valyria Floor 5 (Dragonlord Boss)'],
+            ['c4_wall', 24.5, 31.5, 'The Wall & Castle Black'],
+            ['c4_beyond', 24.5, 32.5, 'Beyond the Wall (Night King)']
+        ];
+        listScreen({
+            title: () => T.ui.devTools || '⚔ Chapter 4 & Dev Tools',
+            info: () => T.ui.level + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  ⛏ ' + S.iron,
+            rows: () => {
+                const rows = [
+                    { label: T.ui.devJumpCh4 || '▶ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)', sub: T.ui.devSub || '', fn: () => playChapter4('c4_river', 22.5, 25.5) },
+                    { label: T.ui.devMaxGear || '★ Grant Lv 30, +8 Valyrian Arsenal & All Mounts', fn: () => { devGrantMaxGear(); renderList(); } }
+                ];
+                if (CHID === 'ch4' && CH) {
+                    rows.push(
+                        { label: T.ui.devUnlockAll || '🔓 Unlock All Chapter 4 Gates & Zones', fn: () => { if (CH.devUnlockAll) CH.devUnlockAll(); closeList(); } },
+                        { label: T.ui.devSkipStep || '⏭ Complete Current Quest Step', sub: objective(L), fn: () => { if (CH.devSkipStep) CH.devSkipStep(); closeList(); } }
+                    );
+                }
+                for (const [zid, zx, zy, fallbackName] of c4Zones) {
+                    const zName = (T.zone && T.zone[zid]) || fallbackName;
+                    rows.push({ label: txt(T.ui.devTeleport || 'Teleport: {zone}', { zone: zName }), right: Z.id === zid ? '✓' : '▸', mark: Z.id === zid, fn: () => {
+                        S = prepareChapter4Save(S);
+                        if (S.c4) S.c4.open = { south: true, storm: true, north: true, essos: true, wall: true, beyond: true, altar: true };
+                        playChapter4(zid, zx, zy);
+                    } });
+                }
+                rows.push(
+                    { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 3 }), fn: () => { closeList(); changeZone('c3_dawn', 22.5, 25.5); } },
+                    { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 2 }), fn: () => { closeList(); changeZone('c2_bay', 23.5, 23.6); } },
+                    { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 1 }), fn: () => { closeList(); changeZone('village', 21.5, 10.5); } },
+                    { label: T.ui.close, fn: closeList }
+                );
+                return rows;
+            }
+        });
+    }
+
     function continueGame() {
         S = migrate(Object.assign(fresh(), MyPC.load('save', {})));
         if (CHAPTERS.of(S.zone) !== CHID) { S.zone = CH.home; const sp = MAPS[CH.home].spawn; S.x = sp[0]; S.y = sp[1]; }
@@ -1729,6 +1950,8 @@
         for (const k in SPOTS) delete SPOTS[k];
         for (const k in ICONS) delete ICONS[k];
         if (CH.start) CH.start();
+        if (document && document.body) document.body.classList.toggle('ch4-theme', id === 'ch4');
+        if (id === 'ch4' && S && !S.pet) { S.pet = '1'; if (!S.petKind || S.petKind === 'cat') S.petKind = 'direwolf'; }
         if (S && CH.noWolf && S.mount === 'wolf') { S.mount = S.mounts.indexOf('horse') >= 0 ? 'horse' : ''; setTimeout(() => toast(T.ui.wolfStays), 2800); }
         if (CH.preload !== false) for (const k of chSongs) SND.prepare(k);
         menuKey = ''; if (S) refreshMenu();
@@ -1746,7 +1969,7 @@
         spawnFoe, shot, hazard, part, burst, sparks, smoke, ringFx, floater, coins, loot, drop, dropGear, rollItem, giveItem, addToBag, addXp,
         hurt, hitFoe, petHurt, dist, moveEnt, chase, leash, wander, nearest, activate, showBoss, hideBoss, music, minions, maxHp,
         loadZone, placePlayers, changeZone, travel, startFade, addStatic, solidAt, codeAt, openTiles, ahead, frontX, frontY,
-        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, shareStory, itemName,
+        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, setCloth, setPetKind, shareStory, itemName,
         scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, potion: () => drink(false),
         makeItem, itemLabel, drawFoeBody, coopMul, get tier() { return fxLevel(); }
     };
@@ -1956,23 +2179,47 @@
         if (flying(p)) { if (toastT < 60) toast(T.ui.flyNoAttack); return; }
         combatT = 0;
         const st = p.st, fx = ITEMS[p.gear.weapon] ? ITEMS[p.gear.weapon].fx || '' : '', lv = heroLv();
-        aimAt(p, st.kind === 'sword' ? 64 : 290, st.kind !== 'sword');
-        p.atk = st.cd; p.swing = 12; p.lean = 8; p.anim = st.kind;
+        const melee = st.kind === 'sword' || st.kind === 'axes' || st.kind === 'hammer';
+        aimAt(p, melee ? 68 : 290, !melee);
+        p.atk = st.cd; p.swing = st.kind === 'hammer' ? 16 : 12; p.lean = 8; p.anim = st.kind;
         if (p.wr >= 3 && lv !== 'low') for (let i = 0; i < (lv === 'high' ? 5 : 2); i++) part(p.x + p.ax * 14, p.y - 12 + p.ay * 6, 8, p.ax * (1 + Math.random()) + (Math.random() - 0.5), p.ay * (1 + Math.random()) + (Math.random() - 0.5), 0.6, 16, i & 1 ? '#ffd23f' : st.col, 2, 0);
-        if (fx === 'wave') {                                 // Dawnbreaker: every swing also throws a crescent of light
-            const s = shot(p.x + p.ax * 16, p.y - 12 + p.ay * 8, p.ax * 5.2, p.ay * 5.2, Math.round(damage(p) * 0.7), 12, 14, p.i + 1);
-            if (s) { s.pierce = 4; s.life = s.m = 26; s.col = st.col; }
+        if (fx === 'wave' || fx === 'frost') {               // Dawnbreaker or Winter's Fang: every swing throws a crescent wave
+            const s = shot(p.x + p.ax * 16, p.y - 12 + p.ay * 8, p.ax * 5.4, p.ay * 5.4, Math.round(damage(p) * 0.75), 14, 14, p.i + 1);
+            if (s) { s.pierce = 5; s.life = s.m = 28; s.col = fx === 'frost' ? '#9ee8ff' : st.col; s.fx = fx; }
         }
         if (st.kind === 'sword') {
             SND.fx('swing');
             const hx = frontX(p, 16), hy = frontY(p, 16);
-            let hits = 0;
             for (const f of FOES) {
                 if (!f.on || f.alpha < 0.5) continue;
-                if (dist(hx, hy, f.x, f.y - 6) < f.r + 18) { hitFoe(f, p, damage(p), p.ax, p.ay); hits++; }
+                if (dist(hx, hy, f.x, f.y - 6) < f.r + 18) hitFoe(f, p, damage(p), p.ax, p.ay);
             }
             for (const s of Z.pots) if (s.on && dist(hx, hy, s.cx, s.cy) < 26) breakPot(s);
-            for (let i = 0; i < 5; i++) part(frontX(p, 18), frontY(p, 18) - 6, 6, p.ax * 1.5 + (Math.random() - 0.5), p.ay * 1 + (Math.random() - 0.5), 0.5, 10, '#ffffff', 2, 0);
+            for (let i = 0; i < 5; i++) part(frontX(p, 18), frontY(p, 18) - 6, 6, p.ax * 1.5 + (Math.random() - 0.5), p.ay * 1 + (Math.random() - 0.5), 0.5, 10, fx === 'frost' ? '#bff4ff' : '#ffffff', 2, 0);
+        } else if (st.kind === 'axes') {                     // Dual Axes: 360-degree spin cleave around the hero
+            SND.fx('swing');
+            const R = fx === 'whirl' ? 44 : 36;
+            ringFx(p.x, p.y - 8, R, fx === 'whirl' ? '#ff6a2a' : st.col);
+            for (const f of FOES) {
+                if (!f.on || f.alpha < 0.5) continue;
+                const d = dist(p.x, p.y, f.x, f.y - 6);
+                if (d < f.r + R) { const ux = (f.x - p.x) / (d || 1), uy = (f.y - p.y) / (d || 1); hitFoe(f, p, damage(p), ux, uy); }
+            }
+            for (const s of Z.pots) if (s.on && dist(p.x, p.y, s.cx, s.cy) < R + 8) breakPot(s);
+            for (let i = 0; i < 8; i++) { const a = i * 0.7854 + tick * 0.2; part(p.x + Math.cos(a) * 22, p.y - 10 + Math.sin(a) * 14, 6, Math.cos(a) * 1.5, Math.sin(a) * 1.2, 0.5, 12, fx === 'whirl' ? '#ff8a3a' : '#ffffff', 2, 0); }
+        } else if (st.kind === 'hammer') {                   // Warhammer: heavy armor-piercing slam that breaks shields & staggers
+            SND.fx('slam'); shake = Math.max(shake, 8);
+            const hx = frontX(p, 20), hy = frontY(p, 20), R = fx === 'thunder' ? 38 : 28;
+            ringFx(hx, hy - 4, R + 8, fx === 'thunder' ? '#7ad0ff' : st.col);
+            for (const f of FOES) {
+                if (!f.on || f.alpha < 0.5) continue;
+                if (dist(hx, hy, f.x, f.y - 6) < f.r + R) {
+                    hitFoe(f, p, Math.round(damage(p) * 1.25), p.ax, p.ay);
+                    if (f.on && fx === 'thunder') chainHit(f, p, damage(p));
+                }
+            }
+            for (const s of Z.pots) if (s.on && dist(hx, hy, s.cx, s.cy) < R + 12) breakPot(s);
+            sparks(hx, hy - 6, p.ax, p.ay, 8, fx === 'thunder' ? '#9ad8ff' : '#ffd23f');
         } else if (st.kind === 'staff') {                    // magic: a glowing bolt that bends toward foes
             SND.fx('magic');
             const s = shot(p.x + p.ax * 14, p.y - 14 + p.ay * 6, p.ax * 4.6, p.ay * 4.6, damage(p), 7, 13, p.i + 1);
@@ -1985,6 +2232,24 @@
                 const s = shot(p.x + p.ax * 12, p.y - 10 + p.ay * 6, Math.cos(a + k * 0.16) * 5.6, Math.sin(a + k * 0.16) * 5.6, k ? Math.round(damage(p) * 0.6) : damage(p), 5, 10, p.i + 1);
                 if (s) { s.fx = fx; s.lg = p.wr >= 3; s.col = st.col; }
             }
+        } else if (st.kind === 'pistols') {                  // Dual Pistols: passive split-shot at two nearby foes simultaneously
+            SND.fx('gun'); p.flash = 6; shake = 4; flashT = 2;
+            let f1 = null, f2 = null, d1 = 290 * 290, d2 = 290 * 290;
+            for (const f of FOES) {
+                if (!f.on || f.alpha < 0.5) continue;
+                const dd = (f.x - p.x) * (f.x - p.x) + (f.y - p.y) * (f.y - p.y);
+                if (dd < d1) { d2 = d1; f2 = f1; d1 = dd; f1 = f; }
+                else if (dd < d2) { d2 = dd; f2 = f; }
+            }
+            const baseA = Math.atan2(p.ay, p.ax), a2 = f2 ? Math.atan2(f2.y - 8 - p.y, f2.x - p.x) : baseA + 0.14;
+            const angles = fx === 'barrage' ? [baseA - 0.08, baseA + 0.08, a2 - 0.06, a2 + 0.06] : [baseA, a2];
+            for (let k = 0; k < angles.length; k++) {
+                const ak = angles[k], ux = Math.cos(ak), uy = Math.sin(ak);
+                const s = shot(p.x + ux * 16 + (k & 1 ? -uy * 5 : uy * 5), p.y - 11 + uy * 8, ux * 10, uy * 10, Math.round(damage(p) * 0.65), 4, 11, p.i + 1);
+                if (s) { s.fx = fx; s.lg = p.wr >= 3; s.col = st.col; }
+            }
+            smoke(p.x + p.ax * 20, p.y - 10 + p.ay * 8, 6);
+            sparks(p.x + p.ax * 18, p.y - 10 + p.ay * 8, p.ax, p.ay, 6, '#ffd76a');
         } else {
             SND.fx('gun'); p.flash = 6; shake = 5; flashT = 2;
             const s = shot(p.x + p.ax * 18, p.y - 11 + p.ay * 8, p.ax * 10, p.ay * 10, damage(p), 4, 11, p.i + 1);
@@ -1993,9 +2258,9 @@
             sparks(p.x + p.ax * 20, p.y - 10 + p.ay * 8, p.ax, p.ay, 6, '#ffd76a');
             p.kx -= p.ax * 2.5; p.ky -= p.ay * 2.5;
         }
-        // brambles: any hero who owns a sword can hack through them
+        // brambles: any hero who owns a sword or axes can hack through them
         if (ahead(p, C_b)) {
-            if (S.sword) {
+            if (S.sword || st.kind === 'axes') {
                 S.cut = true; openTiles(C_b, 46, 'bramble'); SND.fx('cut');
                 for (let i = 0; i < 24; i++) part(frontX(p, 30), frontY(p, 30), 8, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 3, Math.random() * 3, 40, '#4b5f2a', 3);
                 save();
@@ -2041,21 +2306,44 @@
         } else distant(p);
         return true;
     }
-    // the distant attack takes the shape of the hero's weapon: a thrown sword that comes back, a big fire arrow,
-    // a large orb of another colour, or a heavy shell that explodes
+    // the distant attack takes the shape of the hero's weapon: a thrown sword that comes back, twin boomerang axes,
+    // a rapid volley from dual pistols, a thunderous hammer wave, a big fire arrow, a large orb, or a heavy shell
     function distant(p) {
         aimAt(p, 340, true); p.swing = 10; p.lean = 6;
-        const st = p.st, kind = st.kind, k = kind === 'bow' ? 16 : kind === 'staff' ? 17 : kind === 'gun' ? 18 : 15;
-        const sp = k === 18 ? 10 : k === 16 ? 8 : k === 15 ? 7 : 5.5, ox = p.x + p.ax * 16, oy = p.y - 11 + p.ay * 7;
-        const s = shot(ox, oy, p.ax * sp, p.ay * sp, Math.round(damage(p) * 2.5), k === 17 ? 18 : k === 15 ? 16 : k === 18 ? 9 : 10, k, p.i + 1);
+        const st = p.st, kind = st.kind, ox = p.x + p.ax * 16, oy = p.y - 11 + p.ay * 7;
+        if (kind === 'axes') {                               // Dual Axes: throw BOTH axes spinning out and boomeranging back
+            SND.fx('throw'); shake = Math.max(shake, 5); flashT = 2; p.auraCol = st.col;
+            const baseA = Math.atan2(p.ay, p.ax);
+            for (const side of [-0.26, 0.26]) {
+                const a = baseA + side, s = shot(ox, oy, Math.cos(a) * 7.2, Math.sin(a) * 7.2, Math.round(damage(p) * 1.65), 16, 19, p.i + 1);
+                if (s) { s.pierce = 99; s.lg = p.wr >= 3; s.col = st.col; s.col2 = st.col2; s.life = s.m = 75; }
+            }
+            ringFx(ox, oy + 6, 30, st.col); sparks(ox, oy, p.ax, p.ay, 12, '#ffffff');
+            return;
+        }
+        if (kind === 'pistols') {                            // Dual Pistols: rapid 5-round focused barrage at the target
+            SND.fx('cannon'); p.flash = 10; shake = Math.max(shake, 9); flashT = 3; p.auraCol = '#ffd76a';
+            const baseA = Math.atan2(p.ay, p.ax);
+            for (let m = 0; m < 5; m++) {
+                const a = baseA + (m - 2) * 0.05, sp = 10.5 - m * 0.6;
+                const s = shot(ox - p.ax * m * 4, oy - p.ay * m * 4, Math.cos(a) * sp, Math.sin(a) * sp, Math.round(damage(p) * 0.72), 6, 20, p.i + 1);
+                if (s) { s.pierce = 2; s.lg = p.wr >= 3; s.col = st.col; s.col2 = st.col2; s.life = s.m = 42; }
+            }
+            smoke(ox + p.ax * 8, oy, 12); sparks(ox + p.ax * 6, oy, p.ax, p.ay, 18, '#ffd76a');
+            p.kx -= p.ax * 4; p.ky -= p.ay * 4;
+            return;
+        }
+        const k = kind === 'bow' ? 16 : kind === 'staff' ? 17 : kind === 'gun' ? 18 : kind === 'hammer' ? 21 : 15;
+        const sp = k === 18 ? 10 : k === 16 ? 8 : k === 15 || k === 21 ? 7 : 5.5;
+        const s = shot(ox, oy, p.ax * sp, p.ay * sp, Math.round(damage(p) * 2.5), k === 17 || k === 21 ? 18 : k === 15 ? 16 : k === 18 ? 9 : 10, k, p.i + 1);
         if (!s) return;
-        s.pierce = k === 18 ? 3 : 99; s.lg = p.wr >= 3;
+        s.pierce = k === 18 || k === 21 ? 3 : 99; s.lg = p.wr >= 3;
         s.col = k === 17 ? otherHue(st.col) : st.col; s.col2 = st.col2;
-        p.auraCol = k === 16 ? '#ff8a2a' : k === 17 ? s.col : k === 18 ? '#ffd76a' : st.col;
+        p.auraCol = k === 16 ? '#ff8a2a' : k === 17 ? s.col : k === 18 || k === 21 ? '#ffd76a' : st.col;
         flashT = 2;
-        if (k === 15) {
-            SND.fx('throw'); shake = Math.max(shake, 4);
-            ringFx(ox, oy + 6, 26, st.col); sparks(ox, oy, p.ax, p.ay, 10, '#ffffff');
+        if (k === 15 || k === 21) {
+            SND.fx(k === 21 ? 'slam' : 'throw'); shake = Math.max(shake, k === 21 ? 8 : 4);
+            ringFx(ox, oy + 6, k === 21 ? 36 : 26, st.col); sparks(ox, oy, p.ax, p.ay, 10, '#ffffff');
         } else if (k === 16) {
             SND.fx('fireArrow'); shake = Math.max(shake, 5);
             ringFx(ox, oy + 6, 30, '#ff8a2a'); sparks(ox, oy, p.ax, p.ay, 14, '#ffb040'); burst(ox, oy, 8, '#ff5a1a', 1.4);
@@ -2145,17 +2433,21 @@
         for (const f of FNS) if (padOf(f) === i) { if (f === 'attack' && interact(p)) return; doFn(p, f, false); return; }
     }
 
+    const UNDEAD_FOES = { wight: 1, whitewalker: 1, nightking: 1, viserion: 1, bones: 1, cryptbones: 1, hollowsoldier: 1, shade: 1, hollowking: 1 };
     function hitFoe(f, p, dmg, dx, dy) {
         combatT = 0; if (f.d.boss) gainStamina(STA_HIT_BOSS);
         if (!f.active && f.d.boss) activate(f);
         if (f.immune) { SND.fx('pot'); sparks(f.x - dx * 6, f.y - 14, dx, dy, 5, '#9ad8ff'); ringFx(f.x, f.y - 14, f.r + 10, '#9ad8ff'); return; }
         if (f.weak) dmg *= 2;
-        if (f.d.hitMul) dmg *= f.d.hitMul(f, dx, dy, p);            // a shield facing the blow
+        const isHammer = p && p.st && p.st.kind === 'hammer';
+        if (f.d.hitMul && !isHammer) dmg *= f.d.hitMul(f, dx, dy, p);            // a shield facing the blow (broken by warhammers)
+        if (p && p.gear && (p.gear.weapon === 'winters_fang' || p.gear.weapon === 'valyrian_blade' || p.gear.weapon === 'valyrian_axes') && UNDEAD_FOES[f.t]) dmg *= 1.35;
+        if (p && p.gear && p.gear.weapon === 'winters_fang') f.chill = 90;
         const md = CH && CH.mods ? CH.mods() : null; if (md) dmg *= md.deal;
         const crit = Math.random() * 100 < p.st.crit;
         if (crit) dmg *= 2;
         if (f.t === 'thornback' && f.st === 3) dmg *= 2;
-        dmg = Math.max(1, Math.round(dmg - (f.def || 0)));           // armour takes a little off every blow
+        dmg = Math.max(1, Math.round(dmg - (isHammer ? 0 : (f.def || 0))));      // armour takes a little off every blow (warhammers pierce armour)
         f.hp -= dmg; f.hurt = 8;
         if (p.wr >= 3) legendHit(f, p, dx, dy);
         freeze = crit ? 5 : 2;
@@ -2163,7 +2455,7 @@
         if (crit) { flashT = 3; shake = Math.max(shake, 6); ringFx(f.x, f.y - 10, 30, '#ffd23f'); }
         floater(f.x, f.y - 26, dmg, crit ? '#ffb020' : '#ffe66a', crit);
         sparks(f.x - dx * 6, f.y - 10, dx, dy, crit ? 10 : 6, crit ? '#ffd23f' : '#ffffff');
-        if (!f.d.boss) { f.kx = dx * (p.st.kind === 'gun' ? 6 : 4); f.ky = dy * (p.st.kind === 'gun' ? 6 : 4); }
+        if (!f.d.boss) { f.kx = dx * (p.st.kind === 'gun' || isHammer ? 7 : 4); f.ky = dy * (p.st.kind === 'gun' || isHammer ? 7 : 4); }
         if (f.hp <= 0) killFoe(f);
     }
     // a legendary weapon's blow: golden sparks and a small ring (fewer on slow TVs)
@@ -2213,7 +2505,7 @@
     }
     function addXp(n) {
         S.xp += n; shareNow({ x: n });
-        while (S.lvl < 20 && S.xp >= need(S.lvl)) {
+        while (S.lvl < 30 && S.xp >= need(S.lvl)) {
             S.lvl++;
             for (const p of P) if (p.on) { p.hp = maxHp(p); p.down = false; burst(p.x, p.y - 10, 20, '#ffe66a', 2); ringFx(p.x, p.y - 8, 60, '#ffe66a'); }
             recalcAll(); SND.fx('level'); toast(txt(T.ui.lvup, { n: S.lvl }));
@@ -2306,7 +2598,14 @@
             if (pet.x === ox && pet.y === oy) { pet.x += dx / dd * s; pet.y += dy / dd * s; }   // cats squeeze through anything
             pet.walk += 0.4; pet.fx = dx < 0 ? -1 : 1;
         } else pet.walk = 0;
-        if (foe && dd <= stop + 6 && pet.cd <= 0) { pet.cd = 34; pet.lunge = 8; SND.fx('swing'); petHit(foe, Math.max(1, damage(p) >> 1), dx / dd, dy / dd); }
+        if (foe && S.petKind === 'babydragon' && dd <= 135 && pet.cd <= 0) {
+            pet.cd = 42; pet.lunge = 6; SND.fx('shoot');
+            const s = shot(pet.x + (dx / dd) * 10, pet.y - 16, (dx / dd) * 4.8, (dy / dd) * 4.8, Math.max(2, Math.round(damage(p) * 0.65)), 6, 13, p.i + 1);
+            if (s) { s.col = '#ff6a2a'; s.lg = true; }
+        } else if (foe && dd <= stop + (S.petKind === 'direwolf' ? 12 : 6) && pet.cd <= 0) {
+            pet.cd = S.petKind === 'direwolf' ? 28 : 34; pet.lunge = 8; SND.fx('swing');
+            petHit(foe, Math.max(1, S.petKind === 'direwolf' ? Math.round(damage(p) * 0.7) : (damage(p) >> 1)), dx / dd, dy / dd);
+        }
         if (loot && dd < 12) collect(p, loot);
         pet.sy = pet.y;
     }
@@ -2352,9 +2651,15 @@
         } else p.walk = 0;
         if (p.kx || p.ky) { flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false; p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
         p.sy = flying(p) ? p.y + 200 : p.y;                // in the air: drawn over the roofs and trees it passes
-        // riding the wolf: it bites what you run into
-        if (riding(p) && MOUNTS[S.mount].bite && --p.bite <= 0) {
-            for (const f of FOES) if (f.on && f.alpha > 0.5 && dist(f.x, f.y, p.x, p.y) < f.r + 16) { p.bite = 30; SND.fx('hit'); petHit(f, Math.max(1, damage(p) >> 1), p.ax, p.ay); break; }
+        // riding the wolf / frostfang (bite) or shadowmane (armored warhorse trample)
+        if (riding(p) && (MOUNTS[S.mount].bite || (MOUNTS[S.mount].trample && p.moving)) && --p.bite <= 0) {
+            const tr = !!MOUNTS[S.mount].trample;
+            for (const f of FOES) if (f.on && f.alpha > 0.5 && dist(f.x, f.y, p.x, p.y) < f.r + (tr ? 20 : 16)) {
+                p.bite = tr ? 24 : 28; SND.fx(tr ? 'slam' : 'hit');
+                petHit(f, Math.max(1, Math.round(damage(p) * (tr ? 0.65 : 0.6))), p.ax, p.ay);
+                if (tr && !f.d.boss) { f.kx = p.ax * 9; f.ky = p.ay * 9; }
+                break;
+            }
         }
         // pickups
         for (const s of Z.picks) {
@@ -2609,8 +2914,9 @@
                         hitFoe(f, hp, s.dmg, s.vx / sp, s.vy / sp);
                         if (s.fx === 'chain') chainHit(f, hp, s.dmg);
                         else if (s.fx === 'void') { voidBurst(s.x, s.y, hp, s.dmg, f); s.fx = ''; }
+                        else if (s.fx === 'frost') { f.chill = 90; burst(f.x, f.y - 10, 6, '#9ee8ff', 1.4); }
                         if (s.k === 16) { blast(s.x, s.y, hp, s.dmg * 0.6, f, 34, '#ff7a2a'); SND.fx('burn'); }
-                        else if (s.k === 18) { blast(s.x, s.y, hp, s.dmg, f, 56, '#ffb040'); SND.fx('boom'); shake = Math.max(shake, 8); }
+                        else if (s.k === 18 || s.k === 21) { blast(s.x, s.y, hp, s.dmg, f, 56, s.k === 21 ? '#7ad0ff' : '#ffb040'); SND.fx('boom'); shake = Math.max(shake, 8); }
                         if (s.pierce-- > 0) { s.hit = f; } else { s.on = false; }
                         break;
                     }
@@ -2624,7 +2930,7 @@
     // the heroes' special shots (the distant attack): how each one flies, what it leaves behind and how it ends
     function heroShot(s, c) {
         const hp = P[s.owner - 1] || P[0], lv = heroLv();
-        if (s.k === 15) {                                   // the thrown sword spins out, slows, then flies back to the hero
+        if (s.k === 15 || s.k === 19) {                     // the thrown sword (15) or dual boomerang axes (19) spin out, slow, then fly back
             hp.thrown = tick + 2;
             const t = s.m - s.life;
             if (!s.back && t > 28) { s.back = true; s.hit = null; }
@@ -2640,7 +2946,8 @@
         if (--s.life <= 0 || (c !== C_tilde && c !== C_w && solidAt(s.x, s.y))) {
             s.on = false;
             if (s.k === 16) { blast(s.x, s.y, hp, s.dmg * 0.6, null, 34, '#ff7a2a'); SND.fx('burn'); }
-            else if (s.k === 18) { blast(s.x, s.y, hp, s.dmg, null, 56, '#ffb040'); SND.fx('boom'); shake = Math.max(shake, 8); }
+            else if (s.k === 18 || s.k === 21) { blast(s.x, s.y, hp, s.dmg, null, 56, s.k === 21 ? '#7ad0ff' : '#ffb040'); SND.fx('boom'); shake = Math.max(shake, 8); }
+            else if (s.k === 20) { sparks(s.x, s.y, -s.vx, -s.vy, 6, '#ffd76a'); }
             else { burst(s.x, s.y, 22, s.col, 2.6); ringFx(s.x, s.y + 8, 44, s.col); ringFx(s.x, s.y + 8, 24, '#ffffff'); SND.fx('zap'); }
             return true;
         }
@@ -2893,7 +3200,7 @@
         ctx.globalAlpha = 1;
         if (CH.drawOver) CH.drawOver(ctx, cx, cy, tick);
         drawAtmo();
-        if ((mode === 'play' || mode === 'dialog') && !SC.steps) drawGuide(cx, cy);
+        if ((mode === 'play' || mode === 'dialog' || mode === 'fade') && !SC.steps) drawGuide(cx, cy);
         if (vignette && tier !== 'low') ctx.drawImage(vignette, 0, 0);
         if (flashT > 0) { ctx.globalAlpha = 0.18; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
         drawScene();
@@ -3001,11 +3308,11 @@
     // the special shots of the distant attack (see heroShot)
     function drawHeroShot(s, x, y, lv) {
         const a = Math.atan2(s.vy, s.vx), ux = Math.cos(a), uy = Math.sin(a), hi = lv !== 'low';
-        if (s.k === 15) {                                   // the hero's own sword, spinning, twice its size
+        if (s.k === 15 || s.k === 19 || s.k === 21) {       // the hero's sword (15), boomerang axe (19), or thunder warhammer (21)
             if (hi) { ctx.globalAlpha = 0.5; ctx.drawImage(glowSprite(s.col && s.col.length === 7 ? s.col : '#ffffff'), x - 26, y - 26, 52, 52); }
             ctx.globalAlpha = 0.35; ctx.strokeStyle = s.col || '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 20, tick * 0.55, tick * 0.55 + 4.2); ctx.stroke(); ctx.globalAlpha = 1;
-            ctx.save(); ctx.translate(x, y); ctx.rotate(tick * 0.55); ctx.scale(2.2, 2.2);
-            drawHeld('sword', s.col || '#d8e2ee', s.col2, -8, 0, 0, s.lg ? 3 : 0, 0, 0);
+            ctx.save(); ctx.translate(x, y); ctx.rotate(tick * 0.65); ctx.scale(s.k === 19 ? 1.9 : 2.2, s.k === 19 ? 1.9 : 2.2);
+            drawHeld(s.k === 19 ? 'axes' : s.k === 21 ? 'hammer' : 'sword', s.col || '#d8e2ee', s.col2, -8, 0, 0, s.lg ? 3 : 0, 0, 0);
             ctx.restore();
         } else if (s.k === 16) {                            // a big arrow on fire
             const fl = Math.sin(tick * 0.9) * 2;
@@ -3025,12 +3332,11 @@
             if (hi) { ctx.globalAlpha = 0.5; ctx.drawImage(glowSprite(s.col), x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2); }
             ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(x, y, 16 * pu, 6 * pu, tick * 0.12, 0, 6.2832); ctx.stroke();
             ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, 9 * pu, 0, 6.2832); ctx.fill();
-        } else {                                            // a heavy glowing shell with a long tracer and a shock ring
-            if (hi) { ctx.globalAlpha = 0.6; ctx.drawImage(glowSprite('#ffb040'), x - 22, y - 22, 44, 44); }
-            ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffb040'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(x - s.vx * 3.2, y - s.vy * 3.2); ctx.lineTo(x, y); ctx.stroke();
-            ctx.globalAlpha = 1; ctx.strokeStyle = '#fff2c0'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x - s.vx * 2.2, y - s.vy * 2.2); ctx.lineTo(x, y); ctx.stroke();
-            ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x - ux * 10, y - uy * 10, 5 + (tick % 6), 9 + (tick % 6) * 1.4, a, 0, 6.2832); ctx.stroke();
-            ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 6.2832); ctx.fill();
+        } else {                                            // a heavy glowing shell or dual-pistol barrage round (18 or 20)
+            if (hi) { ctx.globalAlpha = 0.6; ctx.drawImage(glowSprite('#ffb040'), x - 18, y - 18, 36, 36); }
+            ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffb040'; ctx.lineWidth = s.k === 20 ? 5 : 9; ctx.beginPath(); ctx.moveTo(x - s.vx * 2.6, y - s.vy * 2.6); ctx.lineTo(x, y); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.strokeStyle = '#fff2c0'; ctx.lineWidth = s.k === 20 ? 2.5 : 4; ctx.beginPath(); ctx.moveTo(x - s.vx * 1.8, y - s.vy * 1.8); ctx.lineTo(x, y); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, s.k === 20 ? 4 : 5.5, 0, 6.2832); ctx.fill();
         }
         ctx.globalAlpha = 1;
     }
@@ -3113,13 +3419,40 @@
         }
     }
     function drawPet(o, cx, cy) {
-        const x = o.x - cx, y = o.y - cy;
-        if (o.down) { ctx.globalAlpha = 0.6; drawCat(x, y, 0, o.fx, 0.8, true); ctx.globalAlpha = 1; return; }
+        const x = o.x - cx, y = o.y - cy, pk = (S && (S.petKind || (typeof S.pet === 'string' && S.pet !== '1' ? S.pet : ''))) || 'cat';
+        const fn = pk === 'direwolf' ? drawDirewolfPup : pk === 'babydragon' ? drawBabyDragon : drawCat;
+        if (o.down) { ctx.globalAlpha = 0.6; fn(x, y, 0, o.fx, 0.8, true, false); ctx.globalAlpha = 1; return; }
         if (o.inv > 0 && (o.inv & 4)) ctx.globalAlpha = 0.5;
-        drawCat(x + (o.lunge ? o.fx * o.lunge * 0.6 : 0), y, o.walk, o.fx, 0.8, !!o.sit && o.idle > 600, o.hurt > 0 && (o.hurt & 2));
+        fn(x + (o.lunge ? o.fx * o.lunge * 0.6 : 0), y, o.walk, o.fx, 0.85, !!o.sit && o.idle > 600, o.hurt > 0 && (o.hurt & 2));
         ctx.globalAlpha = 1;
         if (o.sniff) { const b = Math.sin(tick * 0.2) * 2; ctx.fillStyle = '#000'; ctx.fillRect(x - 3, y - 36 + b, 7, 13); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x - 2, y - 35 + b, 5, 7); ctx.fillRect(x - 2, y - 26 + b, 5, 2); }
         if (o.hp < o.max) { ctx.fillStyle = '#000'; ctx.fillRect(x - 11, y - 24, 22, 4); ctx.fillStyle = '#7ef0a0'; ctx.fillRect(x - 10, y - 23, 20 * o.hp / o.max, 2); }
+    }
+    function drawDirewolfPup(x, y, walk, fx, s, sleep, flash) {
+        const l = Math.sin(walk * 2.2) * 2.5 * s, tail = Math.sin(tick * 0.15) * 3;
+        ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, 11 * s, 3.5 * s, 0, 0, 6.2832); ctx.fill();
+        const body = flash ? '#fff' : '#d8dce4', dark = flash ? '#fff' : '#8a92a0';
+        if (sleep) { ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(x, y - 5 * s, 10 * s, 5.5 * s, 0, 0, 6.2832); ctx.fill(); return; }
+        ctx.strokeStyle = dark; ctx.lineWidth = 3 * s; ctx.beginPath(); ctx.moveTo(x - fx * 9 * s, y - 8 * s); ctx.quadraticCurveTo(x - fx * 16 * s, y - 13 * s, x - fx * 14 * s + tail * 0.3, y - 18 * s); ctx.stroke();
+        ctx.fillStyle = dark; ctx.fillRect(x - 7 * s, y - 5 * s + l, 2.5 * s, 5 * s); ctx.fillRect(x + 4 * s, y - 5 * s - l, 2.5 * s, 5 * s);
+        ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(x, y - 8 * s, 10.5 * s, 6 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + fx * 9 * s, y - 14 * s, 5.5 * s, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x + fx * 12 * s, y - 15 * s); ctx.lineTo(x + fx * 17 * s, y - 13 * s); ctx.lineTo(x + fx * 12 * s, y - 11 * s); ctx.fill();
+        ctx.fillStyle = dark; ctx.beginPath(); ctx.moveTo(x + fx * 5 * s, y - 17 * s); ctx.lineTo(x + fx * 7 * s, y - 23 * s); ctx.lineTo(x + fx * 9 * s, y - 17 * s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x + fx * 9 * s, y - 17 * s); ctx.lineTo(x + fx * 12 * s, y - 23 * s); ctx.lineTo(x + fx * 13 * s, y - 17 * s); ctx.fill();
+        ctx.fillStyle = '#d22a2a'; ctx.fillRect(x + fx * 10 * s, y - 15 * s, 2 * s, 2 * s);
+    }
+    function drawBabyDragon(x, y, walk, fx, s, sleep, flash) {
+        const z = sleep ? 3 : 12 + Math.sin(tick * 0.14) * 3, flap = Math.sin(tick * 0.35) * 6 * s;
+        ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(x, y, 10 * s, 3 * s, 0, 0, 6.2832); ctx.fill();
+        const body = flash ? '#fff' : '#9a1e22', wing = flash ? '#fff' : '#d84a2a', belly = '#e8c468';
+        ctx.fillStyle = wing;
+        ctx.beginPath(); ctx.moveTo(x, y - z - 6 * s); ctx.lineTo(x - 13 * s, y - z - 14 * s - flap); ctx.lineTo(x - 7 * s, y - z - 2 * s); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x, y - z - 6 * s); ctx.lineTo(x + 13 * s, y - z - 14 * s - flap); ctx.lineTo(x + 7 * s, y - z - 2 * s); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(x, y - z - 5 * s, 8 * s, 5 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = belly; ctx.fillRect(x - 4 * s, y - z - 4 * s, 8 * s, 2.5 * s);
+        ctx.fillStyle = body; ctx.beginPath(); ctx.arc(x + fx * 8 * s, y - z - 10 * s, 4.5 * s, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + fx * 9 * s, y - z - 11 * s, 2 * s, 2 * s);
     }
     function drawCat(x, y, walk, fx, s, sleep, flash) {
         const l = Math.sin(walk * 2) * 2 * s, tail = Math.sin(tick * 0.12) * 3;
@@ -3222,14 +3555,16 @@
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
         const ride = riding(p), dir = heroDir(p), flip = (dir >= 2) && (p.fx || p.lfx) < 0, mfx = p.lfx || 1, back = dir === 1 || dir === 4;
         // mounts are seen from the front or the back when going straight down or up, from the side otherwise
-        const mdir = dir === 0 || dir === 1 ? dir : 2, horse = ride && S.mount === 'horse', charger = ride && S.mount === 'charger';
+        const mdir = dir === 0 || dir === 1 ? dir : 2, horse = ride && S.mount === 'horse', charger = ride && S.mount === 'charger', shadow = ride && S.mount === 'shadowmane', ffang = ride && S.mount === 'frostfang';
         const fly = ride && ((S.mount === 'dragon' && MOUNTART.hasDragon) || charger), z = fly ? (charger ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
         const hy = charger ? y - z - (mdir === 2 ? 22 : mdir === 1 ? 28 : 32) : fly ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
-            : horse && mdir !== 2 ? y - 30 : ride ? y - (horse ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
+            : (horse || shadow) && mdir !== 2 ? y - 30 : ride ? y - ((horse || shadow) ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
         // where the rider sits: on the dragon's back (behind its neck), in the horse's saddle
-        const rx = charger ? x - (mdir === 2 ? mfx * 3 : 0) : fly ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : horse && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
+        const rx = charger ? x - (mdir === 2 ? mfx * 3 : 0) : fly ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : (horse || shadow) && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
         if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
         else if (fly) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
+        else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.32, p.moving, tick + p.i * 5);
+        else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.25, p.moving, tick + p.i * 5);
         else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.38, 'horse');
         else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
         if (back) drawHeroWeapon(p, rx, hy, dir, flip);
@@ -3253,25 +3588,40 @@
     const PCOL = ['#8af0e0', '#ffb38a', '#c9a8ff', '#a8e88a'];       // the colour of each hero's label and HUD name
     function drawHeroWeapon(p, x, y, dir, flip) {
         const st = p.st;
-        if (p.thrown > tick) return;                         // the sword is flying (the distant attack)
-        if (st.kind === 'sword' && p.swing > 0) {          // slash: a bright arc with a fading trail
-            const a = Math.atan2(p.ay, p.ax), t = p.swing / 12, from = a - 1.4, to = a - 1.4 + (1 - t) * 2.8 + 0.2;
+        if (p.thrown > tick) return;                         // the sword or axes are flying (the distant attack)
+        if ((st.kind === 'sword' || st.kind === 'axes' || st.kind === 'hammer') && p.swing > 0) {
+            const a = Math.atan2(p.ay, p.ax), maxS = st.kind === 'hammer' ? 16 : 12, t = p.swing / maxS;
+            if (st.kind === 'axes') {                        // Dual Axes: 360° whirlwind slash around the hero
+                const spinA = a + (1 - t) * 5.8;
+                ctx.globalAlpha = t * 0.75; ctx.strokeStyle = st.col; ctx.lineWidth = 5;
+                ctx.beginPath(); ctx.arc(x, y - 12, 24, spinA - 2.4, spinA); ctx.stroke();
+                ctx.beginPath(); ctx.arc(x, y - 12, 24, spinA + 0.7, spinA + 3.1); ctx.stroke();
+                ctx.globalAlpha = 1;
+                drawHeld('axes', st.col, st.col2, x + Math.cos(spinA) * 8, y - 12 + Math.sin(spinA) * 8, spinA, p.wr);
+                drawHeld('axes', st.col, st.col2, x - Math.cos(spinA) * 8, y - 12 - Math.sin(spinA) * 8, spinA + Math.PI, p.wr);
+                return;
+            }
+            const from = a - 1.4, to = a - 1.4 + (1 - t) * 2.8 + 0.2;
             for (let k = 0; k < 3; k++) {
-                ctx.globalAlpha = t * (0.9 - k * 0.28); ctx.strokeStyle = k === 0 ? '#ffffff' : p.wr >= 2 ? LOOT.colors[p.wr] : st.col; ctx.lineWidth = 6 - k * 1.5;
-                ctx.beginPath(); ctx.arc(x, y - 12, 20 + k * 3, from + k * 0.15, to); ctx.stroke();
+                ctx.globalAlpha = t * (0.9 - k * 0.28); ctx.strokeStyle = k === 0 ? '#ffffff' : p.wr >= 2 ? LOOT.colors[p.wr] : st.col; ctx.lineWidth = (st.kind === 'hammer' ? 8 : 6) - k * 1.5;
+                ctx.beginPath(); ctx.arc(x, y - 12, (st.kind === 'hammer' ? 23 : 20) + k * 3, from + k * 0.15, to); ctx.stroke();
             }
             ctx.globalAlpha = 1;
-            drawHeld('sword', st.col, st.col2, x + Math.cos(to) * 6, y - 12 + Math.sin(to) * 6, to, p.wr);
+            drawHeld(st.kind, st.col, st.col2, x + Math.cos(to) * 6, y - 12 + Math.sin(to) * 6, to, p.wr);
             return;
         }
         // the weapon hand: three-quarter views hold it on the side the hero turns to
         const hx = x + (dir === 2 ? (flip ? -3 : 3) : dir === 1 ? -9 : dir === 3 ? (flip ? -7 : 7) : dir === 4 ? (flip ? 7 : -7) : 9), hy = y - 14;
         const d = dir === 3 ? 0 : dir === 4 ? 1 : dir, m = flip && dir >= 3 ? -1 : 1;
         let a;
-        if (p.swing > 0 || st.kind === 'gun') a = Math.atan2(p.ay, p.ax);
-        else if (st.kind === 'sword') a = d === 2 ? (flip ? -2.25 : -0.9) : d === 1 ? (m < 0 ? -1.25 : -1.9) : (m < 0 ? -1.95 : -1.2);
+        if (p.swing > 0 || st.kind === 'gun' || st.kind === 'pistols') a = Math.atan2(p.ay, p.ax);
+        else if (st.kind === 'sword' || st.kind === 'axes' || st.kind === 'hammer') a = d === 2 ? (flip ? -2.25 : -0.9) : d === 1 ? (m < 0 ? -1.25 : -1.9) : (m < 0 ? -1.95 : -1.2);
         else if (st.kind === 'bow') a = d === 2 ? (flip ? Math.PI : 0) : d === 1 ? -1.57 : (m < 0 ? 2.9 : 0.25);
         else a = d === 2 ? (flip ? -1.85 : -1.3) : (m < 0 ? -1.7 : -1.45);
+        if (st.kind === 'axes' || st.kind === 'pistols') {   // two-handed dual weapons: draw off-hand weapon too
+            const ox = x - (hx - x), oy = hy + 1;
+            drawHeld(st.kind, st.col, st.col2, ox, oy, st.kind === 'pistols' ? a + 0.08 : -Math.PI - a, p.wr, p.swing, p.flash);
+        }
         drawHeld(st.kind, st.col, st.col2, hx, hy, a, p.wr, p.swing, p.flash);
     }
     // a weapon in a hand at hx,hy pointing at angle a; epic and legendary weapons shine
@@ -3293,14 +3643,24 @@
             ctx.fillStyle = col; ctx.fillRect(2.5, -1.4, 13, 2.8);                              // blade
             ctx.fillStyle = '#ffffff'; ctx.fillRect(2.5, -1.4, 13, 0.9);
             ctx.beginPath(); ctx.moveTo(15.5, -1.4); ctx.lineTo(18.5, 0); ctx.lineTo(15.5, 1.4); ctx.fillStyle = col; ctx.fill();
+        } else if (kind === 'axes') {
+            ctx.fillStyle = col2 || '#5a3e28'; ctx.fillRect(-3, -1.3, 14, 2.6);                 // haft
+            ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(6, -1); ctx.lineTo(12, -6.5); ctx.quadraticCurveTo(15, 0, 12, 6.5); ctx.lineTo(6, 1); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(11, -5, 1.5, 10);
+        } else if (kind === 'hammer') {
+            ctx.fillStyle = col2 || '#4a3220'; ctx.fillRect(-5, -1.4, 18, 2.8);                 // long two-handed haft
+            ctx.fillStyle = col; ctx.fillRect(9, -6, 6, 12);                                    // heavy warhammer head
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(13, -5, 1.5, 10);
+            ctx.fillStyle = '#c9a43a'; ctx.fillRect(8, -2, 2, 4);
         } else if (kind === 'bow') {
             const pull = swing > 6 ? (12 - swing) * 0.7 : 0;
             ctx.strokeStyle = col; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(-3, 0, 10, -1.25, 1.25); ctx.stroke();
             ctx.strokeStyle = '#f2ead2'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(-3 + Math.cos(-1.25) * 10, Math.sin(-1.25) * 10); ctx.lineTo(-3 - pull, 0); ctx.lineTo(-3 + Math.cos(1.25) * 10, Math.sin(1.25) * 10); ctx.stroke();
-        } else if (kind === 'gun') {
-            ctx.fillStyle = col2 || '#6b4a2e'; ctx.fillRect(-6, -1.5, 7, 3.4); ctx.fillRect(-7, 0, 3, 4);
-            ctx.fillStyle = col; ctx.fillRect(0, -1.6, 15, 2.6); ctx.fillStyle = '#c9a43a'; ctx.fillRect(0, 0.8, 3, 1.6);
-            if (flash > 0) { const s2 = 14 + flash * 3; ctx.drawImage(ART.misc().flash, 18 - s2 / 2, -s2 / 2, s2, s2); }
+        } else if (kind === 'gun' || kind === 'pistols') {
+            const L = kind === 'pistols' ? 10 : 15;
+            ctx.fillStyle = col2 || '#6b4a2e'; ctx.fillRect(-5, -1.5, 6, 3.2); ctx.fillRect(-6, 0, 2.8, 3.6);
+            ctx.fillStyle = col; ctx.fillRect(0, -1.5, L, 2.4); ctx.fillStyle = '#c9a43a'; ctx.fillRect(0, 0.7, 3, 1.5);
+            if (flash > 0) { const s2 = 12 + flash * 2.5; ctx.drawImage(ART.misc().flash, L + 3 - s2 / 2, -s2 / 2, s2, s2); }
         } else if (kind === 'staff') {
             ctx.fillStyle = '#6b4a2e'; ctx.fillRect(-8, -1.2, 26, 2.4);
             ctx.fillStyle = '#c9a43a'; ctx.fillRect(15, -2.2, 3, 4.4);
@@ -3550,15 +3910,49 @@
 
     /* ------------------------------------------------------------------ the guide arrow */
 
-    // where the story wants you, in which zone
+    // find the target of any active side quest (sq or pq), returning true and setting GT.x, GT.y if found
+    function anySideTarget() {
+        for (const q of QUESTS) {
+            const st = qState(q.id);
+            if (st === 1 || st === 2) {
+                if (st === 2 && npcSpot(q.giver)) return true;
+                if (st === 1 && q.type === 'rescue' && npcSpot(q.who)) return true;
+                if (st === 1 && q.type === 'kill' && foeSpot(q.foe, '')) return true;
+                if (st === 1 && q.type !== 'rescue' && q.type !== 'kill' && npcSpot(q.giver)) return true;
+            }
+        }
+        for (const npc in S.pq) {
+            const q = S.pq[npc], d = poolDef(q);
+            if (!q || !d) continue;
+            if (q.st === 2 && npcSpot(npc)) return true;
+            if (q.st === 1) {
+                if (d.type === 'deliver' && npcSpot(d.to)) return true;
+                if (d.zone && d.zone !== Z.id && hop(d.zone)) return true;
+                if (d.type === 'collect') {
+                    let best = null, bd = 1e9;
+                    for (const o of DROPS) if (o.on && o.k === 4 && o.qg === npc) { const dd = dist(o.x, o.y, P[0].x, P[0].y); if (dd < bd) { bd = dd; best = o; } }
+                    if (best) { GT.x = best.x; GT.y = best.y; return true; }
+                }
+                if (d.type === 'rescue' && npcSpot('q:' + npc)) return true;
+                if (d.type === 'elite' && foeSpot(d.foe, npc)) return true;
+                if (foeSpot(d.foe, '')) return true;
+            }
+        }
+        return false;
+    }
+
+    // where the story wants you, in which zone (GT.side = false for Main Quest [Yellow], true for Side Quest [Green])
     function target() {
+        GT.side = false;
         if (Z.def.rift) {
             if (riftClear) { GT.x = Z.stairs.cx; GT.y = Z.stairs.cy; return true; }
             let best = null, bd = 1e9; for (const f of FOES) if (f.on) { const d = dist(f.x, f.y, P[0].x, P[0].y); if (d < bd) { bd = d; best = f; } }
             if (!best) return false; GT.x = best.x; GT.y = best.y; return true;
         }
-        if (S.track && S.track !== 'main' && trackTarget()) return true;
-        return CH && CH.target ? CH.target() : false;
+        if (S.track && S.track !== 'main' && trackTarget()) { GT.side = true; return true; }
+        if (CH && CH.target && CH.target()) return true;
+        if (anySideTarget()) { GT.side = true; return true; }
+        return false;
     }
     // the next doorway on the way to zone z: down from the village hub, or back up toward it
     function hop(z) {
@@ -3569,7 +3963,8 @@
         const e = exitTo(next);
         GT.x = (e.x + e.w / 2) * TS; GT.y = (e.y + e.h / 2) * TS; return true;
     }
-    const GT = { x: 0, y: 0, t: 0, ok: false, px: 0, py: 0 };
+    const GT = { x: 0, y: 0, t: 0, ok: false, px: 0, py: 0, side: false };
+    const ST = { x: 0, y: 0, ok: false };
     function exitTo(to) { const ex = Z.def.exits; for (let i = 0; i < ex.length; i++) if (ex[i].to === to) return ex[i]; return ex[0]; }
     function nearestPick(zone, c) {
         let best = null, bd = 1e9;
@@ -3620,25 +4015,106 @@
         }
         GT.px = x * TS + 16; GT.py = y * TS + 16;
     }
+
+    // Draw a crisp, unmistakable directional arrow (with shaft, notched barbs, dark outline, and bright tip chevron).
+    // Yellow (#ffd23f) for Main Quests, Green (#2ee86c) for Side Quests.
+    function drawArrowShape(px, py, angle, isSide, scale) {
+        const mainCol = isSide ? '#2ee86c' : '#ffd23f';
+        const hiCol   = isSide ? '#c8ffd8' : '#fff8c4';
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(angle);
+        if (scale && scale !== 1) ctx.scale(scale, scale);
+        // Outer dark border for contrast over snow, grass, stone, and water
+        ctx.fillStyle = '#0c0a08';
+        ctx.beginPath();
+        ctx.moveTo(16.5, 0);
+        ctx.lineTo(1.5, -10.5);
+        ctx.lineTo(4.2, -4.6);
+        ctx.lineTo(-13.5, -4.6);
+        ctx.lineTo(-10.2, 0);
+        ctx.lineTo(-13.5, 4.6);
+        ctx.lineTo(4.2, 4.6);
+        ctx.lineTo(1.5, 10.5);
+        ctx.closePath();
+        ctx.fill();
+        // Main colored arrow body (shaft + swept arrowhead)
+        ctx.fillStyle = mainCol;
+        ctx.beginPath();
+        ctx.moveTo(14, 0);
+        ctx.lineTo(3, -8);
+        ctx.lineTo(5.2, -3);
+        ctx.lineTo(-11.2, -3);
+        ctx.lineTo(-8.5, 0);
+        ctx.lineTo(-11.2, 3);
+        ctx.lineTo(5.2, 3);
+        ctx.lineTo(3, 8);
+        ctx.closePath();
+        ctx.fill();
+        // Bright center spine & front tip chevron so the pointing direction is instant to read
+        ctx.fillStyle = hiCol;
+        ctx.beginPath();
+        ctx.moveTo(12.5, 0);
+        ctx.lineTo(4.8, -5.2);
+        ctx.lineTo(6.2, -1.3);
+        ctx.lineTo(-6.5, -1.3);
+        ctx.lineTo(-6.5, 1.3);
+        ctx.lineTo(6.2, 1.3);
+        ctx.lineTo(4.8, 5.2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function renderQuestArrow(cx, cy, tx, ty, px, py, isSide, avoidAngle) {
+        const x = tx - cx, y = ty - cy - 38, m = 26;
+        const onScreen = x > m && x < W - m && y > m && y < H - m;
+        const col = isSide ? '#2ee86c' : '#ffd23f';
+        if (onScreen) {
+            const b = Math.sin(tick * 0.15) * 4;
+            // Pulsing target ring at the destination
+            ctx.globalAlpha = 0.45 + Math.sin(tick * 0.15) * 0.15;
+            ctx.strokeStyle = col; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.ellipse(x, ty - cy - 2, 12, 5, 0, 0, 6.2832); ctx.stroke();
+            ctx.globalAlpha = 1;
+            // Downward-pointing shafted arrow above the target
+            drawArrowShape(x, y - 6 + b, Math.PI * 0.5, isSide, 0.95);
+        }
+        // Always show the directional arrow orbiting the hero unless we are already right next to the on-screen target
+        if (!onScreen || dist(P[0].x, P[0].y, tx, ty) > 85) {
+            const hx = P[0].x - cx, hy = P[0].y - cy - 14;
+            let a = Math.atan2(py - P[0].y, px - P[0].x);
+            if (avoidAngle !== null && Math.abs(Math.atan2(Math.sin(a - avoidAngle), Math.cos(a - avoidAngle))) < 0.35) {
+                a += 0.38;
+            }
+            const thrust = Math.sin(tick * 0.18) * 3;
+            const ax = hx + Math.cos(a) * (36 + thrust), ay = hy + Math.sin(a) * (26 + thrust * 0.75);
+            const pulse = 1 + Math.sin(tick * 0.15) * 0.08;
+            drawArrowShape(ax, ay, a, isSide, pulse);
+            return a;
+        }
+        return null;
+    }
+
     function drawGuide(cx, cy) {
         if (!S) return;
-        if (tick % 15 === 0) { GT.ok = target(); if (GT.ok) guidePoint(); }
-        if (!GT.ok) return;
-        const x = GT.x - cx, y = GT.y - cy - 34, m = 26;
-        if (x > m && x < W - m && y > m && y < H - m) {
-            const b = Math.sin(tick * 0.12) * 4;
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(x - 9, y - 12 + b); ctx.lineTo(x + 9, y - 12 + b); ctx.lineTo(x, y + 1 + b); ctx.fill();
-            ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.moveTo(x - 6, y - 10 + b); ctx.lineTo(x + 6, y - 10 + b); ctx.lineTo(x, y - 2 + b); ctx.fill();
-        } else {
-            // an arrow circling the hero, pointing along the path
-            const hx = P[0].x - cx, hy = P[0].y - cy - 14, a = Math.atan2(GT.py - cy - (P[0].y - cy), GT.px - cx - hx);
-            const px = hx + Math.cos(a) * 34, py = hy + Math.sin(a) * 24;
-            ctx.save(); ctx.translate(px, py); ctx.rotate(a);
-            const pulse = 1 + Math.sin(tick * 0.15) * 0.12; ctx.scale(pulse, pulse);
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(13, 0); ctx.lineTo(-8, -10); ctx.lineTo(-8, 10); ctx.fill();
-            ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.moveTo(9, 0); ctx.lineTo(-5, -7); ctx.lineTo(-5, 7); ctx.fill();
-            ctx.restore();
+        if (!GT.ok || tick % 15 === 0) {
+            GT.ok = target();
+            if (GT.ok) guidePoint();
+            // When GT is pointing to a Main Quest (yellow), also check if there is an active Side Quest for a secondary green arrow
+            ST.ok = false;
+            if (GT.ok && !GT.side && !Z.def.rift) {
+                const gx = GT.x, gy = GT.y, gpx = GT.px, gpy = GT.py, gs = GT.side;
+                if (anySideTarget()) {
+                    ST.x = GT.x; ST.y = GT.y;
+                    ST.ok = dist(ST.x, ST.y, gx, gy) > 24;
+                }
+                GT.x = gx; GT.y = gy; GT.px = gpx; GT.py = gpy; GT.side = gs;
+            }
         }
+        if (!GT.ok) return;
+        const mainAng = renderQuestArrow(cx, cy, GT.x, GT.y, GT.px, GT.py, GT.side, null);
+        if (ST.ok) renderQuestArrow(cx, cy, ST.x, ST.y, ST.x, ST.y, true, mainAng);
     }
 
     /* ------------------------------------------------------------------ loop, screen */
@@ -3737,7 +4213,7 @@
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, playChapter4, prepareChapter4Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
 
     /* ------------------------------------------------------------------ lifecycle */
 
@@ -3747,6 +4223,11 @@
         S = fresh();
         const saved = MyPC.load('save', null);
         if (saved) S = migrate(Object.assign(fresh(), saved));
+        if (/[?&]ch=?4\b/i.test(location.search) && CHAPTERS.enabled('ch4')) {
+            S = prepareChapter4Save(S);
+            if (CHAPTERS.of(S.zone) !== 'ch4') { S.zone = 'c4_river'; S.x = 22.5; S.y = 25.5; }
+            save();
+        }
         let ch = CHAPTERS.of(S.zone);
         if (!CHAPTERS.enabled(ch)) ch = 'ch1';
         let finished = false;

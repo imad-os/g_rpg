@@ -145,7 +145,29 @@
       "engine": "piper",
       "model": "en_US-ryan-medium",
       "speed": 0.95
-    }
+    },
+    "robb": { "engine": "piper", "model": "en_GB-northern_english_male-medium", "speed": 1.02 },
+    "catelyn": { "engine": "piper", "model": "en_GB-cori-medium", "speed": 1.08 },
+    "arya": { "engine": "piper", "model": "en_US-hfc_female-medium", "speed": 0.94 },
+    "sansa": { "engine": "piper", "model": "en_GB-southern_english_female-low", "speed": 1.04 },
+    "jon": { "engine": "piper", "model": "en_GB-northern_english_male-medium", "speed": 1.08 },
+    "samwell": { "engine": "piper", "model": "en_GB-alan-medium", "speed": 1.02 },
+    "aemon": { "engine": "piper", "model": "en_GB-alan-medium", "speed": 1.18 },
+    "tyrion": { "engine": "piper", "model": "en_GB-alan-medium", "speed": 1.0 },
+    "varys": { "engine": "piper", "model": "en_GB-alan-medium", "speed": 1.12 },
+    "jaime": { "engine": "piper", "model": "en_US-ryan-medium", "speed": 1.04 },
+    "davos": { "engine": "piper", "model": "en_GB-northern_english_male-medium", "speed": 1.1 },
+    "brienne": { "engine": "piper", "model": "en_GB-cori-medium", "speed": 1.06 },
+    "melisandre": { "engine": "piper", "model": "en_US-amy-medium", "speed": 1.12 },
+    "daenerys": { "engine": "piper", "model": "en_US-amy-medium", "speed": 1.05 },
+    "jorah": { "engine": "piper", "model": "en_GB-northern_english_male-medium", "speed": 1.12 },
+    "jaqen": { "engine": "piper", "model": "en_US-ryan-medium", "speed": 1.14 },
+    "mance": { "engine": "piper", "model": "en_US-joe-medium", "speed": 1.06 },
+    "child": { "engine": "piper", "model": "en_US-hfc_female-medium", "speed": 0.92 },
+    "gendry": { "engine": "piper", "model": "en_US-john-medium", "speed": 1.02 },
+    "qyburn": { "engine": "piper", "model": "en_GB-alan-medium", "speed": 1.15 },
+    "salladhor": { "engine": "piper", "model": "en_US-joe-medium", "speed": 0.98 },
+    "nightking": { "engine": "piper", "model": "en_US-ryan-medium", "speed": 1.22 }
   },
   "fr": {
     "narrator": {
@@ -302,7 +324,29 @@
       "model": "fr_FR-upmc-medium",
       "speaker": 1,
       "speed": 0.95
-    }
+    },
+    "robb": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.02 },
+    "catelyn": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 1.08 },
+    "arya": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 0.94 },
+    "sansa": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 1.04 },
+    "jon": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.08 },
+    "samwell": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.02 },
+    "aemon": { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.18 },
+    "tyrion": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.0 },
+    "varys": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.12 },
+    "jaime": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.04 },
+    "davos": { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.1 },
+    "brienne": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 1.06 },
+    "melisandre": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 1.12 },
+    "daenerys": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 1.05 },
+    "jorah": { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.12 },
+    "jaqen": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.14 },
+    "mance": { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.06 },
+    "child": { "engine": "piper", "model": "fr_FR-siwis-medium", "speed": 0.92 },
+    "gendry": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 1.02 },
+    "qyburn": { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.15 },
+    "salladhor": { "engine": "piper", "model": "fr_FR-tom-medium", "speed": 0.98 },
+    "nightking": { "engine": "piper", "model": "fr_FR-gilles-low", "speed": 1.22 }
   },
   "es": {
     "narrator": {
@@ -469,7 +513,29 @@
       "engine": "piper",
       "model": "es_MX-ald-medium",
       "speed": 0.95
-    }
+    },
+    "robb": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.02 },
+    "catelyn": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.08 },
+    "arya": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 0.94 },
+    "sansa": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.04 },
+    "jon": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.08 },
+    "samwell": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.02 },
+    "aemon": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.18 },
+    "tyrion": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.0 },
+    "varys": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.12 },
+    "jaime": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.04 },
+    "davos": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.1 },
+    "brienne": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.06 },
+    "melisandre": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.12 },
+    "daenerys": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 1.05 },
+    "jorah": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.12 },
+    "jaqen": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.14 },
+    "mance": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.06 },
+    "child": { "engine": "piper", "model": "es_ES-sharvard-medium", "speaker": 1, "speed": 0.92 },
+    "gendry": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.02 },
+    "qyburn": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.15 },
+    "salladhor": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 0.98 },
+    "nightking": { "engine": "piper", "model": "es_ES-davefx-medium", "speed": 1.22 }
   },
   "ar": {
     "narrator": {
@@ -616,6 +682,28 @@
       "engine": "piper",
       "model": "ar_JO-kareem-medium",
       "speed": 0.9
-    }
+    },
+    "robb": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.02 },
+    "catelyn": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.08 },
+    "arya": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 0.94 },
+    "sansa": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.04 },
+    "jon": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.08 },
+    "samwell": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.02 },
+    "aemon": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.18 },
+    "tyrion": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.0 },
+    "varys": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.12 },
+    "jaime": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.04 },
+    "davos": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.1 },
+    "brienne": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.06 },
+    "melisandre": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.12 },
+    "daenerys": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.05 },
+    "jorah": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.12 },
+    "jaqen": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.14 },
+    "mance": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.06 },
+    "child": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 0.92 },
+    "gendry": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.02 },
+    "qyburn": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.15 },
+    "salladhor": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 0.98 },
+    "nightking": { "engine": "piper", "model": "ar_JO-kareem-medium", "speed": 1.22 }
   }
 }

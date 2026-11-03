@@ -50,14 +50,34 @@ window.HM_ITEMS = {
     runic_robe:   { slot: 'body', tier: 5, def: 6, spd: 0.06, price: 1150, col: '#4a3a8a' },
     wyrm_boots:   { slot: 'feet', tier: 5, def: 3, spd: 0.24, price: 820, col: '#6a2a1e' },
     // the four super weapons: one from each boss of chapter 3, always legendary
-    dawnbreaker:  { slot: 'weapon', tier: 5, kind: 'sword', atk: 18, cd: 17, price: 0, super: 1, fx: 'wave',  col: '#fff2b0', col2: '#c9a43a' },
-    sylvan_warbow:{ slot: 'weapon', tier: 5, kind: 'bow',   atk: 12, cd: 19, price: 0, super: 1, fx: 'leaf',  col: '#4ad87a', col2: '#e8ffe0' },
-    thunderforge: { slot: 'weapon', tier: 5, kind: 'gun',   atk: 24, cd: 66, price: 0, super: 1, fx: 'chain', col: '#5a6a9a', col2: '#ffd23f' },
-    veilstaff:    { slot: 'weapon', tier: 5, kind: 'staff', atk: 17, cd: 20, price: 0, super: 1, fx: 'void',  col: '#b07aff', col2: '#2a1a3a' }
+    dawnbreaker:      { slot: 'weapon', tier: 5, kind: 'sword',   atk: 18, cd: 17, price: 0, super: 1, fx: 'wave',    col: '#fff2b0', col2: '#c9a43a' },
+    sylvan_warbow:    { slot: 'weapon', tier: 5, kind: 'bow',     atk: 12, cd: 19, price: 0, super: 1, fx: 'leaf',    col: '#4ad87a', col2: '#e8ffe0' },
+    thunderforge:     { slot: 'weapon', tier: 5, kind: 'gun',     atk: 24, cd: 66, price: 0, super: 1, fx: 'chain',   col: '#5a6a9a', col2: '#ffd23f' },
+    veilstaff:        { slot: 'weapon', tier: 5, kind: 'staff',   atk: 17, cd: 20, price: 0, super: 1, fx: 'void',    col: '#b07aff', col2: '#2a1a3a' },
+    // chapter 4 (Westeros & Essos): new two-handed weapon classes & tier 6 gear
+    ironwood_axes:    { slot: 'weapon', tier: 5, kind: 'axes',    atk: 15, cd: 19, price: 1150, col: '#b8c4d0', col2: '#4a3628' },
+    twin_flintlocks:  { slot: 'weapon', tier: 5, kind: 'pistols', atk: 16, cd: 38, price: 1200, col: '#c8a850', col2: '#3a2418' },
+    valyrian_blade:   { slot: 'weapon', tier: 6, kind: 'sword',   atk: 19, cd: 17, price: 1800, col: '#9aa8b8', col2: '#7a1e1e' },
+    weirwood_bow:     { slot: 'weapon', tier: 6, kind: 'bow',     atk: 13, cd: 19, price: 1700, col: '#e8e4dc', col2: '#b82828' },
+    braavosi_pistols: { slot: 'weapon', tier: 6, kind: 'pistols', atk: 21, cd: 36, price: 1950, col: '#d8b85a', col2: '#2a2228' },
+    dothraki_axes:    { slot: 'weapon', tier: 6, kind: 'axes',    atk: 20, cd: 18, price: 1900, col: '#c8d4e0', col2: '#6a3a22' },
+    wildfire_staff:   { slot: 'weapon', tier: 6, kind: 'staff',   atk: 18, cd: 20, price: 1850, col: '#4aff7a', col2: '#243a28' },
+    baratheon_hammer: { slot: 'weapon', tier: 6, kind: 'hammer',  atk: 24, cd: 28, price: 2000, col: '#7a8490', col2: '#d8b030' },
+    stark_wolfhelm:   { slot: 'head',   tier: 6, def: 7,  price: 1350, col: '#8a96a6', col2: '#d8e0e8' },
+    kingsguard_plate: { slot: 'body',   tier: 6, def: 12, spd: -0.04, price: 2100, col: '#f2e6c2', col2: '#d8b04a' },
+    targaryen_scale:  { slot: 'body',   tier: 6, def: 10, spd: 0.04,  price: 2050, col: '#241e22', col2: '#c82828' },
+    watch_cloak:      { slot: 'body',   tier: 6, def: 8,  spd: 0.08,  price: 1900, col: '#1c1e24', col2: '#4a5260' },
+    dornish_boots:    { slot: 'feet',   tier: 6, def: 4,  spd: 0.28,  price: 1400, col: '#a84424', col2: '#ffb040' },
+    valyrian_greaves: { slot: 'feet',   tier: 6, def: 6,  spd: 0.14,  price: 1500, col: '#5a6472', col2: '#c83030' },
+    // chapter 4 legendary super weapons: Winter's Fang, Stormbreaker, Dragonbone Dual Axes, Golden Company Pistols
+    winters_fang:     { slot: 'weapon', tier: 6, kind: 'sword',   atk: 24, cd: 16, price: 0, super: 1, fx: 'frost',   col: '#a8ecff', col2: '#e8f4ff' },
+    stormbreaker:     { slot: 'weapon', tier: 6, kind: 'hammer',  atk: 32, cd: 26, price: 0, super: 1, fx: 'thunder', col: '#ffd23f', col2: '#3a4250' },
+    valyrian_axes:    { slot: 'weapon', tier: 6, kind: 'axes',    atk: 25, cd: 17, price: 0, super: 1, fx: 'whirl',   col: '#ff6a3a', col2: '#2a1e22' },
+    golden_pistols:   { slot: 'weapon', tier: 6, kind: 'pistols', atk: 26, cd: 33, price: 0, super: 1, fx: 'barrage', col: '#ffd76a', col2: '#7a1c1c' }
 };
 window.HM_SLOTS = ['weapon', 'head', 'body', 'feet'];
 
-/* Loot. Every piece of gear you own is its own item: { u: id, id: base item, r: rarity, up: +0..+5, b: [[bonus, value]] }
+/* Loot. Every piece of gear you own is its own item: { u: id, id: base item, r: rarity, up: +0..+8, b: [[bonus, value]] }
  * Rarity 0 common, 1 rare (1 bonus), 2 epic (2 bonuses), 3 legendary (3 bonuses).
  * Bonuses: a attack, d defence, c crit %, s speed %, h max health, g extra coins % */
 window.HM_LOOT = {
@@ -68,9 +88,10 @@ window.HM_LOOT = {
     bonuses: { weapon: ['a', 'c', 's', 'g'], armour: ['d', 'h', 's', 'g'] },
     zoneTier: { village: 1, greywood: 1, mireshore: 2, isle: 2, quarry: 2, barrow: 2, mine: 3 },
     foeDrop: 0.035,                               // chance that a normal foe drops gear (bosses always do, rare or better)
-    oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1, stonebrute: 0.4, yeti: 0.3, riftborn: 1, hollowsoldier: 0.12, cryptbones: 0.12 },
-    bagSize: 36,
-    maxUp: 5
+    oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1, stonebrute: 0.4, yeti: 0.3, riftborn: 1, hollowsoldier: 0.12, cryptbones: 0.12,
+               wight: 0.15, whitewalker: 0.45, giant: 0.5, firewyrm: 0.45, icespider: 0.2, shadow: 0.25, kraken: 1, viserion: 1, nightking: 1 },
+    bagSize: 48,
+    maxUp: 8
 };
 
 // what each shop sells, in order. Tobin's forge opens once he has forged your first sword.
@@ -102,7 +123,15 @@ window.HM_QUESTS = [
 // mounts: speed multiplier, and the price at Hana's store (expensive on purpose: quests give them for free)
 // the dragon flies over water and low things; it is won in chapter 2 (never sold)
 // the Hollow Charger (chapter 3, from the Hollow King): a ghostly winged steed of the Veil, the fastest of all, and it flies
-window.HM_MOUNTS = { horse: { speed: 1.75, price: 700 }, wolf: { speed: 1.5, price: 900, bite: true }, dragon: { speed: 2.1, price: 0, fly: true }, charger: { speed: 2.3, price: 0, fly: true } };
+// Shadowmane (armored black warhorse, tramples foes) and Frostfang (giant direwolf mount, bites foes) are won or bought in chapter 4
+window.HM_MOUNTS = {
+    horse: { speed: 1.75, price: 700 },
+    wolf: { speed: 1.5, price: 900, bite: true },
+    shadowmane: { speed: 2.0, price: 1400, trample: true },
+    frostfang: { speed: 1.95, price: 1400, bite: true },
+    dragon: { speed: 2.1, price: 0, fly: true },
+    charger: { speed: 2.3, price: 0, fly: true }
+};
 
 // what the chests hold (by zone:x,y); anything not listed holds coins
 window.HM_CHESTS = {

@@ -14,24 +14,34 @@ window.HM_HERO = (function () {
 
     // what each piece of gear looks like
     const BODY = {
-        padded_vest: { main: '#8a5a34', dark: '#5e3a1e', light: '#b07a4a', kind: 'leather' },
-        chainmail:   { main: '#8f98a6', dark: '#5f6878', light: '#c4ccd8', kind: 'mail' },
-        plate_armor: { main: '#cfd7e3', dark: '#7c8798', light: '#ffffff', kind: 'plate', trim: '#d8b04a' },
-        tide_mail:   { main: '#2f9c9a', dark: '#1d6668', light: '#7fe0d6', kind: 'scale', trim: '#e8d27a' },
-        mage_robe:   { main: '#a8322e', dark: '#6e1c1a', light: '#ff8a5a', kind: 'robe', trim: '#ffd25a' }
+        padded_vest:      { main: '#8a5a34', dark: '#5e3a1e', light: '#b07a4a', kind: 'leather' },
+        chainmail:        { main: '#8f98a6', dark: '#5f6878', light: '#c4ccd8', kind: 'mail' },
+        plate_armor:      { main: '#cfd7e3', dark: '#7c8798', light: '#ffffff', kind: 'plate', trim: '#d8b04a' },
+        tide_mail:        { main: '#2f9c9a', dark: '#1d6668', light: '#7fe0d6', kind: 'scale', trim: '#e8d27a' },
+        mage_robe:        { main: '#a8322e', dark: '#6e1c1a', light: '#ff8a5a', kind: 'robe',  trim: '#ffd25a' },
+        frost_plate:      { main: '#c8dcf0', dark: '#6a829e', light: '#ffffff', kind: 'plate', trim: '#7ae0ff' },
+        runic_robe:       { main: '#4a3a8a', dark: '#2a1e56', light: '#b07aff', kind: 'robe',  trim: '#9ad8ff' },
+        kingsguard_plate: { main: '#f2e6c2', dark: '#b89644', light: '#ffffff', kind: 'plate', trim: '#ffd23f' },
+        targaryen_scale:  { main: '#241e22', dark: '#141014', light: '#6a5258', kind: 'scale', trim: '#c82828' },
+        watch_cloak:      { main: '#1c1e24', dark: '#101216', light: '#3a404c', kind: 'robe',  trim: '#5a6270' }
     };
     const HEAD = {
-        leather_cap: { main: '#7a5230', dark: '#4e331c', kind: 'cap' },
-        iron_helm:   { main: '#9aa2ae', dark: '#626a78', kind: 'helm' },
-        knight_helm: { main: '#d0d8e4', dark: '#7c8798', kind: 'knight', plume: '#d23a3a' },
-        coral_helm:  { main: '#3fb0a6', dark: '#1d6668', kind: 'knight', plume: '#ff8a6a' },
-        hood:        { main: '#4a3a5a', dark: '#2a2036', kind: 'hood' }
+        leather_cap:    { main: '#7a5230', dark: '#4e331c', kind: 'cap' },
+        iron_helm:      { main: '#9aa2ae', dark: '#626a78', kind: 'helm' },
+        knight_helm:    { main: '#d0d8e4', dark: '#7c8798', kind: 'knight', plume: '#d23a3a' },
+        coral_helm:     { main: '#3fb0a6', dark: '#1d6668', kind: 'knight', plume: '#ff8a6a' },
+        hood:           { main: '#4a3a5a', dark: '#2a2036', kind: 'hood' },
+        warden_helm:    { main: '#b8c8e0', dark: '#6a7a90', kind: 'knight', plume: '#7ae0ff' },
+        stark_wolfhelm: { main: '#8a96a6', dark: '#4a5260', kind: 'knight', plume: '#e8eef6' }
     };
     const FEET = {
-        leather_boots: { main: '#6b4a2e', top: '#8a5f3a' },
-        swift_boots:   { main: '#2f7a4f', top: '#5ac08a', wing: true },
-        iron_greaves:  { main: '#8a929e', top: '#c0c8d4' },
-        wave_boots:    { main: '#1d6668', top: '#7fe0d6', wing: true }
+        leather_boots:    { main: '#6b4a2e', top: '#8a5f3a' },
+        swift_boots:      { main: '#2f7a4f', top: '#5ac08a', wing: true },
+        iron_greaves:     { main: '#8a929e', top: '#c0c8d4' },
+        wave_boots:       { main: '#1d6668', top: '#7fe0d6', wing: true },
+        wyrm_boots:       { main: '#6a2a1e', top: '#ff8a3a', wing: true },
+        dornish_boots:    { main: '#a84424', top: '#ffb040', wing: true },
+        valyrian_greaves: { main: '#4a5260', top: '#c83030', wing: true }
     };
 
     /* dir: 0 front (facing down), 1 back (facing up), 2 side; flip = facing left

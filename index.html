@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Hollowmere</title>
+<meta name="description" content="A 2.5D co-op RPG in chapters: The Lantern Road, The Sunken Lantern and The Veilscar Frontier.">
+<meta property="og:title" content="Hollowmere">
+<meta property="og:description" content="A 2.5D co-op RPG in chapters: The Lantern Road, The Sunken Lantern and The Veilscar Frontier.">
 <style>
   html, body { margin: 0; height: 100%; background: #07080c; overflow: hidden; touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
   body { font-family: 'Segoe UI', Tahoma, 'Noto Sans', 'Noto Sans Arabic', Arial, sans-serif; color: #fff; }
@@ -215,6 +218,17 @@
   #questBox { background: linear-gradient(90deg, rgba(14,16,26,0.82), rgba(14,16,26,0.55)); border: 0; border-inline-start: calc(var(--u) * 0.6) solid var(--acc); border-radius: calc(var(--u) * 1.2); }
   #questLbl { color: var(--acc2); }
   #stats { background: linear-gradient(90deg, rgba(14,16,26,0.55), rgba(14,16,26,0.82)); border-radius: calc(var(--u) * 1.2); }
+
+  /* ---------- 4.0: Chapter 4 (Westeros & Essos) medieval chronicle typography & iron-gold theme ---------- */
+  body.ch4-theme { --acc: #d4a448; --acc2: #ffe29a; --pan: rgba(14,12,18,0.95); --pan2: rgba(26,20,28,0.97); }
+  body.ch4-theme .mtitle, body.ch4-theme .msub, body.ch4-theme #banner, body.ch4-theme #questLbl,
+  body.ch4-theme #dname, body.ch4-theme .ltitle, body.ch4-theme .jtitle, body.ch4-theme #bossName,
+  body.ch4-theme .stext {
+    font-family: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', Georgia, 'Noto Naskh Arabic', serif;
+    letter-spacing: 0.05em;
+  }
+  body.ch4-theme #questLbl::before { content: '⚔ '; }
+  body.ch4-theme .ltitle::before, body.ch4-theme .jtitle::before { content: '⚔ '; color: var(--acc); }
 </style>
 </head>
 <body>
@@ -244,28 +258,28 @@
   <div id="paused" style="display:none">II</div>
 </div>
 <script src="https://imad-os.github.io/g/sdk/mypc-sdk.js"></script>
-<script>window.HM_VERSION = '3.1.1';</script>
-<script src="js/i18n.js?v=3.1.1"></script>
-<script src="js/i18n_more.js?v=3.1.1"></script>
-<script src="js/i18n_talk.js?v=3.1.1"></script>
-<script src="js/i18n_pets.js?v=3.1.1"></script>
-<script src="js/i18n_rift.js?v=3.1.1"></script>
-<script src="js/i18n_play.js?v=3.1.1"></script>
-<script src="js/i18n_coop.js?v=3.1.1"></script>
-<script src="js/i18n_assign.js?v=3.1.1"></script>
-<script src="js/i18n_look.js?v=3.1.1"></script>
-<script src="js/i18n_players.js?v=3.1.1"></script>
-<script src="js/i18n_v3.js?v=3.1.1"></script>
-<script src="js/items.js?v=3.1.1"></script>
-<script src="js/kenney.js?v=3.1.1"></script>
-<script src="js/hero.js?v=3.1.1"></script>
-<script src="js/mounts.js?v=3.1.1"></script>
-<script src="js/chapters.js?v=3.1.1"></script>
-<script src="js/art.js?v=3.1.1"></script>
-<script src="js/audio.js?v=3.1.1"></script>
-<script src="js/voice.js?v=3.1.1"></script>
-<script src="js/gamepad.js?v=3.1.1"></script>
-<script src="js/coop.js?v=3.1.1"></script>
-<script src="js/game.js?v=3.1.1"></script>
+<script>window.HM_VERSION = '4.0.0';</script>
+<script src="js/i18n.js?v=4.0.0"></script>
+<script src="js/i18n_more.js?v=4.0.0"></script>
+<script src="js/i18n_talk.js?v=4.0.0"></script>
+<script src="js/i18n_pets.js?v=4.0.0"></script>
+<script src="js/i18n_rift.js?v=4.0.0"></script>
+<script src="js/i18n_play.js?v=4.0.0"></script>
+<script src="js/i18n_coop.js?v=4.0.0"></script>
+<script src="js/i18n_assign.js?v=4.0.0"></script>
+<script src="js/i18n_look.js?v=4.0.0"></script>
+<script src="js/i18n_players.js?v=4.0.0"></script>
+<script src="js/i18n_v3.js?v=4.0.0"></script>
+<script src="js/items.js?v=4.0.0"></script>
+<script src="js/kenney.js?v=4.0.0"></script>
+<script src="js/hero.js?v=4.0.0"></script>
+<script src="js/mounts.js?v=4.0.0"></script>
+<script src="js/chapters.js?v=4.0.0"></script>
+<script src="js/art.js?v=4.0.0"></script>
+<script src="js/audio.js?v=4.0.0"></script>
+<script src="js/voice.js?v=4.0.0"></script>
+<script src="js/gamepad.js?v=4.0.0"></script>
+<script src="js/coop.js?v=4.0.0"></script>
+<script src="js/game.js?v=4.0.0"></script>
 </body>
 </html>
