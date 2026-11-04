@@ -633,6 +633,9 @@ HM_CHAPTERS.def.ch4 = function (api) {
                 ch.push({ label: t.ui.c4sailRiver, fn: () => { api.closeDlg(); api.travel('c4_river', 22.5, 25.5); } });
             }
             ch.push({ label: t.ui.c4sailHome, fn: () => { api.closeDlg(); api.travel('c2_bay', 23.5, 23.6); } });
+            if (window.HM_CHAPTERS && window.HM_CHAPTERS.enabled && window.HM_CHAPTERS.enabled('ch5')) {
+                ch.push({ label: t.ui.c4sailBloodKingdoms || 'Sail to the Blood Kingdoms (Chapter 5)', fn: () => { api.closeDlg(); api.travel('c5_village', 22.5, 25.5); } });
+            }
         }
     }
 
@@ -772,8 +775,56 @@ HM_CHAPTERS.def.ch4 = function (api) {
         buff = '';
     }
 
+    /* ---------------- Chapter 4 Dynamic Soundtrack Management ---------------- */
+    let lastCh4Track = '';
+    let battleTimer = 0;
+
+    function isCh4Dungeon(zid) {
+        if (!zid) return false;
+        if (zid.indexOf('c4_val') === 0) return true;
+        if (api.Z && api.Z.def && (api.Z.def.depth || api.Z.def.dark)) return true;
+        return false;
+    }
+
+    function isCh4Battling() {
+        if (api.boss && api.boss.on && api.boss.active) return true;
+        if (wave) return true;
+        const p = api.P[0];
+        if (p) {
+            for (const f of api.FOES) {
+                const d = api.dist ? api.dist(f.x, f.y, p.x, p.y) : Math.hypot(f.x - p.x, f.y - p.y);
+                if (f.on && f.alpha > 0.5 && !f.friendly && d < 220) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function syncCh4Music() {
+        if (isCh4Battling()) {
+            battleTimer = 180; // keep battle music during combat and 3s cooldown
+        } else if (battleTimer > 0) {
+            battleTimer -= 15;
+        }
+
+        const targetTrack = battleTimer > 0
+            ? 'audio/soundtracks/battle.mp3'
+            : (isCh4Dungeon(api.Z ? api.Z.id : '')
+                ? 'audio/soundtracks/dangeon.mp3'
+                : 'audio/soundtracks/theme.mp3');
+
+        if (targetTrack !== lastCh4Track) {
+            lastCh4Track = targetTrack;
+            if (window.HM_AUDIO && HM_AUDIO.playTrack) {
+                HM_AUDIO.playTrack(targetTrack);
+            }
+        }
+    }
+
     function arrive(id) {
         const c = C(), s = step();
+        syncCh4Music();
         if (id === 'c4_river' && !c.seen.arrive) { c.seen.arrive = 1; api.save(); arrivalScene(); return; }
         if (s && s.type === 'reach' && s.zone === id) { complete(); return; }
         if ((id === 'c4_wall' || id === 'c4_beyond') && c.banner) {
@@ -788,6 +839,7 @@ HM_CHAPTERS.def.ch4 = function (api) {
 
     function update() {
         const c = C(), Z = api.Z, p = api.P[0];
+        if ((api.tick & 15) === 0) syncCh4Music();
         if (wave && (api.tick & 15) === 0) checkWave();
         if (buff === 'stark' && (api.tick % 180) === 0) {
             for (const q of api.P) if (q.on && !q.down && q.hp < api.maxHp(q)) {
@@ -912,7 +964,7 @@ HM_CHAPTERS.def.ch4 = function (api) {
         },
         treasures: { c4_river: 2, c4_kings: 3, c4_storm: 3, c4_north: 3, c4_essos: 3, c4_wall: 3, c4_beyond: 3 },
         beasts: ['wight', 'whitewalker', 'direwolf', 'children', 'shadow', 'giant', 'icespider', 'firewyrm', 'kraken', 'unicorn', 'elderwyrm', 'viserion', 'nightking', 'valyrianlord'],
-        songs: ['c4_river', 'c4_river_lit', 'c4_kings', 'c4_storm', 'c4_north', 'c4_essos', 'c4_wall', 'c4_beyond', 'c4_boss'], bossSong: 'c4_boss',
+        songs: ['c4_river', 'c4_river_lit', 'c4_kings', 'c4_storm', 'c4_north', 'c4_essos', 'c4_wall', 'c4_beyond', 'c4_boss'], bossSong: 'audio/soundtracks/battle.mp3',
         songDefs: {
             // Game of Thrones main theme inspired D-minor cello/brass ostinato (fifth-minor third-fourth-fifth)
             c4_river:     { root: 146.8, scale: [0, 2, 3, 5, 7, 8, 10, 12], chords: [0, 5, 3, 4], rate: 3.2, beats: 64, pad: 'sawtooth', lead: 'brass', drums: 'march', echo: 0.3, busy: 0.65, seed: 71 },
@@ -928,8 +980,13 @@ HM_CHAPTERS.def.ch4 = function (api) {
         start() {
             const s = S();
             if (s && !s.c4) s.c4 = { st: 0, c: 0, m: 0, beacons: 0, great: false, open: {}, banner: '', lore: 0, rep: {}, gift: {}, wards: 0, anchors: 0, aemon: false, seen: {} };
+            lastCh4Track = '';
+            syncCh4Music();
         },
-        stop() { wave = null; buff = ''; },
+        stop() {
+            wave = null; buff = ''; lastCh4Track = '';
+            if (window.HM_AUDIO && HM_AUDIO.playTrack) HM_AUDIO.playTrack('');
+        },
         build(Z, def) { ART.build(Z, def, api); },
         chestLoot(c) { if (api.Z.def.depth) api.dropGear(c.cx, c.cy + 18, api.rollItem(6, 1)); },
         drawUnder(x, cx, cy, t) { ART.drawUnder(x, api.Z, cx, cy, t); },
@@ -938,7 +995,12 @@ HM_CHAPTERS.def.ch4 = function (api) {
         devUnlockAll, devSkipStep,
         whatNext() { return objective(api.L); },
         stageOf() { return C() ? C().st : 0; },
-        music(zone, def) { return zone === 'c4_river' && C().beacons >= 2 ? 'c4_river_lit' : def.music; },
+        music(zone, def) {
+            if (isCh4Battling()) return 'audio/soundtracks/battle.mp3';
+            if (isCh4Dungeon(zone)) return 'audio/soundtracks/dangeon.mp3';
+            return 'audio/soundtracks/theme.mp3';
+        },
+        bossSong: 'audio/soundtracks/battle.mp3',
         lanternLit() { return !!C().great; },
         gems() { const c = C(); return (c.beacons >= 1 ? 1 : 0) | (c.beacons >= 2 ? 2 : 0) | (c.beacons >= 3 ? 4 : 0) | (c.great ? 8 : 0); },
         relics() { const c = C(), t = T(); return [[t.ui.c4wildfire, c.st > IDX.wildfire, 'b'], [t.ui.c4dragonglass, c.st > IDX.dragonglass, 'r'], [t.ui.c4horn, c.st > IDX.viserion, 's']]; },

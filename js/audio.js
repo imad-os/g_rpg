@@ -30,9 +30,10 @@ window.HM_AUDIO = (function () {
         setVolume(vol);
         bakeAll();
     }
-    function setVolume(v) { vol = v || vol; if (!ac) return; music.gain.value = 0.32 * vol.music; sfx.gain.value = 0.55 * vol.sfx; voice.gain.value = 1.1 * vol.sfx; }
-    function pause() { if (ac && ac.state === 'running') ac.suspend(); }
-    function resume() { if (ac && ac.state === 'suspended') ac.resume(); }
+    let trackEl = null;
+    function setVolume(v) { vol = v || vol; if (!ac) return; music.gain.value = 0.32 * vol.music; sfx.gain.value = 0.55 * vol.sfx; voice.gain.value = 1.1 * vol.sfx; if (trackEl) trackEl.volume = Math.max(0, Math.min(1, 0.45 * vol.music)); }
+    function pause() { if (ac && ac.state === 'running') ac.suspend(); if (trackEl && !trackEl.paused) trackEl.pause(); }
+    function resume() { if (ac && ac.state === 'suspended') ac.resume(); if (trackEl && trackEl.paused) trackEl.play().catch(() => {}); }
     function close() { stopMusic(); if (ac) { try { ac.close(); } catch (e) {} } ac = null; }
 
     function render(i) {
@@ -126,8 +127,31 @@ window.HM_AUDIO = (function () {
     // let go of songs (a chapter that is left): they are rendered again if ever needed
     function drop(keys) { for (const k of keys) { if (cur === k) continue; delete loops[k]; } }
 
-    function stopMusic() { if (src) { try { src.stop(); } catch (e) {} src.disconnect(); src = null; } }
+    function stopMusic() {
+        if (src) { try { src.stop(); } catch (e) {} src.disconnect(); src = null; }
+        if (trackEl) { try { trackEl.pause(); } catch (e) {} trackEl = null; }
+    }
+    function playTrack(url) {
+        if (!url) {
+            if (trackEl) { try { trackEl.pause(); } catch (e) {} trackEl = null; }
+            return;
+        }
+        if (trackEl && trackEl.src && trackEl.src.indexOf(url) >= 0 && !trackEl.paused) return;
+        if (src) stopMusic();
+        if (trackEl) { try { trackEl.pause(); } catch (e) {} trackEl = null; }
+        try {
+            trackEl = new Audio(url + '?v=' + (window.HM_VERSION || '1'));
+            trackEl.loop = true;
+            trackEl.volume = Math.max(0, Math.min(1, 0.45 * vol.music));
+            trackEl.play().catch(() => {});
+        } catch (e) {}
+    }
     function play(i, force) {
+        if (typeof i === 'string' && (i.indexOf('c5_') === 0 || i.indexOf('audio/') === 0)) {
+            const url = i === 'c5_battle' ? 'audio/soundtracks/battle.mp3' : i === 'c5_dungeon' ? 'audio/soundtracks/dangeon.mp3' : (i.indexOf('audio/') === 0 ? i : 'audio/soundtracks/theme.mp3');
+            cur = i;
+            return playTrack(url);
+        }
         if (!ac) return;
         if (cur === i && !force && src) return;
         cur = i; stopMusic();
@@ -438,5 +462,5 @@ window.HM_AUDIO = (function () {
     // while someone speaks, the music steps back
     function duck(on) { if (ac && music) music.gain.setTargetAtTime((on ? 0.12 : 0.32) * vol.music, ac.currentTime, 0.15); }
 
-    return { start, setVolume, pause, resume, close, play, fx, prepare: render, define, drop, duck, loadSamples, ctx: () => ac, voiceOut: () => voice };
+    return { start, setVolume, pause, resume, close, play, playTrack, stopTrack: () => playTrack(''), fx, prepare: render, define, drop, duck, loadSamples, ctx: () => ac, voiceOut: () => voice };
 })();

@@ -101,7 +101,7 @@ function runScript(ctx, relPath) {
 
 test('mypc-app.json and chapters.js register ch4 pack properly', () => {
   const mypc = JSON.parse(fs.readFileSync(path.join(ROOT, 'mypc-app.json'), 'utf8'));
-  assert.equal(mypc.version, '4.0.0');
+  assert.ok(mypc.version >= '4.0.0', 'version must be 4.0.0 or higher');
   assert.ok(Array.isArray(mypc.config.chapters), 'config.chapters should be an array');
   assert.ok(mypc.config.chapters.includes('ch4'), 'config.chapters must include ch4');
 
@@ -226,6 +226,8 @@ test('chapters/ch4 maps, valyria dungeon, art, text, and chapter definition load
     TEXT: ctx.window.HM_TEXT,
     T: ctx.window.HM_TEXT.en,
     SND: { fx: () => {} },
+    P: [{ x: 0, y: 0 }],
+    FOES: [],
     openTiles: () => {},
     save: () => {},
     toast: () => {},
@@ -240,6 +242,12 @@ test('chapters/ch4 maps, valyria dungeon, art, text, and chapter definition load
   assert.equal(typeof ch4.journal, 'function');
   assert.equal(typeof ch4.devUnlockAll, 'function');
   assert.equal(typeof ch4.devSkipStep, 'function');
+
+  // Verify Chapter 4 soundtrack mapping
+  assert.equal(ch4.music('c4_river', {}), 'audio/soundtracks/theme.mp3', 'Default zone should play theme.mp3');
+  assert.equal(ch4.music('c4_val1', {}), 'audio/soundtracks/dangeon.mp3', 'Valyria dungeon should play dangeon.mp3');
+  assert.equal(ch4.music('c4_val5', {}), 'audio/soundtracks/dangeon.mp3', 'Dungeon depth 5 should play dangeon.mp3');
+  assert.equal(ch4.bossSong, 'audio/soundtracks/battle.mp3', 'Boss encounters should play battle.mp3');
   for (const q of ch4.quests) {
     assert.ok(q.reward && q.reward.coins && q.reward.item, `Side quest ${q.id} must have reward.coins and reward.item`);
   }

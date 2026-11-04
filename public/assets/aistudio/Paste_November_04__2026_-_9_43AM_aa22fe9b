@@ -1,0 +1,1453 @@
+# IMPLEMENTATION PROMPT — CHAPTER 5: THE BLOOD KINGDOMS
+## A Dark Gothic Horror RPG Expansion
+
+You are working on an EXISTING 2D RPG game that already contains four fully implemented chapters.
+
+Your task is to design and implement a complete new Chapter 5 called:
+
+**THE BLOOD KINGDOMS**
+
+This chapter introduces an interconnected collection of vampire kingdoms, undead territories, horrifying creatures, new bosses, new mounts, new equipment, environmental effects, sound design, music, and gameplay mechanics.
+
+This is an ADDITION to the existing game, NOT a new game.
+
+Your highest priorities are:
+
+1. Preserve 100% compatibility with the existing game.
+2. Respect all MyPC application and SDK requirements.
+3. Preserve existing gameplay systems and all four existing chapters.
+4. Deliver an intense, atmospheric gothic horror experience.
+5. Use high-quality open-source graphics, textures, animations, music and sound effects.
+6. Maintain excellent performance on low-resource hardware, particularly Samsung Smart TVs.
+
+---
+
+# PART 1 — MANDATORY REPOSITORY INSPECTION
+
+Before implementing anything, thoroughly inspect the existing repository.
+
+Do not assume how the game works.
+
+Understand the following:
+
+- Existing game architecture and rendering engine.
+- Current map and world-loading systems.
+- Existing chapter structure and progression.
+- Character movement and combat.
+- Enemy AI and boss implementation.
+- NPC interactions and dialogue.
+- Quest and mission systems.
+- Inventory, weapons, armor and equipment.
+- Mount implementation.
+- Animation and sprite systems.
+- Audio and music management.
+- Save/load functionality.
+- Multiplayer and controller support, if present.
+- Existing resource-loading and asset-caching systems.
+
+Inspect the actual MyPC SDK and application configuration.
+
+MyPC SDK:
+https://imad-os.github.io/g/sdk/mypc-sdk.js
+
+Repository:
+https://github.com/imad-os/g
+
+Do not invent APIs or assume functionality that does not exist.
+
+Use the existing systems wherever possible.
+
+### Strict preservation rules
+
+- Do not rewrite the existing game engine.
+- Do not replace existing rendering systems.
+- Do not redesign existing chapters.
+- Do not remove existing quests, NPCs, weapons, enemies or locations.
+- Do not change existing save formats incompatibly.
+- Do not break existing player progression.
+- Do not change existing controller mappings unnecessarily.
+- Do not introduce dependencies that conflict with the current application.
+- Do not introduce a new framework or rendering engine.
+- Do not duplicate existing systems when they can be extended.
+
+Chapter 5 must be independently identifiable and maintainable.
+
+All new functionality must integrate with existing game systems.
+
+If a new mechanic requires modifications to shared systems, implement backward-compatible changes and test all affected existing functionality.
+
+Before modifying shared code, identify the impact and preserve previous behavior.
+
+---
+
+# PART 2 — ABSOLUTE MYPC COMPATIBILITY REQUIREMENTS
+
+The application runs as a MyPC application on Samsung Smart TVs and desktop browsers.
+
+These requirements are mandatory.
+
+### Application environment
+
+- Target Samsung Smart TVs from 2024 onward.
+- Support desktop browsers.
+- Maintain the existing 1920x1080 logical game resolution.
+- Target approximately 1 GB RAM availability.
+- Keep CPU and GPU requirements low.
+- Use the existing MyPC SDK.
+- Respect the existing application manifest and lifecycle.
+- Preserve the existing application entry point.
+
+### MyPC lifecycle
+
+Preserve and correctly handle the existing lifecycle events:
+
+- start
+- pause
+- resume
+- quit
+
+When the application is paused:
+
+- Stop unnecessary animations and timers.
+- Suspend nonessential audio.
+- Stop unnecessary AI processing.
+- Preserve the game state.
+
+When resumed:
+
+- Restore the previous game state.
+- Resume audio correctly.
+- Prevent duplicated timers, event listeners or animation loops.
+
+When quitting:
+
+- Clean up resources and listeners correctly.
+
+### Input and controls
+
+The game must remain fully playable using its existing supported game controller.
+
+Do not make keyboard or mouse input mandatory.
+
+All new functionality must support controller navigation:
+
+- New menus.
+- Dialogue choices.
+- Mount selection.
+- Blood altars.
+- Inventory items.
+- Boss interactions.
+- New mechanics.
+
+Do not assume the Samsung TV remote is the primary game controller.
+
+### Performance
+
+The game must remain smooth on low-resource devices.
+
+Prioritize:
+
+- Reusing textures and sprites.
+- Texture atlases where supported.
+- Efficient animation updates.
+- Object pooling.
+- Lightweight particles.
+- Efficient collision detection.
+- Limited simultaneous sound effects.
+- Releasing unused resources.
+- Avoiding unnecessary allocations inside rendering loops.
+
+Avoid:
+
+- Expensive real-time lighting.
+- Excessive transparent overlays.
+- Large numbers of individual particles.
+- High-resolution textures without a reason.
+- Expensive blur and post-processing effects.
+- Unnecessary background processing.
+- Heavy new JavaScript dependencies.
+
+Do not sacrifice compatibility for visual effects.
+
+Create visually impressive horror using efficient 2D techniques.
+
+---
+
+# PART 3 — CHAPTER IDENTITY
+
+## Chapter 5: The Blood Kingdoms
+
+Genre:
+Gothic horror, dark fantasy, vampire mythology, supernatural survival.
+
+The chapter should feel considerably darker and more frightening than the existing chapters.
+
+The world should communicate:
+
+- Ancient evil.
+- Vampire aristocracy.
+- Blood rituals.
+- Cursed villages.
+- Plague and decay.
+- Undead armies.
+- Abandoned castles.
+- Ancient cathedrals.
+- Haunted forests.
+- Underground crypts.
+- Supernatural creatures.
+
+The player should feel that they have entered a dangerous and ancient part of the world.
+
+Do not make this a generic fantasy chapter with red-colored enemies.
+
+Every kingdom must have a distinct artistic identity, architecture, atmosphere, enemy roster and soundtrack.
+
+---
+
+# PART 4 — WORLD STRUCTURE: SEVEN KINGDOMS
+
+Create seven major territories.
+
+Each territory must contain multiple explorable locations, enemy types, NPCs, quests, secrets, dungeons and boss encounters.
+
+The territories should be connected through the existing world-travel system.
+
+Use the existing map architecture rather than introducing an entirely new navigation system.
+
+## KINGDOM 1 — DRACULA'S DOMINION
+
+Main ruler: Dracula.
+
+### Atmosphere
+
+Gothic medieval architecture, massive castles, black stone towers, red moonlight, ravens, bats, abandoned villages and mountain fortresses.
+
+Use a predominantly dark palette with deep reds, black, grey and occasional cold blue lighting.
+
+### Locations
+
+1. Blackthorn Village.
+2. Bloodmoon Mountains.
+3. Castle Dracula.
+4. Ancient Vampire Crypts.
+
+### Monsters
+
+**Blood Bats**
+- Flying enemies.
+- Attack from above.
+- Can briefly drain player health.
+
+**Vampire Thralls**
+- Basic vampire enemies.
+- Fast melee attacks.
+- Weak individually but dangerous in groups.
+
+**Vampire Knights**
+- Armored enemies.
+- Sword attacks and defensive blocking.
+- Higher resistance to ordinary attacks.
+
+**Blood Wolves**
+- Fast hunting enemies.
+- Leap attacks.
+- Can pursue players over longer distances.
+
+**Gargoyles**
+- Initially appear as statues.
+- Activate when players approach.
+- Use aerial attacks and stone projectiles.
+
+### Main Boss: Dracula
+
+A powerful vampire lord with two or three combat phases.
+
+Abilities:
+
+1. Blood Drain: grabs the player and steals health.
+2. Bat Swarm: transforms into bats and attacks from several directions.
+3. Shadow Dash: teleports behind the player.
+4. Blood Storm: launches multiple blood projectiles.
+5. Vampire Transformation: becomes a stronger winged vampire.
+
+The boss must have distinctive attack animations, warning animations and sound effects.
+
+Include a terrifying vampire laugh during appropriate transitions.
+
+---
+
+## KINGDOM 2 — CARMILLA'S COURT
+
+Main ruler: Carmilla.
+
+This is the final kingdom and contains the ultimate boss.
+
+### Atmosphere
+
+Elegant but horrifying.
+
+Use:
+
+- Gothic palaces.
+- Crimson roses.
+- Dark gardens.
+- Red fountains.
+- Black marble.
+- Velvet interiors.
+- Blood-stained cathedrals.
+- Candlelit corridors.
+- Enchanted mirrors.
+
+The environment should initially look beautiful but become increasingly disturbing as the player progresses.
+
+### Locations
+
+1. Roseveil Village.
+2. Crimson Gardens.
+3. Blood Cathedral.
+4. Carmilla's Palace.
+
+### Monsters
+
+**Blood Maidens**
+- Fast vampire warriors.
+- Dash attacks and blood blades.
+
+**Rose Wraiths**
+- Floating supernatural enemies.
+- Thorn projectiles.
+- Can temporarily disappear.
+
+**Blood Priests**
+- Support enemies.
+- Heal nearby vampires.
+- Create protective barriers.
+
+**Crimson Spiders**
+- Poison attacks.
+- Web traps.
+- Ambush from ceilings.
+
+**Enchanted Knights**
+- Possessed armor.
+- Heavy melee attacks.
+- High defense.
+
+### Final Boss: Carmilla
+
+Carmilla must be the ultimate boss of Chapter 5.
+
+She should be visually elegant, intelligent, extremely dangerous and terrifying.
+
+Do not make her a simple oversized vampire.
+
+She must have three distinct phases.
+
+Phase 1 — The Vampire Queen:
+
+- Blood Whip.
+- Crimson Teleport.
+- Hypnotic Gaze.
+- Blood Projectile.
+- Summon Blood Maidens.
+
+Phase 2 — The Winged Vampire:
+
+- Flight and aerial attacks.
+- Dive attacks.
+- Blood Clone.
+- Crimson Storm.
+- Faster teleportation.
+
+Phase 3 — The Ancient Blood Demon:
+
+- Transformed monstrous appearance.
+- Massive blood tendrils.
+- Large-area attacks.
+- Blood explosions.
+- Summons corrupted creatures.
+- Regeneration through blood crystals.
+
+The player must destroy blood crystals to disable her regeneration.
+
+Carmilla must have a unique, memorable boss soundtrack.
+
+Her laugh should be distinctive, unsettling and synchronized with her animations.
+
+---
+
+## KINGDOM 3 — NOSFERATU'S WASTELAND
+
+Main ruler: Count Orlok.
+
+Inspired by the classic Nosferatu vampire mythology.
+
+### Atmosphere
+
+- Desaturated colors.
+- Greenish fog.
+- Dead vegetation.
+- Abandoned villages.
+- Rats.
+- Decaying buildings.
+- Broken churches.
+- Disturbing silhouettes.
+
+This kingdom should be the most traditional horror territory.
+
+### Locations
+
+1. Pestilence Village.
+2. Deadwood Forest.
+3. Hollow Crypt.
+4. Orlok's Tower.
+
+### Monsters
+
+**Plague Rats**
+- Small and extremely fast.
+- Attack in groups.
+
+**Diseased Villagers**
+- Infected humanoids.
+- Slow movement.
+- Occasionally release toxic clouds.
+
+**Rotting Ghouls**
+- Slow but durable.
+- Heavy attacks.
+
+**Plague Carriers**
+- Explode when defeated or approached.
+- Leave poisonous areas.
+
+**Night Stalkers**
+- Thin, disturbing creatures.
+- Crawl on walls where supported.
+- Ambush players.
+
+### Boss: Count Orlok
+
+Abilities:
+
+- Plague Breath.
+- Rat Command.
+- Life Drain.
+- Wall Crawl.
+- Darkness.
+
+During the Darkness ability, reduce visibility and introduce disturbing audio cues.
+
+The player should rely on environmental clues and enemy sounds.
+
+---
+
+## KINGDOM 4 — THE BRIDES' DOMAIN
+
+Three famous vampire archetypes inspired by the vampire brides in Van Helsing (2004).
+
+Create three original characters rather than copying the film's exact character designs, costumes, dialogue or proprietary assets.
+
+### Atmosphere
+
+- Haunted forests.
+- Ancient hunting lodges.
+- Gothic ruins.
+- Moonlit clearings.
+- Vampire nests.
+- Fog-covered bridges.
+
+### Locations
+
+1. Widow's Forest.
+2. Hunter's Lodge.
+3. Three Sisters' Castle.
+
+### Three Vampire Bosses
+
+Create three distinct vampire queens.
+
+**The Crimson Bride**
+
+Abilities:
+- Blood Fire.
+- Aerial Dive.
+- Blood Claws.
+- Explosive Landing.
+
+**The Shadow Bride**
+
+Abilities:
+- Invisibility.
+- Shadow Clones.
+- Teleportation.
+- Illusion Attacks.
+
+**The Frost Bride**
+
+Abilities:
+- Ice Projectiles.
+- Freezing Attacks.
+- Ice Barriers.
+- Ground Freezing.
+
+Each should have a separate boss encounter.
+
+Optionally include a final encounter where all three fight together.
+
+### Monsters
+
+- Vampire Hounds.
+- Blood Ravens.
+- Forest Stalkers.
+- Corrupted Vampire Hunters.
+- Winged Vampires.
+
+---
+
+## KINGDOM 5 — THE CRIMSON EMPIRE
+
+Main ruler: An original vampire queen inspired by the historical Elizabeth Báthory legend.
+
+Do not present her as a literal historical person.
+
+### Atmosphere
+
+- Royal medieval architecture.
+- Crimson fabrics.
+- Gold decorations.
+- Blood laboratories.
+- Torture chambers.
+- Underground ritual rooms.
+- Disturbing experiments.
+
+### Locations
+
+1. Scarlet City.
+2. Alchemist Quarter.
+3. Blood Baths.
+4. Queen's Keep.
+
+### Monsters
+
+**Blood Alchemists**
+- Ranged magical attacks.
+- Throw explosive blood potions.
+
+**Flesh Golems**
+- Large, slow creatures.
+- High health.
+- Heavy attacks.
+
+**Blood Constructs**
+- Creatures made from animated blood.
+- Can divide into smaller forms.
+
+**Tortured Souls**
+- Floating spirits.
+- Life-draining attacks.
+
+**Royal Executioners**
+- Heavy armor.
+- Powerful melee attacks.
+
+### Boss: The Blood Queen
+
+Abilities:
+
+- Blood Needles.
+- Life Sacrifice.
+- Blood Pools.
+- Flesh Transformation.
+- Blood Ritual.
+
+The boss should summon creatures and sacrifice them to regenerate health.
+
+---
+
+## KINGDOM 6 — THE SHADOW PRINCIPALITY
+
+Main ruler: Lord Ruthven, inspired by the literary vampire from John Polidori's The Vampyre.
+
+### Atmosphere
+
+- Victorian gothic architecture.
+- Black marble.
+- Ancient mansions.
+- Blue moonlight.
+- Haunted libraries.
+- Magical mirrors.
+- Ghostly servants.
+
+### Locations
+
+1. Ravenport.
+2. Forgotten Library.
+3. Shadow Manor.
+4. Eternal Ballroom.
+
+### Monsters
+
+**Shadow Assassins**
+- Temporary invisibility.
+- Fast melee attacks.
+
+**Phantom Nobles**
+- Ghostly enemies.
+- Can pass through obstacles where supported.
+
+**Mirror Doppelgangers**
+- Copies of player characters.
+- Use simplified versions of player attacks.
+
+**Enchanted Servants**
+- Possessed armor and objects.
+
+**Soul Collectors**
+- Ranged attacks.
+- Steal energy from players.
+
+### Boss: Lord Ruthven
+
+Abilities:
+
+- Shadow Clones.
+- Soul Chain.
+- Mirror Realm.
+- Shadow Exchange.
+- Soul Explosion.
+
+The boss should use deception and positioning rather than simply dealing enormous damage.
+
+---
+
+## KINGDOM 7 — THE UNDYING KINGDOM
+
+This is an independent zombie and undead kingdom.
+
+It must have a different identity from the vampire territories.
+
+### Atmosphere
+
+- Green fog.
+- Ruined medieval cities.
+- Dead forests.
+- Abandoned battlefields.
+- Graveyards.
+- Broken siege weapons.
+- Underground necropolises.
+- Rotting castles.
+
+### Locations
+
+1. Gravefall Village.
+2. Bonefields.
+3. Rotting Swamp.
+4. Necropolis.
+5. Undying Throne.
+
+### Zombie Types and Mechanics
+
+**Walkers**
+- Slow movement.
+- Basic melee attacks.
+- Attack in groups.
+
+**Runners**
+- Fast and aggressive.
+- Chase players.
+- Leap attacks.
+
+**Armored Undead**
+- Former soldiers.
+- High defense.
+- Heavy attacks.
+
+**Exploders**
+- Approach players.
+- Explode and leave damaging areas.
+
+**Bone Archers**
+- Ranged skeleton enemies.
+- Fire bone arrows.
+
+**Abominations**
+- Large creatures assembled from multiple bodies.
+- High health.
+- Powerful area attacks.
+
+**Necromancers**
+- Resurrect fallen enemies.
+- Summon undead creatures.
+- Must be prioritized during combat.
+
+**Zombie Beasts**
+- Undead wolves and horses.
+- Fast charges and biting attacks.
+
+### Zombie Horde Mechanics
+
+This kingdom must introduce intense zombie encounters.
+
+Implement:
+
+- Large groups of zombies attacking simultaneously.
+- Different zombie movement speeds.
+- Horde spawning from graveyards, buildings and underground entrances.
+- Zombies reacting to nearby player activity where technically practical.
+- Armored zombies requiring different attack strategies.
+- Necromancers reviving defeated enemies.
+- Barricade-defense encounters.
+- Waves of increasing difficulty.
+- Special elite zombies appearing during later waves.
+
+Do not spawn hundreds of active AI entities simultaneously.
+
+Use optimized spawning, pooling, simplified distant AI and existing enemy management systems.
+
+The encounters should feel like an overwhelming undead invasion without damaging performance.
+
+### Boss: The Undying King
+
+Abilities:
+
+1. Undead Army: summons waves of zombies.
+2. Grave Slam: creates ground shockwaves.
+3. Resurrection: revives defeated elite enemies.
+4. Rotting Aura: damages nearby players.
+5. Bone Prison: traps players with bones emerging from the ground.
+6. Undying Form: resurrects once with stronger attacks.
+
+---
+
+# PART 5 — MAIN STORY CONNECTION
+
+Although the kingdoms have different rulers, they must belong to one coherent story.
+
+Carmilla is secretly manipulating the vampire rulers.
+
+An ancient ritual known as the Blood Ascension allows its user to control blood, life and death.
+
+The six vampire rulers possess different parts of the ritual's power.
+
+Carmilla has been using their territories to prepare her ascension.
+
+The Undying Kingdom is an unintended consequence of her experiments with immortality and necromancy.
+
+The player gradually discovers:
+
+- Why the vampire kingdoms exist.
+- Why the rulers possess different supernatural powers.
+- Why the zombie kingdom is spreading.
+- Why Carmilla is manipulating the other rulers.
+- What the Blood Ascension will do to the world.
+
+Defeating the vampire rulers reveals parts of the truth.
+
+The final confrontation with Carmilla must resolve the chapter's central story.
+
+Do not modify the existing four chapters' main story or endings.
+
+Use the existing quest and dialogue architecture.
+
+---
+
+# PART 6 — HORROR EFFECTS AND ATMOSPHERE
+
+This is one of the most important requirements.
+
+The chapter must feel genuinely frightening, not simply dark.
+
+Use environmental storytelling, sound design, animations and controlled visual effects.
+
+### Environmental effects
+
+Implement lightweight versions of:
+
+- Ground fog.
+- Distant moving silhouettes.
+- Flickering candles.
+- Occasional lightning.
+- Red moonlight.
+- Moving shadows.
+- Dust particles.
+- Flying bats.
+- Ravens.
+- Spider webs.
+- Blood dripping from ceilings.
+- Ghostly appearances.
+- Disturbing environmental animations.
+
+Different kingdoms must have different ambient effects.
+
+Do not apply every effect everywhere.
+
+### Horror events
+
+Introduce scripted, occasional events:
+
+- A vampire suddenly appearing behind the player.
+- A creature disappearing into fog.
+- A distant scream.
+- A door closing unexpectedly.
+- A shadow moving across a wall.
+- A corpse suddenly becoming active.
+- A vampire laughing from somewhere off-screen.
+- A zombie hand emerging from the ground.
+- A group of bats suddenly flying across the screen.
+- A distant silhouette watching the player.
+
+These events should be carefully timed and not repeated excessively.
+
+Avoid constant jump scares.
+
+Build tension through anticipation.
+
+### Boss horror presentation
+
+Every major boss needs:
+
+- A unique introduction.
+- A distinctive entrance animation.
+- A recognizable sound signature.
+- An intimidating laugh, roar or voice.
+- A unique death animation.
+- A transition into its second phase where applicable.
+
+Examples:
+
+Dracula:
+Deep, powerful vampire laughter and supernatural bat sounds.
+
+Carmilla:
+Elegant but disturbing laughter, whispering, blood magic and monstrous transformation sounds.
+
+Orlok:
+Breathing, scratching, unsettling whispers and plague-related sounds.
+
+The Brides:
+Distinctive female vampire screams, wing sounds and supernatural attacks.
+
+Blood Queen:
+Ritual chanting, glass breaking, alchemy and disturbing transformation sounds.
+
+Ruthven:
+Whispers, ghostly voices and magical mirror sounds.
+
+Undying King:
+Deep undead roars, bone cracking, zombie screams and necromantic effects.
+
+Do not simply reuse one generic monster sound for every enemy.
+
+---
+
+# PART 7 — AUDIO AND MUSIC
+
+## Absolutely no MIDI soundtrack
+
+Do not use MIDI music for this chapter.
+
+Do not generate synthetic MIDI-based background music.
+
+The chapter must use real recorded or professionally produced audio.
+
+### Required audio formats
+
+Prefer:
+
+- OGG Vorbis for background music.
+- OGG Vorbis for longer ambient loops.
+- OGG Vorbis or optimized WAV for short sound effects.
+- Existing audio formats only where already required by the game.
+
+Use suitable quality settings while keeping file sizes reasonable.
+
+Music should loop seamlessly.
+
+Preload only what is necessary.
+
+Use the existing audio engine.
+
+Do not introduce a heavy audio framework.
+
+### Open-source music and audio assets
+
+Search for suitable legally reusable assets from:
+
+- OpenGameArt.org
+- Freesound.org
+- Sonniss GameAudio
+- Pixabay Sound Effects and Music, subject to their license terms.
+- Internet Archive, only where the individual asset's rights are verified.
+
+Prioritize:
+
+- CC0.
+- Public domain.
+- CC-BY with proper attribution.
+
+Avoid assets with incompatible licenses, unclear ownership or noncommercial restrictions if the game may be distributed commercially.
+
+Do not assume that an asset is open-source merely because it is freely downloadable.
+
+Maintain a license manifest for every imported asset.
+
+### Individual kingdom soundtracks
+
+Dracula:
+- Gothic orchestral.
+- Deep strings.
+- Pipe organ.
+- Dark choir.
+- Heavy percussion.
+
+Carmilla:
+- Dark romantic orchestral.
+- Piano.
+- Violins.
+- Female choir.
+- Dramatic strings.
+
+Nosferatu:
+- Horror ambience.
+- Low drones.
+- Dissonant strings.
+- Whispers.
+- Disturbing atmospheric textures.
+
+Brides:
+- Fast gothic orchestral.
+- Aggressive strings.
+- Percussion.
+- Supernatural vocal textures.
+
+Crimson Empire:
+- Dark baroque orchestral.
+- Harpsichord.
+- Strings.
+- Ritual percussion.
+
+Shadow Principality:
+- Mysterious piano.
+- Bells.
+- Low strings.
+- Ghostly ambient textures.
+
+Undying Kingdom:
+- Heavy percussion.
+- Dark brass.
+- Distorted choir.
+- Bone and metallic impact sounds.
+
+### Dynamic soundtrack
+
+Where practical, introduce different music states:
+
+- Exploration.
+- Combat.
+- Elite encounter.
+- Boss encounter.
+- Boss phase transition.
+- Victory.
+- Defeat.
+
+Music must transition smoothly without abruptly restarting tracks.
+
+### Required sound effects
+
+Create or obtain suitable sounds for:
+
+- Vampire laughter.
+- Vampire breathing.
+- Vampire transformation.
+- Bat wings.
+- Blood magic.
+- Blood draining.
+- Vampire attacks.
+- Zombie groaning.
+- Zombie screaming.
+- Zombie footsteps.
+- Bone cracking.
+- Necromancy.
+- Plague effects.
+- Monster attacks.
+- Boss roars.
+- Castle doors.
+- Chains.
+- Dungeon ambience.
+- Distant thunder.
+- Ghost whispers.
+- Horror events.
+
+Use positional audio if supported by the existing game audio architecture.
+
+Ensure sound effects do not overlap excessively or become painfully loud.
+
+Add variation to repeated monster sounds to prevent repetitive audio.
+
+---
+
+# PART 8 — OPEN-SOURCE GRAPHICS AND TEXTURES
+
+This is a major requirement.
+
+Do not create the entire chapter using placeholder graphics or primitive colored rectangles.
+
+Search for high-quality existing open-source game assets before creating replacement assets.
+
+### Preferred asset sources
+
+Search:
+
+- OpenGameArt.org
+- Kenney.nl
+- itch.io free asset packs with compatible licenses.
+- CraftPix free assets, subject to individual licenses.
+- Wikimedia Commons for appropriate public-domain references.
+- Poly Haven for suitable CC0 textures and materials where useful.
+
+Prioritize:
+
+- CC0.
+- Public-domain assets.
+- CC-BY assets with attribution.
+
+Verify the actual license of each asset pack.
+
+Do not assume all content on a website has the same license.
+
+### Graphics requirements
+
+Find or create assets for:
+
+**Environment**
+- Gothic castles.
+- Medieval villages.
+- Vampire palaces.
+- Haunted forests.
+- Graveyards.
+- Crypts.
+- Cathedrals.
+- Ruined cities.
+- Swamps.
+- Blood laboratories.
+- Underground dungeons.
+
+**Characters**
+- Vampire lords.
+- Vampire queens.
+- Vampire brides.
+- Vampire knights.
+- Vampire servants.
+- Zombies.
+- Skeletons.
+- Ghouls.
+- Werewolves.
+- Gargoyles.
+- Blood monsters.
+- Necromancers.
+
+**Objects**
+- Gothic furniture.
+- Coffins.
+- Tombstones.
+- Blood altars.
+- Candles.
+- Ritual objects.
+- Statues.
+- Chains.
+- Weapons.
+- Dungeon decorations.
+
+### Visual consistency
+
+Assets must fit the existing game's art style.
+
+Do not mix incompatible art styles.
+
+Maintain:
+
+- Consistent character proportions.
+- Consistent sprite scale.
+- Consistent perspective.
+- Consistent animation quality.
+- Consistent lighting direction.
+- Appropriate transparent backgrounds.
+- Consistent color palettes.
+
+If an asset needs modifications, use appropriate tools to resize, recolor, crop, optimize or adapt it.
+
+Do not introduce massive textures that exceed the game's actual requirements.
+
+### Asset license tracking
+
+Create an asset attribution file containing:
+
+- Asset name.
+- Original author.
+- Source URL.
+- License.
+- Required attribution.
+- Modifications made.
+
+Do not include unlicensed commercial game assets, ripped game sprites, copyrighted movie characters or proprietary artwork.
+
+For characters inspired by existing fictional works, create original visual interpretations.
+
+---
+
+# PART 9 — NEW MOUNTS
+
+Introduce four mounts.
+
+They must integrate with the existing mount system.
+
+### 1. Nightmare Steed
+
+Appearance:
+- Black undead warhorse.
+- Glowing red eyes.
+- Dark armor.
+- Subtle supernatural flames.
+
+Origin:
+Dracula's Dominion.
+
+Ability:
+Temporary fire trail while sprinting, if compatible with the existing movement system.
+
+### 2. Bloodfang
+
+Appearance:
+- Large black dire wolf.
+- Red eyes.
+- Dark armor.
+- Aggressive animation.
+
+Origin:
+Brides' Domain.
+
+Ability:
+Temporary speed boost and intimidating howl.
+
+### 3. Bone Charger
+
+Appearance:
+- Skeletal warhorse.
+- Green necromantic flames.
+- Bone armor.
+
+Origin:
+Undying Kingdom.
+
+Ability:
+Temporary resistance to poison and undead attacks.
+
+### 4. Night Terror
+
+Appearance:
+- Large supernatural vampire bat.
+- Dark wings.
+- Red eyes.
+
+Origin:
+Carmilla's storyline.
+
+Ability:
+Short-distance flight or gliding only if supported by the existing movement and collision systems.
+
+Do not implement a new flight engine if the current game architecture does not support it.
+
+Mounts must have proper movement, idle, turning and attack or ability animations where applicable.
+
+---
+
+# PART 10 — NEW EQUIPMENT
+
+Introduce new weapons, armor, accessories and cursed equipment.
+
+Examples:
+
+**Blood Sword**
+- Restores a small amount of health when defeating enemies.
+
+**Vampire Armor**
+- Slowly regenerates health.
+- Reduces healing from potions.
+
+**Shadow Ring**
+- Improves critical hit chance at night.
+
+**Crimson Amulet**
+- Increases damage.
+- Gradually increases corruption.
+
+**Holy Relic**
+- Reduces vampire damage.
+- Weakens nearby undead.
+
+**Bone Reaper**
+- Special weapon obtained from the Undying King.
+- Bonus damage against undead enemies.
+
+Use the existing item, inventory, equipment and progression systems.
+
+Balance equipment against the existing game's power levels.
+
+Do not introduce an entirely separate inventory.
+
+---
+
+# PART 11 — NEW GAMEPLAY MECHANICS
+
+Introduce new features that fit Chapter 5.
+
+### Blood Moon
+
+Certain nights activate a Blood Moon.
+
+Effects:
+- Vampires become stronger.
+- Special enemies spawn.
+- Certain hidden locations become accessible.
+- Some bosses gain additional attacks.
+
+### Vampire Infection
+
+Some vampire attacks apply a temporary infection.
+
+Effects:
+- Reduced healing.
+- Temporary visual distortion.
+- Specific enemies become more dangerous.
+
+Use the existing status-effect system if available.
+
+### Holy Shrines
+
+Ancient shrines can be activated to weaken nearby vampires.
+
+### Blood Altars
+
+Players can sacrifice collected blood to receive temporary buffs.
+
+### Vampire Hunts
+
+Special contracts require players to track and defeat powerful vampires.
+
+### Destructible Blood Crystals
+
+Some bosses and locations contain blood crystals.
+
+Destroying them can:
+- Disable regeneration.
+- Reduce enemy strength.
+- Unlock secret passages.
+
+### Undead Wave Defense
+
+Players defend specific locations from successive zombie attacks.
+
+Implement increasing difficulty and meaningful rewards.
+
+All mechanics must be implemented using existing systems wherever possible.
+
+Do not make these systems interfere with Chapters 1–4.
+
+---
+
+# PART 12 — PERFORMANCE AND RESOURCE MANAGEMENT
+
+The horror atmosphere must not make the game slow.
+
+Use efficient implementation techniques.
+
+### Rendering
+
+- Reuse existing rendering architecture.
+- Reuse textures.
+- Use sprite atlases.
+- Limit particle counts.
+- Avoid unnecessary transparency.
+- Use pre-rendered effects where practical.
+- Use simple animation state machines.
+- Avoid excessive draw calls.
+
+### AI
+
+- Reuse existing enemy AI architecture.
+- Use different behaviors through configurable enemy archetypes.
+- Limit active AI updates.
+- Simplify distant enemy processing.
+- Pool frequently spawned enemies and projectiles.
+- Prevent excessive simultaneous pathfinding.
+
+### Audio
+
+- Use compressed OGG audio.
+- Loop music without gaps.
+- Avoid loading all music simultaneously.
+- Limit simultaneous sound effects.
+- Reuse existing audio instances where possible.
+
+### Memory
+
+- Unload inactive kingdom resources when appropriate.
+- Avoid retaining unnecessary sprite and audio references.
+- Reuse particle objects.
+- Prevent memory leaks.
+- Avoid large duplicate asset files.
+
+Do not introduce a requirement for dedicated GPUs or powerful desktop hardware.
+
+---
+
+# PART 13 — IMPLEMENTATION WORKFLOW
+
+Implement the chapter in a controlled way.
+
+### Stage 1 — Audit
+
+Inspect the entire existing game architecture and SDK.
+
+Produce a short report identifying:
+
+- Existing systems that can be reused.
+- Existing systems requiring extensions.
+- New assets required.
+- Potential compatibility risks.
+- Performance risks.
+
+Do not start rewriting existing systems.
+
+### Stage 2 — Asset research
+
+Search for real open-source assets.
+
+Do not simply create a list of websites.
+
+Identify actual usable asset packs and individual assets.
+
+Verify their licenses.
+
+Prefer complete, consistent asset packs over disconnected individual sprites.
+
+Create the asset attribution manifest.
+
+If a suitable asset is unavailable, create an original replacement consistent with the existing art style.
+
+### Stage 3 — World implementation
+
+Implement the seven kingdoms and their locations.
+
+Use the existing map and world systems.
+
+Ensure each location is explorable and connected correctly.
+
+### Stage 4 — Enemies and bosses
+
+Implement enemy archetypes, animations, AI, abilities and boss encounters.
+
+Bosses must have readable attack telegraphs, cooldowns and distinct phases.
+
+Avoid unfair unavoidable damage.
+
+### Stage 5 — Audio and horror
+
+Integrate music, ambient sounds, monster audio, boss laughter, screams and environmental events.
+
+Implement audio transitions and looping correctly.
+
+### Stage 6 — Mounts and equipment
+
+Integrate the four mounts and new items into existing systems.
+
+### Stage 7 — New mechanics
+
+Implement Blood Moon, infection, shrines, blood altars, hunts, crystals and zombie defense.
+
+### Stage 8 — Testing
+
+Test:
+
+- Launching the application.
+- Loading each new kingdom.
+- Existing chapters 1–4.
+- Save and load.
+- Character movement.
+- Controller support.
+- Combat.
+- Boss transitions.
+- Mounts.
+- Audio.
+- Pause and resume.
+- Application quit.
+- Memory usage.
+- Long gameplay sessions.
+
+Test on Samsung TV-compatible browser environments and desktop browsers.
+
+Do not claim successful testing on hardware that was not actually tested.
+
+### Stage 9 — Final verification
+
+Ensure:
+
+- No broken existing features.
+- No missing asset references.
+- No unlicensed assets.
+- No MIDI soundtrack.
+- No new mandatory dependencies without justification.
+- No incompatible MyPC SDK usage.
+- No unnecessary changes to existing chapters.
+- No critical console errors.
+
+---
+
+# PART 14 — DEFINITION OF DONE
+
+Chapter 5 is not complete merely because the maps exist.
+
+A successful implementation must include:
+
+1. Seven distinct kingdoms.
+2. Multiple explorable locations per kingdom.
+3. Distinctive visual identity for each kingdom.
+4. All major enemy types.
+5. Seven principal boss encounters, including Carmilla as the final boss, plus the three individual Bride encounters.
+6. Unique boss abilities and animations.
+7. Multi-phase boss battles.
+8. Zombie horde mechanics.
+9. Horror environmental effects.
+10. Distinctive vampire and zombie sound design.
+11. Seven kingdom-specific musical identities.
+12. No MIDI music.
+13. Four functional new mounts.
+14. New weapons, armor and accessories.
+15. New gameplay mechanics.
+16. Real, legally reusable graphics and audio assets.
+17. Asset license documentation.
+18. Complete compatibility with the existing game.
+19. MyPC lifecycle compliance.
+20. Controller compatibility.
+21. Stable performance on low-resource hardware.
+
+# FINAL INSTRUCTION
+
+Think like an experienced RPG game developer working on an established production game.
+
+Do not treat this as an opportunity to rewrite or redesign the entire project.
+
+Preserve the existing game's identity, systems and compatibility.
+
+The new chapter must feel like a major, professionally produced expansion of the existing RPG.
+
+Make the world visually impressive, frightening, atmospheric and memorable.
+
+Use genuine open-source resources wherever possible instead of relying on placeholder assets.
+
+Prioritize actual implementation over lengthy planning documents.
+
+Inspect first, plan the smallest safe changes, implement incrementally, test continuously and preserve backward compatibility.
+
+**The final result should be a complete, intense gothic horror chapter that feels like a natural and technically reliable continuation of the existing four-chapter RPG.**

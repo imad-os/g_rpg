@@ -213,5 +213,24 @@ window.HM_MOUNTART = (function () {
         ctx.globalAlpha = 1;
         return true;
     }
-    return { load, horse, horseFB, dragon, charger, shadowmane, frostfang, get ready() { return !!(IMG.horse_run && IMG.dragon); }, get hasDragon() { return !!IMG.dragon; } };
+    function nightmare(ctx, x, y, walk, dir, fx, s, moving, t) {
+        shadowmane(ctx, x, y, walk, dir, fx, s, moving, t);
+        ctx.fillStyle = '#ff2030';
+        for (let i = 0; i < 3; i++) {
+            const hx = x - 12 * s + i * 10 * s + Math.sin(t * 0.2 + i) * 2;
+            ctx.fillRect(hx, y - 4, 3, 3);
+        }
+    }
+    function bloodfang(ctx, x, y, walk, dir, fx, s, bite, t) {
+        frostfang(ctx, x, y, walk, dir, fx, s, bite, t);
+        ctx.fillStyle = 'rgba(200,20,30,0.25)';
+        ctx.beginPath(); ctx.ellipse(x, y - 16 * s, 22 * s, 10 * s, 0, 0, 6.2832); ctx.fill();
+    }
+    function bonecharger(ctx, x, y, z, walk, dir, fx, s, moving, t, glow) {
+        charger(ctx, x, y, z, walk, dir, fx, s, moving, t, glow);
+    }
+    function nightterror(ctx, x, y, z, dir, flip, t, s, flash) {
+        dragon(ctx, x, y, z, dir, flip, t, s, flash);
+    }
+    return { load, horse, horseFB, dragon, charger, shadowmane, frostfang, nightmare, bloodfang, bonecharger, nightterror, get ready() { return !!(IMG.horse_run && IMG.dragon); }, get hasDragon() { return !!IMG.dragon; } };
 })();

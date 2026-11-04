@@ -1,0 +1,441 @@
+{
+  "about": "Hollowmere, Chapter 5: The Blood Kingdoms. A dark gothic horror RPG expansion spanning 7 vampire and undead kingdoms. 8 main quests across 4 Acts.",
+  "quests": [
+    {
+      "id": "c5q1", "act": 1,
+      "title": { "en": "The Shadows of Blackthorn", "fr": "Les ombres de Blackthorn", "es": "Las sombras de Espinanegra", "ar": "ظلال بلاكثورن" },
+      "story": {
+        "en": "A crimson moon rises over Blackthorn Village. Ancient vampires stir in Castle Dracula, and blood bats terrorize the valley.",
+        "fr": "Une lune cramoisie s'élève sur le village de Blackthorn. Des vampires s'éveillent au château Dracula et des chauves-souris de sang terrorisent la vallée.",
+        "es": "Una luna carmesí se alza sobre la aldea de Espinanegra. Antiguos vampiros despiertan en el Castillo Drácula y murciélagos de sangre aterrorizan el valle.",
+        "ar": "قمر قرمزي يرتفع فوق قرية بلاكثورن. مصاصو الدماء القدماء يستيقظون في قلعة دراكولا وخفافيش الدم ترهب الوادي."
+      },
+      "steps": [
+        {
+          "id": "meet_alucard", "type": "talk", "npc": "alucard", "zone": "c5_village", "at": [22.5, 14.6],
+          "goal": { "en": "Speak with Alucard at Blackthorn Village square.", "fr": "Parlez à Alucard sur la place du village de Blackthorn.", "es": "Habla con Alucard en la plaza de la aldea de Espinanegra.", "ar": "تحدث مع ألوكارد في ساحة قرية بلاكثورن." },
+          "say": {
+            "who": "alucard",
+            "en": [
+              "You crossed the misty borders into the Blood Kingdoms? Turn back if your soul clings to sunlight.",
+              "Seven dark dominions divide these cursed lands, bound by an ancient ritual known as the Blood Ascension. Count Dracula holds the eastern mountain spires.",
+              "His blood bats and thralls have overrun the northern gate. Drive them back and reclaim the Holy Shrine in the village churchyard."
+            ],
+            "fr": [
+              "Vous avez franchi les brumes vers les Royaumes du Sang ? Rebroussez chemin si vous tenez à la lumière.",
+              "Sept domaines sombres se partagent ces terres maudites, liés par un rituel ancien nommé l'Ascension du Sang. Le comte Dracula règne sur les hauteurs.",
+              "Ses chauves-souris et ses sbires ont envahi la porte nord. Repoussez-les et purifiez le saint sanctuaire du cimetière."
+            ],
+            "es": [
+              "¿Cruzaste la niebla hacia los Reinos de Sangre? Regresa si tu alma valora la luz del sol.",
+              "Siete dominios oscuros dividen estas tierras malditas, unidas por el ritual de la Ascensión de Sangre. El Conde Drácula gobierna las agujas del este.",
+              "Sus murciélagos y siervos han tomado la puerta norte. Expúlsalos y reclama el Santuario Sagrado del cementerio."
+            ],
+            "ar": [
+              "هل عبرت حدود الضباب نحو ممالك الدم؟ ارجع إن كانت روحك تتمسك بضوء الشمس.",
+              "سبع ممالك مظلمة تقسم هذه الأراضي الملعونة، يربطها طقس قديم يُعرف باسم صعود الدم. الكونت دراكولا يحكم أبراج الجبال الشرقية.",
+              "خفافيش دمه وخدمه احتلوا البوابة الشمالية. اطردهم واستعد المزار المقدس في فناء الكنيسة."
+            ]
+          }
+        },
+        {
+          "id": "purge_thralls", "type": "kill", "zone": "c5_village", "foes": ["blood_bat", "vampire_thrall"], "n": 6, "at": [35, 12],
+          "goal": { "en": "Purge the blood bats and vampire thralls around Blackthorn ({n}/{m}).", "fr": "Purgez les chauves-souris et sbires vampires autour de Blackthorn ({n}/{m}).", "es": "Purga los murciélagos y siervos vampiro en Espinanegra ({n}/{m}).", "ar": "طهر خفافيش الدم وخدم مصاصي الدماء حول بلاكثورن ({n}/{m})." },
+          "say": { "who": null, "en": ["The village streets fall quiet. The church bell tolls in the distance."], "fr": ["Les rues du village retrouvent le calme. La cloche de l'église sonne au loin."], "es": ["Las calles de la aldea quedan en silencio. La campana de la iglesia suena a lo lejos."], "ar": ["هدأت شوارع القرية. يدق جرس الكنيسة في الأفق."] }
+        },
+        {
+          "id": "shrine_bless", "type": "interact", "zone": "c5_village", "n": 1, "spots": [[8.5, 9.5]],
+          "goal": { "en": "Consecrate the Holy Shrine in Blackthorn churchyard ({n}/{m}).", "fr": "Consacrez le saint sanctuaire du cimetière de Blackthorn ({n}/{m}).", "es": "Consagra el Santuario Sagrado en el cementerio ({n}/{m}).", "ar": "قدس المزار المقدس في فناء كنيسة بلاكثورن ({n}/{m})." },
+          "each": {
+            "en": ["Holy light bursts from the consecrated relic! A protective ward washes over the heroes."],
+            "fr": ["Une lumière sainte jaillit de la relique consacrée ! Une onde protectrice enveloppe les héros."],
+            "es": ["¡La luz sagrada brota de la reliquia consagrada! Una protección envuelve a los héroes."],
+            "ar": ["انبثق نور مقدس من الرفات المكرس! هالة حماية تحيط بالأبطال."]
+          },
+          "say": { "who": null, "en": ["The shrine is blessed. Return to Alucard to unlock Castle Dracula's gate."], "fr": ["Le sanctuaire est béni. Retournez voir Alucard pour ouvrir la porte du château Dracula."], "es": ["El santuario está bendito. Vuelve con Alucard para abrir la puerta del Castillo Drácula."], "ar": ["تمت مباركة المزار. عُد إلى ألوكارد لفتح بوابة قلعة دراكولا."] }
+        },
+        {
+          "id": "alucard_gate", "type": "talk", "npc": "alucard", "zone": "c5_village", "at": [22.5, 14.6],
+          "goal": { "en": "Receive Castle Dracula's key from Alucard.", "fr": "Recevez la clé du château Dracula auprès d'Alucard.", "es": "Recibe la llave del Castillo Drácula de Alucard.", "ar": "استلم مفتاح قلعة دراكولا من ألوكارد." },
+          "set": { "open": "dracula" },
+          "say": {
+            "who": "alucard",
+            "en": [
+              "The holy ward holds. Take this ancient crest—it unseals the iron portcullis of Castle Dracula.",
+              "Beware: Count Dracula draws power from the blood moon. Strike fast when his shadow fades."
+            ],
+            "fr": [
+              "La protection sainte tient. Prenez ce blason ancien : il descellera la herse du château Dracula.",
+              "Prenez garde : le comte Dracula puise sa force dans la lune de sang. Frappez dès que son ombre faiblit."
+            ],
+            "es": [
+              "La protección sagrada resiste. Toma este blasón antiguo: abrirá el rastrillo del Castillo Drácula.",
+              "Cuidado: el Conde Drácula obtiene poder de la luna de sangre. Ataca rápido cuando su sombra desaparezca."
+            ],
+            "ar": [
+              "صمدت الحماية المقدسة. خذ هذا الشعار القديم، فهو يفتح البوابة الحديدية لقلعة دراكولا.",
+              "احذر: يستمد الكونت دراكولا قوته من قمر الدم. اضرب بسرعة حين تتلاشى ظلاله."
+            ]
+          }
+        },
+        {
+          "id": "defeat_dracula", "type": "boss", "boss": "dracula", "zone": "c5_dracula", "at": [23.5, 12.5],
+          "goal": { "en": "Confront and defeat Count Dracula in his throne room.", "fr": "Affrontez et vainquez le comte Dracula dans sa salle du trône.", "es": "Enfrenta y derrota al Conde Drácula en su sala del trono.", "ar": "واجه واهزم الكونت دراكولا في قاعة عرشه." },
+          "set": { "open": "nosferatu", "beacons": 1 },
+          "say": {
+            "who": null,
+            "en": [
+              "Dracula dissolves into crimson mist, laughing darkly: 'I am but one pillar... Carmilla already gathers the seven blood seals!'",
+              "You recover the Blood Sword and Nightmare Steed! The western road to Nosferatu's Wasteland is open."
+            ],
+            "fr": [
+              "Dracula se dissout en brume cramoisie avec un rire sombre : 'Je ne suis qu'un pilier... Carmilla rassemble déjà les sept sceaux de sang !'",
+              "Vous obtenez l'Épée de Sang et le Destrier du Cauchemar ! La route ouest vers les Terres de Nosferatu est ouverte."
+            ],
+            "es": [
+              "Drácula se disuelve en niebla carmesí riendo siniestramente: '¡Solo soy un pilar... Carmilla ya reúne los siete sellos!'",
+              "¡Obtienes la Espada de Sangre y el Corcel de Pesadilla! El camino oeste hacia el Yermo de Nosferatu está abierto."
+            ],
+            "ar": [
+              "تلاشى دراكولا إلى ضباب قرمزي ضاحكًا بظلمة: 'أنا لست سوى ركيزة واحدة... كارميلا تجمع أختام الدم السبعة بالفعل!'",
+              "حصلت على سيف الدم ومطية كابوس الليل! الطريق الغربي إلى أرض نوسفيراتوس صار مفتوحًا."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5q2", "act": 1,
+      "title": { "en": "The Pale Plague", "fr": "La peste blême", "es": "La plaga pálida", "ar": "الطاعون الشاحب" },
+      "story": {
+        "en": "Journey into Nosferatu's Wasteland where a sickly green fog blankets Deadwood Forest and plague-ridden ghouls roam.",
+        "fr": "Voyagez vers les Terres de Nosferatu où une brume verdâtre étouffe la forêt et où errent des goules pestiférées.",
+        "es": "Viaja al Yermo de Nosferatu donde una densa niebla verde cubre el bosque y deambulan necrófagos apestados.",
+        "ar": "سافر إلى أرض نوسفيراتوس حيث يخنق ضباب أخضر غابة الأشجار الميتة وتجوب الغيلان الموبوءة."
+      },
+      "steps": [
+        {
+          "id": "reach_wasteland", "type": "reach", "zone": "c5_nosferatu", "at": [22.5, 29.5],
+          "goal": { "en": "Cross the western border into Nosferatu's Wasteland.", "fr": "Franchissez la frontière ouest vers les Terres de Nosferatu.", "es": "Cruza la frontera oeste hacia el Yermo de Nosferatu.", "ar": "اعبر الحدود الغربية إلى أرض نوسفيراتوس." },
+          "say": { "who": null, "en": ["A suffocating stench of decay fills the air. Rat swarms skitter across cracked stone."], "fr": ["Une odeur suffocante de décomposition emplit l'air. Des nuées de rats fuient sous les pierres."], "es": ["Un hedor sofocante a putrefacción llena el aire. Enjambres de ratas cruzan la piedra."], "ar": ["رائحة تحلل خانقة تملأ الهواء. أسراب الجرذان تتسابق عبر الحجارة المتشققة."] }
+        },
+        {
+          "id": "cure_crypt", "type": "interact", "zone": "c5_nosferatu", "n": 3, "spots": [[8.5, 12.5], [37.5, 11.5], [14.5, 23.5]],
+          "goal": { "en": "Cleanse the plague cauldrons in the wasteland ruins ({n}/{m}).", "fr": "Purifiez les chaudrons de peste dans les ruines ({n}/{m}).", "es": "Purifica los calderos de plaga en las ruinas ({n}/{m}).", "ar": "طهر قدور الطاعون في أطلال الأرض الخربة ({n}/{m})." },
+          "each": {
+            "en": ["Purifying salt quenches the toxic slime in the first cauldron.", "Holy embers ignite inside the second cauldron, turning the miasma to white ash.", "The final cauldron shatters! The suffocating green fog begins to thin."],
+            "fr": ["Le sel purificateur éteint le limon toxique du premier chaudron.", "Des braises saintes embrasent le second chaudron, changeant le miasme en cendres blanches.", "Le dernier chaudron se brise ! La brume verte commence à se dissiper."],
+            "es": ["La sal purificadora apaga el fango tóxico del primer caldero.", "Brasas sagradas arden en el segundo caldero, convirtiendo el miasma en ceniza blanca.", "¡El último caldero estalla! La densa niebla verde comienza a disiparse."],
+            "ar": ["الملح المطهر يطفئ السائل السام في القدر الأول.", "الجمر المقدس يشتعل في القدر الثاني محولاً السم إلى رماد أبيض.", "انكسر القدر الأخير! بدأ الضباب الأخضر الخانق بالانحسار."]
+          },
+          "say": { "who": null, "en": ["Count Orlok awakens atop his solitary black tower. Climb and confront him!"], "fr": ["Le comte Orlok s'éveille au sommet de sa tour noire. Montez l'affronter !"], "es": ["El Conde Orlok despierta en la cima de su torre negra. ¡Sube y enfréntalo!"], "ar": ["استيقظ الكونت أورلوك فوق برجه الأسود. اصعد وواجهه!"] }
+        },
+        {
+          "id": "defeat_orlok", "type": "boss", "boss": "orlok", "zone": "c5_nosferatu", "at": [23.5, 8.5],
+          "goal": { "en": "Defeat Count Orlok atop the Plague Tower.", "fr": "Vainquez le comte Orlok au sommet de la tour de la Peste.", "es": "Derrota al Conde Orlok en la torre de la Plaga.", "ar": "اهزم الكونت أورلوك في أعلى برج الطاعون." },
+          "set": { "open": "brides", "beacons": 2 },
+          "say": {
+            "who": null,
+            "en": [
+              "Orlok shrinks into the shadows, whispering in raspy agony: 'The Brides... they sing in Widow's Forest... the harvest of Carmilla cannot be stopped...'",
+              "You recover the Shadow Ring! The path to The Brides' Domain is open."
+            ],
+            "fr": [
+              "Orlok s'effondre dans les ombres en murmurant d'une voix rauque : 'Les Épouses... elles chantent dans la forêt... nul n'arrêtera la moisson de Carmilla...'",
+              "Vous obtenez l'Anneau d'Ombre ! Le passage vers le Domaine des Épouses est ouvert."
+            ],
+            "es": [
+              "Orlok se encoge entre las sombras susurrando con agonía: 'Las Novias... cantan en el bosque... la cosecha de Carmilla es imparable...'",
+              "¡Obtienes el Anillo de Sombra! El camino al Dominio de las Novias está abierto."
+            ],
+            "ar": [
+              "انكمش أورلوك في الظلال هامسًا بألم أجش: 'العرائس... يغنين في غابة الأرملة... حصاد كارميلا لن يتوقف...'",
+              "حصلت على خاتم الظل! الطريق إلى مقاطعة العرائس أصبح مفتوحًا."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5q3", "act": 2,
+      "title": { "en": "The Three Queens of Widow's Peak", "fr": "Les trois reines du Pic de la Veuve", "es": "Las tres reinas del Pico de la Viuda", "ar": "ملكات قمة الأرملة الثلاث" },
+      "story": {
+        "en": "In Widow's Forest, three vampire brides hunt travelers. Seek the veteran hunter Van Helsing and end their reign of terror.",
+        "fr": "Dans la forêt de la Veuve, trois épouses vampires chassent les voyageurs. Trouvez le chasseur Van Helsing et mettez fin à leur terreur.",
+        "es": "En el Bosque de la Viuda, tres novias vampiro cazan viajeros. Busca al cazador Van Helsing y termina su reinado de terror.",
+        "ar": "في غابة الأرملة، تصطاد ثلاث عرائس من مصاصي الدماء المسافرين. ابحث عن الصياد فان هلسنغ وضع حدًا لبطشهن."
+      },
+      "steps": [
+        {
+          "id": "meet_hunter", "type": "talk", "npc": "vanhelsing", "zone": "c5_brides", "at": [15.5, 23.5],
+          "goal": { "en": "Speak with Van Helsing at Hunter's Lodge.", "fr": "Parlez à Van Helsing au pavillon des chasseurs.", "es": "Habla con Van Helsing en el refugio de cazadores.", "ar": "تحدث مع فان هلسنغ في كوخ الصيادين." },
+          "say": {
+            "who": "vanhelsing",
+            "en": [
+              "Keep your weapons ready, hunter. You tread upon the nesting grounds of the Three Brides.",
+              "Verona commands blood fire, Marishka dances with shadows and illusions, while Aleera freezes the very breath in your lungs.",
+              "Track them through the mist to the Three Sisters' Castle and slay each before they unite!"
+            ],
+            "fr": [
+              "Gardez vos armes en main, chasseur. Vous marchez sur le nid des trois Épouses.",
+              "Verona commande au feu de sang, Marishka danse avec les ombres et les illusions, et Aleera gèle le souffle de vos poumons.",
+              "Traquez-les dans la brume jusqu'au château des Trois Sœurs et éliminez-les avant qu'elles ne s'unissent !"
+            ],
+            "es": [
+              "Mantén tus armas listas, cazador. Pisas los dominios de las Tres Novias.",
+              "Verona domina el fuego de sangre, Marishka danza con sombras e ilusiones, y Aleera congela el aliento de tus pulmones.",
+              "¡Síguelas por la niebla hasta el Castillo de las Tres Hermanas y derrótalas antes de que se unan!"
+            ],
+            "ar": [
+              "ابق سلاحك مشهرًا أيها الصياد. أنت تطأ أرض تعشيش العرائس الثلاث.",
+              "فيرونا تتحكم بنار الدم، وماريشكا ترقص مع الظلال والأوهام، بينما أليرا تجمد الأنفاس في صدرك.",
+              "تتبعهن عبر الضباب إلى قلعة الأخوات الثلاث واقضِ عليهن قبل أن يتحدن!"
+            ]
+          }
+        },
+        {
+          "id": "hunt_hounds", "type": "kill", "zone": "c5_brides", "foes": ["blood_wolf", "blood_bat"], "n": 6, "at": [28, 18],
+          "goal": { "en": "Cull the vampire hunting hounds and ravens in Widow's Forest ({n}/{m}).", "fr": "Éliminez les molosses de chasse et corbeaux de sang dans la forêt ({n}/{m}).", "es": "Elimina los sabuesos de caza y cuervos de sangre en el bosque ({n}/{m}).", "ar": "اقضِ على كلاب الصيد وخفافيش الدم في غابة الأرملة ({n}/{m})." },
+          "say": { "who": null, "en": ["The forest mist parts. Shrill vampire laughter echoes from the castle ramparts."], "fr": ["La brume s'ouvre. Un rire de vampire perçant résonne depuis les remparts."], "es": ["La niebla se disipa. Risas estridentes de vampiro resuenan desde las almenas."], "ar": ["انقشع ضباب الغابة. تتردد ضحكات مصاصات الدماء الحادة من أسوار القلعة."] }
+        },
+        {
+          "id": "defeat_brides", "type": "boss", "boss": "bride_crimson", "zone": "c5_brides", "at": [23.5, 9.5],
+          "goal": { "en": "Storm the Three Sisters' Castle and vanquish the vampire brides.", "fr": "Prenez d'assaut le château et vainquez les épouses vampires.", "es": "Asalta el castillo y vence a las novias vampiro.", "ar": "اقتحم قلعة الأخوات الثلاث واهزم عرائس مصاصي الدماء." },
+          "set": { "open": "crimson", "beacons": 3 },
+          "say": {
+            "who": null,
+            "en": [
+              "The three brides shatter into crimson, frost, and shadow petals. The pack of giant dire wolves is freed from their thrall!",
+              "You gain the ferocious mount Bloodfang! The southern gate to The Crimson Empire unlocks."
+            ],
+            "fr": [
+              "Les trois épouses éclatent en pétales de sang, de givre et d'ombre. La meute de loups géants est libérée de leur emprise !",
+              "Vous obtenez la féroce monture Croc-de-Sang ! La porte sud vers l'Empire Cramoisi s'ouvre."
+            ],
+            "es": [
+              "Las tres novias estallan en pétalos de sangre, escarcha y sombra. ¡La manada de huargos queda libre de su control!",
+              "¡Obtienes la feroz montura Colmillo de Sangre! La puerta sur hacia el Imperio Carmesí se abre."
+            ],
+            "ar": [
+              "تحولت العرائس الثلاث إلى بتلات قرممر وجليد وظلال. تحررت ذئاب الغابة العملاقة من سيطرتهن!",
+              "حصلت على المطية الشرسة ناب الدم! انفتحت البوابة الجنوبية للإمبراطورية القرمزية."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5q4", "act": 2,
+      "title": { "en": "The Scarlet Baths", "fr": "Les bains écarlates", "es": "Los baños escarlatas", "ar": "الحمامات القرمزية" },
+      "story": {
+        "en": "In Scarlet City, Elizabeth the Blood Queen bathes in youth-preserving blood drained from captured villagers. Destroy her alchemy laboratories.",
+        "fr": "Dans la Cité Écarlate, la Reine de Sang se baigne dans le sang prélevé sur les villageois. Détruisez ses laboratoires d'alchimie.",
+        "es": "En la Ciudad Escarlata, la Reina de Sangre se baña en la sangre extraída a los aldeanos. Destruye sus laboratorios de alquimia.",
+        "ar": "في المدينة القرمزية، تستحم ملكة الدم في دماء القرويين المسروقة للحفاظ على شبابها. دمر معامل خيميائها."
+      },
+      "steps": [
+        {
+          "id": "reach_scarlet", "type": "reach", "zone": "c5_crimson", "at": [22.5, 28.5],
+          "goal": { "en": "Infiltrate Scarlet City through the southern aqueducts.", "fr": "Infiltrez la Cité Écarlate par les aqueducs du sud.", "es": "Infiltrate en la Ciudad Escarlata por los acueductos del sur.", "ar": "تسلل إلى المدينة القرمزية عبر قنوات المياه الجنوبية." },
+          "say": { "who": null, "en": ["Crimson silk banners hang over golden fountains flowing with tainted red waters."], "fr": ["Des bannières de soie cramoisie flottent au-dessus de fontaines dorées où coule une eau rouge souillée."], "es": ["Estandartes de seda carmesí cuelgan sobre fuentes doradas que manan aguas rojas contaminadas."], "ar": ["رايات الحرير القرمزية تتدلى فوق نوافير ذهبية تفيض بمياه حمراء ملطخة."] }
+        },
+        {
+          "id": "destroy_labs", "type": "interact", "zone": "c5_crimson", "n": 3, "spots": [[9.5, 14.5], [36.5, 13.5], [17.5, 21.5]],
+          "goal": { "en": "Shatter the blood distillation alembics in the Alchemist Quarter ({n}/{m}).", "fr": "Brisez les alambics de distillation de sang dans le quartier des alchimistes ({n}/{m}).", "es": "Destruye los alambiques de destilación de sangre en el Barrio de Alquimistas ({n}/{m}).", "ar": "حطم أجهزة تقطير الدم في حي الخيميائيين ({n}/{m})." },
+          "each": {
+            "en": ["Glass alchemical vessels shatter! Corrupted blood washes down the stone drain.", "The pressurized furnace explodes in crimson sparks, freeing two imprisoned villagers.", "The master distillation apparatus collapses! The Queen's elixir supply is cut off."],
+            "fr": ["Les cuves alchimiques de verre volent en éclats ! Le sang corrompu s'écoule dans le caniveau.", "La chaudière explose en étincelles cramoisies, libérant deux villageois prisonniers.", "L'appareil de distillation principal s'effondre ! Les réserves d'élixir de la reine sont coupées."],
+            "es": ["¡Los matraces alquímicos de vidrio estallan! La sangre corrupta corre por el desagüe.", "La caldera explota en chispas carmesí, liberando a dos aldeanos prisioneros.", "¡El alambique maestro se derrumba! El suministro del elixir de la Reina queda destruido."],
+            "ar": ["تهشمت الأواني الخيميائية الزجاجية! تدفق الدم الفاسد في مجاري الحجارة.", "انفجر المرجل بشرارات قرمزية، محررًا قرويين أسيرين.", "انهار جهاز التقطير الرئيسي! انقطع إمداد إكسير الملكة."]
+          },
+          "say": { "who": null, "en": ["The doors to the Queen's Keep swing open with a furious bang."], "fr": ["Les portes du donjon de la reine s'ouvrent avec fracas sous le coup de sa fureur."], "es": ["Las puertas del Torreón de la Reina se abren con estruendo."], "ar": ["انفتحت أبواب برج الملكة بضربة غاضبة ومدوية."] }
+        },
+        {
+          "id": "defeat_bloodqueen", "type": "boss", "boss": "blood_queen", "zone": "c5_crimson", "at": [23.5, 10.5],
+          "goal": { "en": "Confront and defeat The Blood Queen in the Blood Baths.", "fr": "Affrontez et vainquez la Reine de Sang dans les Bains de Sang.", "es": "Enfrenta y derrota a la Reina de Sangre en los Baños de Sangre.", "ar": "واجه واهزم ملكة الدم في الحمامات القرمزية." },
+          "set": { "open": "shadow", "beacons": 4 },
+          "say": {
+            "who": null,
+            "en": [
+              "The Blood Queen rapidly withers into dust as her stolen youth fades: 'Carmilla... you promised eternity!'",
+              "You claim the Crimson Amulet! The road to The Shadow Principality is now open."
+            ],
+            "fr": [
+              "La Reine de Sang se flétrit en poussière tandis que sa jeunesse s'évanouit : 'Carmilla... tu m'avais promis l'éternité !'",
+              "Vous obtenez l'Amulette Cramoisie ! La route vers la Principauté des Ombres est ouverte."
+            ],
+            "es": [
+              "La Reina de Sangre se marchita en polvo mientras su juventud se desvanece: 'Carmilla... ¡me prometiste la eternidad!'",
+              "¡Reclamas el Amuleto Carmesí! El camino al Principado de las Sombras está abierto."
+            ],
+            "ar": [
+              "ذبلت ملكة الدم وتحولت إلى رماد مع تلاشي شبابها المسروق: 'كارميلا... لقد وعدتِني بالخلود!'",
+              "حصلت على التميمة القرمزية! الطريق إلى إمارة الظلال صار مفتوحًا الآن."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5q5", "act": 3,
+      "title": { "en": "The Masquerade of Shadows", "fr": "La mascarade des ombres", "es": "La mascarada de sombras", "ar": "حفلة تنكرية في الظلال" },
+      "story": {
+        "en": "In Ravenport, Lord Ruthven hosts an eternal phantom ballroom where living guests are lured into thrall by hypnotic illusions.",
+        "fr": "À Ravenport, Lord Ruthven tient un bal éternel où des invités vivants sont envoûtés par des illusions hypnotiques.",
+        "es": "En Puerto Cuervo, Lord Ruthven celebra un baile eterno donde invitados vivos caen bajo ilusiones hipnóticas.",
+        "ar": "في ريفنبورت، يقيم اللورد روثفن حفلة راقصة شبحية أبدية حيث يُسحر الضيوف بأوهام منومة."
+      },
+      "steps": [
+        {
+          "id": "reach_ravenport", "type": "reach", "zone": "c5_shadow", "at": [22.5, 29.5],
+          "goal": { "en": "Enter the coastal harbor of Ravenport.", "fr": "Entrez dans le port côtier de Ravenport.", "es": "Entra en el puerto costero de Puerto Cuervo.", "ar": "ادخل ميناء ريفنبورت الساحلي." },
+          "say": { "who": null, "en": ["Ghostly violin melodies drift through the fog-drenched streets. Spectral lanterns glow blue."], "fr": ["Des mélodies de violon spectral résonnent dans les rues embrumées. Des lanternes luisent d'un bleu fantomatique."], "es": ["Melodías de violín fantasmal resuenan entre la niebla. Faroles espectrales brillan de azul."], "ar": ["ألحان كمان شبحية تتهادى عبر الشوارع الغارقة بالضباب. قناديل أطياف تتوهج بالأزرق."] }
+        },
+        {
+          "id": "shatter_mirrors", "type": "interact", "zone": "c5_shadow", "n": 3, "spots": [[10.5, 12.5], [37.5, 12.5], [23.5, 19.5]],
+          "goal": { "en": "Shatter the enchanted obsidian mirrors sustaining the illusions ({n}/{m}).", "fr": "Brisez les miroirs d'obsidienne maintenant les illusions ({n}/{m}).", "es": "Destruye los espejos de obsidiana encantados que sostienen las ilusiones ({n}/{m}).", "ar": "حطم مرايا السبج المسحورة التي تدعم الأوهام ({n}/{m})." },
+          "each": {
+            "en": ["The dark mirror cracks! Trapped phantom souls soar upward into the night sky.", "A mirror clone shatters into silver shards, breaking Ruthven's scrying link.", "The grand mirror in the foyer implodes! The spectral dancers vanish into thin air."],
+            "fr": ["Le miroir sombre se brise ! Les âmes captives s'envolent vers le ciel nocturne.", "Un clone de miroir vole en éclats d'argent, rompant le lien de divination de Ruthven.", "Le grand miroir s'effondre ! Les danseurs spectraux disparaissent dans les airs."],
+            "es": ["¡El espejo oscuro se quiebra! Almas cautivas vuelan hacia el cielo nocturno.", "Un clon de espejo estalla en esquirlas plateadas, rompiendo el enlace de Ruthven.", "¡El gran espejo del vestíbulo estalla! Los danzantes espectrales se desvanecen."],
+            "ar": ["تشققت المرآة المظلمة! حلقت الأرواح الأسيرة نحو سماء الليل.", "تحطمت نسخة المرآة إلى شظايا فضية، قاطعة حبل تجسس روثفن.", "انفجرت المرآة الكبرى! اختفى الراقصون الأطياف في الهواء."]
+          },
+          "say": { "who": null, "en": ["Lord Ruthven manifests in the center of the Eternal Ballroom. Enter and strike!"], "fr": ["Lord Ruthven apparaît au centre de la salle de bal éternelle. Entrez frapper !"], "es": ["Lord Ruthven se materializa en el centro del Salón Eterno. ¡Entra y ataca!"], "ar": ["تجسد اللورد روثفن في وسط قاعة الرقص الأبدية. ادخل واضربه!"] }
+        },
+        {
+          "id": "defeat_ruthven", "type": "boss", "boss": "ruthven", "zone": "c5_shadow", "at": [23.5, 9.5],
+          "goal": { "en": "Vanquish Lord Ruthven in the Eternal Ballroom.", "fr": "Triomphez de Lord Ruthven dans la salle de bal éternelle.", "es": "Derrota a Lord Ruthven en el Salón Eterno.", "ar": "اهزم اللورد روثفن في قاعة الرقص الأبدية." },
+          "set": { "open": "undying", "beacons": 5 },
+          "say": {
+            "who": null,
+            "en": [
+              "Ruthven bows with chilling elegance: 'The mirror breaks, yet Carmilla's necromancy stirs the dead in Gravefall... go, meet your tomb.'",
+              "You obtain the Vampire Armor! The passage to The Undying Kingdom is unsealed."
+            ],
+            "fr": [
+              "Ruthven s'incline avec une élégance glaciale : 'Le miroir se brise, mais la nécromancie de Carmilla réveille les morts à Gravefall... allez vers votre tombe.'",
+              "Vous obtenez l'Armure de Vampire ! Le passage vers le Royaume des Immorts est descellé."
+            ],
+            "es": [
+              "Ruthven hace una reverencia escalofriante: 'El espejo se quiebra, pero la nigromancia de Carmilla alza a los muertos en Gravefall... ve hacia tu tumba.'",
+              "¡Obtienes la Armadura de Vampiro! El paso al Reino de los Inmortales queda abierto."
+            ],
+            "ar": [
+              "انحنى روثفن بأناقة تقشعر لها الأبدان: 'المرآة تنكسر، لكن سحر كارميلا يحرك الموتى في غريففول... اذهب نحو قبرك.'",
+              "حصلت على درع مصاص الدماء! انفتح الممر المؤدي إلى مملكة الخالدين."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5q6", "act": 3,
+      "title": { "en": "The Undying Siege", "fr": "Le siège des immortels", "es": "El asedio de los inmortales", "ar": "حصار الخالدين" },
+      "story": {
+        "en": "In Gravefall Village and the Bonefields, necromantic corruption spawned by Carmilla's rituals has awakened a colossal zombie army.",
+        "fr": "Dans le village de Gravefall et les Champs d'Os, la corruption nécromantique de Carmilla a éveillé une armée colossale de zombies.",
+        "es": "En la aldea de Gravefall y los Campos de Huesos, la corrupción nigromántica de Carmilla despertó un ejército zombi colosal.",
+        "ar": "في قرية غريففول وحقول العظام، أيقظ فساد كارميلا السحري جيشًا ضخمًا من الزومبي."
+      },
+      "steps": [
+        {
+          "id": "reach_gravefall", "type": "reach", "zone": "c5_undying", "at": [22.5, 29.5],
+          "goal": { "en": "Reach the barricades of Gravefall Village.", "fr": "Atteignez les barricades du village de Gravefall.", "es": "Llega a las barricadas de la aldea de Gravefall.", "ar": "صل إلى حواجز قرية غريففول." },
+          "say": { "who": null, "en": ["Putrid mud squelches underfoot. Thousands of bone shards jut from the rotting earth."], "fr": ["La boue fétide s'écrase sous vos pas. Des milliers d'éclats d'os émergent de la terre putréfiée."], "es": ["El barro pútrido cruje bajo los pies. Miles de fragmentos óseos brotan de la tierra."], "ar": ["الطين العفن يصدر صوتًا تحت الأقدام. آلاف من شظايا العظام تبرز من الأرض المتعفنة."] }
+        },
+        {
+          "id": "defend_horde", "type": "kill", "zone": "c5_undying", "foes": ["undead_walker", "undead_runner", "bone_archer"], "n": 10, "at": [22, 22],
+          "goal": { "en": "Defend the barricades from waves of attacking zombies ({n}/{m}).", "fr": "Défendez les barricades contre les vagues de zombies ({n}/{m}).", "es": "Defiende las barricadas de las oleadas de zombis ({n}/{m}).", "ar": "دافع عن الحواجز ضد موجات الزومبي المهاجمة ({n}/{m})." },
+          "say": { "who": null, "en": ["The zombie horde collapses into heaps of lifeless bone. The path into the Necropolis is clear."], "fr": ["La horde de zombies s'effondre en tas d'os inertes. La voie vers la Nécropole est dégagée."], "es": ["La horda zombi colapsa en montones de huesos inertes. El camino a la Necrópolis está libre."], "ar": ["انهارت جحافل الزومبي إلى أكوام من العظام الهامدة. أصبح الطريق إلى المقبرة الملكية سالكًا."] }
+        },
+        {
+          "id": "defeat_undyingking", "type": "boss", "boss": "undying_king", "zone": "c5_undying", "at": [23.5, 9.5],
+          "goal": { "en": "Defeat The Undying King in his subterranean throne room.", "fr": "Vainquez le Roi Immortel dans sa salle du trône souterraine.", "es": "Derrota al Rey Inmortal en su sala del trono subterránea.", "ar": "اهزم الملك الخالد في قاعة عرشه تحت الأرض." },
+          "set": { "open": "carmilla", "beacons": 6 },
+          "say": {
+            "who": null,
+            "en": [
+              "The Undying King shatters, his skeletal crown rolling into the mire: 'Carmilla awaits her ascension at the Blood Cathedral... save your world if you can!'",
+              "You forge the Bone Reaper and awaken the spectral Bone Charger mount! Carmilla's Court is now accessible."
+            ],
+            "fr": [
+              "Le Roi Immortel se brise, sa couronne roulant dans la fange : 'Carmilla attend son ascension à la Cathédrale de Sang... sauvez votre monde si vous le pouvez !'",
+              "Vous forgez le Faucheur d'Os et éveillez la monture spectrale Destrier d'Os ! La Cour de Carmilla est désormais accessible."
+            ],
+            "es": [
+              "El Rey Inmortal se quiebra y su corona rueda por el lodo: 'Carmilla espera su ascensión en la Catedral de Sangre... salva tu mundo si puedes.'",
+              "¡Forjas el Segador de Huesos y despiertas al Corcel de Huesos! La Corte de Carmilla ahora es accesible."
+            ],
+            "ar": [
+              "تحطم الملك الخالد وتدحرج تاجه العظمي في الوحل: 'كارميلا تنتظر صعودها في كاتدرائية الدم... أنقذ عالمك إن استطعت!'",
+              "صنعت قاطع العظام وأيقظت مطية جواد العظام الشبحي! صارت محكمة كارميلا متاحة الآن."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5q7", "act": 4,
+      "title": { "en": "The Ancient Blood Altars", "fr": "Les anciens autels de sang", "es": "Los antiguos altares de sangre", "ar": "مذابح الدم القديمة" },
+      "story": {
+        "en": "Carmilla has erected Blood Crystals that channel life force to her Cathedral. Consecrate the holy shrines and shatter the protective crystals.",
+        "fr": "Carmilla a dressé des cristaux de sang canalisant la force vitale vers sa cathédrale. Consacrez les sanctuaires et détruisez les cristaux.",
+        "es": "Carmilla ha erigido cristales de sangre que canalizan la fuerza vital hacia su catedral. Consagra los santuarios y destruye los cristales.",
+        "ar": "شيدت كارميلا بلورات دم تنقل طاقة الحياة إلى كاتدرائيتها. قدس المزارات وحطم البلورات الحامية."
+      },
+      "steps": [
+        {
+          "id": "consecrate_shrines", "type": "interact", "zone": "c5_carmilla", "n": 3, "spots": [[9.5, 19.5], [37.5, 19.5], [23.5, 23.5]],
+          "goal": { "en": "Purify the defiled shrines in the Crimson Gardens ({n}/{m}).", "fr": "Purifiez les sanctuaires profanés dans les Jardins Cramoisis ({n}/{m}).", "es": "Purifica los santuarios profanados en los Jardines Carmesí ({n}/{m}).", "ar": "طهر المزارات الملوثة في الحدائق القرمزية ({n}/{m})." },
+          "each": {
+            "en": ["Golden light washes away the bloodstains on the first shrine.", "Thorns and withered roses bloom with fresh white petals around the second shrine.", "The third shrine ignites with celestial flame, bestowing the Holy Relic upon you!"],
+            "fr": ["Une lumière dorée efface les taches de sang du premier sanctuaire.", "Des roses blanches fleurissent à nouveau autour du second sanctuaire.", "Le troisième sanctuaire s'embrase de flammes célestes, vous accordant la Sainte Relique !"],
+            "es": ["Luz dorada limpia las manchas de sangre del primer santuario.", "Rosas blancas florecen alrededor del segundo santuario.", "¡El tercer santuario arde con llama celestial, otorgándote la Reliquia Sagrada!"],
+            "ar": ["نور ذهبي يغسل بقع الدماء عن المزار الأول.", "تفتحت بتلات بيضاء حول المزار الثاني.", "اشتهلت نيران مقدسة في المزار الثالث مانحة إياك الرفات المقدس!"]
+          },
+          "say": { "who": null, "en": ["The Blood Cathedral's outer defenses fall. Queen Carmilla summons you within."], "fr": ["Les défenses extérieures de la cathédrale de sang s'effondrent. La reine Carmilla vous défie d'entrer."], "es": ["Las defensas exteriores de la Catedral de Sangre caen. La Reina Carmilla te desafía a entrar."], "ar": ["سقطت دفاعات كاتدرائية الدم الخارجية. الملكة كارميلا تدعوك للدخول."] }
+        }
+      ]
+    },
+    {
+      "id": "c5q8", "act": 4,
+      "title": { "en": "The Blood Ascension", "fr": "L'ascension du sang", "es": "La ascensión de sangre", "ar": "صعود الدم" },
+      "story": {
+        "en": "Face Carmilla inside the Blood Cathedral in the ultimate showdown across her three monstrous phases.",
+        "fr": "Affrontez Carmilla dans la Cathédrale de Sang lors de l'ultime confrontation à travers ses trois phases monstrueuses.",
+        "es": "Enfrenta a Carmilla dentro de la Catedral de Sangre en el duelo definitivo a lo largo de sus tres fases monstruosas.",
+        "ar": "واجه كارميلا داخل كاتدرائية الدم في المواجهة الختامية عبر أطوارها الثلاثة المرعبة."
+      },
+      "steps": [
+        {
+          "id": "defeat_carmilla", "type": "boss", "boss": "carmilla", "zone": "c5_carmilla", "at": [23.5, 9.5],
+          "goal": { "en": "Vanquish Queen Carmilla across all three phases of her Blood Ascension.", "fr": "Triomphez de la reine Carmilla à travers les trois phases de son ascension.", "es": "Derrota a la Reina Carmilla en las tres fases de su ascensión de sangre.", "ar": "اهزم الملكة كارميلا عبر جميع أطوار صعود الدم الثلاثة." },
+          "set": { "beacons": 7 },
+          "say": {
+            "who": null,
+            "en": [
+              "Carmilla lets out an agonizing screech as the Ancient Blood Demon dissolves into divine dawnlight!",
+              "The blood moon wanes. The dawn returns to the Seven Kingdoms. You have conquered Chapter 5: The Blood Kingdoms!",
+              "The magnificent Night Terror mount answers your command. The realm is saved!"
+            ],
+            "fr": [
+              "Carmilla pousse un hurlement d'agonie alors que le démon de sang se dissout dans la lumière de l'aube !",
+              "La lune de sang s'estompe. L'aube revient sur les Sept Royaumes. Vous avez vaincu le Chapitre 5 : Les Royaumes du Sang !",
+              "La magnifique monture Terreur de la Nuit répond à votre appel. Le royaume est sauvé !"
+            ],
+            "es": [
+              "¡Carmilla lanza un chillido agonizante mientras el demonio de sangre se disuelve en la luz del alba!",
+              "La luna carmesí mengua. El amanecer regresa a los Siete Reinos. ¡Has conquistado el Capítulo 5: Los Reinos de Sangre!",
+              "La magnífica montura Terror Nocturno responde a tu mando. ¡El reino está a salvo!"
+            ],
+            "ar": [
+              "أطلقت كارميلا صرخة احتضار مدوية بينما تلاشى شيطان الدم في نور الفجر الإلهي!",
+              "غاب قمر الدم. عاد الفجر ليشرق على الممالك السبع. لقد قهرت الفصل الخامس: ممالك الدم!",
+              "مطية رعب الليل المهيبة تطيع أمرك الآن. لقد تم إنقاذ العالم!"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -14,7 +14,9 @@ window.HM_CHAPTERS = (function () {
         ch3: { data: { HM_C3_QUESTS: 'chapters/ch3/quests.json' }, files: ['chapters/ch3/text.js', 'chapters/ch3/maps.js', 'chapters/ch3/depths.js', 'chapters/ch3/art.js', 'chapters/ch3/chapter.js'], home: 'c3_dawn',
                globals: ['HM_C3_QUESTS', 'HM_C3_MAPS', 'HM_C3_ART', 'HM_C3_POOL', 'HM_C3_TEXT', 'HM_C3_DEPTHS'] },
         ch4: { data: { HM_C4_QUESTS: 'chapters/ch4/quests.json' }, files: ['chapters/ch4/text.js', 'chapters/ch4/maps.js', 'chapters/ch4/valyria.js', 'chapters/ch4/art.js', 'chapters/ch4/chapter.js'], home: 'c4_river',
-               globals: ['HM_C4_QUESTS', 'HM_C4_MAPS', 'HM_C4_ART', 'HM_C4_POOL', 'HM_C4_TEXT', 'HM_C4_VALYRIA'] }
+               globals: ['HM_C4_QUESTS', 'HM_C4_MAPS', 'HM_C4_ART', 'HM_C4_POOL', 'HM_C4_TEXT', 'HM_C4_VALYRIA'] },
+        ch5: { data: { HM_C5_QUESTS: 'chapters/ch5/quests.json' }, files: ['chapters/ch5/text.js', 'chapters/ch5/maps.js', 'chapters/ch5/art.js', 'chapters/ch5/chapter.js'], home: 'c5_village',
+               globals: ['HM_C5_QUESTS', 'HM_C5_MAPS', 'HM_C5_ART', 'HM_C5_POOL', 'HM_C5_TEXT'] }
     };
     const def = {}, loaded = {}, tags = {};
 

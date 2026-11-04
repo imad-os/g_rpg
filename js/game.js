@@ -160,7 +160,8 @@
                  eq: [0, 1, 2, 3].map(() => ({ weapon: 1, head: 0, body: 0, feet: 0 })),
                  sq: {}, sqc: {}, opened: {}, star: false, crypt: false, qdone: 0,
                  pq: {}, pqDone: [], pqOffer: {}, pet: '', mounts: [], mount: '', gender: [0, 1, 0, 1],
-                 seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 } };
+                 seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 },
+                 c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} } };
     }
     // older saves: their gear (a list of names) becomes items in the bag, and Tobin's sword is never lost
     function migrate(s) {
@@ -195,7 +196,18 @@
         if (id.indexOf('q:') === 0) { const d = poolDef(S.pq[id.slice(2)]); return d ? d.who.name[L] || d.who.name.en : ''; }
         return (T.names && T.names[id]) || (TEXT.en.names && TEXT.en.names[id]) || id;
     }
-    function mountName(m) { return m === 'horse' ? T.ui.horse : m === 'dragon' ? T.ui.dragon : m === 'charger' ? T.ui.charger : m === 'shadowmane' ? T.ui.shadowmane : m === 'frostfang' ? T.ui.frostfang : T.ui.wolfMount; }
+    function mountName(m) {
+        return m === 'horse' ? T.ui.horse :
+               m === 'dragon' ? T.ui.dragon :
+               m === 'charger' ? T.ui.charger :
+               m === 'shadowmane' ? T.ui.shadowmane :
+               m === 'frostfang' ? T.ui.frostfang :
+               m === 'nightmare' ? (T.ui.nightmare || 'Nightmare Steed') :
+               m === 'bloodfang' ? (T.ui.bloodfang || 'Bloodfang') :
+               m === 'bonecharger' ? (T.ui.bonecharger || 'Bone Charger') :
+               m === 'nightterror' ? (T.ui.nightterror || 'Night Terror') :
+               T.ui.wolfMount;
+    }
     // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
     const cleanName = n => String(n || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
     const pNames = ['', '', '', ''], devName = {};          // the friends' profile names, by hero and by connected phone
@@ -1519,10 +1531,10 @@
         const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
         try {
             if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
-            else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
-            else if (m === 'charger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite('#7ad8ff'));
-            else if (m === 'shadowmane') MOUNTART.shadowmane(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
-            else if (m === 'frostfang') MOUNTART.frostfang(ctx, 46, 84, 0, 2, 1, 1.35, false, 0);
+            else if (m === 'dragon' || m === 'nightterror') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
+            else if (m === 'charger' || m === 'bonecharger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite(m === 'bonecharger' ? '#44cc44' : '#7ad8ff'));
+            else if (m === 'shadowmane' || m === 'nightmare') MOUNTART.shadowmane(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
+            else if (m === 'frostfang' || m === 'bloodfang') MOUNTART.frostfang(ctx, 46, 84, 0, 2, 1, 1.35, false, 0);
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
         } catch (e) {}
         ctx = saved; if (m) MICONS[m] = c;
@@ -1532,11 +1544,11 @@
         listScreen({
             title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
             rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
-                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang'].map(m => {
+                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror'].map(m => {
                     const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100, home = m === 'wolf' && CH.noWolf;
-                    const sub = m === 'horse' ? T.ui.horseSub : m === 'dragon' ? T.ui.dragonSub : m === 'charger' ? T.ui.chargerSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub;
-                    const how = m === 'dragon' ? T.ui.dragonHow : m === 'charger' ? T.ui.chargerHow : m === 'shadowmane' ? T.ui.shadowmaneHow : m === 'frostfang' ? T.ui.frostfangHow : T.ui.notOwnedLong;
-                    return { label: mountName(m), sub: home ? T.ui.wolfStays : sub + ' · ' + T.ui.spd + ' ×' + sp, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
+                    const sub = (T.ui[m + 'Sub'] || mountName(m)) + ' · ' + T.ui.spd + ' ×' + sp;
+                    const how = T.ui[m + 'How'] || T.ui.notOwnedLong;
+                    return { label: mountName(m), sub: home ? T.ui.wolfStays : sub, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
                         right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(how); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
                 }))
                 .concat([{ label: T.ui.close, fn: closeList }])
@@ -1657,7 +1669,7 @@
                     const tp = d => { setPetKind(PET_KINDS[(idx + (d || 1) + PET_KINDS.length) % PET_KINDS.length]); renderList(); };
                     r.push({ label: txt(T.ui.petRow, { val: T.ui['pet_' + pk] || pk }), sub: T.ui.petSub, right: '◀ ' + (T.ui['pet_' + pk] || pk) + ' ▶', side: d => tp(rtl() ? -d : d), fn: () => tp(1) });
                 }
-                if (isDevMod() && CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
+                if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
                 return r;
             }
@@ -1695,7 +1707,7 @@
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
-                if (isDevMod() && CHAPTERS.enabled('ch4')) r.push({ label: T.ui.devTools || '⚔ Chapter 4 & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
+                if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
                 if (coopAvail()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
@@ -1846,6 +1858,55 @@
         toast(T.ui.devMaxGear || 'Granted Lv 30 & +8 Valyrian Arsenal!');
     }
 
+    function prepareChapter5Save(s) {
+        s = prepareChapter4Save(s);
+        if (s.c4) s.c4.st = 36;
+        if (!s.c5) s.c5 = { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} };
+        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror']) {
+            if (s.mounts.indexOf(m) < 0) s.mounts.push(m);
+        }
+        if (!s.mount) s.mount = 'nightmare';
+        if (s.lvl < 24) {
+            s.lvl = 24; s.xp = 0;
+            s.coins = Math.max(s.coins || 0, 2500);
+            s.iron = Math.max(s.iron || 0, 40);
+            s.potions = Math.max(s.potions || 0, 8);
+            s.big = Math.max(s.big || 0, 4);
+        }
+        if (!s.bag.some(it => it && it.id === 'blood_sword')) {
+            const it = { u: ++s.uid, id: 'blood_sword', r: 3, up: 5, b: rollBonuses('blood_sword', 3) };
+            s.bag.push(it);
+            s.eq[0].weapon = it.u;
+        }
+        if (!s.bag.some(it => it && it.id === 'vampire_armor')) {
+            const it = { u: ++s.uid, id: 'vampire_armor', r: 3, up: 5, b: rollBonuses('vampire_armor', 3) };
+            s.bag.push(it);
+            s.eq[0].body = it.u;
+        }
+        return s;
+    }
+
+    function playChapter5(toZone, tx, ty) {
+        S = prepareChapter5Save(S);
+        const inCh5 = CHAPTERS.of(S.zone) === 'ch5';
+        const z = toZone || (inCh5 ? S.zone : 'c5_village');
+        const x = tx !== undefined ? tx : (inCh5 && !toZone ? S.x : 22.5);
+        const y = ty !== undefined ? ty : (inCh5 && !toZone ? S.y : 25.5);
+        S.zone = z; S.x = x; S.y = y;
+        recalcAll(); save();
+        for (const q of P) { q.hp = maxHp(q); q.down = false; }
+        ovHide(); mode = 'fade'; fadeT = 20; fadeHold = true;
+        return enterChapter('ch5').then(() => new Promise(resolve => {
+            fadeHold = false;
+            loading(() => {
+                loadZone(z); placePlayers(x, y); toPlay(); mode = 'fade';
+                banner((T.zone && T.zone[z]) || 'The Blood Kingdoms');
+                if (CH.arrive) CH.arrive(z);
+                resolve();
+            });
+        })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
+    }
+
     function devScreen() {
         if (!isDevMod()) return;
         const c4Zones = [
@@ -1859,19 +1920,43 @@
             ['c4_wall', 24.5, 31.5, 'The Wall & Castle Black'],
             ['c4_beyond', 24.5, 32.5, 'Beyond the Wall (Night King)']
         ];
+        const c5Zones = [
+            ['c5_village', 22.5, 25.5, 'Blackthorn Village (Dominion Hub)'],
+            ['c5_dracula', 22.5, 28.5, 'Castle Dracula & Bloodmoon Peaks'],
+            ['c5_nosferatu', 43.5, 15.5, 'Nosferatu\'s Wasteland & Tower'],
+            ['c5_brides', 2.5, 15.5, 'The Brides\' Domain (Widow\'s Forest)'],
+            ['c5_crimson', 22.5, 2.5, 'The Crimson Empire & Scarlet City'],
+            ['c5_shadow', 22.5, 29.5, 'The Shadow Principality (Ravenport)'],
+            ['c5_undying', 22.5, 29.5, 'The Undying Kingdom & Necropolis'],
+            ['c5_carmilla', 22.5, 29.5, 'Carmilla\'s Court & Blood Cathedral']
+        ];
         listScreen({
-            title: () => T.ui.devTools || '⚔ Chapter 4 & Dev Tools',
+            title: () => T.ui.devTools || '⚔ Chapter 5 & Dev Tools',
             info: () => T.ui.level + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  ⛏ ' + S.iron,
             rows: () => {
                 const rows = [
+                    { label: T.ui.devJumpCh5 || '▶ Play Chapter 5 Now (Keep Save & Complete Ch 1–4)', sub: 'Enter The Blood Kingdoms', fn: () => playChapter5('c5_village', 22.5, 25.5) },
                     { label: T.ui.devJumpCh4 || '▶ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)', sub: T.ui.devSub || '', fn: () => playChapter4('c4_river', 22.5, 25.5) },
-                    { label: T.ui.devMaxGear || '★ Grant Lv 30, +8 Valyrian Arsenal & All Mounts', fn: () => { devGrantMaxGear(); renderList(); } }
+                    { label: T.ui.devMaxGear || '★ Grant Lv 30, +8 Arsenal & All Mounts', fn: () => { devGrantMaxGear(); renderList(); } }
                 ];
-                if (CHID === 'ch4' && CH) {
+                if (CHID === 'ch5' && CH) {
+                    rows.push(
+                        { label: '🔓 Unlock All Chapter 5 Gates & Kingdoms', fn: () => { if (S.c5) S.c5.open = { dracula: true, nosferatu: true, brides: true, crimson: true, shadow: true, undying: true, carmilla: true }; closeList(); } },
+                        { label: '⏭ Complete Current Quest Step', sub: objective(L), fn: () => { if (CH.step) { const c = S.c5; if (c) { c.st++; c.c = 0; } } closeList(); } }
+                    );
+                } else if (CHID === 'ch4' && CH) {
                     rows.push(
                         { label: T.ui.devUnlockAll || '🔓 Unlock All Chapter 4 Gates & Zones', fn: () => { if (CH.devUnlockAll) CH.devUnlockAll(); closeList(); } },
                         { label: T.ui.devSkipStep || '⏭ Complete Current Quest Step', sub: objective(L), fn: () => { if (CH.devSkipStep) CH.devSkipStep(); closeList(); } }
                     );
+                }
+                for (const [zid, zx, zy, fallbackName] of c5Zones) {
+                    const zName = (T.zone && T.zone[zid]) || fallbackName;
+                    rows.push({ label: txt(T.ui.devTeleport || 'Teleport: {zone}', { zone: zName }), right: Z.id === zid ? '✓' : '▸', mark: Z.id === zid, fn: () => {
+                        S = prepareChapter5Save(S);
+                        if (S.c5) S.c5.open = { dracula: true, nosferatu: true, brides: true, crimson: true, shadow: true, undying: true, carmilla: true };
+                        playChapter5(zid, zx, zy);
+                    } });
                 }
                 for (const [zid, zx, zy, fallbackName] of c4Zones) {
                     const zName = (T.zone && T.zone[zid]) || fallbackName;
@@ -1882,6 +1967,7 @@
                     } });
                 }
                 rows.push(
+                    { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 4 }), fn: () => { closeList(); playChapter4('c4_river', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 3 }), fn: () => { closeList(); changeZone('c3_dawn', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 2 }), fn: () => { closeList(); changeZone('c2_bay', 23.5, 23.6); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 1 }), fn: () => { closeList(); changeZone('village', 21.5, 10.5); } },
@@ -3562,13 +3648,13 @@
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
         const ride = riding(p), dir = heroDir(p), flip = (dir >= 2) && (p.fx || p.lfx) < 0, mfx = p.lfx || 1, back = dir === 1 || dir === 4;
         // mounts are seen from the front or the back when going straight down or up, from the side otherwise
-        const mdir = dir === 0 || dir === 1 ? dir : 2, horse = ride && S.mount === 'horse', charger = ride && S.mount === 'charger', shadow = ride && S.mount === 'shadowmane', ffang = ride && S.mount === 'frostfang';
-        const fly = ride && ((S.mount === 'dragon' && MOUNTART.hasDragon) || charger), z = fly ? (charger ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
+        const mdir = dir === 0 || dir === 1 ? dir : 2, horse = ride && S.mount === 'horse', charger = ride && (S.mount === 'charger' || S.mount === 'bonecharger'), shadow = ride && (S.mount === 'shadowmane' || S.mount === 'nightmare'), ffang = ride && (S.mount === 'frostfang' || S.mount === 'bloodfang'), nightt = ride && S.mount === 'nightterror';
+        const fly = ride && ((S.mount === 'dragon' && MOUNTART.hasDragon) || charger || nightt), z = fly ? (charger ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
         const hy = charger ? y - z - (mdir === 2 ? 22 : mdir === 1 ? 28 : 32) : fly ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
             : (horse || shadow) && mdir !== 2 ? y - 30 : ride ? y - ((horse || shadow) ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
         // where the rider sits: on the dragon's back (behind its neck), in the horse's saddle
         const rx = charger ? x - (mdir === 2 ? mfx * 3 : 0) : fly ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : (horse || shadow) && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
-        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
+        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, heroLv() === 'low' ? null : glowSprite(S.mount === 'bonecharger' ? '#44cc44' : '#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
         else if (fly) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
         else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.32, p.moving, tick + p.i * 5);
         else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.25, p.moving, tick + p.i * 5);
@@ -4220,7 +4306,7 @@
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
 
     /* ------------------------------------------------------------------ lifecycle */
 

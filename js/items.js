@@ -73,7 +73,14 @@ window.HM_ITEMS = {
     winters_fang:     { slot: 'weapon', tier: 6, kind: 'sword',   atk: 24, cd: 16, price: 0, super: 1, fx: 'frost',   col: '#a8ecff', col2: '#e8f4ff' },
     stormbreaker:     { slot: 'weapon', tier: 6, kind: 'hammer',  atk: 32, cd: 26, price: 0, super: 1, fx: 'thunder', col: '#ffd23f', col2: '#3a4250' },
     valyrian_axes:    { slot: 'weapon', tier: 6, kind: 'axes',    atk: 25, cd: 17, price: 0, super: 1, fx: 'whirl',   col: '#ff6a3a', col2: '#2a1e22' },
-    golden_pistols:   { slot: 'weapon', tier: 6, kind: 'pistols', atk: 26, cd: 33, price: 0, super: 1, fx: 'barrage', col: '#ffd76a', col2: '#7a1c1c' }
+    golden_pistols:   { slot: 'weapon', tier: 6, kind: 'pistols', atk: 26, cd: 33, price: 0, super: 1, fx: 'barrage', col: '#ffd76a', col2: '#7a1c1c' },
+    // chapter 5 (The Blood Kingdoms): Tier 7 gothic cursed & holy relics
+    blood_sword:      { slot: 'weapon', tier: 7, kind: 'sword',   atk: 30, cd: 16, price: 2600, super: 1, fx: 'lifesteal', col: '#c81828', col2: '#4a0810' },
+    bone_reaper:      { slot: 'weapon', tier: 7, kind: 'axes',    atk: 36, cd: 20, price: 2800, super: 1, fx: 'undeadslayer', col: '#d8ded0', col2: '#283824' },
+    holy_relic:       { slot: 'weapon', tier: 7, kind: 'staff',   atk: 28, cd: 18, price: 2500, super: 1, fx: 'holyburn', col: '#ffe660', col2: '#ffd700' },
+    shadow_ring:      { slot: 'head',   tier: 7, def: 8,  spd: 0.08, price: 1800, col: '#2a1a44', col2: '#8a5cff' },
+    crimson_amulet:   { slot: 'head',   tier: 7, def: 10, spd: 0.04, price: 2000, col: '#e82038', col2: '#ffb030' },
+    vampire_armor:    { slot: 'body',   tier: 7, def: 15, spd: 0.02, price: 2900, col: '#1c1424', col2: '#8a1828' }
 };
 window.HM_SLOTS = ['weapon', 'head', 'body', 'feet'];
 
@@ -89,7 +96,8 @@ window.HM_LOOT = {
     zoneTier: { village: 1, greywood: 1, mireshore: 2, isle: 2, quarry: 2, barrow: 2, mine: 3 },
     foeDrop: 0.035,                               // chance that a normal foe drops gear (bosses always do, rare or better)
     oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1, stonebrute: 0.4, yeti: 0.3, riftborn: 1, hollowsoldier: 0.12, cryptbones: 0.12,
-               wight: 0.15, whitewalker: 0.45, giant: 0.5, firewyrm: 0.45, icespider: 0.2, shadow: 0.25, kraken: 1, viserion: 1, nightking: 1 },
+               wight: 0.15, whitewalker: 0.45, giant: 0.5, firewyrm: 0.45, icespider: 0.2, shadow: 0.25, kraken: 1, viserion: 1, nightking: 1,
+               blood_bat: 0.15, vampire_thrall: 0.2, vampire_knight: 0.5, flesh_golem: 0.6, dracula: 1, carmilla: 1, orlok: 1, undying_king: 1 },
     bagSize: 48,
     maxUp: 8
 };
@@ -98,7 +106,7 @@ window.HM_LOOT = {
 window.HM_SHOPS = {
     forge: ['steel_sword', 'knight_blade', 'hunter_bow', 'long_bow', 'flintlock', 'musket', 'oak_staff', 'ember_staff', 'star_staff', 'mage_robe',
             'leather_cap', 'iron_helm', 'knight_helm', 'padded_vest', 'chainmail', 'plate_armor',
-            'leather_boots', 'swift_boots', 'iron_greaves'],
+            'leather_boots', 'swift_boots', 'iron_greaves', 'blood_sword', 'vampire_armor'],
     potions: [{ id: 'small', price: 8, heal: 8 }, { id: 'big', price: 20, heal: 99 }]
 };
 
@@ -123,14 +131,19 @@ window.HM_QUESTS = [
 // mounts: speed multiplier, and the price at Hana's store (expensive on purpose: quests give them for free)
 // the dragon flies over water and low things; it is won in chapter 2 (never sold)
 // the Hollow Charger (chapter 3, from the Hollow King): a ghostly winged steed of the Veil, the fastest of all, and it flies
-// Shadowmane (armored black warhorse, tramples foes) and Frostfang (giant direwolf mount, bites foes) are won or bought in chapter 4
+// Shadowmane & Frostfang (chapter 4)
+// Nightmare Steed, Bloodfang, Bone Charger, Night Terror (chapter 5)
 window.HM_MOUNTS = {
     horse: { speed: 1.75, price: 700 },
     wolf: { speed: 1.5, price: 900, bite: true },
     shadowmane: { speed: 2.0, price: 1400, trample: true },
     frostfang: { speed: 1.95, price: 1400, bite: true },
     dragon: { speed: 2.1, price: 0, fly: true },
-    charger: { speed: 2.3, price: 0, fly: true }
+    charger: { speed: 2.3, price: 0, fly: true },
+    nightmare: { speed: 2.35, price: 2000, trample: true },
+    bloodfang: { speed: 2.25, price: 1900, bite: true },
+    bonecharger: { speed: 2.4, price: 2200, fly: true },
+    nightterror: { speed: 2.5, price: 0, fly: true }
 };
 
 // what the chests hold (by zone:x,y); anything not listed holds coins
