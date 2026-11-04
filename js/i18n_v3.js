@@ -34,7 +34,16 @@
             sideQuestLbl: 'SIDE QUEST',
             role_heavy: '🛡 Tank', role_light: '⚔ Striker', role_mystic: '✦ Wizard / Healer', role_hybrid: '⚖ Balanced',
             arm_heavy: 'Heavy · Tank', arm_light: 'Light · Striker', arm_mystic: 'Mystic · Wizard',
-            atkSpdL: 'ATK SPD', magL: 'MAGIC / HEAL'
+            atkSpdL: 'ATK SPD', magL: 'MAGIC / HEAL',
+            mPets: 'Pets', petsTitle: 'Companion Pets', petFollowing: 'Following: {name}', petNone: 'No pet spawned',
+            petDismiss: 'Dismiss Companion (Walk Alone)', petDismissSub: 'Send your current pet to rest until you summon one again',
+            petSub_cat: 'Nimble companion · Sniffs hidden treasure, collects loot & scratches foes (50% ATK)',
+            petSub_direwolf: 'Fierce northern pup · Fast melee jaws that tear into nearby foes (70% ATK)',
+            petSub_babydragon: 'Flying drake · Breathes ranged fireballs at foes from afar (65% ATK)',
+            petSpawned: 'SPAWNED ✓', petSummon: 'Spawn', petRenameRow: '✎ Rename {kind} ({name})',
+            petRenameSub: 'Give this companion a custom name shown above it and in menus',
+            petRenameTitle: 'Rename Companion: {kind}', petRenamePrompt: 'Type a custom name or pick a preset below:',
+            petSave: '✓ Save Name', petReset: '↺ Reset Default Name'
         }, items: {
             mystic_hood: 'Mystic Hood', silk_shoes: 'Apprentice Silk Shoes', astral_circlet: 'Astral Circlet', runic_boots: 'Runic Boots',
             red_priest_robe: 'Red Priest Robes', blood_sword: 'Crimson Bloodblade', bone_reaper: 'Bone Reaper Axes', holy_relic: 'Sunfire Holy Staff',
@@ -80,7 +89,16 @@
             sideQuestLbl: 'QUÊTE ANNEXE',
             role_heavy: '🛡 Tank', role_light: '⚔ Assaillant', role_mystic: '✦ Mage / Soigneur', role_hybrid: '⚖ Équilibré',
             arm_heavy: 'Lourd · Tank', arm_light: 'Léger · Assaillant', arm_mystic: 'Mystique · Mage',
-            atkSpdL: 'VIT ATQ', magL: 'MAGIE / SOIN'
+            atkSpdL: 'VIT ATQ', magL: 'MAGIE / SOIN',
+            mPets: 'Compagnons', petsTitle: 'Compagnons', petFollowing: 'Actif : {name}', petNone: 'Aucun compagnon',
+            petDismiss: 'Renvoyer le compagnon (Marcher seul)', petDismissSub: 'Laisser votre compagnon se reposer jusqu’à son prochain appel',
+            petSub_cat: 'Compagnon agile · Flaire les trésors cachés, ramasse le butin et griffe (50 % ATQ)',
+            petSub_direwolf: 'Louveteau féroce · Morsures rapides au corps à corps (70 % ATQ)',
+            petSub_babydragon: 'Dragonnet volant · Crache des boules de feu à distance (65 % ATQ)',
+            petSpawned: 'ACTIF ✓', petSummon: 'Appeler', petRenameRow: '✎ Renommer {kind} ({name})',
+            petRenameSub: 'Donner un nom personnalisé à ce compagnon',
+            petRenameTitle: 'Renommer : {kind}', petRenamePrompt: 'Entrez un nom ou choisissez un nom ci-dessous :',
+            petSave: '✓ Enregistrer', petReset: '↺ Nom par défaut'
         }, items: {
             mystic_hood: 'Capuche mystique', silk_shoes: 'Souliers de soie', astral_circlet: 'Diadème astral', runic_boots: 'Bottes runiques',
             red_priest_robe: 'Robe de Prêtre Rouge', blood_sword: 'Lame de Sang', bone_reaper: 'Haches Fauche-Os', holy_relic: 'Bâton Solaire Sacré',
@@ -126,7 +144,16 @@
             sideQuestLbl: 'MISIÓN SECUNDARIA',
             role_heavy: '🛡 Tanque', role_light: '⚔ Atacante', role_mystic: '✦ Mago / Sanador', role_hybrid: '⚖ Equilibrado',
             arm_heavy: 'Pesada · Tanque', arm_light: 'Ligera · Atacante', arm_mystic: 'Mística · Mago',
-            atkSpdL: 'VEL ATQ', magL: 'MAGIA / CURA'
+            atkSpdL: 'VEL ATQ', magL: 'MAGIA / CURA',
+            mPets: 'Mascotas', petsTitle: 'Mascotas Compañeras', petFollowing: 'Activa: {name}', petNone: 'Sin mascota activa',
+            petDismiss: 'Retirar mascota (Caminar solo)', petDismissSub: 'Envía a tu mascota a descansar hasta que la llames de nuevo',
+            petSub_cat: 'Compañera ágil · Olfatea tesoros ocultos, recoge botín y araña (50 % ATQ)',
+            petSub_direwolf: 'Cachorro feroz · Mordiscos rápidos cuerpo a cuerpo (70 % ATQ)',
+            petSub_babydragon: 'Cría voladora · Lanza bolas de fuego a distancia (65 % ATQ)',
+            petSpawned: 'ACTIVA ✓', petSummon: 'Invocar', petRenameRow: '✎ Renombrar {kind} ({name})',
+            petRenameSub: 'Dale un nombre personalizado a esta mascota',
+            petRenameTitle: 'Renombrar: {kind}', petRenamePrompt: 'Escribe un nombre o elige uno debajo:',
+            petSave: '✓ Guardar nombre', petReset: '↺ Nombre original'
         }, items: {
             mystic_hood: 'Capucha mística', silk_shoes: 'Zapatos de seda', astral_circlet: 'Diadema astral', runic_boots: 'Botas rúnicas',
             red_priest_robe: 'Túnica de Sacerdote Rojo', blood_sword: 'Hoja de Sangre', bone_reaper: 'Hachas Segahuesos', holy_relic: 'Bastón Sagrado Solar',
@@ -172,7 +199,16 @@
             sideQuestLbl: 'مهمة جانبية',
             role_heavy: '🛡 مدرع (تانك)', role_light: '⚔ مهاجم سريع', role_mystic: '✦ ساحر / معالج', role_hybrid: '⚖ متوازن',
             arm_heavy: 'ثقيل · دفاعي', arm_light: 'خفيف · هجومي', arm_mystic: 'سحري · معالج',
-            atkSpdL: 'سرعة الهجوم', magL: 'قوة السحر والشفاء'
+            atkSpdL: 'سرعة الهجوم', magL: 'قوة السحر والشفاء',
+            mPets: 'المرافقون', petsTitle: 'الحيوانات المرافقة', petFollowing: 'يتبعك: {name}', petNone: 'لا يوجد مرافق',
+            petDismiss: 'إراحة المرافق (المشي وحدك)', petDismissSub: 'أرسل مرافقك للراحة حتى تستدعيه مرة أخرى',
+            petSub_cat: 'رفيق رشيق · يشم الكنوز المخفية ويجمع الغنائم ويخدش الأعداء (50٪ هجوم)',
+            petSub_direwolf: 'جرو شرس · هجمات سريعة وأنياب حادة في القتال القريب (70٪ هجوم)',
+            petSub_babydragon: 'تنين طائر · يطلق كرات نارية على الأعداء من بعيد (65٪ هجوم)',
+            petSpawned: 'نشط ✓', petSummon: 'استدعاء', petRenameRow: '✎ تغيير اسم {kind} ({name})',
+            petRenameSub: 'امنح هذا المرافق اسمًا مخصصًا يظهر فوقه وفي القوائم',
+            petRenameTitle: 'تغيير الاسم: {kind}', petRenamePrompt: 'اكتب اسمًا جديدًا أو اختر اسمًا جاهزًا:',
+            petSave: '✓ حفظ الاسم', petReset: '↺ الاسم الافتراضي'
         }, items: {
             mystic_hood: 'قلنسوة الساحر', silk_shoes: 'حذاء الحرير السحري', astral_circlet: 'تاج النجوم', runic_boots: 'حذاء الرون السحري',
             red_priest_robe: 'رداء الكاهن الأحمر', blood_sword: 'نصل الدم القرمزي', bone_reaper: 'فأسا حاصد العظام', holy_relic: 'عصا الشمس المقدسة',

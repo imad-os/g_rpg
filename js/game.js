@@ -159,7 +159,7 @@
                  bag: [{ u: 1, id: 'stick', r: 0, up: 0, b: [] }], uid: 1, iron: 0,
                  eq: [0, 1, 2, 3].map(() => ({ weapon: 1, head: 0, body: 0, feet: 0 })),
                  sq: {}, sqc: {}, opened: {}, star: false, crypt: false, qdone: 0,
-                 pq: {}, pqDone: [], pqOffer: {}, pet: '', mounts: [], mount: '', gender: [0, 1, 0, 1],
+                 pq: {}, pqDone: [], pqOffer: {}, pet: '', petNames: {}, mounts: [], mount: '', gender: [0, 1, 0, 1],
                  seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 },
                  c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} } };
     }
@@ -186,6 +186,7 @@
         while (s.eq.length < MAXP) s.eq.push({ weapon: stick ? stick.u : 1, head: 0, body: 0, feet: 0 });
         if (!Array.isArray(s.gender)) s.gender = [0, 1];
         while (s.gender.length < MAXP) s.gender.push(s.gender.length & 1);
+        if (!s.petNames || typeof s.petNames !== 'object') s.petNames = {};
         return s;
     }
     function save() { MyPC.save('save', S); }
@@ -345,7 +346,7 @@
         p.lgMask = (h && h.r >= 3 ? 1 : 0) | (bd && bd.r >= 3 ? 2 : 0) | (ft && ft.r >= 3 ? 4 : 0);
         if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
-    function recalcAll() { for (const p of P) recalc(p); }
+    function recalcAll() { for (const p of P) recalc(p); bgDirty = true; }
     // the hero's own strength grows with the level, before the gear adds its stats
     function lvlAtk() { return S ? S.lvl - 1 : 0; }
     function lvlDef() { return S ? S.lvl >> 2 : 0; }
@@ -655,6 +656,7 @@
         spawnPool();
         hideBoss();
         music();
+        bgDirty = true;
     }
     // chapter 1's zones: Kenney tiles and drawn sprites from the map letters
     function buildClassic(id, def) {
@@ -879,6 +881,7 @@
         if (OV.kind === 'gear') { if (gearBack()) return true; SND.fx('ok'); closeList(); return true; }
         if (OV.kind === 'journal') { SND.fx('ok'); ovHide(); toPlay(); return true; }
         if (OV.kind === 'menu' && OV.coop) { SND.fx('ok'); coopClose(); return true; }
+        if (OV.kind === 'petrename') { SND.fx('ok'); petScreen(); return true; }
         if (OV.kind === 'list') {
             const rows = OV.list.rows();
             for (const r of rows) if (r.fn === closeList || r.label === T.ui.back || r.label === T.ui.close || r.label === T.ui.leave) { SND.fx('ok'); r.fn(); return true; }
@@ -915,7 +918,20 @@
         const lastPage = D.i === D.pages.length - 1;
         $('dmore').style.display = (!lastPage || !D.choices) && !D.wait ? '' : 'none';
         if (lastPage && D.choices && !D.wait) {
-            D.choices.forEach((c, i) => { const e = document.createElement('div'); e.className = 'ch' + (i === D.sel ? ' sel' : ''); e.textContent = c.label; box.appendChild(e); });
+            D.choices.forEach((c, i) => {
+                const e = document.createElement('div');
+                e.className = 'ch' + (i === D.sel ? ' sel' : '');
+                e.textContent = c.label;
+                e.style.cursor = 'pointer';
+                e.onmouseenter = () => {
+                    if (D.sel !== i) {
+                        const prev = box.children[D.sel]; if (prev) prev.classList.remove('sel');
+                        D.sel = i; e.classList.add('sel');
+                    }
+                };
+                e.onclick = () => { D.sel = i; SND.fx('ok'); c.fn(); };
+                box.appendChild(e);
+            });
         }
         if (!D.wait) {
             MyPC.announce((who ? $('dname').textContent + ': ' : '') + pg[1] + (lastPage && D.choices ? '. ' + D.choices[D.sel].label : ''));
@@ -929,9 +945,12 @@
         const lastPage = D.i === D.pages.length - 1;
         if (lastPage && D.choices) {
             if (a === 'up' || a === 'down') {
-                const n = D.choices.length; D.sel = (D.sel + (a === 'down' ? 1 : n - 1)) % n;
-                const els = $('dchoices').children; for (let i = 0; i < els.length; i++) els[i].className = 'ch' + (i === D.sel ? ' sel' : '');
-                MyPC.announce(D.choices[D.sel].label); SND.fx('move');
+                const n = D.choices.length, prev = D.sel;
+                D.sel = (D.sel + (a === 'down' ? 1 : n - 1)) % n;
+                const els = $('dchoices').children;
+                if (els[prev]) els[prev].classList.remove('sel');
+                if (els[D.sel]) els[D.sel].classList.add('sel');
+                announceLater(D.choices[D.sel].label); SND.fx('move');
             } else if (a === 'confirm') { SND.fx('ok'); const c = D.choices[D.sel]; c.fn(); }
         } else if (a === 'confirm') {
             if (!lastPage) { D.i++; renderDlg(); } else closeDlg();
@@ -1126,8 +1145,10 @@
 
     /* ------------------------------------------------------------------ overlay screens */
 
-    const OV = { kind: '', items: null, sel: 0, slides: null, i: 0, done: null, list: null };
-    function ovShow(html) { const o = $('ov'); o.textContent = ''; o.appendChild(html); o.style.display = ''; if (remoteMenu) mirrorMenu(); }
+    const OV = { kind: '', items: null, sel: 0, slides: null, i: 0, done: null, list: null, rows: null, listEl: null };
+    let bgDirty = true, annT = 0;
+    function announceLater(s) { clearTimeout(annT); annT = setTimeout(() => MyPC.announce(s), 90); }
+    function ovShow(html) { const o = $('ov'); o.textContent = ''; o.appendChild(html); o.style.display = ''; bgDirty = true; if (remoteMenu) mirrorMenu(); }
     // hero 2's menu is shown on the host's screen and also copied, as short lines, to the phone that drives it
     let remoteMenu = null, remoteDev = '';                   // the hero whose menu a phone is driving, and that phone
     function mirrorMenu() {
@@ -1139,7 +1160,7 @@
         });
         HM_COOP.sendMenu(remoteDev, rows.slice(0, 40));
     }
-    function ovHide() { $('ov').style.display = 'none'; OV.kind = ''; VOICE.stop(); }
+    function ovHide() { $('ov').style.display = 'none'; OV.kind = ''; OV.rows = null; OV.listEl = null; bgDirty = true; VOICE.stop(); }
     function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
 
     // the chapter's title: "Chapter 2: The Sunken Lantern"
@@ -1290,9 +1311,29 @@
 
     // a scrolling list screen (shop, equipment): rows of { label, sub, right, fn, dim, mark }
     function listScreen(def) { mode = 'overlay'; OV.kind = 'list'; OV.list = def; OV.sel = def.sel || 0; renderList(); }
+    function moveListSel(i, playFx) {
+        const list = OV.listEl, rows = OV.rows;
+        if (!list || !rows || !rows.length) return;
+        const next = ((i % rows.length) + rows.length) % rows.length;
+        if (next === OV.sel && !playFx) return;
+        const prevEl = list.children[OV.sel], nextEl = list.children[next];
+        if (prevEl) prevEl.classList.remove('sel');
+        OV.sel = next;
+        if (nextEl) {
+            nextEl.classList.add('sel');
+            if (playFx) {
+                const top = nextEl.offsetTop, h = nextEl.offsetHeight, ch = list.clientHeight, st = list.scrollTop;
+                if (top < st + 16 || top + h > st + ch - 16) list.scrollTop = Math.max(0, top - ch / 2 + h / 2);
+                const r = rows[OV.sel];
+                if (r) announceLater(r.label + (r.sub ? '. ' + r.sub : '') + (r.right ? '. ' + r.right : ''));
+            }
+        }
+        if (playFx) SND.fx('move');
+        if (remoteMenu) mirrorMenu();
+    }
     function renderList() {
         const d = OV.list, rows = d.rows();
-        if (OV.sel >= rows.length) OV.sel = rows.length - 1;
+        if (OV.sel >= rows.length) OV.sel = Math.max(0, rows.length - 1);
         const box = el('div', 'listbox');
         const head = el('div', 'lhead');
         head.appendChild(el('div', 'ltitle', d.title()));
@@ -1300,23 +1341,30 @@
         box.appendChild(head);
         if (d.tabs) box.appendChild(el('div', 'ltabs', d.tabs()));
         const list = el('div', 'lrows');
+        OV.rows = rows; OV.listEl = list;
         rows.forEach((r, i) => {
             const row = el('div', 'li' + (i === OV.sel ? ' sel' : '') + (r.dim ? ' dim' : '') + (r.mark ? ' mark' : ''));
             if (r.img) { const im = el('div', 'limg'); im.appendChild(r.img); row.appendChild(im); }
             const left = el('div', 'll'); left.appendChild(el('div', 'lname' + (r.cls ? ' ' + r.cls : ''), r.label)); if (r.sub) left.appendChild(el('div', 'lsub', r.sub));
             row.appendChild(left); if (r.right) row.appendChild(el('div', 'lr', r.right));
+            row.onmouseenter = () => { if (OV.sel !== i) moveListSel(i, false); };
+            row.onclick = () => { moveListSel(i, false); SND.fx('ok'); if (r.fn) r.fn(); };
             list.appendChild(row);
         });
         box.appendChild(list);
         ovShow(box);
         const selEl = list.children[OV.sel];
-        if (selEl) { list.scrollTop = Math.max(0, selEl.offsetTop - list.clientHeight / 2 + selEl.offsetHeight / 2); MyPC.announce(rows[OV.sel].label + (rows[OV.sel].sub ? '. ' + rows[OV.sel].sub : '') + (rows[OV.sel].right ? '. ' + rows[OV.sel].right : '')); }
+        if (selEl) { list.scrollTop = Math.max(0, selEl.offsetTop - list.clientHeight / 2 + selEl.offsetHeight / 2); announceLater(rows[OV.sel].label + (rows[OV.sel].sub ? '. ' + rows[OV.sel].sub : '') + (rows[OV.sel].right ? '. ' + rows[OV.sel].right : '')); }
     }
     function listInput(a) {
-        const d = OV.list, rows = d.rows();
-        if (a === 'up' || a === 'down') { OV.sel = (OV.sel + (a === 'down' ? 1 : rows.length - 1)) % rows.length; SND.fx('move'); renderList(); }
+        const d = OV.list, rows = OV.rows || d.rows();
+        if (!rows.length) return;
+        if (a === 'up' || a === 'down') {
+            if (OV.listEl && OV.listEl.children.length === rows.length) moveListSel(OV.sel + (a === 'down' ? 1 : -1), true);
+            else { OV.sel = (OV.sel + (a === 'down' ? 1 : rows.length - 1)) % rows.length; SND.fx('move'); renderList(); }
+        }
         else if ((a === 'left' || a === 'right') && (rows[OV.sel].side || d.side)) { (rows[OV.sel].side || d.side)(a === 'right' ? 1 : -1); SND.fx('move'); renderList(); }
-        else if (a === 'confirm') { SND.fx('ok'); rows[OV.sel].fn(); }
+        else if (a === 'confirm') { SND.fx('ok'); if (rows[OV.sel] && rows[OV.sel].fn) rows[OV.sel].fn(); }
     }
     function closeList() { ovHide(); toPlay(); }
 
@@ -1409,11 +1457,18 @@
     }
     // equipment: boxes with pictures (name on top), tabs for the slots, and the details of the chosen piece
     function rtl() { return document.documentElement.dir === 'rtl'; }
+    const GICONS = {};
     function gearImg(id) {
+        const base = ITEMS[id], useKn = KN.ok && base.kind !== 'axes' && base.kind !== 'pistols' && base.kind !== 'hammer';
+        const key = id + (useKn ? ':k' : ':p');
+        if (GICONS[key]) { const im = new Image(); im.src = GICONS[key]; return im; }
         const c = document.createElement('canvas'); c.width = c.height = 32;
         const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
-        const icon = KN.ok && KN.gearIcon(id), base = ITEMS[id];
-        if (icon && base.kind !== 'axes' && base.kind !== 'pistols' && base.kind !== 'hammer') { x.drawImage(icon, 0, 0, 32, 32); return c; }
+        const icon = useKn && KN.gearIcon(id);
+        if (icon) {
+            x.drawImage(icon, 0, 0, 32, 32);
+            try { GICONS[key] = c.toDataURL(); const im = new Image(); im.src = GICONS[key]; return im; } catch (e) { return c; }
+        }
         x.fillStyle = base.col; x.strokeStyle = base.col; x.lineWidth = 3;
         if (base.kind === 'staff') {                           // a staff with a glowing orb
             x.strokeStyle = base.col2; x.lineWidth = 3; x.beginPath(); x.moveTo(8, 28); x.lineTo(21, 9); x.stroke();
@@ -1438,7 +1493,7 @@
         else if (base.slot === 'head') { x.beginPath(); x.arc(16, 20, 10, Math.PI, 0); x.fill(); x.fillRect(5, 20, 22, 3); }
         else if (base.slot === 'body') { x.fillRect(8, 8, 16, 18); x.fillRect(4, 8, 5, 9); x.fillRect(23, 8, 5, 9); }
         else { x.fillRect(7, 8, 6, 16); x.fillRect(7, 21, 11, 5); x.fillRect(19, 8, 6, 16); x.fillRect(19, 21, 11, 5); }
-        return c;
+        try { GICONS[key] = c.toDataURL(); const im = new Image(); im.src = GICONS[key]; return im; } catch (e) { return c; }
     }
     function itemStats(it) {
         const o = { atk: 0, def: 0, spd: 0, atkSpd: 0, mag: 0, crit: 0, hp: 0, gold: 0 };
@@ -1461,14 +1516,19 @@
     /* The gear screen: on the left the hero as it would look, in the middle the four worn pieces (OK on one lists the
      * pieces of that kind, with the one you are on worn by the preview), on the right the stats of the piece you are on,
      * each with its change against what is worn: atk 4 (-1) in red, (+2) in green. A mouse works too. */
-    const EQ = { hero: 0, si: 0, focus: 'slots', ri: 0, gi: 0 };
+    const EQ = { hero: 0, si: 0, focus: 'slots', ri: 0, gi: 0, midEl: null, detEl: null, gridEl: null, items: null };
     const GCOLS = 3;
     function eqRows() { const r = SLOTS.slice(); if (nPlayers() > 1) r.push('hero'); r.push('close'); return r; }
     function equipScreen(h) { mode = 'overlay'; OV.kind = 'gear'; EQ.hero = h || 0; EQ.si = 0; EQ.ri = 0; EQ.focus = 'slots'; EQ.gi = 0; renderGear(); }
     // the hero drawn big, wearing the worn gear with one piece swapped for the one being looked at
+    let gearPreviewC = null;
     function gearPreview(swap) {
-        const c = document.createElement('canvas'); c.width = 120; c.height = 150;
-        const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+        const c = gearPreviewC || (gearPreviewC = document.createElement('canvas'));
+        if (c.width !== 120 || c.height !== 150) { c.width = 120; c.height = 150; }
+        const saved = ctx; ctx = c.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, 120, 150);
+        ctx.imageSmoothingEnabled = false;
         try {
             const p = P[EQ.hero], g = Object.assign({}, p.gear), st = { kind: p.st.kind, col: p.st.col, col2: p.st.col2 };
             let wr = p.wr;
@@ -1522,6 +1582,35 @@
         const who = P.filter(q => q.on && S.eq[q.i][base.slot] === it.u).map(q => heroName(q.i)).join(', ');
         det.appendChild(el('div', 'gdh', who ? txt(T.ui.worn, { name: who }) : cur ? T.ui.compare : T.ui.noneWorn));
     }
+    function updateGearSel(playFx) {
+        if (!EQ.midEl || !EQ.detEl) return renderGear();
+        const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list';
+        if (!list) EQ.si = Math.min(EQ.ri, 3);
+        const sl = SLOTS[EQ.si], items = list ? (EQ.items || gearItems()) : null, cur = itemOf(e[sl]);
+        if (list && EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
+        const look = list ? items[EQ.gi] : EQ.ri < 4 ? cur : null;
+        gearPreview(list ? look : undefined);
+        if (!list) {
+            const ch = EQ.midEl.children;
+            for (let i = 0; i < ch.length; i++) ch[i].classList.toggle('sel', i === EQ.ri);
+        } else if (EQ.gridEl) {
+            const ch = EQ.gridEl.children;
+            for (let i = 0; i < ch.length; i++) ch[i].classList.toggle('sel', i === EQ.gi);
+            const selEl = ch[EQ.gi];
+            if (selEl && playFx) {
+                const top = selEl.offsetTop, h = selEl.offsetHeight, gh = EQ.gridEl.clientHeight, st = EQ.gridEl.scrollTop;
+                if (top < st + 8 || top + h > st + gh - 8) EQ.gridEl.scrollTop = Math.max(0, top - gh / 2 + h / 2);
+            }
+        }
+        EQ.detEl.textContent = '';
+        if (list || EQ.ri < 4) gearDetails(EQ.detEl, look, cur);
+        EQ.detEl.appendChild(el('div', 'ghelp', list ? T.ui.gearHelpList : T.ui.gearHelpSlots));
+        if (playFx) {
+            SND.fx('move');
+            announceLater(list ? (look ? itemLabel(look) + '. ' + statLine(look) : T.ui.takeOff) : rows[EQ.ri] === 'close' ? T.ui.close : rows[EQ.ri] === 'hero' ? heroName(nextHero(EQ.hero)) : T.ui['slot_' + rows[EQ.ri]] + ': ' + (cur ? itemLabel(cur) : T.ui.noneWorn));
+        }
+        if (remoteMenu) mirrorMenu();
+    }
     function renderGear() {
         const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list';
         if (!list) EQ.si = Math.min(EQ.ri, 3);
@@ -1545,6 +1634,7 @@
         const doll = el('div', 'gdoll'); doll.appendChild(gearPreview(list ? look : undefined));
         main.appendChild(doll);
         const mid = el('div', 'gmid');
+        let grid = null;
         if (!list) {                                     // the four worn pieces, then switch hero and close
             rows.forEach((r, i) => {
                 const sel = i === EQ.ri, row = el('div', 'gs' + (sel ? ' sel' : '') + (r === 'close' || r === 'hero' ? ' gsx' : ''));
@@ -1556,18 +1646,18 @@
                     const tx = el('div', 'gst'); tx.appendChild(el('div', 'gsk', T.ui['slot_' + r]));
                     tx.appendChild(el('div', 'gsn' + (it ? ' r' + it.r : ''), it ? itemLabel(it) : T.ui.noneWorn)); row.appendChild(tx);
                 }
-                row.onmouseenter = () => { if (EQ.focus === 'slots' && EQ.ri !== i) { EQ.ri = i; renderGear(); } };
+                row.onmouseenter = () => { if (EQ.focus === 'slots' && EQ.ri !== i) { EQ.ri = i; updateGearSel(false); } };
                 row.onclick = () => { EQ.focus = 'slots'; EQ.ri = i; gearInput('confirm'); };
                 mid.appendChild(row);
             });
         } else {                                         // the pieces of that kind
             mid.appendChild(el('div', 'gsk', '◀ ' + T.ui['slot_' + sl]));
-            const grid = el('div', 'ggrid');
+            grid = el('div', 'ggrid');
             items.forEach((it, i) => {
                 const sel = i === EQ.gi;
                 const g = !it ? el('div', 'gi empty' + (sel ? ' sel' : '') + (!e[sl] ? ' worn' : ''), T.ui.takeOff) : el('div', 'gi r' + it.r + (sel ? ' sel' : '') + (e[sl] === it.u ? ' worn' : ''));
                 if (it) { g.appendChild(el('div', 'gn r' + it.r, itemName(it.id))); g.appendChild(gearImg(it.id)); if (it.up) g.appendChild(el('div', 'gup', '+' + it.up)); }
-                g.onmouseenter = () => { if (EQ.gi !== i) { EQ.gi = i; renderGear(); } };
+                g.onmouseenter = () => { if (EQ.gi !== i) { EQ.gi = i; updateGearSel(false); } };
                 g.onclick = () => { EQ.gi = i; gearInput('confirm'); };
                 grid.appendChild(g);
             });
@@ -1579,9 +1669,10 @@
         det.appendChild(el('div', 'ghelp', list ? T.ui.gearHelpList : T.ui.gearHelpSlots));
         main.appendChild(det);
         box.appendChild(main);
+        EQ.midEl = mid; EQ.detEl = det; EQ.gridEl = grid; EQ.items = items;
         ovShow(box);
-        if (list) { const grid = mid.querySelector('.ggrid'), selEl = grid.children[EQ.gi]; if (selEl) grid.scrollTop = Math.max(0, selEl.offsetTop - grid.clientHeight / 2 + selEl.offsetHeight / 2); }
-        MyPC.announce(list ? (look ? itemLabel(look) + '. ' + statLine(look) : T.ui.takeOff) : rows[EQ.ri] === 'close' ? T.ui.close : rows[EQ.ri] === 'hero' ? heroName(nextHero(EQ.hero)) : T.ui['slot_' + rows[EQ.ri]] + ': ' + (cur ? itemLabel(cur) : T.ui.noneWorn));
+        if (list && grid) { const selEl = grid.children[EQ.gi]; if (selEl) grid.scrollTop = Math.max(0, selEl.offsetTop - grid.clientHeight / 2 + selEl.offsetHeight / 2); }
+        announceLater(list ? (look ? itemLabel(look) + '. ' + statLine(look) : T.ui.takeOff) : rows[EQ.ri] === 'close' ? T.ui.close : rows[EQ.ri] === 'hero' ? heroName(nextHero(EQ.hero)) : T.ui['slot_' + rows[EQ.ri]] + ': ' + (cur ? itemLabel(cur) : T.ui.noneWorn));
     }
     // Return in the list goes back to the four pieces (the screen closes from there)
     function gearBack() { if (EQ.focus === 'list') { EQ.focus = 'slots'; SND.fx('ok'); renderGear(); return true; } return false; }
@@ -1589,7 +1680,7 @@
         const e = S.eq[EQ.hero], rows = eqRows();
         const dx = a === 'left' ? -1 : a === 'right' ? 1 : 0, h = rtl() ? -dx : dx;    // in Arabic the boxes run right to left
         if (EQ.focus === 'slots') {
-            if (a === 'up' || a === 'down') EQ.ri = (EQ.ri + (a === 'down' ? 1 : -1) + rows.length) % rows.length;
+            if (a === 'up' || a === 'down') { EQ.ri = (EQ.ri + (a === 'down' ? 1 : -1) + rows.length) % rows.length; return updateGearSel(true); }
             else if (a === 'confirm') {
                 const r = rows[EQ.ri]; SND.fx('ok');
                 if (r === 'close') return closeList();
@@ -1598,17 +1689,16 @@
             } else if (a === 'right' || a === 'left') { if (h > 0 && EQ.ri < 4) return gearInput('confirm'); return; }
             else return;
         } else {
-            const items = gearItems(), sl = SLOTS[EQ.si];
-            if (h) { if (h < 0 && EQ.gi % GCOLS === 0) return gearBack(); EQ.gi = Math.max(0, Math.min(items.length - 1, EQ.gi + h)); }
-            else if (a === 'down') { if (EQ.gi + GCOLS < items.length) EQ.gi += GCOLS; else if (((EQ.gi / GCOLS) | 0) < (((items.length - 1) / GCOLS) | 0)) EQ.gi = items.length - 1; }
-            else if (a === 'up') { if (EQ.gi >= GCOLS) EQ.gi -= GCOLS; }
+            const items = EQ.items || gearItems(), sl = SLOTS[EQ.si];
+            if (h) { if (h < 0 && EQ.gi % GCOLS === 0) return gearBack(); EQ.gi = Math.max(0, Math.min(items.length - 1, EQ.gi + h)); return updateGearSel(true); }
+            else if (a === 'down') { if (EQ.gi + GCOLS < items.length) EQ.gi += GCOLS; else if (((EQ.gi / GCOLS) | 0) < (((items.length - 1) / GCOLS) | 0)) EQ.gi = items.length - 1; return updateGearSel(true); }
+            else if (a === 'up') { if (EQ.gi >= GCOLS) EQ.gi -= GCOLS; return updateGearSel(true); }
             else if (a === 'confirm') {
                 const it = items[EQ.gi];
                 if (!it || (e[sl] === it.u && sl !== 'weapon')) e[sl] = 0; else e[sl] = it.u;
                 recalcAll(); SND.fx('equip'); save(); EQ.focus = 'slots';
             } else return;
         }
-        if (a !== 'confirm') SND.fx('move');
         renderGear();
     }
 
@@ -1617,14 +1707,14 @@
     function renderMountIcon(m, c) {
         const saved = ctx; ctx = c.getContext('2d'); ctx.clearRect(0, 0, 96, 96); ctx.imageSmoothingEnabled = false;
         try {
-            if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45);
+            if (m === 'horse') drawHorse(48, 82, 0, 1, 1.25);
             else if (m === 'wolf') drawWolfMount(48, 82, 0, 1, 1.42, 2, false, 0);
             else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
             else if (m === 'nightterror') MOUNTART.nightterror(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
-            else if (m === 'charger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite('#7ad8ff'));
-            else if (m === 'bonecharger') MOUNTART.bonecharger(ctx, 48, 92, 4, 0, 2, 1, 1.25, false, 7, glowSprite('#54e8a0'));
-            else if (m === 'shadowmane') MOUNTART.shadowmane(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
-            else if (m === 'nightmare') MOUNTART.nightmare(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
+            else if (m === 'charger') MOUNTART.charger(ctx, 50, 90, 8, 0, 2, 1, 1.05, false, 9, glowSprite('#7ad8ff'));
+            else if (m === 'bonecharger') MOUNTART.bonecharger(ctx, 48, 94, 4, 0, 2, 1, 0.92, false, 7, glowSprite('#54e8a0'));
+            else if (m === 'shadowmane') MOUNTART.shadowmane(ctx, 48, 86, 0, 2, 1, 0.98, false, 0);
+            else if (m === 'nightmare') MOUNTART.nightmare(ctx, 48, 86, 0, 2, 1, 0.96, false, 0);
             else if (m === 'frostfang') MOUNTART.frostfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else if (m === 'bloodfang') MOUNTART.bloodfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
@@ -1639,7 +1729,7 @@
         if (MICONS[m] && MICONS[m].ok) return MICONS[m];
         const c = MICONS[m] || document.createElement('canvas'); c.width = c.height = 96;
         renderMountIcon(m, c);
-        if (m) MICONS[m] = c;
+        MICONS[m] = c;
         return c;
     }
     function mountScreen() {
@@ -1723,18 +1813,150 @@
     // the look of a hero: 0 male, 1 female (Settings, and the tailor and the barber of the village)
     function setGender(i, g) {
         if (!S.gender) S.gender = [0, 1, 0, 1];
-        S.gender[i] = g ? 1 : 0; save(); SND.fx('ok');
+        S.gender[i] = g ? 1 : 0; delete MICONS['']; delete PICONS['']; bgDirty = true; save(); SND.fx('ok');
         toast(txt(T.ui.lookDone, { name: heroName(i), to: g ? T.ui.female : T.ui.male }));
     }
     function setCloth(i, c) {
         if (!S.cloth) S.cloth = [0, 1, 2, 3];
-        S.cloth[i] = (c + 8) & 7; delete MICONS['']; save(); SND.fx('ok');
+        S.cloth[i] = (c + 8) & 7; delete MICONS['']; delete PICONS['']; bgDirty = true; save(); SND.fx('ok');
         toast(txt(T.ui.clothRow, { name: heroName(i) }) + ': ' + (T.ui['cloth' + S.cloth[i]] || S.cloth[i]));
     }
     const PET_KINDS = ['cat', 'direwolf', 'babydragon'];
+    const PET_PRESETS = {
+        cat: ['Biscuit', 'Balerion', 'Ser Pounce', 'Shadow', 'Mittens', 'Luna'],
+        direwolf: ['Ghost', 'Nymeria', 'Summer', 'Grey Wind', 'Shaggydog', 'Fenrir'],
+        babydragon: ['Drogon', 'Rhaegal', 'Viserion', 'Vhagar', 'Syrax', 'Caraxes']
+    };
+    function petKindName(k) { return (T && T.ui && T.ui['pet_' + k]) || (k === 'direwolf' ? 'Direwolf Pup' : k === 'babydragon' ? 'Baby Dragon' : 'Lantern Cat'); }
+    function petName(k) {
+        const kind = k || (S && S.petKind) || 'cat';
+        if (S && S.petNames && S.petNames[kind]) return S.petNames[kind];
+        return petKindName(kind);
+    }
+    function setPetName(k, rawName) {
+        if (!S) return;
+        if (!S.petNames || typeof S.petNames !== 'object') S.petNames = {};
+        const cleaned = cleanName(rawName);
+        if (!cleaned || cleaned === petKindName(k)) delete S.petNames[k];
+        else S.petNames[k] = cleaned;
+        bgDirty = true; save(); SND.fx('ok');
+        toast(petKindName(k) + ' → ' + petName(k));
+    }
     function setPetKind(k) {
-        S.petKind = k; if (!S.pet) S.pet = '1'; save(); SND.fx('ok');
-        toast(T.ui.petRow + ': ' + (T.ui['pet_' + k] || k));
+        if (!S) return;
+        if (!k) {
+            S.pet = ''; PET.on = false; bgDirty = true; save(); SND.fx('ok');
+            toast(T.ui.petNone || 'No pet spawned');
+            return;
+        }
+        S.petKind = k; S.pet = '1';
+        PET.on = true; PET.x = P[0].x - 18; PET.y = P[0].y + 6; PET.sy = PET.y;
+        PET.max = Math.max(4, Math.floor(maxHp(P[0]) / 2)); PET.hp = PET.max; PET.down = 0;
+        bgDirty = true; save(); SND.fx('ok');
+        toast((T.ui.petRow || 'Companion') + ': ' + petName(k));
+    }
+    const PICONS = {};
+    function petIcon(k) {
+        if (PICONS[k]) return PICONS[k];
+        const c = document.createElement('canvas'); c.width = c.height = 96;
+        const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+        try {
+            if (k === 'cat') drawCat(48, 72, 0, 1, 2.2, false, false);
+            else if (k === 'direwolf') drawDirewolfPup(48, 74, 0, 1, 2.0, false, false);
+            else if (k === 'babydragon') drawBabyDragon(48, 78, 0, 1, 2.1, false, false);
+            else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
+        } catch (e) {}
+        ctx = saved;
+        PICONS[k] = c;
+        return c;
+    }
+    function petScreen(sel) {
+        if (!S) return;
+        const curKind = S.pet ? (S.petKind || 'cat') : '';
+        listScreen({
+            sel: sel || 0,
+            title: () => T.ui.petsTitle || 'Companion Pets',
+            info: () => curKind ? txt(T.ui.petFollowing || 'Following: {name}', { name: petName(curKind) + ' (' + petKindName(curKind) + ')' }) : (T.ui.petNone || 'No pet spawned'),
+            rows: () => {
+                const rows = [
+                    {
+                        label: T.ui.petDismiss || 'Dismiss Companion (Walk Alone)',
+                        sub: T.ui.petDismissSub || 'Send your current pet to rest until you summon one again',
+                        img: petIcon(''),
+                        mark: !curKind,
+                        right: !curKind ? '✓' : '',
+                        fn: () => { setPetKind(''); renderList(); }
+                    }
+                ];
+                for (const k of PET_KINDS) {
+                    const custom = S.petNames && S.petNames[k];
+                    const disp = custom ? (custom + ' · ' + petKindName(k)) : petKindName(k);
+                    const active = curKind === k;
+                    rows.push({
+                        label: '🐾 ' + disp,
+                        sub: T.ui['petSub_' + k] || T.ui.petSub || '',
+                        img: petIcon(k),
+                        mark: active,
+                        right: active ? (T.ui.petSpawned || 'SPAWNED ✓') : (T.ui.petSummon || 'Spawn'),
+                        fn: () => { setPetKind(k); renderList(); }
+                    });
+                    rows.push({
+                        label: txt(T.ui.petRenameRow || '✎ Rename {kind} ({name})', { kind: petKindName(k), name: petName(k) }),
+                        sub: T.ui.petRenameSub || 'Give this companion a custom name shown above it and in menus',
+                        right: '✎',
+                        fn: () => renamePetScreen(k)
+                    });
+                }
+                rows.push({ label: T.ui.close || 'Close', fn: closeList });
+                return rows;
+            }
+        });
+    }
+    function renamePetScreen(k) {
+        mode = 'overlay'; OV.kind = 'petrename';
+        const presets = PET_PRESETS[k] || PET_PRESETS.cat;
+        const box = el('div', 'journal');
+        box.appendChild(el('div', 'jtitle', txt(T.ui.petRenameTitle || 'Rename Companion: {kind}', { kind: petKindName(k) })));
+        box.appendChild(el('div', 'jzone', T.ui.petRenamePrompt || 'Type a custom name or pick a preset below:'));
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.maxLength = 16; inp.className = 'petinp';
+        inp.value = petName(k);
+        inp.placeholder = petKindName(k);
+        inp.onkeydown = e => {
+            e.stopPropagation();
+            if (e.key === 'Enter') { e.preventDefault(); saveNow(); }
+            else if (e.key === 'Escape') { e.preventDefault(); petScreen(); }
+        };
+        box.appendChild(inp);
+        const chips = el('div', 'petchips');
+        presets.forEach(pName => {
+            const ch = el('span', 'petchip', pName);
+            ch.onclick = () => { inp.value = pName; SND.fx('move'); inp.focus(); };
+            chips.appendChild(ch);
+        });
+        box.appendChild(chips);
+        const saveNow = () => { setPetName(k, inp.value); petScreen(); };
+        const resetNow = () => { setPetName(k, ''); petScreen(); };
+        const backNow = () => { SND.fx('ok'); petScreen(); };
+        const actions = [
+            { label: T.ui.petSave || '✓ Save Name', fn: saveNow },
+            { label: T.ui.petReset || '↺ Reset Default Name', fn: resetNow },
+            { label: T.ui.back || '↩ Back', fn: backNow }
+        ];
+        OV.petRename = { k, inp, actions, sel: 0 };
+        actions.forEach((act, idx) => {
+            const btn = el('div', 'mi' + (idx === 0 ? ' sel' : ''), act.label);
+            btn.style.cursor = 'pointer';
+            btn.onmouseenter = () => {
+                OV.petRename.sel = idx;
+                const all = box.querySelectorAll('.mi');
+                for (let j = 0; j < all.length; j++) all[j].className = 'mi' + (j === idx ? ' sel' : '');
+            };
+            btn.onclick = () => act.fn();
+            box.appendChild(btn);
+        });
+        ovShow(box);
+        setTimeout(() => { try { inp.focus(); inp.select(); } catch (e) {} }, 20);
     }
     function cycleVoice(dir) {
         const i = Math.max(0, Math.min(VOICE_RATES.length - 1, VOICE_RATES.indexOf(SET.voice) + dir));
@@ -1766,10 +1988,10 @@
                     const tc = d => { setCloth(q.i, curC + (d || 1)); renderList(); };
                     r.push({ label: txt(T.ui.clothRow, { name: heroName(q.i), val: T.ui['cloth' + curC] || curC }), sub: T.ui.clothSub, right: '◀ ' + (T.ui['cloth' + curC] || curC) + ' ▶', side: d => tc(rtl() ? -d : d), fn: () => tc(1) });
                 }
-                if (S.pet || CHID === 'ch4' || S.c4) {
+                {
                     const pk = S.petKind || 'cat', idx = Math.max(0, PET_KINDS.indexOf(pk));
                     const tp = d => { setPetKind(PET_KINDS[(idx + (d || 1) + PET_KINDS.length) % PET_KINDS.length]); renderList(); };
-                    r.push({ label: txt(T.ui.petRow, { val: T.ui['pet_' + pk] || pk }), sub: T.ui.petSub, right: '◀ ' + (T.ui['pet_' + pk] || pk) + ' ▶', side: d => tp(rtl() ? -d : d), fn: () => tp(1) });
+                    r.push({ label: txt(T.ui.petRow, { val: petName(pk) }), sub: T.ui.petSub, right: '◀ ' + petName(pk) + ' ▶', side: d => tp(rtl() ? -d : d), fn: () => petScreen() });
                 }
                 if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
@@ -1807,6 +2029,7 @@
                        { label: txt(T.ui.mPotionB, { n: S.big }), dim: S.big <= 0, fn: go(() => drink(true)) },
                        { label: T.ui.mEquip, fn: () => { ovHide(); equipScreen(qmP.i); } },
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
+                       { label: T.ui.mPets || 'Pets', sub: S.pet ? txt(T.ui.petFollowing || 'Following: {name}', { name: petName(S.petKind || 'cat') }) : (T.ui.petNone || 'No pet spawned'), fn: petScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
                 if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
@@ -1841,8 +2064,18 @@
             if (a === 'up' || a === 'down') {
                 const n = OV.items.length; OV.sel = (OV.sel + (a === 'down' ? 1 : n - 1)) % n;
                 const els = $('ov').querySelectorAll('.mi'); for (let i = 0; i < els.length; i++) els[i].className = 'mi' + (i === OV.sel ? ' sel' : '');
-                MyPC.announce(OV.items[OV.sel].label); SND.fx('move');
+                announceLater(OV.items[OV.sel].label); SND.fx('move');
             } else if (a === 'confirm') { SND.fx('ok'); OV.items[OV.sel].fn(); }
+        } else if (OV.kind === 'petrename' && OV.petRename) {
+            const R = OV.petRename, n = R.actions.length;
+            if (a === 'up' || a === 'down') {
+                R.sel = (R.sel + (a === 'down' ? 1 : n - 1)) % n;
+                const els = $('ov').querySelectorAll('.mi');
+                for (let i = 0; i < els.length; i++) els[i].className = 'mi' + (i === R.sel ? ' sel' : '');
+                SND.fx('move');
+            } else if (a === 'confirm') {
+                R.actions[R.sel].fn();
+            }
         } else if (OV.kind === 'slides' && a === 'confirm') {
             SND.fx('ok');
             if (++OV.i < OV.slides.length) renderSlide(); else { ovHide(); const d = OV.done; d(); }
@@ -1850,7 +2083,7 @@
         else if (OV.kind === 'list') listInput(a);
         else if (OV.kind === 'gear') gearInput(a);
     }
-    function toPlay() { menuDev = ''; if (remoteMenu) { HM_COOP.sendMenu(remoteDev, []); remoteMenu = null; remoteDev = ''; } mode = 'play'; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
+    function toPlay() { menuDev = ''; if (remoteMenu) { HM_COOP.sendMenu(remoteDev, []); remoteMenu = null; remoteDev = ''; } mode = 'play'; bgDirty = true; setHud(true); lockUntil = tick + 8; hudLast.obj = ''; hud(); }
 
     function newGame() {
         S = fresh();
@@ -2138,16 +2371,17 @@
         const allMounts = ['nightterror', 'bonecharger', 'nightmare', 'bloodfang', 'frostfang', 'shadowmane', 'charger', 'dragon', 'wolf', 'horse'];
         listScreen({
             title: () => '🐎 Mounts & Pets Switcher',
-            info: () => 'Mount: ' + (S.mount ? mountName(S.mount) : 'On Foot') + ' · Pet: ' + (S.petKind || 'cat'),
+            info: () => 'Mount: ' + (S.mount ? mountName(S.mount) : 'On Foot') + ' · Pet: ' + (S.pet ? petName(S.petKind || 'cat') : 'None'),
             rows: () => [
+                { label: '🐾 Open Companion Pets & Rename Menu ▸', sub: 'Pick which pet to spawn, dismiss, or give a custom name', right: '▸', fn: petScreen },
                 { label: '🔓 Unlock All 10 Mounts & All 3 Pets', fn: () => {
                     for (const m of allMounts) if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
                     S.pet = '1'; if (!S.petKind) S.petKind = 'babydragon';
                     save(); SND.fx('level'); toast('All 10 Mounts & Pets unlocked!'); renderList();
                 } },
-                { label: '🐾 Pet: Cat', mark: S.pet && S.petKind === 'cat', right: S.pet && S.petKind === 'cat' ? '✓' : '', fn: () => { setPetKind('cat'); renderList(); } },
-                { label: '🐺 Pet: Direwolf', mark: S.pet && S.petKind === 'direwolf', right: S.pet && S.petKind === 'direwolf' ? '✓' : '', fn: () => { setPetKind('direwolf'); renderList(); } },
-                { label: '🐉 Pet: Baby Dragon', mark: S.pet && S.petKind === 'babydragon', right: S.pet && S.petKind === 'babydragon' ? '✓' : '', fn: () => { setPetKind('babydragon'); renderList(); } },
+                { label: '🐾 Pet: ' + petName('cat') + ' (Cat)', mark: S.pet && S.petKind === 'cat', right: S.pet && S.petKind === 'cat' ? '✓' : '', fn: () => { setPetKind('cat'); renderList(); } },
+                { label: '🐺 Pet: ' + petName('direwolf') + ' (Direwolf)', mark: S.pet && S.petKind === 'direwolf', right: S.pet && S.petKind === 'direwolf' ? '✓' : '', fn: () => { setPetKind('direwolf'); renderList(); } },
+                { label: '🐉 Pet: ' + petName('babydragon') + ' (Baby Dragon)', mark: S.pet && S.petKind === 'babydragon', right: S.pet && S.petKind === 'babydragon' ? '✓' : '', fn: () => { setPetKind('babydragon'); renderList(); } },
                 { label: '🚶 Dismount (Walk on Foot)', mark: !S.mount, right: !S.mount ? '✓' : '', fn: () => { setMount(''); renderList(); } }
             ].concat(allMounts.map(m => ({
                 label: '🐎 Ride: ' + mountName(m),
@@ -2404,7 +2638,7 @@
     function setMount(m) {
         if (m === 'wolf' && CH.noWolf) { toast(T.ui.wolfStays); return; }
         if (S.mount && MOUNTS[S.mount].fly && !(m && MOUNTS[m].fly) && !Z.def.dark) for (const p of P) if (p.on && !p.down && feetSolid(p.x, p.y)) { toast(T.ui.flyLand); return; }
-        S.mount = m; if (m) S.lastMount = m; save(); refreshMenu();
+        S.mount = m; if (m) S.lastMount = m; bgDirty = true; save(); refreshMenu();
         if (m && Z.def.dark) toast(T.ui.noRideDark);
         for (const p of P) if (p.on) { burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
         SND.fx(m ? 'equip' : 'move');
@@ -3454,16 +3688,17 @@
 
     /* ------------------------------------------------------------------ update */
 
+    const pausedOverlay = () => mode === 'overlay' && OV.kind !== 'menu';
+
     function update() {
         HM_PAD.poll((i, d) => { if (d) padPress(i); });
         tick++;
         if (toastT > 0 && --toastT === 0) $('toast').className = '';
         if (bannerT > 0 && --bannerT === 0) $('banner').className = '';
+        if (pausedOverlay()) return;
         if (shake > 0) shake--;
         if (flashT > 0) flashT--;
         fogOff += 0.25;
-        // OK held half a second in a menu or a conversation: Return (if there is nothing to return from, the release is a normal OK)
-        if (okDown >= 0 && tick - okDown === 30 && SET.back === 'hold' && (mode === 'dialog' || mode === 'overlay')) okBack = goBack();
         if (mode === 'play' && ++combatT > STA_IDLE) for (const p of P) if (p.on && !p.down && p.sta < STA_MAX) p.sta = Math.min(STA_MAX, p.sta + STA_REGEN);
         if (freeze > 0) { freeze--; updParts(); return; }     // a short hit-pause makes blows land
         updAtmo();
@@ -3815,7 +4050,15 @@
         if (o.inv > 0 && (o.inv & 4)) ctx.globalAlpha = 0.5;
         fn(x + (o.lunge ? o.fx * o.lunge * 0.6 : 0), y, o.walk, o.fx, 0.85, !!o.sit && o.idle > 600, o.hurt > 0 && (o.hurt & 2));
         ctx.globalAlpha = 1;
-        if (o.sniff) { const b = Math.sin(tick * 0.2) * 2; ctx.fillStyle = '#000'; ctx.fillRect(x - 3, y - 36 + b, 7, 13); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x - 2, y - 35 + b, 5, 7); ctx.fillRect(x - 2, y - 26 + b, 5, 2); }
+        const pName = petName(pk);
+        if (pName) {
+            const ny = y - (pk === 'babydragon' ? 30 : 25);
+            ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillText(pName, x + 1, ny + 1);
+            ctx.fillStyle = (S && S.petNames && S.petNames[pk]) ? '#ffe29a' : '#d8e4f2';
+            ctx.fillText(pName, x, ny);
+        }
+        if (o.sniff) { const b = Math.sin(tick * 0.2) * 2; ctx.fillStyle = '#000'; ctx.fillRect(x - 3, y - 38 + b, 7, 13); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x - 2, y - 37 + b, 5, 7); ctx.fillRect(x - 2, y - 28 + b, 5, 2); }
         if (o.hp < o.max) { ctx.fillStyle = '#000'; ctx.fillRect(x - 11, y - 24, 22, 4); ctx.fillStyle = '#7ef0a0'; ctx.fillRect(x - 10, y - 23, 20 * o.hp / o.max, 2); }
     }
     function drawDirewolfPup(x, y, walk, fx, s, sleep, flash) {
@@ -3944,7 +4187,7 @@
             ctx.globalAlpha = 1;
         }
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
-        const ride = riding(p), dir = heroDir(p), flip = (dir >= 2) && (p.fx || p.lfx) < 0, mfx = p.lfx || 1, back = dir === 1 || dir === 4;
+        const ride = riding(p), dir = heroDir(p), flip = (dir >= 2) && (p.fx || p.lfx) < 0, mfx = (p.fx || p.lfx || 1) < 0 ? -1 : 1, back = dir === 1 || dir === 4;
         // mounts are seen from the front or the back when going straight down or up, from the side otherwise
         const mdir = dir === 0 || dir === 1 ? dir : 2, mt = ride ? S.mount : '';
         const horse = mt === 'horse', charger = mt === 'charger', bonecharger = mt === 'bonecharger',
@@ -3953,23 +4196,28 @@
             dragon = mt === 'dragon' && MOUNTART.hasDragon, nightt = mt === 'nightterror' && MOUNTART.hasDragon;
         const isSteed = horse || shadow || nightmare, isWingedHorse = charger || bonecharger, isDrake = dragon || nightt;
         const fly = isDrake || isWingedHorse, z = fly ? (isWingedHorse ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
-        const hy = isWingedHorse ? y - z - (mdir === 2 ? 22 : mdir === 1 ? 28 : 30)
+        const hy = bonecharger ? y - z - (mdir === 2 ? 32 : mdir === 1 ? 36 : 38)
+            : charger ? y - z - (mdir === 2 ? 30 : mdir === 1 ? 34 : 36)
             : isDrake ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
-            : isSteed && mdir !== 2 ? y - 26
-            : ride ? y - (isSteed ? (MOUNTART.ready ? 20 : 25) : 19) : y, lean = p.lean / 8;
+            : (shadow || nightmare) ? y - (mdir !== 2 ? 40 : 36)
+            : horse && mdir !== 2 ? y - 36
+            : ride ? y - (horse ? (MOUNTART.ready ? 33 : 29) : 19) : y, lean = p.lean / 8;
         // where the rider sits: on the dragon's back (behind its neck), in the horse's or direwolf's saddle
-        const rx = isWingedHorse ? x - (mdir === 2 ? mfx * 3 : 0) : isDrake ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : isSteed && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
+        const rx = bonecharger ? x + (mdir === 2 ? mfx * 4 : 0)
+            : charger ? x - (mdir === 2 ? mfx * 3 : 0)
+            : isDrake ? x + (mdir === 2 ? (flip ? 7 : -7) : 0)
+            : isSteed && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
         const tMount = tick + p.i * 5, biteF = p.bite > 38 ? 1 : 0;
-        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
-        else if (bonecharger) { MOUNTART.bonecharger(ctx, x, y, z, p.walk, mdir, mfx, 1.0, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#54e8a0')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#7affb8' : '#329678', 2, 0); }
+        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 1.18, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
+        else if (bonecharger) { MOUNTART.bonecharger(ctx, x, y, z, p.walk, mdir, mfx, 1.06, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#54e8a0')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#7affb8' : '#329678', 2, 0); }
         else if (dragon) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
         else if (nightt) { MOUNTART.nightterror(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.6, false); if (p.moving && (tick & 5) === 0 && heroLv() !== 'low') part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 20, tick & 4 ? '#e81e4a' : '#4e247a', 2.2, 0); }
-        else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.28, p.moving, tMount);
-        else if (nightmare) { MOUNTART.nightmare(ctx, x, y, p.walk, mdir, mfx, 1.28, p.moving, tMount); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 18, y - 4, 2, -p.ax * 0.4, -0.4, 0.4, 18, tick & 4 ? '#ff9a20' : '#ff2a18', 2, 0); }
+        else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.36, p.moving, tMount);
+        else if (nightmare) { MOUNTART.nightmare(ctx, x, y, p.walk, mdir, mfx, 1.38, p.moving, tMount); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 18, y - 4, 2, -p.ax * 0.4, -0.4, 0.4, 18, tick & 4 ? '#ff9a20' : '#ff2a18', 2, 0); }
         else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.22, p.moving, tMount, biteF);
         else if (bfang) MOUNTART.bloodfang(ctx, x, y, p.walk, mdir, mfx, 1.24, p.moving, tMount, biteF);
-        else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.38, 'horse');
-        else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.15, mdir, p.moving, biteF); }
+        else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.48, 'horse');
+        else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.48); else drawWolfMount(x, y, p.walk, mfx, 1.15, mdir, p.moving, biteF); }
         if (back) drawHeroWeapon(p, rx, hy, dir, flip);
         if (ride) {                                        // sitting: hide the legs, show one leg down the side
             ctx.save(); ctx.beginPath(); ctx.rect(rx - 40, hy - 70, 80, 61); ctx.clip();
@@ -4525,6 +4773,7 @@
     function applyZoom() {                                   // 75% sees more of the world, 150% sees less and bigger
         W = Math.round(BASE_W / SET.zoom); H = Math.round(BASE_H / SET.zoom); window.HM_VIEW = { w: W, h: H };
         if (canvas && darkC) { vignette = ART.vignette(W, H); darkC.width = W; darkC.height = H; resize(); snapCamera(); }
+        bgDirty = true;
     }
     function resize() {
         const vw = window.innerWidth, vh = window.innerHeight;
@@ -4539,13 +4788,14 @@
         canvas.width = bw; canvas.height = bh;
         ctx.setTransform(bw / W, 0, 0, bh / H, 0, 0);
         ctx.imageSmoothingEnabled = false;
+        bgDirty = true;
     }
     function frame(ts) {
         raf = requestAnimationFrame(frame);
         if (!last) last = ts;
         acc += Math.min(250, ts - last); last = ts;
         while (acc >= STEP) { update(); acc -= STEP; }
-        draw();
+        if (!pausedOverlay() || bgDirty) { draw(); bgDirty = false; }
     }
     function startLoop() { if (!raf) { last = 0; acc = 0; raf = requestAnimationFrame(frame); } }
     function stopLoop() { if (raf) cancelAnimationFrame(raf); raf = 0; }
@@ -4564,8 +4814,6 @@
         // a real controller is read by padPress: its button presses that also arrive as abstract actions are ignored here
         if (pressed && HM_PAD.live && dev.indexOf('net') !== 0 && HM_PAD.holding() && (dev === 'keys' || dev === P[0].dev) &&
             ((mode === 'play' && (a === 'jump' || a === 'run' || a === 'cancel')) || ((mode === 'overlay' || mode === 'dialog') && a === 'cancel'))) return;          // the "press the button" modal listens to everything
-        // with Return on "hold OK", OK in menus and conversations acts when released (a long press is Return)
-        if (a === 'confirm' && !pressed && okDown >= 0 && ownsMenu(dev)) { const was = okBack; okDown = -1; okBack = false; if (!was && (mode === 'overlay' || mode === 'dialog')) { if (mode === 'overlay') ovInput('confirm'); else dlgInput('confirm'); } return; }
         if (!pressed || !started) return;
         // a phone on the network ('net1'...) only plays: it never takes hero 1, opens menus or answers dialogs
         const remote = dev.indexOf('net') === 0;
@@ -4584,14 +4832,14 @@
         }
         if (P[0].dev === '' && !remote) P[0].dev = dev;
         if (dev !== P[0].dev && !repeat) joinSeen = true;
-        if (tick < lockUntil && (a === 'confirm' || a === 'jump')) return;
+        if (tick < lockUntil && mode !== 'overlay' && (a === 'confirm' || a === 'jump')) return;
         if (a === 'menu') { if (mode === 'play') { menuDev = dev; quickMenu(devHero(dev) || P[0]); } else if ((mode === 'overlay' || mode === 'dialog') && ownsMenu(dev)) goBack(); return; }
         if (mode === 'scene') { if (a === 'confirm' && SC.t > 0 && !repeat) { SC.t = 0; nextStep(); } return; }
         if (mode === 'overlay' || mode === 'dialog') {
             if (!ownsMenu(dev)) return;                    // in co-op only the one who opened the menu runs it (hero 1 answers villagers)
             if (a === 'jump') return;
-            if (a === SET.back) { goBack(); return; }
-            if (a === 'confirm' && SET.back === 'hold') { if (!repeat) { okDown = tick; okBack = false; } return; }
+            if (a === 'cancel' || a === SET.back) { if (!repeat) goBack(); return; }
+            if (a === 'confirm' && repeat) return;
             if (mode === 'overlay') ovInput(a); else dlgInput(a);
             return;
         }
@@ -4616,7 +4864,7 @@
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
 
     /* ------------------------------------------------------------------ lifecycle */
 
@@ -4706,7 +4954,7 @@
         onMenu: function (id) {
             if (id === 'coopleave') { HM_COOP.leave(); return; }
             if (!S || (mode !== 'play' && mode !== 'dialog')) return;
-            if (mode === 'dialog' && (id === 'journal' || id === 'equip' || id === 'settings' || id === 'mount')) closeDlg();
+            if (mode === 'dialog' && (id === 'journal' || id === 'equip' || id === 'settings' || id === 'mount' || id === 'pets')) closeDlg();
             if (id === 'journal') showJournal();
             else if (id === 'equip') equipScreen();
             else if (id === 'settings') settingsScreen();
@@ -4714,6 +4962,7 @@
             else if (id === 'big') drink(true);
             else if (id === 'coop') { if (mode === 'dialog') closeDlg(); coopScreen(); }
             else if (id === 'mount') mountScreen();
+            else if (id === 'pets') petScreen();
         },
         onVolume: function (v) { SND.setVolume(v); }
     });

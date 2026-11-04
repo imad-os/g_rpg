@@ -38,6 +38,8 @@ window.HM_MOUNTART = (function () {
                 IMG[n] = im;
                 if (n === 'horse_run' || n === 'horse_idle' || n === 'horse_ns') {
                     IMG['ghost_' + n] = ghostly(im, n === 'horse_ns' ? LW : HW);
+                } else if (n === 'nightmare') {
+                    IMG.nightmare_fire = bakeNightmareFire(im);
                 }
                 notify();
             };
@@ -50,6 +52,68 @@ window.HM_MOUNTART = (function () {
         if (m === 'horse') return !!(IMG.horse_run && IMG.horse_idle);
         if (m === 'charger') return !!(IMG.ghost_horse_run && IMG.ghost_horse_idle);
         return !!IMG[m];
+    }
+
+    // Pre-bake 4 animation frames of flickering hellfire on Nightmare Steed's orange parts once at load time (zero runtime cost)
+    function bakeNightmareFire(im) {
+        const w = im.width, h = im.height;
+        const baseC = document.createElement('canvas'); baseC.width = w; baseC.height = h;
+        const bx = baseC.getContext('2d'); bx.drawImage(im, 0, 0);
+        let baseD; try { baseD = bx.getImageData(0, 0, w, h); } catch (e) { return null; }
+        const src = baseD.data;
+        const isFire = new Uint8Array(w * h);
+        for (let i = 0, p = 0; i < src.length; i += 4, p++) {
+            const r = src[i], g = src[i + 1], b = src[i + 2], a = src[i + 3];
+            if (a > 40 && r > 125 && r > g * 1.12 && g > b * 1.35 && b < 120) isFire[p] = 1;
+        }
+        const fireRamp = [[135, 16, 0], [220, 48, 0], [255, 118, 0], [255, 196, 28], [255, 248, 175]];
+        const frames = [];
+        for (let f = 0; f < 4; f++) {
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            const cx = c.getContext('2d');
+            const d = cx.createImageData(w, h);
+            const out = d.data;
+            out.set(src);
+            const ph = f * 1.570796;
+            for (let py = 0; py < h; py++) {
+                const cellY = py % LH;
+                for (let px = 0; px < w; px++) {
+                    const p = py * w + px, i = p << 2;
+                    if (isFire[p]) {
+                        const baseL = (src[i] * 0.35 + src[i + 1] * 0.55 + src[i + 2] * 0.1) / 255;
+                        const wave = Math.sin(px * 0.55 + py * 0.75 - ph) * 0.26 + Math.cos((px - py) * 0.4 + ph) * 0.18;
+                        const t = Math.max(0, Math.min(3.999, (baseL + wave) * 4.2));
+                        const k = t | 0, fr = t - k;
+                        out[i]     = fireRamp[k][0] + (fireRamp[k + 1][0] - fireRamp[k][0]) * fr;
+                        out[i + 1] = fireRamp[k][1] + (fireRamp[k + 1][1] - fireRamp[k][1]) * fr;
+                        out[i + 2] = fireRamp[k][2] + (fireRamp[k + 1][2] - fireRamp[k][2]) * fr;
+                        // Flickering flame tongues rising 1..3 px into empty space above mane, tail, horn, and hooves
+                        if (cellY > 3) {
+                            const tongueH = 1 + (((px * 5 + py * 3 + f * 3) & 3) === 0 ? 2 : ((px + f) & 1));
+                            for (let dy = 1; dy <= tongueH && cellY - dy >= 1; dy++) {
+                                const upP = (py - dy) * w + px;
+                                if (!src[(upP << 2) + 3]) {
+                                    const ui = upP << 2;
+                                    const tip = dy === tongueH;
+                                    out[ui]     = tip ? 255 : 255;
+                                    out[ui + 1] = tip ? 95  : 185;
+                                    out[ui + 2] = tip ? 10  : 35;
+                                    out[ui + 3] = tip ? 175 : 235;
+                                }
+                            }
+                        }
+                    } else if (!src[i + 3] && cellY > 1 && cellY < LH - 1 && (px % LW) > 1 && (px % LW) < LW - 1) {
+                        // Subtle warm fire aura on adjacent transparent pixels
+                        if ((px > 0 && isFire[p - 1]) || (px + 1 < w && isFire[p + 1]) || (py > 0 && isFire[p - w])) {
+                            out[i] = 255; out[i + 1] = 85; out[i + 2] = 10; out[i + 3] = 85 + ((px + py + f) & 1) * 35;
+                        }
+                    }
+                }
+            }
+            cx.putImageData(d, 0, 0);
+            frames.push(c);
+        }
+        return frames;
     }
 
     // the horse sheet turned spectral: dark pixels become deep blue, light ones ice and white, with a soft cyan rim
@@ -90,10 +154,11 @@ window.HM_MOUNTART = (function () {
     function horse(ctx, x, y, walk, fx, s, moving, t) {
         const sheet = moving ? IMG.horse_run : IMG.horse_idle;
         if (!sheet) return false;
+        const hs = s * 1.22;
         const n = (sheet.width / HW) | 0, f = moving ? ((walk * 1.5) | 0) % n : ((t / 10) | 0) % n;
-        ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, 24 * s, 5 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, 24 * hs, 5.2 * hs, 0, 0, 6.2832); ctx.fill();
         ctx.save(); ctx.translate(x, y + 1); if (fx > 0) ctx.scale(-1, 1);
-        ctx.drawImage(sheet, f * HW, 0, HW, HH, -HW / 2 * s, -HH * s, HW * s, HH * s);
+        ctx.drawImage(sheet, f * HW, 0, HW, HH, -HW / 2 * hs, -HH * hs, HW * hs, HH * hs);
         ctx.restore();
         return true;
     }
@@ -107,10 +172,10 @@ window.HM_MOUNTART = (function () {
             const moving = walk > 0;
             const col = moving ? 1 + (((walk * 1.5) | 0) % 6) : 0;
             const row = dir === 1 ? 0 : 1; // Row 0 = North, Row 1 = South
-            const ps = s * 0.62;
+            const ps = s * 0.86;
             if (!gh) {
                 ctx.fillStyle = 'rgba(0,0,0,0.28)';
-                ctx.beginPath(); ctx.ellipse(x, y, 14 * s, 5 * s, 0, 0, 6.2832); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(x, y, 16 * s, 5.8 * s, 0, 0, 6.2832); ctx.fill();
             }
             ctx.drawImage(nsSheet, col * LW, row * LH, LW, LH, x - (LW / 2) * ps, y - 88 * ps, LW * ps, LH * ps);
             return true;
@@ -140,11 +205,11 @@ window.HM_MOUNTART = (function () {
     function shadowmane(ctx, x, y, walk, dir, fx, s, moving, t) {
         const sheet = IMG.shadowmane;
         ctx.fillStyle = 'rgba(0,0,0,0.34)';
-        ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 26 : 14) * s, 5.5 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 32 : 17) * s, 6.5 * s, 0, 0, 6.2832); ctx.fill();
         if (!sheet) return false;
         const row = neswRow(dir, fx);
         const col = moving ? 1 + (((walk * 1.5) | 0) % 6) : 0;
-        const ps = s * 0.72;
+        const ps = s * 1.02;
         ctx.drawImage(sheet, col * LW, row * LH, LW, LH, x - (LW / 2) * ps, y - 88 * ps, LW * ps, LH * ps);
         return true;
     }
@@ -169,23 +234,40 @@ window.HM_MOUNTART = (function () {
         return true;
     }
 
+    // Ultra-lightweight procedural fire tongues for Nightmare Steed's mane & tail (4 curves, <0.01ms)
+    function hellfireMane(ctx, x, y, t, s) {
+        const tt = t || 0;
+        for (let k = 0; k < 4; k++) {
+            const h = (7 + ((tt * 0.65 + k * 5) % 9)) * s;
+            ctx.globalAlpha = 0.78 - k * 0.14;
+            ctx.fillStyle = k === 0 ? '#fff6a8' : (k & 1) ? '#ff9a18' : '#ff3808';
+            const bx = x + (k - 1.5) * 2.4 * s;
+            ctx.beginPath();
+            ctx.moveTo(bx - 2.2 * s, y);
+            ctx.quadraticCurveTo(bx + Math.sin(tt * 0.35 + k * 1.7) * 2.5 * s, y - h, bx + 2.2 * s, y);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
     // Chapter 5 Nightmare: Abyssal Hellsteed (7 cols x 4 rows of 96x96 NESW)
     function nightmare(ctx, x, y, walk, dir, fx, s, moving, t) {
-        const sheet = IMG.nightmare;
+        const tt = t || 0;
+        const frames = IMG.nightmare_fire;
+        const sheet = (frames && frames[((tt / 4) | 0) & 3]) || IMG.nightmare;
         ctx.fillStyle = 'rgba(40,5,10,0.38)';
-        ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 27 : 15) * s, 6 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 33 : 17) * s, 6.8 * s, 0, 0, 6.2832); ctx.fill();
         if (!sheet) return false;
         const row = neswRow(dir, fx);
         const col = moving ? 1 + (((walk * 1.5) | 0) % 6) : 0;
-        const ps = s * 0.74;
+        const ps = s * 1.05;
         ctx.drawImage(sheet, col * LW, row * LH, LW, LH, x - (LW / 2) * ps, y - 88 * ps, LW * ps, LH * ps);
-        // Flickering hellfire embers rising from hooves and mane
-        for (let i = 0; i < 3; i++) {
-            const phase = ((t || 0) * 0.35 + i * 7) % 14;
-            const hx = x + Math.sin((t || 0) * 0.15 + i * 2.1) * (dir === 2 ? 18 : 9) * s;
-            const hy = y - 3 * s - phase * s * 1.4;
-            ctx.fillStyle = (i & 1) ? '#ff9a1f' : '#ff2a18';
-            ctx.fillRect(hx, hy, 2.2, 2.2);
+        // Low-cost dancing flame tongues along crest & tail
+        if (dir === 2) {
+            hellfireMane(ctx, x + fx * 15 * ps, y - 40 * ps, tt, ps * 0.85);
+            hellfireMane(ctx, x - fx * 22 * ps, y - 28 * ps, tt + 11, ps * 0.75);
+        } else {
+            hellfireMane(ctx, x, y - (dir === 0 ? 48 : 44) * ps, tt, ps * 0.85);
         }
         return true;
     }
@@ -237,42 +319,46 @@ window.HM_MOUNTART = (function () {
 
     // Chapter 3 Hollow Charger, z pixels in the air above y; dir: 0 down, 1 up, 2 side; fx: 1 = facing right
     function charger(ctx, x, y, z, walk, dir, fx, s, moving, t, glow) {
-        const sh = 24 + Math.sin(t * 0.05) * 3, yy = y - z;
-        ctx.fillStyle = 'rgba(20,40,90,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, sh * s * 0.9, sh * s * 0.28, 0, 0, 6.2832); ctx.fill();
-        if (glow) { ctx.globalAlpha = 0.35 + Math.sin(t * 0.1) * 0.1; ctx.drawImage(glow, x - 34 * s, yy - 50 * s, 68 * s, 60 * s); ctx.globalAlpha = 1; }
+        const hs = s * 1.22;
+        const sh = 26 + Math.sin(t * 0.05) * 3, yy = y - z;
+        ctx.fillStyle = 'rgba(20,40,90,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, sh * hs * 0.9, sh * hs * 0.28, 0, 0, 6.2832); ctx.fill();
+        if (glow) { ctx.globalAlpha = 0.35 + Math.sin(t * 0.1) * 0.1; ctx.drawImage(glow, x - 34 * hs, yy - 50 * hs, 68 * hs, 60 * hs); ctx.globalAlpha = 1; }
         if (dir !== 2) {
-            wings(ctx, x - 4 * s, yy - 20 * s, t, s, -1, dir); wings(ctx, x + 4 * s, yy - 20 * s, t, s, 1, dir);
-            horseFB(ctx, x, yy, walk, dir, s, 'charger'); flameMane(ctx, x - 3 * s, yy - (dir === 0 ? 40 : 36) * s, t, s);
+            wings(ctx, x - 4 * hs, yy - 20 * hs, t, hs, -1, dir); wings(ctx, x + 4 * hs, yy - 20 * hs, t, hs, 1, dir);
+            horseFB(ctx, x, yy, walk, dir, hs, 'charger'); flameMane(ctx, x - 3 * hs, yy - (dir === 0 ? 40 : 36) * hs, t, hs);
             return true;
         }
         const sheet = moving ? IMG.ghost_horse_run : IMG.ghost_horse_idle;
-        wings(ctx, x - fx * 4 * s, yy - 22 * s, t, s, -fx, 2);
+        wings(ctx, x - fx * 4 * hs, yy - 22 * hs, t, hs, -fx, 2);
         if (sheet) {
             const n = (sheet.width / HW) | 0, f = moving ? ((walk * 1.5) | 0) % n : ((t / 10) | 0) % n;
             ctx.save(); ctx.translate(x, yy + 1); if (fx > 0) ctx.scale(-1, 1);
-            ctx.drawImage(sheet, f * HW, 0, HW, HH, -HW / 2 * s, -HH * s, HW * s, HH * s);
+            ctx.drawImage(sheet, f * HW, 0, HW, HH, -HW / 2 * hs, -HH * hs, HW * hs, HH * hs);
             ctx.restore();
-        } else horseFB(ctx, x, yy, walk, 0, s, 'charger');
-        flameMane(ctx, x + fx * 16 * s, yy - 27 * s, t, s * 0.9);
-        wings(ctx, x + fx * 2 * s, yy - 21 * s, t + 3, s, fx, 2);
+        } else horseFB(ctx, x, yy, walk, 0, hs, 'charger');
+        flameMane(ctx, x + fx * 16 * hs, yy - 27 * hs, t, hs * 0.9);
+        wings(ctx, x + fx * 2 * hs, yy - 21 * hs, t + 3, hs, fx, 2);
         return true;
     }
 
     // Chapter 5 Bone Charger: Winged Skeletal Necropolis Warhorse (3 cols x 4 rows of 128x170 NESW)
+    // Row 0 = North, Row 1 = East (fx > 0), Row 2 = South, Row 3 = West (fx < 0)
+    // Col 1 = Standing idle; Col 0 -> 1 -> 2 -> 1 = Walking/galloping cycle when moving
     function bonecharger(ctx, x, y, z, walk, dir, fx, s, moving, t, glow) {
         const sheet = IMG.bonecharger;
-        const sh = 25 + Math.sin((t || 0) * 0.05) * 3, yy = y - z;
+        const sh = 28 + Math.sin((t || 0) * 0.05) * 3, yy = y - z;
         ctx.fillStyle = 'rgba(10,25,22,0.34)';
-        ctx.beginPath(); ctx.ellipse(x, y, sh * s * 0.95, sh * s * 0.30, 0, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x, y, sh * s * 1.1, sh * s * 0.34, 0, 0, 6.2832); ctx.fill();
         if (glow) {
             ctx.globalAlpha = 0.28 + Math.sin((t || 0) * 0.1) * 0.08;
-            ctx.drawImage(glow, x - 34 * s, yy - 50 * s, 68 * s, 60 * s);
+            ctx.drawImage(glow, x - 40 * s, yy - 58 * s, 80 * s, 70 * s);
             ctx.globalAlpha = 1;
         }
         if (!sheet) return false;
-        const row = dir === 1 ? 0 : dir === 0 ? 2 : fx < 0 ? 1 : 3;
-        const k = (((t || 0) / 7) | 0) % 4, col = k === 3 ? 1 : k;
-        const ps = s * 0.56;
+        const row = neswRow(dir, fx);
+        const k = moving ? (((walk * 1.4) | 0) & 3) : 1;
+        const col = k === 3 ? 1 : k;
+        const ps = s * 0.62;
         ctx.drawImage(sheet, col * BW, row * BH, BW, BH, x - (BW / 2) * ps, yy - 165 * ps, BW * ps, BH * ps);
         return true;
     }

@@ -68,7 +68,10 @@ test('HM_MOUNTART exposes dedicated 4-directional renderers for all Chapter 4 an
         getImageData(x, y, w, h) {
             return { data: new Uint8ClampedArray(w * h * 4) };
         },
-        putImageData() {}
+        putImageData() {},
+        createImageData(w, h) {
+            return { data: new Uint8ClampedArray(w * h * 4) };
+        }
     };
     const sandbox = {
         window: {},
@@ -121,11 +124,113 @@ test('HM_MOUNTART exposes dedicated 4-directional renderers for all Chapter 4 an
         }
         assert.equal(rowsDrawn.size, 4, `MOUNTART.${m} must select 4 distinct directional rows for N, S, W, E`);
     }
+
+    // Verify Bone Charger idle vs moving and East vs West row mapping
+    const bcIdleCalls = [];
+    for (const walkVal of [0, 1, 2, 3, 4, 5]) {
+        const before = ctxCalls.length;
+        M.bonecharger(fakeCtx, 100, 100, 20, walkVal, 2, 1, 1.0, false, walkVal * 7, null);
+        assert.ok(ctxCalls.length > before);
+        bcIdleCalls.push(ctxCalls[ctxCalls.length - 1]);
+    }
+    // When moving === false, Bone Charger must always use neutral standing column (col = 1 -> sx = 128)
+    for (const call of bcIdleCalls) {
+        assert.equal(call.sx, 128, 'Bone Charger must stay on standing column (col=1, sx=128) when moving=false');
+    }
+    // When moving === true, Bone Charger must cycle across multiple columns
+    const bcMovingCols = new Set();
+    for (const walkVal of [0, 1, 2, 3]) {
+        M.bonecharger(fakeCtx, 100, 100, 20, walkVal, 2, 1, 1.0, true, 10, null);
+        bcMovingCols.add(ctxCalls[ctxCalls.length - 1].sx);
+    }
+    assert.ok(bcMovingCols.size >= 2, 'Bone Charger must animate across walking columns when moving=true');
+
+    // Verify Bone Charger East (fx > 0 -> Row 1 -> sy = 170) vs West (fx < 0 -> Row 3 -> sy = 510)
+    M.bonecharger(fakeCtx, 100, 100, 20, 0, 2, 1, 1.0, false, 0, null);
+    const eastCall = ctxCalls[ctxCalls.length - 1];
+    assert.equal(eastCall.sy, 170, 'Bone Charger facing right (fx=1) must use Row 1 (sy=170)');
+
+    M.bonecharger(fakeCtx, 100, 100, 20, 0, 2, -1, 1.0, false, 0, null);
+    const westCall = ctxCalls[ctxCalls.length - 1];
+    assert.equal(westCall.sy, 510, 'Bone Charger facing left (fx=-1) must use Row 3 (sy=510)');
 });
 
-test('game.js dispatches each Chapter 4 and Chapter 5 mount to its own dedicated MOUNTART renderer in mountIcon and drawPlayer', () => {
+test('Nightmare Steed pre-bakes 4 low-cost fire frames at load and cycles them across ticks with zero per-frame allocation', () => {
+    const code = fs.readFileSync('js/mounts.js', 'utf8');
+    let createdCanvases = 0;
+    const drawnImages = [];
+    const fakeImg = () => ({
+        width: 672,
+        height: 384,
+        set onload(fn) { this._onload = fn; },
+        set src(v) { if (this._onload) this._onload(); }
+    });
+    const makeCtx = () => ({
+        fillStyle: '',
+        globalAlpha: 1,
+        beginPath() {},
+        ellipse() {},
+        fill() {},
+        fillRect() {},
+        save() {},
+        restore() {},
+        translate() {},
+        scale() {},
+        rotate() {},
+        moveTo() {},
+        quadraticCurveTo() {},
+        drawImage(img) { drawnImages.push(img); },
+        getImageData(x, y, w, h) {
+            const data = new Uint8ClampedArray(w * h * 4);
+            // Seed a warm orange pixel at center so fire baker exercises its color ramp + tongue logic
+            const idx = ((10 * w) + 10) * 4;
+            data[idx] = 230; data[idx + 1] = 110; data[idx + 2] = 25; data[idx + 3] = 255;
+            return { data };
+        },
+        putImageData() {},
+        createImageData(w, h) {
+            return { data: new Uint8ClampedArray(w * h * 4) };
+        }
+    });
+    const sandbox = {
+        window: {},
+        Image: function () { return fakeImg(); },
+        document: {
+            createElement() {
+                createdCanvases++;
+                return { id: 'canvas_' + createdCanvases, width: 0, height: 0, getContext: makeCtx };
+            }
+        },
+        Uint8ClampedArray,
+        Math,
+        Date
+    };
+    vm.createContext(sandbox);
+    vm.runInContext(code, sandbox);
+
+    const M = sandbox.window.HM_MOUNTART;
+    M.load('test');
+    const canvasesAtLoad = createdCanvases;
+    assert.ok(canvasesAtLoad >= 4, 'Nightmare fire baker must pre-bake 4 canvas frames at load');
+
+    const renderCtx = makeCtx();
+    drawnImages.length = 0;
+    for (const tick of [0, 4, 8, 12]) {
+        M.nightmare(renderCtx, 100, 100, 2.5, 2, 1, 0, false, tick, 0);
+    }
+    assert.equal(createdCanvases, canvasesAtLoad, 'Nightmare render must allocate zero new canvases at runtime');
+    const uniqueFrames = new Set(drawnImages.map(im => im.id));
+    assert.equal(uniqueFrames.size, 4, 'Nightmare render must cycle through 4 distinct pre-baked fire canvases');
+});
+
+test('game.js dispatches each Chapter 4 and Chapter 5 mount and exposes Companion Pets menu and pet renaming', () => {
     const gameCode = fs.readFileSync('js/game.js', 'utf8');
     for (const m of ['shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror']) {
         assert.ok(gameCode.includes(`MOUNTART.${m}(`), `js/game.js must explicitly call MOUNTART.${m}(...)`);
     }
+    assert.ok(gameCode.includes('function petScreen('), 'js/game.js must define petScreen()');
+    assert.ok(gameCode.includes('function renamePetScreen('), 'js/game.js must define renamePetScreen()');
+    assert.ok(gameCode.includes('function setPetName('), 'js/game.js must define setPetName()');
+    assert.ok(gameCode.includes('function petName('), 'js/game.js must define petName()');
 });
+
