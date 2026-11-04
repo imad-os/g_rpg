@@ -243,3 +243,132 @@ test('Real audio soundtracks and ATTRIBUTION.md exist and are non-empty', () => 
   const attrContent = fs.readFileSync(attrPath, 'utf8');
   assert.ok(attrContent.includes('CC0'), 'Attribution must note open-source licenses');
 });
+
+test('All 8 Chapter 5 maps build cleanly, interactive quest spots are walkable, and Dev Mode modal is complete', () => {
+  const ctx = loadBrowserEnv();
+  vm.createContext(ctx);
+  ctx.HM_C5_QUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'chapters/ch5/quests.json'), 'utf8'));
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/text.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/maps.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/art.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/chapter.js'), 'utf8'), ctx);
+
+  const mockApi = {
+    TS: 32,
+    L: 'en',
+    S: { c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, seen: {} }, opened: {}, mounts: [] },
+    T: ctx.HM_C5_TEXT.en,
+    TEXT: ctx.HM_C5_TEXT,
+    Z: null,
+    P: [{ x: 320, y: 320, on: true, hp: 100 }],
+    FOES: [],
+    SND: { fx: () => {}, play: () => {} },
+    toast: () => {},
+    save: () => {},
+    say: (_pg, _ch, cb) => { if (cb) cb(); },
+    openTiles: () => {},
+    addStatic: (k, img, x, y, base, w, h, extra) => {
+      assert.ok(img, `Static prop ${k} must have a non-null cached canvas image`);
+      return Object.assign({ k, img, x, y, base, dw: w, dh: h }, extra || {});
+    },
+    blockOf: () => 1,
+    glow: () => ctx.document.createElement('canvas'),
+    txt: (s) => s
+  };
+
+  const ch = ctx.HM_CHAPTERS.def.ch5(mockApi);
+  assert.equal(typeof ch.build, 'function');
+  assert.equal(typeof ch.start, 'function');
+  assert.equal(typeof ch.stop, 'function');
+  assert.equal(typeof ch.update, 'function');
+  assert.equal(typeof ch.bossDown, 'function');
+  assert.equal(typeof ch.onZone, 'function');
+  assert.equal(typeof ch.devUnlockAll, 'function');
+  assert.equal(typeof ch.devSkipStep, 'function');
+
+  // Build every zone and verify interactive spots are not blocked
+  for (const [zid, def] of Object.entries(ctx.HM_C5_MAPS)) {
+    const Z = {
+      id: zid,
+      def,
+      cols: def.rows[0].length,
+      rows: def.rows.length,
+      block: new Uint8Array(def.rows.length * def.rows[0].length),
+      lights: [],
+      pots: [],
+      chests: []
+    };
+    mockApi.Z = Z;
+    ch.build(Z, def);
+    assert.ok(Z.ground, `${zid} must produce a pre-rendered ground canvas`);
+
+    // Check interactive spots in this zone
+    for (const q of ctx.HM_C5_QUESTS.quests) {
+      for (const s of q.steps) {
+        if (s.zone === zid && s.spots) {
+          for (const [sx, sy] of s.spots) {
+            const tx = Math.floor(sx), ty = Math.floor(sy);
+            assert.equal(Z.block[ty * Z.cols + tx], 0, `Quest spot [${sx}, ${sy}] in ${zid} (${s.id}) must not be blocked by props`);
+          }
+        }
+      }
+    }
+  }
+
+  // Verify Dev Mode modal screens in js/game.js
+  const gameCode = fs.readFileSync(path.join(ROOT, 'js/game.js'), 'utf8');
+  assert.ok(gameCode.includes('function devTeleportScreen()'), 'devTeleportScreen must exist');
+  assert.ok(gameCode.includes('function devGearScreen()'), 'devGearScreen must exist');
+  assert.ok(gameCode.includes('function devMountPetScreen()'), 'devMountPetScreen must exist');
+});
+
+test('3-Role Armor & Weapon Synergy System: every armor piece has valid role, balanced trade-offs, hero sprite visuals, and 4-language names', () => {
+  const ctx = loadBrowserEnv();
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/items.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/hero.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/i18n.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/i18n_more.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/i18n_play.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js/i18n_v3.js'), 'utf8'), ctx);
+
+  const ITEMS = ctx.HM_ITEMS;
+  const HERO = ctx.HM_HERO;
+  const TEXT = ctx.HM_TEXT;
+
+  let heavyCount = 0, lightCount = 0, mysticCount = 0;
+
+  for (const [id, def] of Object.entries(ITEMS)) {
+    for (const lang of ['en', 'fr', 'es', 'ar']) {
+      assert.ok(TEXT[lang].items[id], `Item ${id} must have a localized name in ${lang}`);
+    }
+    if (def.slot === 'weapon') continue;
+
+    assert.ok(['heavy', 'light', 'mystic'].includes(def.role), `Armor ${id} must have role heavy, light, or mystic`);
+    if (def.role === 'heavy') {
+      heavyCount++;
+      assert.ok(def.hp > 0, `Heavy armor ${id} must grant bonus HP`);
+      assert.ok(def.atkSpd < 0, `Heavy armor ${id} must have negative atkSpd trade-off`);
+      assert.ok(def.spd < 0, `Heavy armor ${id} must have negative walk spd trade-off`);
+    } else if (def.role === 'light') {
+      lightCount++;
+      assert.ok(def.atk > 0, `Light armor ${id} must grant bonus ATK`);
+      assert.ok(def.atkSpd > 0, `Light armor ${id} must grant positive atkSpd`);
+      assert.ok(def.spd > 0, `Light armor ${id} must grant positive walk spd`);
+    } else if (def.role === 'mystic') {
+      mysticCount++;
+      assert.ok(def.mag > 0, `Mystic armor ${id} must grant positive magic/heal power (mag)`);
+      assert.ok(def.spd > 0, `Mystic armor ${id} must grant positive walk spd`);
+    }
+
+    if (def.slot === 'head') assert.ok(HERO.HEAD[id], `Head armor ${id} must have visual entry in HM_HERO.HEAD`);
+    if (def.slot === 'body') assert.ok(HERO.BODY[id], `Body armor ${id} must have visual entry in HM_HERO.BODY`);
+    if (def.slot === 'feet') assert.ok(HERO.FEET[id], `Feet armor ${id} must have visual entry in HM_HERO.FEET`);
+  }
+
+  assert.ok(heavyCount >= 8, 'Must have at least 8 Heavy/Tank armor pieces across tiers');
+  assert.ok(lightCount >= 8, 'Must have at least 8 Light/Striker armor pieces across tiers');
+  assert.ok(mysticCount >= 8, 'Must have at least 8 Mystic/Wizard-Healer armor pieces across tiers');
+});
+
+

@@ -1,131 +1,72 @@
-# Hollowmere — Chapter 4: The Song of Ice & Fire
+# Role & Armor Archetype Balance System — Implementation Plan
 
-An expansive **Game of Thrones / A Song of Ice and Fire** fourth chapter for *Hollowmere*, unlocking after Chapter 3 (*The Veilscar Frontier*). Players sail from Dawnwatch into a war-torn Westeros and Essos during the **War of the Five Kings**, forge alliances across Great Houses, wield new weapon classes (**Dual Axes**, **Dual Guns**, **Winter's Fang**, and **Stormbreaker**), ride **Shadowmane** and **Frostfang**, command **Direwolf** or **Baby Dragon** companions, customize per-hero House cloth colors, and confront the **White Walkers**, **Undead Viserion**, and the **Night King**—all fully optimized for Samsung TVs running Tizen OS 9 under the MyPC SDK rules.
+## 1. Design Goal & Philosophy
+Create a clean, fast, and intuitive **3-Role Combat Archetype System** (**Tank**, **Damage / Striker**, and **Wizard / Healer**) driven dynamically by the player's equipped **Armor (`head`, `body`, `feet`) + Weapon (`weapon`)**.
 
----
-
-## User Review & Critical Decisions
-
-> [!IMPORTANT]
-> All core scope and design choices from your answers have been locked into this plan:
-
-- **Confirmed World Scope (7 Core Regions + 5-Floor Valyrian Ruins Dungeon)**:
-  1. **The Riverlands (Riverrun, The Twins & Burned Villages)** — War-torn starting region where the player arrives from Dawnwatch and witnesses the War of the Five Kings firsthand.
-  2. **The Crownlands & King's Landing (Red Keep, Blackwater Bay & Flea Bottom)** — Political hub with Tyrion Lannister, Varys, Cersei, and the Battle of the Blackwater wildfire defense.
-  3. **The Stormlands & Dragonstone (Shipbreaker Bay & Painted Table)** — Stannis Baratheon, Melisandre, Brienne of Tarth, and Shadow Creature encounters.
-  4. **The North & Winterfell (Godswood, Stark Crypts & Dreadfort Road)** — Robb Stark, Catelyn, Arya, Sansa, and Direwolf pack territory.
-  5. **Braavos & Free Cities of Essos (Titan's Canal, Iron Bank, House of Black and White & Dothraki Outskirts)** — Daenerys Targaryen, Jorah Mormont, Faceless Men, and access to the **Ruins of Old Valyria (5-Floor Dungeon)** guarded by **Firewyrms**.
-  6. **The Wall & Castle Black (Frostfang Pass & Watchtower)** — Jon Snow, Samwell Tarly, Maester Aemon, and Night's Watch defenses.
-  7. **Beyond the Wall & Hardhome (Haunted Forest, Fist of the First Men & Heart of Winter)** — Mance Rayder, Children of the Forest, Giants, Ice Spiders, Wights, White Walkers, **Undead Viserion**, and the **Night King**.
-- **Confirmed Faction Allegiance (4 Great Houses)**:
-  - Players can pledge their banner to **House Stark** (Direwolf crit & northern frost defense), **House Baratheon** (Staggering hammer blows & stamina surge), **House Lannister** (Bonus gold, elite armor & wildfire volley), or **House Targaryen** (Dragonfire burn & magic mastery), shaping their final-act allies, battle buffs, and ending slides.
-- **Confirmed Progression & Arsenal Expansion**:
-  - **Hero Level Cap raised to 30**, **Forge Upgrades raised to +8**, and **Tier 6 (Westerosi & Valyrian Steel) Gear** added.
-  - **New Weapon Classes**:
-    - **Dual Axes (2-Handed Axes)**: Passive 360° whirlwind radius cleave hitting all surrounding enemies; Special Distant Attack hurls both spinning axes outward and boomerangs them back.
-    - **Dual Guns (2-Handed Pistols)**: Passive split-target firing that automatically shoots two different nearby enemies at once; Special Distant Attack unloads a rapid barrage of bullets locked onto a single priority target.
-    - **Winter's Fang (Legendary Valyrian-Steel Sword)**: Rippling dark steel with Stark wolf pommel; bonus undead damage, high crit, freezing strikes, and *Frost Rend* sweeping ice wave.
-    - **Stormbreaker (Heavy Baratheon War Hammer)**: Massive two-handed dark-steel and bronze warhammer; armor penetration, shield breaking, stagger, and *Thunderfall* shockwave slam.
-- **Confirmed Mounts, Companion Pets & Co-op Customization**:
-  - **2 New Mounts**: **Shadowmane** (armored northern warhorse with trample knockdown charge) and **Frostfang** (giant white-grey direwolf with fast leap & bite attack), built from the open-source horse and wolf rigs with full 4-direction riding animations.
-  - **Companion Pet Selector**: Switch companion pet between the classic **Cat**, a loyal **Direwolf Pup** (pack bite & tracking), or a **Baby Dragon** (aerial flame puffs) in Settings or at the kennel/eyrie.
-  - **Per-Hero Cloth & House Sigil Dye Selector**: Each of the 1–4 co-op players can independently choose their tunic/cloak House palette (Stark Grey/White, Lannister Crimson/Gold, Targaryen Black/Red, Baratheon Gold/Black, Tyrell Emerald/Gold, Martell Sun/Orange, Arryn Sky/Silver, Greyjoy Iron/Teal) in Settings and at the tailor so co-op heroes never look identical.
+To keep the game simple while ensuring no single build dominates in solo play, co-op, or future **PvP**:
+- **Any player can equip any weapon and armor**, but each armor piece belongs to one of three archetypes (`heavy`, `light`, `mystic`) with clear trade-offs in **Defense, Max HP, Attack Speed, Move Speed, and Weapon/Heal Synergy**.
+- **Balanced Triangle (Rock-Paper-Scissors for Future PvP)**:
+  - **Tank (`heavy`)** excels at absorbing burst damage, resisting knockback, and trading blows in melee (`sword`, `hammer`), at the cost of slower attack speed (`atkSpd < 0`), slower movement (`spd < 0`), and reduced ranged/staff efficiency.
+  - **Damage / Striker (`light`)** excels at fast attack speed (`atkSpd > 0`), high movement speed (`spd > 0`), bonus physical attack (`atk`), and critical strikes (`crit`), at the cost of low Defense and HP (glass cannon).
+  - **Wizard / Healer (`mystic`)** excels at Staff magic damage (`mag > 0`), faster Staff casting, stronger self + nearby ally **Heal (`✚`)**, and shorter ability cooldowns, at the cost of the lowest physical Defense and no bonus to physical weapons.
 
 ---
 
-## 1. Overview & Core Concept
+## 2. Core Mechanics & Formulas (`js/items.js` & `js/game.js`)
 
-- **What It Does**: Adds Chapter 4 (`ch4`) as a dynamically loaded chapter pack that unlocks as soon as Chapter 3 is completed (via a Westerosi envoy ship at Dawnwatch harbour or from Chapter 1/2 docks when `ch4` is enabled), while also allowing instant travel for testing.
-- **Target Audience / Persona**: Built for 1–4 local or phone-pad co-op players playing together on a Samsung TV (Tizen OS 9) or desktop browser via MyPC.
-- **Key Value**: Delivers an authentic, lore-rich *A Song of Ice and Fire* campaign with iconic characters, political choices, cinematic cutscenes with multi-language voice audio (`en`, `fr`, `es`, `ar`), distinct creature AI for all 12 bestiary monsters, and zero impact on frame rate or memory on TV hardware.
+### A. Three Armor Classes (`role: 'heavy' | 'light' | 'mystic'`)
+Every armor item (`head`, `body`, `feet`) in `window.HM_ITEMS` gets a `role` tag and lightweight base modifiers:
+1. **`heavy` (Tank / Vanguard)**
+   - **High Defense (`def`)** and **Bonus Max HP (`hp`)** per piece.
+   - **Trade-off**: Slower Attack Speed (`atkSpd`: `-6%` to `-14%` per piece, up to ~`-25%` full set) and slightly slower Move Speed (`spd`: `-2%` to `-8%`).
+   - **Weapon Synergy**: Full power with `sword`, `hammer`, and `axes` (`+10%` melee damage when wearing 2+ Heavy pieces with `sword`/`hammer`, plus `50%` knockback resistance). If paired with ranged/magic (`bow`, `gun`, `pistols`, `staff`), attack cooldown penalty applies in full with no damage bonus.
+2. **`light` (Damage / Striker)**
+   - **Low Defense (`def`)**, no base HP bonus.
+   - **Strengths**: Faster Attack Speed (`atkSpd`: `+6%` to `+14%` per piece, up to `+30%` faster attacks full set), faster Move Speed (`spd`: `+4%` to `+12%`), plus flat Physical Attack (`atk`) and Crit Chance (`crit`).
+   - **Weapon Synergy**: Boosts physical & ranged weapons (`axes`, `bow`, `pistols`, `gun`, `sword`).
+3. **`mystic` (Wizard / Healer)**
+   - **Lowest Physical Defense (`def`)**, moderate Move Speed (`spd`: `+3%` to `+7%`), small Max HP buffer on high-tier robes.
+   - **Strengths**: **Magic & Heal Power (`mag`)** (`+8%` to `+20%` per piece, up to `+45%` full set).
+   - **Weapon & Ability Synergy**:
+     - When wielding a **`staff`**, `mag` directly boosts Staff basic & special (`✸`) damage by `1 + st.mag` and speeds up Staff attack cooldown by `15%–25%`.
+     - **Empowered Heal (`✚`)**: Increases self-healing from `40%` to up to `60%` Max HP, **heals nearby allies and pets within 110px** for `35%–55%` of their Max HP (making Healer a true support role in Co-op and team PvP), and reduces Heal/Distant ability cooldowns by up to `25%`.
 
----
-
-## 2. User Experience & Visual Design
-
-- **Key User Flows**:
-  1. **Unlocking & Arrival**: Completing Chapter 3 (or talking to Captain Davos's envoy / Sela at the harbour when Chapter 3 is complete) offers *"Sail west across the Narrow Sea to Westeros (Chapter 4)"*. An arrival cutscene introduces the burning Riverlands and the War of the Five Kings.
-  2. **Act I — A Kingdom Divided (The Riverlands & King's Landing)**: Witness burned villages, rescue refugees, meet Robb Stark and Brienne in the Riverlands, infiltrate King's Landing to speak with Tyrion and Varys, and defend Blackwater Bay using wildfire caches.
-  3. **Act II — Banners of Power (Stormlands, Winterfell & Braavos)**: Meet Stannis and Melisandre at Dragonstone (surviving a Shadow Assassin), journey north to Winterfell's Godswood to recover *Winter's Fang* from the Stark Crypts, sail to Braavos and Essos to meet Daenerys Targaryen and Jorah Mormont, optionally delve into the **5-Floor Ruins of Old Valyria**, and **pledge allegiance** to Stark, Baratheon, Lannister, or Targaryen.
-  4. **Act III — The Night's Watch & Beyond the Wall**: Ride to Castle Black to aid Jon Snow and Samwell Tarly, range Beyond the Wall to meet Mance Rayder and the Children of the Forest, and uncover the spiral symbol of the Others.
-  5. **Act IV — The Coming Winter (Hardhome & The Heart of Winter)**: Unite your pledged House's forces at the Wall, survive the Wight horde and Giant/Ice Spider ambushes, slay **Undead Viserion** in an aerial/ice-fire boss fight, and defeat **The Night King** to end the Long Night.
-- **Visual Identity & Theme**:
-  - **Medieval Typography in Chapter 4**: When entering Chapter 4 (`ch4`), the UI applies a medieval-inspired serif display stack (`'Cinzel', 'Palatino Linotype', 'Book Antiqua', Georgia, serif`) for chapter titles, quest headers, dialogue speaker banners, and boss nameplates, paired with crisp high-contrast body text readable from 3 meters away on a TV screen.
-  - **Color Palette & Mood**:
-    - *Background & Panels*: Obsidian Iron (`#0b0d14`) and Valyrian Slate (`#161926`) glass panels.
-    - *Primary Accents*: Targaryen Ember Gold (`#d4af37`) and Stark Winter Frost (`#8ad8ff`).
-    - *Regional Palettes*: Muddy crimson and ash in the Riverlands, royal crimson-and-gold stonework in King's Landing, obsidian and sea-spray on Dragonstone, deep snow and weirwood red-leaves in Winterfell, misty teal canals in Braavos, and glacial blue-white at the Wall.
-- **Interactive Feedback & Motion**:
-  - Strictly compositor-only CSS transitions (`transform`, `opacity`) and zero-allocation 60 Hz Canvas 2.5D rendering with offscreen culling so Samsung Tizen OS 9 TVs maintain a locked 60 FPS.
-
----
-
-## 3. Key Product Decisions & Trade-Offs
-
-- **Decision 1: Modular Chapter Pack Architecture (`chapters/ch4/`)**
-  - *Chosen Approach*: Build Chapter 4 as a self-contained pack loaded on demand by `js/chapters.js` (`quests.json`, `text.js`, `maps.js`, `valyria.js`, `art.js`, `chapter.js`) and unloaded when leaving the chapter.
-  - *Why*: Preserves MyPC memory limits on Samsung TVs while allowing a massive 4-act story, 7 overworld zones, 5 dungeon floors, 12 creature types, and 9 synthesized regional soundtracks.
-- **Decision 2: Dual-Wield Weapons & Level/Upgrade Scaling in Engine**
-  - *Chosen Approach*: Extend the core weapon handler cleanly with two new weapon kinds (`axes` for 360° dual-axe cleave + twin boomerang throw, and `pistols` for dual-target gunshot + single-target rapid barrage), raise `maxUp` to `+8`, raise hero level cap to `30`, and add Tier 6 items (`winters_fang`, `stormbreaker`, `blood_axes`, `corsair_pistols`, `valyrian_helm`, `kingsguard_plate`, `wolf_cloak`, `watch_boots`, plus super weapons).
-  - *Why*: Integrates seamlessly with existing equipment comparison UI, forge upgrades, and co-op loot drops without breaking existing saves.
-- **Decision 3: Multi-Language Scene Audio (`en`, `fr`, `es`, `ar`)**
-  - *Chosen Approach*: Generate offline Ogg/Opus voice clips in `audio/voices/<lang>/` with `index.json` for Chapter 4 cutscenes and key dialogues across all 4 supported languages (`en`, `fr`, `es`, `ar`), while also keeping `MyPC.ai` TTS fallback and Web Audio sound effects active.
-  - *Why*: Guarantees spoken dialogue works out-of-the-box offline in every language on both standalone browsers and MyPC TVs.
+### B. Dynamic Role Detection (`p.st.role`)
+In `recalc(p)`:
+- Count the weight of equipped armor archetypes (`body` counts as 2 points, `head` and `feet` count as 1 point each) plus weapon affinity (`hammer`/`sword` leans Tank, `axes`/`bow`/`pistols`/`gun` leans Striker, `staff` leans Wizard/Healer).
+- Compute the active role label displayed in the **Equipment Screen** header and details panel:
+  - **🛡 Tank** (`heavy` dominant)
+  - **⚔ Striker** (`light` dominant)
+  - **✦ Wizard / Healer** (`mystic` dominant)
+  - **⚖ Hybrid** (mixed armor set)
 
 ---
 
-## 4. Technical Architecture & Data Strategy *(Technical Reference)*
+## 3. Rebalancing Existing Armors & Completing Tier Sets (`js/items.js` & `js/hero.js`)
 
-### Architecture & Component Diagram
+We will rebalance existing armors across Tiers 1–7 and add **6 missing armor pieces** so every tier range (Chapters 1–5) offers a complete choice of **Heavy (Tank)**, **Light (Striker)**, and **Mystic (Wizard/Healer)**:
 
-```
-┌───────────────────────────────────────────────────────────────────────────┐
-│                        HOLLOWMERE ENGINE (js/game.js)                     │
-│  ┌─────────────────┐  ┌────────────────────┐  ┌────────────────────────┐  │
-│  │ Combat & Gear   │  │ Mounts & Pets      │  │ Appearance & Settings  │  │
-│  │ • Lv 30 / +8 Up │  │ • Shadowmane       │  │ • 8 House Cloth Dyes   │  │
-│  │ • Dual Axes     │  │ • Frostfang        │  │ • Pet Picker (Cat /    │  │
-│  │ • Dual Pistols  │  │ • 4-Dir Sprites    │  │   Direwolf / Dragon)   │  │
-│  │ • Winter's Fang │  │ • Trample & Bite   │  │ • Ch4 Medieval Font    │  │
-│  │ • Stormbreaker  │  └─────────┬──────────┘  └───────────┬────────────┘  │
-│  └────────┬────────┘            │                         │               │
-└───────────┼─────────────────────┼─────────────────────────┼───────────────┘
-            │                     ▼                         │
-┌───────────┴───────────────────────────────────────────────┴───────────────┐
-│                 CHAPTER 4 PACK (chapters/ch4/* — Lazy Loaded)             │
-│  ┌──────────────────────┐  ┌──────────────────────┐  ┌─────────────────┐  │
-│  │ Narrative & Quests   │  │ 7 Regions + Valyria  │  │ Bestiary (12)   │  │
-│  │ • quests.json (4 Act)│  │ • c4_river (Tully)   │  │ • White Walker  │  │
-│  │ • 4-House Pledge     │  │ • c4_kings (Capital) │  │ • Wight Horde   │  │
-│  │ • Cutscenes + Audio  │  │ • c4_storm (Dragonst)│  │ • Shadow Spawn  │  │
-│  │ • EN / FR / ES / AR  │  │ • c4_north (Winterfl)│  │ • Direwolf/Giant│  │
-│  │   Voice Clips (.ogg) │  │ • c4_essos (Braavos) │  │ • Ice Spider    │  │
-│  └──────────────────────┘  │ • c4_wall  (Watch)   │  │ • Firewyrm/Krkn │  │
-│                            │ • c4_beyond(Hardhome)│  │ • Viserion (Boss│  │
-│                            │ • c4_val1..5 (Ruins) │  │ • Night King    │  │
-│                            └──────────────────────┘  └─────────────────┘  │
-└───────────────────────────────────────────────────────────────────────────┘
-```
+| Tier / Chapter | Heavy (Tank) | Light (Striker) | Mystic (Wizard / Healer) |
+| :--- | :--- | :--- | :--- |
+| **Tier 1–2** *(Ch 1)* | `iron_helm`, `plate_armor`, `iron_greaves` | `leather_cap`, `padded_vest`, `chainmail`, `leather_boots` | `mystic_hood` *(new)*, `mage_robe`, `silk_shoes` *(new)* |
+| **Tier 3–4** *(Ch 2–3)* | `knight_helm`, `warden_helm`, `frost_plate` | `coral_helm`, `tide_mail`, `swift_boots`, `wave_boots`, `wyrm_boots` | `astral_circlet` *(new)*, `runic_robe`, `runic_boots` *(new)* |
+| **Tier 5–6** *(Ch 4)* | `stark_wolfhelm`, `kingsguard_plate`, `valyrian_greaves` | `watch_cloak`, `targaryen_scale`, `dornish_boots` | `red_priest_robe` *(new)* |
+| **Tier 7** *(Ch 5)* | `vampire_armor`, `dread_greaves` *(new)* | `shadow_ring`, `nightstalker_garb` *(new)* | `crimson_amulet`, `sanctified_vestment` *(new)* |
 
-### Data Model & State (`S.c4` & Global Save Extensions)
-- **Save State Extensions (`S`)**:
-  - `S.cloth`: Array `[c0, c1, c2, c3]` storing each hero's chosen House dye index (`0..7`), eliminating multiplayer look conflicts.
-  - `S.petKind`: `'cat' | 'direwolf' | 'babydragon'` so players can switch their active companion pet.
-  - `S.c4`: Chapter 4 state object tracking `{ st, c, m, house, beacons, open, lore, rep, gift, seen, crypt, wildfire, dragonglass }`.
-- **12 Bestiary Creatures & Boss Mechanics**:
-  1. **Wights**: Fast, relentless undead that have a chance to rise once unless slain by fire, dragonglass, or *Winter's Fang*.
-  2. **White Walkers (The Others)**: Tall pale commanders with frost aura, ice-spear projectiles, and ordinary-weapon resistance; summon Wights.
-  3. **Direwolves**: Fast pack hunters that coordinate flanking leaps.
-  4. **Children of the Forest**: Secretive weirwood guardians using rapid nature-bow volleys and emerald root wards.
-  5. **Shadow Creatures**: Blood-magic silhouettes that turn semi-transparent, blink behind targets, and strike from stealth.
-  6. **Giants**: Massive northern colossi with ground-shaking club slams and boulder throws.
-  7. **Ice Spiders (Legendary)**: Pale chitinous ambushers that shoot frost webs to slow heroes and strike with venomous mandibles.
-  8. **Firewyrms (Valyrian Ruins)**: Burrowing molten serpents that erupt from volcanic ground with magma rings.
-  9. **Krakens (Shipbreaker Bay & Blackwater Coast)**: Coastal tentacle horrors that lash across piers and drag targets toward the surf.
-  10. **Unicorns of Skagos**: Rare horned mountain steeds with lightning-fast gore charges.
-  11. **Undead Dragon Viserion (Boss)**: Swoops across the arena breathing walls of blue ice-fire, shattering fortifications, and summoning frost storms.
-  12. **The Night King (Final Boss)**: Multi-phase battle—raises fallen Wights in waves, hurls ice javelins, projects a freezing blizzard vortex shielded by three White Walker lieutenants, and drops the legendary **Dragonglass War-Crown** and unlocks **Frostfang / Shadowmane** rewards.
+- All new and Chapter 5 armor pieces (`vampire_armor`, `shadow_ring`, `crimson_amulet`, etc.) will also be registered in `window.HM_HERO.BODY`, `HEAD`, and `FEET` in `js/hero.js` so they render distinctly on the hero sprite and in the Equipment preview.
+- Shops (`HM_SHOPS.forge` and chapter shops) and the Dev Mode Gear Spawner will automatically include the new pieces.
 
-### Interactive Component & State Mapping
-- **Settings & Tailor Menu**: Adds *"Colors of {name}"* (cycling 8 House palettes with instant preview on the hero) and *"Companion Pet"* (Cat / Direwolf Pup / Baby Dragon) with full keyboard, TV remote (`OK` / arrows), and gamepad support.
-- **Equipment & Forge UI**: Supports `+1` to `+8` upgrades, displays new weapon icons and stats for Dual Axes (`axes`), Dual Guns (`pistols`), War Hammers (`hammer`), and Valyrian Steel blades, and automatically applies Chapter 4's medieval font styling when in `ch4` zones.
+---
+
+## 4. UI & Equipment Screen Updates (`js/game.js`)
+- **Equipment Screen Header**: Displays the hero's current active Role badge (e.g., `🛡 Tank`, `⚔ Striker`, `✦ Wizard / Healer`) alongside total stats.
+- **Item Details & Stat Lines (`statLine` & `gearDetails`)**:
+  - Show the armor's archetype (`Heavy · Tank`, `Light · Striker`, `Mystic · Wizard`) and new stats (`ATK SPD`, `MAGIC/HEAL`, `HP`) with green/red comparison deltas when browsing gear.
+
+---
+
+## 5. Verification Plan
+1. **Unit Tests (`tests/ch5.test.mjs`)**:
+   - Add automated tests verifying all 3 armor archetypes (`heavy`, `light`, `mystic`), `recalc(p)` attack speed / cooldown scaling, Staff magic synergy, Tank HP & knockback reduction, and Healer AoE ally healing.
+2. **Build & Runtime Check**:
+   - Run `node --test tests/ch4.test.mjs tests/ch5.test.mjs` and `compile_applet` to ensure zero errors and smooth 60 FPS gameplay.

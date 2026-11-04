@@ -231,7 +231,7 @@
     const P = [0, 1, 2, 3].map(i => ({ i, on: i === 0, dev: '', x: 0, y: 0, fx: 0, fy: 1, ax: 0, ay: 1, hp: 10, atk: 0, swing: 0, inv: 0,
         down: false, downT: 0, walk: 0, kx: 0, ky: 0, hold: 0, moving: false, r: 7, sy: 0, kind: 3, lean: 0, flash: 0, anim: 'sword', bite: 0, lfx: 1,
         sta: 50, cdHeal: 0, cdPower: 0, cdDistant: 0, tapT: -99, aura: 0, auraCol: '#fff',
-        st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
+        st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, atkSpd: 0, mag: 0, role: 'hybrid', heavyPts: 0, lightPts: 0, mysticPts: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
     function nPlayers() { let n = 0; for (const p of P) if (p.on) n++; return n; }
     // every hero who joins makes the foes 20% harder: health, armour and the blows they deal
     function coopMul() { return 1 + 0.2 * (nPlayers() - 1); }
@@ -293,16 +293,53 @@
     function recalc(p) {
         const e = S.eq[p.i], wi = itemOf(e.weapon), w = (wi && ITEMS[wi.id]) || ITEMS.stick, st = p.st;
         st.atk = w.atk + (wi && ITEMS[wi.id] ? wi.up * upStep(w) : 0); st.cd = w.cd; st.kind = w.kind; st.col = w.col; st.col2 = w.col2 || '#6b4a2e';
-        st.atk += lvlAtk(); st.def = lvlDef(); st.spd = 0; st.crit = w.kind === 'gun' || w.kind === 'pistols' || (wi && wi.id === 'winters_fang') ? 20 : 10; st.hp = 0; st.gold = 0;
+        st.atk += lvlAtk(); st.def = lvlDef(); st.spd = 0; st.atkSpd = 0; st.mag = 0;
+        st.heavyPts = 0; st.lightPts = 0; st.mysticPts = 0;
+        st.crit = w.kind === 'gun' || w.kind === 'pistols' || (wi && wi.id === 'winters_fang') ? 20 : 10; st.hp = 0; st.gold = 0;
         for (let k = 0; k < SLOTS.length; k++) {
             const it = itemOf(e[SLOTS[k]]); if (!it) continue;
             const base = ITEMS[it.id]; if (!base) continue;
-            if (k > 0) { st.def += (base.def || 0) + it.up; st.spd += base.spd || 0; }
+            if (k > 0) {
+                st.def += (base.def || 0) + it.up;
+                st.spd += base.spd || 0;
+                st.atk += base.atk || 0;
+                st.crit += base.crit || 0;
+                st.hp += (base.hp || 0) + (base.role === 'heavy' ? it.up * 2 : base.role === 'mystic' ? it.up : 0);
+                st.atkSpd += base.atkSpd || 0;
+                st.mag += (base.mag || 0) + (base.role === 'mystic' ? it.up * 0.02 : 0);
+                const wt = k === 2 ? 2 : 1; // body armor counts double toward role identity
+                if (base.role === 'heavy') st.heavyPts += wt;
+                else if (base.role === 'light') st.lightPts += wt;
+                else if (base.role === 'mystic') st.mysticPts += wt;
+            }
             for (const b of it.b) {
                 if (b[0] === 'a') st.atk += b[1]; else if (b[0] === 'd') st.def += b[1]; else if (b[0] === 'c') st.crit += b[1];
                 else if (b[0] === 's') st.spd += b[1] / 100; else if (b[0] === 'h') st.hp += b[1]; else if (b[0] === 'g') st.gold += b[1];
             }
         }
+        // Determine dynamic role from equipped armor + weapon affinity
+        const hScore = st.heavyPts + (w.kind === 'hammer' || w.kind === 'sword' ? 0.5 : 0);
+        const lScore = st.lightPts + (w.kind === 'axes' || w.kind === 'bow' || w.kind === 'pistols' || w.kind === 'gun' ? 0.5 : 0);
+        const mScore = st.mysticPts + (w.kind === 'staff' ? 1 : 0);
+        if (st.mysticPts >= 2 && mScore >= hScore && mScore >= lScore) st.role = 'mystic';
+        else if (st.heavyPts >= 2 && hScore >= lScore && hScore >= mScore) st.role = 'heavy';
+        else if (st.lightPts >= 2 && lScore >= hScore && lScore >= mScore) st.role = 'light';
+        else if (st.heavyPts === 0 && st.lightPts === 0 && st.mysticPts === 0) st.role = w.kind === 'staff' ? 'mystic' : w.kind === 'hammer' ? 'heavy' : 'hybrid';
+        else st.role = 'hybrid';
+
+        // Weapon + Armor Synergies & Trade-offs
+        const isMelee = w.kind === 'sword' || w.kind === 'hammer' || w.kind === 'axes';
+        if (w.kind === 'staff' && st.mag > 0) {
+            st.atk = Math.max(1, Math.round(st.atk * (1 + st.mag)));
+            st.atkSpd += st.mag * 0.45;
+        }
+        if (st.heavyPts >= 2) {
+            if (isMelee) st.atk = Math.max(1, Math.round(st.atk * 1.1));
+            else st.atk = Math.max(1, Math.round(st.atk * 0.9));
+        }
+        st.atkSpd = Math.max(-0.35, Math.min(0.40, st.atkSpd));
+        st.cd = Math.max(8, Math.round(w.cd / (1 + st.atkSpd)));
+
         const h = itemOf(e.head), bd = itemOf(e.body), ft = itemOf(e.feet);
         p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : ''; p.gear.weapon = wi ? wi.id : 'stick'; p.wr = wi ? wi.r : 0;
         p.lgMask = (h && h.r >= 3 ? 1 : 0) | (bd && bd.r >= 3 ? 2 : 0) | (ft && ft.r >= 3 ? 4 : 0);
@@ -367,7 +404,17 @@
         const base = ITEMS[it.id]; if (!base) return '';
         let s = '';
         if (base.slot === 'weapon') s = T.ui.atk + ' ' + (base.atk + it.up * upStep(base)) + (base.kind !== 'sword' ? ' · ' + T.ui[base.kind] : '');
-        else { const d = (base.def || 0) + it.up; if (d) s = T.ui.def + ' ' + d; }
+        else {
+            if (base.role && T.ui['arm_' + base.role]) s = T.ui['arm_' + base.role];
+            const d = (base.def || 0) + it.up;
+            if (d) s += (s ? '  ' : '') + T.ui.def + ' ' + d;
+            if (base.atk) s += (s ? '  ' : '') + T.ui.atk + ' +' + base.atk;
+            const hp = (base.hp || 0) + (base.role === 'heavy' ? it.up * 2 : base.role === 'mystic' ? it.up : 0);
+            if (hp) s += (s ? '  ' : '') + (T.ui.hpL || 'HP') + ' +' + hp;
+            if (base.atkSpd) s += (s ? '  ' : '') + (T.ui.atkSpdL || 'ATK SPD') + ' ' + (base.atkSpd > 0 ? '+' : '') + Math.round(base.atkSpd * 100) + '%';
+            const mag = (base.mag || 0) + (base.role === 'mystic' ? it.up * 0.02 : 0);
+            if (mag) s += (s ? '  ' : '') + (T.ui.magL || 'MAGIC') + ' +' + Math.round(mag * 100) + '%';
+        }
         if (base.spd) s += (s ? '  ' : '') + T.ui.spd + ' ' + (base.spd > 0 ? '+' : '') + Math.round(base.spd * 100) + '%';
         for (const b of it.b) s += (s ? '  ' : '') + txt(T.ui['b_' + b[0]], { n: b[1] });
         return s;
@@ -1102,7 +1149,9 @@
         const hasSave = !!MyPC.load('save', null);
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
+        if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.playCh5 || '🩸 Chapter 5: The Blood Kingdoms', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
+        if (isDevMod()) OV.items.push({ label: T.ui.devTools || '🛠 Dev Mode (Teleport, Gear, Mounts, Pets)', fn: devScreen });
         OV.items.push({ label: T.ui.newg, fn: () => hasSave ? confirmNew() : newGame() });
         if (HM_COOP.usable()) OV.items.push({ label: T.ui.coopJoin, fn: joinFriend });
         OV.sel = 0; OV.head = [T.ui.title, chapterTitle()];
@@ -1110,6 +1159,7 @@
     }
     function confirmNew() {
         OV.items = [{ label: T.ui.no, fn: showTitle }];
+        if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.devJumpCh5 || '▶ Play Chapter 5 (Keep Save)', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
         OV.items.push({ label: T.ui.yes, fn: newGame });
         OV.sel = 0; OV.head = [T.ui.newg, T.ui.newConfirm]; renderMenu();
@@ -1118,7 +1168,19 @@
         const box = el('div', 'menu');
         box.appendChild(el('div', 'mtitle', OV.head[0]));
         box.appendChild(el('div', 'msub', OV.head[1]));
-        OV.items.forEach((it, i) => box.appendChild(el('div', 'mi' + (i === OV.sel ? ' sel' : ''), it.label)));
+        OV.items.forEach((it, i) => {
+            const row = el('div', 'mi' + (i === OV.sel ? ' sel' : ''), it.label);
+            row.style.cursor = 'pointer';
+            row.onmouseenter = () => {
+                if (OV.sel !== i) {
+                    OV.sel = i;
+                    const els = box.querySelectorAll('.mi');
+                    for (let k = 0; k < els.length; k++) els[k].className = 'mi' + (k === OV.sel ? ' sel' : '');
+                }
+            };
+            row.onclick = () => { OV.sel = i; SND.fx('ok'); it.fn(); };
+            box.appendChild(row);
+        });
         ovShow(box);
         MyPC.announce(OV.head[0] + '. ' + OV.head[1] + '. ' + OV.items[OV.sel].label);
     }
@@ -1379,10 +1441,18 @@
         return c;
     }
     function itemStats(it) {
-        const o = { atk: 0, def: 0, spd: 0, crit: 0, hp: 0, gold: 0 };
+        const o = { atk: 0, def: 0, spd: 0, atkSpd: 0, mag: 0, crit: 0, hp: 0, gold: 0 };
         if (!it) return o;
         const base = ITEMS[it.id];
-        if (base.slot === 'weapon') o.atk = base.atk + it.up * upStep(base); else o.def = (base.def || 0) + it.up;
+        if (base.slot === 'weapon') o.atk = base.atk + it.up * upStep(base);
+        else {
+            o.def = (base.def || 0) + it.up;
+            o.atk += base.atk || 0;
+            o.crit += base.crit || 0;
+            o.hp += (base.hp || 0) + (base.role === 'heavy' ? it.up * 2 : base.role === 'mystic' ? it.up : 0);
+            o.atkSpd = Math.round((base.atkSpd || 0) * 100);
+            o.mag = Math.round(((base.mag || 0) + (base.role === 'mystic' ? it.up * 0.02 : 0)) * 100);
+        }
         o.spd = Math.round((base.spd || 0) * 100);
         for (const b of it.b) { if (b[0] === 'a') o.atk += b[1]; else if (b[0] === 'd') o.def += b[1]; else if (b[0] === 'c') o.crit += b[1]; else if (b[0] === 's') o.spd += b[1]; else if (b[0] === 'h') o.hp += b[1]; else if (b[0] === 'g') o.gold += b[1]; }
         return o;
@@ -1427,9 +1497,19 @@
         if (!it) { det.appendChild(el('div', 'gdk', EQ.focus === 'list' ? T.ui.takeOff : T.ui.noneWorn)); return; }
         const base = ITEMS[it.id];
         det.appendChild(el('div', 'gdn r' + it.r, itemLabel(it)));
-        det.appendChild(el('div', 'gdk', T.ui['slot_' + base.slot] + (base.slot === 'weapon' ? ' · ' + T.ui[base.kind] : '') + ' · ' + txt(T.ui.tier, { n: base.tier || 0 })));
+        const roleTag = base.role && T.ui['arm_' + base.role] ? ' · ' + T.ui['arm_' + base.role] : '';
+        det.appendChild(el('div', 'gdk', T.ui['slot_' + base.slot] + (base.slot === 'weapon' ? ' · ' + T.ui[base.kind] : roleTag) + ' · ' + txt(T.ui.tier, { n: base.tier || 0 })));
         const a = itemStats(it), b = itemStats(cur), same = cur === it;
-        const rows = [['atk', T.ui.atk, ''], ['def', T.ui.def, ''], ['spd', T.ui.spd, '%'], ['crit', T.ui.critL, '%'], ['hp', T.ui.hpL, ''], ['gold', T.ui.goldL, '%']];
+        const rows = [
+            ['atk', T.ui.atk, ''],
+            ['def', T.ui.def, ''],
+            ['hp', T.ui.hpL || 'HP', ''],
+            ['atkSpd', T.ui.atkSpdL || 'ATK SPD', '%'],
+            ['mag', T.ui.magL || 'MAGIC / HEAL', '%'],
+            ['spd', T.ui.spd, '%'],
+            ['crit', T.ui.critL, '%'],
+            ['gold', T.ui.goldL, '%']
+        ];
         for (const r of rows) {
             if (!a[r[0]] && !b[r[0]]) continue;
             const row = el('div', 'gds'); row.appendChild(el('span', '', r[1]));
@@ -1449,8 +1529,17 @@
         if (list && EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
         const look = list ? items[EQ.gi] : EQ.ri < 4 ? cur : null;
         const box = el('div', 'gearbox'), head = el('div', 'lhead'), st = P[EQ.hero].st;
-        head.appendChild(el('div', 'ltitle', T.ui.equip + (nPlayers() > 1 ? ': ' + heroName(EQ.hero) : '')));
-        head.appendChild(el('div', 'linfo', T.ui.atk + ' ' + st.atk + '   ' + T.ui.def + ' ' + st.def + '   ' + T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'));
+        const roleLbl = T.ui['role_' + (st.role || 'hybrid')] || '⚖ Balanced';
+        head.appendChild(el('div', 'ltitle', T.ui.equip + (nPlayers() > 1 ? ': ' + heroName(EQ.hero) : '') + '  ·  ' + roleLbl));
+        const infoParts = [
+            T.ui.atk + ' ' + st.atk,
+            T.ui.def + ' ' + st.def,
+            (T.ui.hpL || 'HP') + ' ' + maxHp(P[EQ.hero]),
+            (T.ui.atkSpdL || 'ATK SPD') + ' ' + (st.atkSpd >= 0 ? '+' : '') + Math.round((st.atkSpd || 0) * 100) + '%',
+            T.ui.spd + ' ' + (st.spd >= 0 ? '+' : '') + Math.round(st.spd * 100) + '%'
+        ];
+        if (st.mag) infoParts.splice(4, 0, (T.ui.magL || 'MAG') + ' +' + Math.round(st.mag * 100) + '%');
+        head.appendChild(el('div', 'linfo', infoParts.join('   ')));
         box.appendChild(head);
         const main = el('div', 'gmain');
         const doll = el('div', 'gdoll'); doll.appendChild(gearPreview(list ? look : undefined));
@@ -1525,19 +1614,32 @@
 
     // mounts: walk, or ride one you own (the others say where to get them)
     const MICONS = {};
-    function mountIcon(m) {
-        if (MICONS[m]) return MICONS[m];
-        const c = document.createElement('canvas'); c.width = c.height = 96;
-        const saved = ctx; ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    function renderMountIcon(m, c) {
+        const saved = ctx; ctx = c.getContext('2d'); ctx.clearRect(0, 0, 96, 96); ctx.imageSmoothingEnabled = false;
         try {
-            if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45); else if (m === 'wolf') drawWolfMount(42, 80, 0, 1, 1.8);
-            else if (m === 'dragon' || m === 'nightterror') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
-            else if (m === 'charger' || m === 'bonecharger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite(m === 'bonecharger' ? '#44cc44' : '#7ad8ff'));
-            else if (m === 'shadowmane' || m === 'nightmare') MOUNTART.shadowmane(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
-            else if (m === 'frostfang' || m === 'bloodfang') MOUNTART.frostfang(ctx, 46, 84, 0, 2, 1, 1.35, false, 0);
+            if (m === 'horse') drawHorse(48, 80, 0, 1, 1.45);
+            else if (m === 'wolf') drawWolfMount(48, 82, 0, 1, 1.42, 2, false, 0);
+            else if (m === 'dragon') MOUNTART.dragon(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
+            else if (m === 'nightterror') MOUNTART.nightterror(ctx, 48, 92, 6, 0, false, 7, 0.5, false);
+            else if (m === 'charger') MOUNTART.charger(ctx, 50, 90, 10, 0, 2, 1, 1.25, false, 9, glowSprite('#7ad8ff'));
+            else if (m === 'bonecharger') MOUNTART.bonecharger(ctx, 48, 92, 4, 0, 2, 1, 1.25, false, 7, glowSprite('#54e8a0'));
+            else if (m === 'shadowmane') MOUNTART.shadowmane(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
+            else if (m === 'nightmare') MOUNTART.nightmare(ctx, 48, 84, 0, 2, 1, 1.35, false, 0);
+            else if (m === 'frostfang') MOUNTART.frostfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
+            else if (m === 'bloodfang') MOUNTART.bloodfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
+            c.ok = MOUNTART.has ? MOUNTART.has(m) : true;
         } catch (e) {}
-        ctx = saved; if (m) MICONS[m] = c;
+        ctx = saved;
+    }
+    if (MOUNTART.onLoad) MOUNTART.onLoad(() => {
+        for (const k of Object.keys(MICONS)) renderMountIcon(k, MICONS[k]);
+    });
+    function mountIcon(m) {
+        if (MICONS[m] && MICONS[m].ok) return MICONS[m];
+        const c = MICONS[m] || document.createElement('canvas'); c.width = c.height = 96;
+        renderMountIcon(m, c);
+        if (m) MICONS[m] = c;
         return c;
     }
     function mountScreen() {
@@ -1836,11 +1938,18 @@
     }
 
     function devGrantMaxGear() {
-        S = prepareChapter4Save(S);
-        S.lvl = 30; S.xp = 0; S.coins += 5000; S.iron += 50; S.potions = Math.max(S.potions, 10); S.big = Math.max(S.big, 5);
-        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang']) if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
-        if (!S.mount) S.mount = 'frostfang';
-        const maxGear = ['winters_fang', 'stormbreaker', 'valyrian_axes', 'golden_pistols', 'dragonbone_bow', 'rhllor_scepter', 'stark_wolfhelm', 'targaryen_scale', 'valyrian_greaves'];
+        S = prepareChapter5Save(S);
+        S.lvl = 30; S.xp = 0; S.coins += 5000; S.iron += 100; S.potions = Math.max(S.potions, 15); S.big = Math.max(S.big, 10);
+        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror']) {
+            if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
+        }
+        if (!S.mount) S.mount = 'nightterror';
+        const maxGear = [
+            'blood_sword', 'bone_reaper', 'holy_relic', 'vampire_armor', 'nightstalker_garb', 'sanctified_vestment',
+            'crimson_amulet', 'shadow_ring', 'dread_greaves',
+            'winters_fang', 'stormbreaker', 'valyrian_axes', 'golden_pistols', 'valyrian_blade',
+            'stark_wolfhelm', 'kingsguard_plate', 'targaryen_scale', 'red_priest_robe', 'valyrian_greaves'
+        ];
         for (const gid of maxGear) {
             if (!ITEMS[gid]) continue;
             let it = S.bag.find(x => x.id === gid);
@@ -1848,20 +1957,20 @@
                 it = { u: ++S.uid, id: gid, r: 3, up: 8, b: rollBonuses(gid, 3) };
                 S.bag.push(it);
             } else if (it) { it.r = 3; it.up = 8; }
-            if (it && (gid === 'winters_fang' || gid === 'stark_wolfhelm' || gid === 'targaryen_scale' || gid === 'valyrian_greaves')) {
+            if (it && (gid === 'blood_sword' || gid === 'crimson_amulet' || gid === 'vampire_armor' || gid === 'dread_greaves')) {
                 S.eq[0][ITEMS[gid].slot] = it.u;
             }
         }
         recalcAll();
         for (const q of P) { q.hp = maxHp(q); q.down = false; }
         save(); refreshMenu(); SND.fx('level');
-        toast(T.ui.devMaxGear || 'Granted Lv 30 & +8 Valyrian Arsenal!');
+        toast(T.ui.devMaxGear || 'Granted Lv 30, +8 Tier 7 Arsenal & All 10 Mounts!');
     }
 
     function prepareChapter5Save(s) {
         s = prepareChapter4Save(s);
         if (s.c4) s.c4.st = 36;
-        if (!s.c5) s.c5 = { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} };
+        if (!s.c5) s.c5 = { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {}, infected: 0, bloodMoon: 0, altarBuff: 0 };
         for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror']) {
             if (s.mounts.indexOf(m) < 0) s.mounts.push(m);
         }
@@ -1907,8 +2016,156 @@
         })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
     }
 
+    function devTeleportScreen() {
+        const allZones = [
+            // Chapter 5: The Blood Kingdoms
+            ['ch5', 'c5_village',   22.5, 25.5, 'Ch 5 · Blackthorn Village (Dominion Hub)'],
+            ['ch5', 'c5_dracula',   22.5, 28.5, 'Ch 5 · Castle Dracula & Bloodmoon Peaks'],
+            ['ch5', 'c5_nosferatu', 22.5, 29.5, 'Ch 5 · Nosferatu\'s Wasteland & Tower'],
+            ['ch5', 'c5_brides',    2.5,  15.5, 'Ch 5 · The Brides\' Domain (Widow\'s Forest)'],
+            ['ch5', 'c5_crimson',   22.5, 28.5, 'Ch 5 · The Crimson Empire & Scarlet City'],
+            ['ch5', 'c5_shadow',    22.5, 29.5, 'Ch 5 · The Shadow Principality (Ravenport)'],
+            ['ch5', 'c5_undying',   22.5, 29.5, 'Ch 5 · The Undying Kingdom & Necropolis'],
+            ['ch5', 'c5_carmilla',  22.5, 29.5, 'Ch 5 · Carmilla\'s Court & Blood Cathedral'],
+            // Chapter 4: A Song of Ice & Fire
+            ['ch4', 'c4_river',     22.5, 25.5, 'Ch 4 · The Riverlands (Riverrun Camp)'],
+            ['ch4', 'c4_kings',     22.5, 2.5,  'Ch 4 · King\'s Landing & Blackwater Bay'],
+            ['ch4', 'c4_storm',     3.5,  17.5, 'Ch 4 · Storm\'s End & Dragonstone'],
+            ['ch4', 'c4_north',     23.5, 31.5, 'Ch 4 · Winterfell & The North'],
+            ['ch4', 'c4_essos',     22.5, 28.5, 'Ch 4 · Braavos & Free Cities (Essos)'],
+            ['ch4', 'c4_val1',      13.5, 21.5, 'Ch 4 · Ruins of Old Valyria (Floor 1)'],
+            ['ch4', 'c4_val5',      15.5, 22.5, 'Ch 4 · Valyria Floor 5 (Dragonlord Boss)'],
+            ['ch4', 'c4_wall',      24.5, 31.5, 'Ch 4 · The Wall & Castle Black'],
+            ['ch4', 'c4_beyond',   24.5, 32.5, 'Ch 4 · Beyond the Wall (Night King)'],
+            // Chapters 1–3 Hubs & Key Zones
+            ['ch3', 'c3_dawn',      22.5, 25.5, 'Ch 3 · Dawnwatch Keep (Chapter 3 Hub)'],
+            ['ch2', 'c2_bay',       23.5, 23.6, 'Ch 2 · Lantern Bay (Chapter 2 Hub)'],
+            ['ch1', 'village',      21.5, 10.5, 'Ch 1 · Oakhaven Village (Chapter 1 Hub)'],
+            ['ch1', 'greywood',     20.5, 26.5, 'Ch 1 · Greywood Forest'],
+            ['ch1', 'barrow',       20.5, 27.5, 'Ch 1 · The Old Barrow'],
+            ['ch1', 'mine',         20.5, 27.5, 'Ch 1 · Star-Iron Mine']
+        ];
+        listScreen({
+            title: () => '🗺 Teleport: Any Chapter & Zone',
+            info: () => 'Current: ' + ((Z && Z.id) || S.zone || 'village'),
+            rows: () => allZones.map(([ch, zid, zx, zy, label]) => ({
+                label,
+                right: (Z && Z.id === zid) ? '✓' : '▸',
+                mark: !!(Z && Z.id === zid),
+                fn: () => {
+                    if (ch === 'ch5') {
+                        S = prepareChapter5Save(S);
+                        if (S.c5) S.c5.open = { dracula: true, nosferatu: true, brides: true, crimson: true, shadow: true, undying: true, carmilla: true };
+                        playChapter5(zid, zx, zy);
+                    } else if (ch === 'ch4') {
+                        S = prepareChapter4Save(S);
+                        if (S.c4) S.c4.open = { south: true, storm: true, north: true, essos: true, wall: true, beyond: true, altar: true };
+                        playChapter4(zid, zx, zy);
+                    } else {
+                        S = prepareChapter4Save(S);
+                        closeList();
+                        changeZone(zid, zx, tyOr(zy));
+                    }
+                }
+            })).concat([{ label: '↩ Back to Dev Mode', fn: devScreen }])
+        });
+    }
+    function tyOr(v) { return v; }
+
+    function devEquipLoadout(ids, roleLabel) {
+        for (const gid of ids) {
+            if (!ITEMS[gid]) continue;
+            let it = S.bag.find(x => x.id === gid);
+            if (!it) {
+                if (S.bag.length >= LOOT.bagSize) S.bag.shift();
+                it = { u: ++S.uid, id: gid, r: 3, up: 8, b: rollBonuses(gid, 3) };
+                S.bag.push(it);
+            } else { it.r = 3; it.up = 8; }
+            S.eq[0][ITEMS[gid].slot] = it.u;
+        }
+        recalcAll();
+        for (const q of P) if (q.on) { q.hp = maxHp(q); q.down = false; }
+        save(); SND.fx('level');
+        toast('Equipped ' + roleLabel + ' Loadout!');
+        renderList();
+    }
+
+    function devGearScreen() {
+        const gearList = Object.keys(ITEMS).filter(k => k !== 'stick').reverse();
+        listScreen({
+            title: () => '⚔ Spawn & Equip Gear (+8)  ·  ' + (T.ui['role_' + (P[0].st.role || 'hybrid')] || '⚖ Balanced'),
+            info: () => 'ATK ' + P[0].st.atk + ' · DEF ' + P[0].st.def + ' · HP ' + maxHp(P[0]) + ' · ATK SPD ' + (P[0].st.atkSpd >= 0 ? '+' : '') + Math.round((P[0].st.atkSpd || 0) * 100) + '%',
+            rows: () => [
+                { label: '🛡 Equip Tier 7 TANK Loadout (+8)', sub: 'Stark Direwolf Helm + Dreadlord Plate + Dreadlord Greaves + Stormbreaker', fn: () => devEquipLoadout(['stormbreaker', 'stark_wolfhelm', 'vampire_armor', 'dread_greaves'], '🛡 Tank') },
+                { label: '⚔ Equip Tier 7 STRIKER Loadout (+8)', sub: 'Nightwalker Hood + Nightstalker Garb + Dornish Boots + Bone Reaper Axes', fn: () => devEquipLoadout(['bone_reaper', 'shadow_ring', 'nightstalker_garb', 'dornish_boots'], '⚔ Striker') },
+                { label: '✦ Equip Tier 7 WIZARD / HEALER Loadout (+8)', sub: 'Bloodstone Circlet + Sanctified Vestment + Runic Boots + Sunfire Holy Staff', fn: () => devEquipLoadout(['holy_relic', 'crimson_amulet', 'sanctified_vestment', 'runic_boots'], '✦ Wizard / Healer') },
+                { label: '★ Grant All Tier 7 & Valyrian +8 Gear + Lv 30', sub: 'Full endgame loadout & all mounts', fn: () => { devGrantMaxGear(); renderList(); } },
+                { label: '🧹 Clear Unworn Bag Items', sub: 'Free bag space for testing gear', fn: () => {
+                    const worn = new Set();
+                    for (let i = 0; i < MAXP; i++) for (const sl of SLOTS) if (S.eq[i] && S.eq[i][sl]) worn.add(S.eq[i][sl]);
+                    S.bag = S.bag.filter(it => worn.has(it.u));
+                    save(); SND.fx('ok'); toast('Cleared unworn bag items!'); renderList();
+                } }
+            ].concat(gearList.map(gid => {
+                const def = ITEMS[gid];
+                const eqNow = S.bag && S.bag.find(x => x.u === (S.eq[0] && S.eq[0][def.slot]));
+                const isEquipped = !!(eqNow && eqNow.id === gid);
+                return {
+                    label: itemName(gid) + ' (+8)',
+                    sub: 'Tier ' + (def.tier || 1) + ' · ' + (T.ui['slot_' + def.slot] || def.slot) + ' · ' + statLine({ id: gid, up: 8, b: [] }),
+                    right: isEquipped ? 'EQUIPPED ✓' : 'Spawn & Equip',
+                    mark: isEquipped,
+                    fn: () => {
+                        let it = S.bag.find(x => x.id === gid);
+                        if (!it) {
+                            if (S.bag.length >= LOOT.bagSize) S.bag.shift();
+                            it = { u: ++S.uid, id: gid, r: 3, up: 8, b: rollBonuses(gid, 3) };
+                            S.bag.push(it);
+                        } else {
+                            it.r = 3; it.up = 8;
+                        }
+                        S.eq[0][def.slot] = it.u;
+                        recalcAll(); save(); SND.fx('equip');
+                        toast('Equipped +8 ' + itemName(gid) + '!');
+                        renderList();
+                    }
+                };
+            })).concat([{ label: '↩ Back to Dev Mode', fn: devScreen }])
+        });
+    }
+
+    function devMountPetScreen() {
+        const allMounts = ['nightterror', 'bonecharger', 'nightmare', 'bloodfang', 'frostfang', 'shadowmane', 'charger', 'dragon', 'wolf', 'horse'];
+        listScreen({
+            title: () => '🐎 Mounts & Pets Switcher',
+            info: () => 'Mount: ' + (S.mount ? mountName(S.mount) : 'On Foot') + ' · Pet: ' + (S.petKind || 'cat'),
+            rows: () => [
+                { label: '🔓 Unlock All 10 Mounts & All 3 Pets', fn: () => {
+                    for (const m of allMounts) if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
+                    S.pet = '1'; if (!S.petKind) S.petKind = 'babydragon';
+                    save(); SND.fx('level'); toast('All 10 Mounts & Pets unlocked!'); renderList();
+                } },
+                { label: '🐾 Pet: Cat', mark: S.pet && S.petKind === 'cat', right: S.pet && S.petKind === 'cat' ? '✓' : '', fn: () => { setPetKind('cat'); renderList(); } },
+                { label: '🐺 Pet: Direwolf', mark: S.pet && S.petKind === 'direwolf', right: S.pet && S.petKind === 'direwolf' ? '✓' : '', fn: () => { setPetKind('direwolf'); renderList(); } },
+                { label: '🐉 Pet: Baby Dragon', mark: S.pet && S.petKind === 'babydragon', right: S.pet && S.petKind === 'babydragon' ? '✓' : '', fn: () => { setPetKind('babydragon'); renderList(); } },
+                { label: '🚶 Dismount (Walk on Foot)', mark: !S.mount, right: !S.mount ? '✓' : '', fn: () => { setMount(''); renderList(); } }
+            ].concat(allMounts.map(m => ({
+                label: '🐎 Ride: ' + mountName(m),
+                sub: 'Speed ×' + (MOUNTS[m] ? MOUNTS[m].speed : 2) + (MOUNTS[m] && MOUNTS[m].fly ? ' · Flying' : ''),
+                img: mountIcon(m),
+                mark: S.mount === m,
+                right: S.mount === m ? 'RIDING ✓' : (S.mounts.indexOf(m) >= 0 ? 'Owned' : 'Unlock & Ride'),
+                fn: () => {
+                    if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
+                    setMount(m); save(); SND.fx('ok'); renderList();
+                }
+            }))).concat([{ label: '↩ Back to Dev Mode', fn: devScreen }])
+        });
+    }
+
     function devScreen() {
         if (!isDevMod()) return;
+        if (!S) S = prepareChapter5Save(fresh());
         const c4Zones = [
             ['c4_river', 22.5, 25.5, 'The Riverlands (Riverrun Camp)'],
             ['c4_kings', 24.5, 30.5, 'King\'s Landing & Red Keep'],
@@ -1923,36 +2180,49 @@
         const c5Zones = [
             ['c5_village', 22.5, 25.5, 'Blackthorn Village (Dominion Hub)'],
             ['c5_dracula', 22.5, 28.5, 'Castle Dracula & Bloodmoon Peaks'],
-            ['c5_nosferatu', 43.5, 15.5, 'Nosferatu\'s Wasteland & Tower'],
+            ['c5_nosferatu', 22.5, 29.5, 'Nosferatu\'s Wasteland & Tower'],
             ['c5_brides', 2.5, 15.5, 'The Brides\' Domain (Widow\'s Forest)'],
-            ['c5_crimson', 22.5, 2.5, 'The Crimson Empire & Scarlet City'],
+            ['c5_crimson', 22.5, 28.5, 'The Crimson Empire & Scarlet City'],
             ['c5_shadow', 22.5, 29.5, 'The Shadow Principality (Ravenport)'],
             ['c5_undying', 22.5, 29.5, 'The Undying Kingdom & Necropolis'],
             ['c5_carmilla', 22.5, 29.5, 'Carmilla\'s Court & Blood Cathedral']
         ];
         listScreen({
-            title: () => T.ui.devTools || '⚔ Chapter 5 & Dev Tools',
-            info: () => T.ui.level + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  ⛏ ' + S.iron,
+            title: () => T.ui.devTools || '🛠 Dev Mode & Testing Suite',
+            info: () => (T.ui.level || 'Lv') + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  ⛏ ' + S.iron + '  ·  ' + (CHID || 'ch1').toUpperCase(),
             rows: () => {
                 const rows = [
-                    { label: T.ui.devJumpCh5 || '▶ Play Chapter 5 Now (Keep Save & Complete Ch 1–4)', sub: 'Enter The Blood Kingdoms', fn: () => playChapter5('c5_village', 22.5, 25.5) },
-                    { label: T.ui.devJumpCh4 || '▶ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)', sub: T.ui.devSub || '', fn: () => playChapter4('c4_river', 22.5, 25.5) },
-                    { label: T.ui.devMaxGear || '★ Grant Lv 30, +8 Arsenal & All Mounts', fn: () => { devGrantMaxGear(); renderList(); } }
+                    { label: '🩸 Play Chapter 5 Now (Keep Save & Complete Ch 1–4)', sub: 'Teleport to Blackthorn Village in The Blood Kingdoms', fn: () => playChapter5('c5_village', 22.5, 25.5) },
+                    { label: '⚔ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)', sub: 'Teleport to Riverrun in Westeros', fn: () => playChapter4('c4_river', 22.5, 25.5) },
+                    { label: '🗺 Teleport: Any Chapter (Ch 1–5) & Any Zone ▸', sub: 'Jump directly to any hub, kingdom, or boss arena', right: '▸', fn: devTeleportScreen },
+                    { label: '⚔ Gear & Weapons Spawner (Tier 1–7 +8) ▸', sub: 'Spawn & equip Blood Sword, Bone Reaper, Holy Relic, Vampire Armor, etc.', right: '▸', fn: devGearScreen },
+                    { label: '🐎 Mounts & Pets Switcher (All 10 Mounts & 3 Pets) ▸', sub: 'Ride Night Terror, Bone Charger, Nightmare, Bloodfang, or switch Pets', right: '▸', fn: devMountPetScreen },
+                    { label: T.ui.devMaxGear || '★ Instant Max Loadout (Lv 30, +8 Gear, All Mounts)', fn: () => { devGrantMaxGear(); renderList(); } },
+                    { label: '💰 +5,000 Coins, +100 Iron & +10 Potions', fn: () => {
+                        S.coins += 5000; S.iron += 100; S.potions += 10; S.big += 5;
+                        for (const q of P) if (q.on) { q.hp = maxHp(q); q.down = false; }
+                        save(); SND.fx('coin'); toast('+5,000 Coins, +100 Iron & Full Heal!'); renderList();
+                    } },
+                    { label: '⬆ Level +5 (Current Lv ' + S.lvl + ')', fn: () => {
+                        S.lvl = Math.min(50, (S.lvl || 1) + 5); recalcAll();
+                        for (const q of P) if (q.on) q.hp = maxHp(q);
+                        save(); SND.fx('level'); toast('Level increased to ' + S.lvl + '!'); renderList();
+                    } },
+                    { label: '⚡ Slay All Active Foes / Boss in Zone', fn: () => {
+                        let n = 0;
+                        for (const f of FOES) if (f.on && !f.friendly) { hitFoe(f, P[0], 99999, 1, 0); n++; }
+                        closeList(); toast('Vanquished ' + n + ' foes!');
+                    } }
                 ];
-                if (CHID === 'ch5' && CH) {
-                    rows.push(
-                        { label: '🔓 Unlock All Chapter 5 Gates & Kingdoms', fn: () => { if (S.c5) S.c5.open = { dracula: true, nosferatu: true, brides: true, crimson: true, shadow: true, undying: true, carmilla: true }; closeList(); } },
-                        { label: '⏭ Complete Current Quest Step', sub: objective(L), fn: () => { if (CH.step) { const c = S.c5; if (c) { c.st++; c.c = 0; } } closeList(); } }
-                    );
-                } else if (CHID === 'ch4' && CH) {
-                    rows.push(
-                        { label: T.ui.devUnlockAll || '🔓 Unlock All Chapter 4 Gates & Zones', fn: () => { if (CH.devUnlockAll) CH.devUnlockAll(); closeList(); } },
-                        { label: T.ui.devSkipStep || '⏭ Complete Current Quest Step', sub: objective(L), fn: () => { if (CH.devSkipStep) CH.devSkipStep(); closeList(); } }
-                    );
+                if (CH && CH.devUnlockAll) {
+                    rows.push({ label: '🔓 Unlock All Gates & Kingdoms in Current Chapter', fn: () => { CH.devUnlockAll(); closeList(); } });
+                }
+                if (CH && CH.devSkipStep) {
+                    rows.push({ label: '⏭ Complete / Skip Current Quest Step', sub: objective(L), fn: () => { CH.devSkipStep(); closeList(); } });
                 }
                 for (const [zid, zx, zy, fallbackName] of c5Zones) {
                     const zName = (T.zone && T.zone[zid]) || fallbackName;
-                    rows.push({ label: txt(T.ui.devTeleport || 'Teleport: {zone}', { zone: zName }), right: Z.id === zid ? '✓' : '▸', mark: Z.id === zid, fn: () => {
+                    rows.push({ label: 'Ch 5 · ' + txt(T.ui.devTeleport || 'Teleport: {zone}', { zone: zName }), right: Z && Z.id === zid ? '✓' : '▸', mark: !!(Z && Z.id === zid), fn: () => {
                         S = prepareChapter5Save(S);
                         if (S.c5) S.c5.open = { dracula: true, nosferatu: true, brides: true, crimson: true, shadow: true, undying: true, carmilla: true };
                         playChapter5(zid, zx, zy);
@@ -1960,18 +2230,19 @@
                 }
                 for (const [zid, zx, zy, fallbackName] of c4Zones) {
                     const zName = (T.zone && T.zone[zid]) || fallbackName;
-                    rows.push({ label: txt(T.ui.devTeleport || 'Teleport: {zone}', { zone: zName }), right: Z.id === zid ? '✓' : '▸', mark: Z.id === zid, fn: () => {
+                    rows.push({ label: 'Ch 4 · ' + txt(T.ui.devTeleport || 'Teleport: {zone}', { zone: zName }), right: Z && Z.id === zid ? '✓' : '▸', mark: !!(Z && Z.id === zid), fn: () => {
                         S = prepareChapter4Save(S);
                         if (S.c4) S.c4.open = { south: true, storm: true, north: true, essos: true, wall: true, beyond: true, altar: true };
                         playChapter4(zid, zx, zy);
                     } });
                 }
                 rows.push(
+                    { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 5 }), fn: () => { closeList(); playChapter5('c5_village', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 4 }), fn: () => { closeList(); playChapter4('c4_river', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 3 }), fn: () => { closeList(); changeZone('c3_dawn', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 2 }), fn: () => { closeList(); changeZone('c2_bay', 23.5, 23.6); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 1 }), fn: () => { closeList(); changeZone('village', 21.5, 10.5); } },
-                    { label: T.ui.close, fn: closeList }
+                    { label: T.ui.close || 'Close', fn: closeList }
                 );
                 return rows;
             }
@@ -2369,16 +2640,35 @@
         if (!p.on || p.down || mode !== 'play') return false;
         if (a !== 'heal' && flying(p)) { if (!quiet && toastT < 60) toast(T.ui.flyNoAttack); return false; }
         const ab = ABIL[a], k = CD_KEY[a];
-        let why = p[k] > 0 ? T.ui[a] + ': ' + T.ui.cooling + ' ' + Math.ceil(p[k] / 60) + ' s' : p.sta < ab.cost ? T.ui.noStamina : a === 'heal' && p.hp >= maxHp(p) ? T.ui.healFullHp : '';
+        const allyHurt = a === 'heal' && (P.some(q => q !== p && q.on && (q.down || q.hp < maxHp(q)) && dist(p.x, p.y, q.x, q.y) < 120) || (PET.on && !PET.down && PET.hp < PET.max));
+        let why = p[k] > 0 ? T.ui[a] + ': ' + T.ui.cooling + ' ' + Math.ceil(p[k] / 60) + ' s' : p.sta < ab.cost ? T.ui.noStamina : a === 'heal' && p.hp >= maxHp(p) && !allyHurt ? T.ui.healFullHp : '';
         if (why) { if (!quiet) { SND.fx('move'); if (toastT < 100) toast(why); } return false; }
-        p.sta -= ab.cost; p[k] = ab.cd; p.aura = 30;
-        if (a === 'heal') {                              // 40% of the hero's health
-            const n = Math.max(1, Math.ceil(maxHp(p) * 0.4));
+        const cdMul = p.st.mag > 0 ? Math.max(0.7, 1 - p.st.mag * 0.45) : 1;
+        p.sta -= ab.cost; p[k] = Math.round(ab.cd * cdMul); p.aura = 30;
+        if (a === 'heal') {                              // 40% base health, boosted up to 70% + nearby ally/pet heal with Wizard/Mystic gear
+            const healPct = Math.min(0.70, 0.40 * (1 + (p.st.mag || 0) * 0.8));
+            const n = Math.max(1, Math.ceil(maxHp(p) * healPct));
             p.hp = Math.min(maxHp(p), p.hp + n); p.auraCol = '#7ef0a0';
             SND.fx('heal');
             floater(p.x, p.y - 34, n, '#7ef0a0', true);
-            ringFx(p.x, p.y - 4, 50, '#7ef0a0'); ringFx(p.x, p.y - 4, 30, '#d8ffe0');
+            ringFx(p.x, p.y - 4, p.st.mag > 0 ? 110 : 50, '#7ef0a0'); ringFx(p.x, p.y - 4, 30, '#d8ffe0');
             for (let i = 0; i < 26; i++) part(p.x + (Math.random() - 0.5) * 26, p.y - Math.random() * 10, 2, (Math.random() - 0.5) * 0.4, 0, 1 + Math.random() * 1.6, 50 + Math.random() * 20, i & 1 ? '#7ef0a0' : '#ffffff', 3, -0.01);
+            if (p.st.mag > 0) {
+                const allyPct = Math.min(0.60, 0.30 + p.st.mag * 0.5);
+                for (const q of P) {
+                    if (q === p || !q.on || dist(p.x, p.y, q.x, q.y) >= 120) continue;
+                    if (q.down && p.st.mag >= 0.25) { q.down = false; q.hp = Math.ceil(maxHp(q) * 0.4); q.inv = 90; }
+                    else if (!q.down && q.hp < maxHp(q)) {
+                        const an = Math.max(1, Math.ceil(maxHp(q) * allyPct));
+                        q.hp = Math.min(maxHp(q), q.hp + an);
+                        floater(q.x, q.y - 34, an, '#7ef0a0', true);
+                        ringFx(q.x, q.y - 4, 36, '#7ef0a0');
+                    }
+                }
+                if (PET.on && !PET.down && PET.hp < PET.max) {
+                    PET.hp = Math.min(PET.max, PET.hp + Math.max(1, Math.ceil(PET.max * (0.4 + p.st.mag * 0.5))));
+                }
+            }
         } else if (a === 'power') {                      // a ground slam: twice the old reach, a quake, cracks and a second shock wave
             const R = 168;
             p.auraCol = '#ffb040'; p.swing = 16; p.lean = 10; p.anim = 'sword'; p.atk = Math.max(p.atk, 16);
@@ -2526,7 +2816,12 @@
         for (const f of FNS) if (padOf(f) === i) { if (f === 'attack' && interact(p)) return; doFn(p, f, false); return; }
     }
 
-    const UNDEAD_FOES = { wight: 1, whitewalker: 1, nightking: 1, viserion: 1, bones: 1, cryptbones: 1, hollowsoldier: 1, shade: 1, hollowking: 1 };
+    const UNDEAD_FOES = {
+        wight: 1, whitewalker: 1, nightking: 1, viserion: 1, bones: 1, cryptbones: 1, hollowsoldier: 1, shade: 1, hollowking: 1,
+        blood_bat: 1, vampire_thrall: 1, vampire_knight: 1, blood_wolf: 1, blood_maiden: 1, flesh_golem: 1, rotting_ghoul: 1,
+        night_stalker: 1, shadow_assassin: 1, undead_walker: 1, undead_runner: 1, bone_archer: 1,
+        dracula: 1, orlok: 1, bride_crimson: 1, bride_shadow: 1, bride_frost: 1, blood_queen: 1, ruthven: 1, undying_king: 1, carmilla: 1
+    };
     function hitFoe(f, p, dmg, dx, dy) {
         combatT = 0; if (f.d.boss) gainStamina(STA_HIT_BOSS);
         if (!f.active && f.d.boss) activate(f);
@@ -2534,8 +2829,9 @@
         if (f.weak) dmg *= 2;
         const isHammer = p && p.st && p.st.kind === 'hammer';
         if (f.d.hitMul && !isHammer) dmg *= f.d.hitMul(f, dx, dy, p);            // a shield facing the blow (broken by warhammers)
-        if (p && p.gear && (p.gear.weapon === 'winters_fang' || p.gear.weapon === 'valyrian_blade' || p.gear.weapon === 'valyrian_axes') && UNDEAD_FOES[f.t]) dmg *= 1.35;
+        if (p && p.gear && (p.gear.weapon === 'winters_fang' || p.gear.weapon === 'valyrian_blade' || p.gear.weapon === 'valyrian_axes' || p.gear.weapon === 'bone_reaper' || p.gear.weapon === 'holy_relic') && UNDEAD_FOES[f.t]) dmg *= 1.35;
         if (p && p.gear && p.gear.weapon === 'winters_fang') f.chill = 90;
+        if (p && p.gear && p.gear.weapon === 'blood_sword' && p.hp < maxHp(p)) p.hp = Math.min(maxHp(p), p.hp + Math.max(1, Math.round(dmg * 0.1)));
         const md = CH && CH.mods ? CH.mods() : null; if (md) dmg *= md.deal;
         const crit = Math.random() * 100 < p.st.crit;
         if (crit) dmg *= 2;
@@ -2612,7 +2908,8 @@
         const md = CH && CH.mods ? CH.mods() : null;
         dmg = Math.max(1, Math.round(dmg * TUNE.enemyDifficulty * coopMul() * (md ? md.take : 1) * (1 - defCut(p.st.def))));
         p.hp = Math.max(0, p.hp - dmg); p.inv = 60; SND.fx('hurt'); SND.fx(p.i ? 'ouch2' : 'ouch'); shake = 6; freeze = 3;
-        const d = dist(p.x, p.y, sx, sy) || 1; p.kx = (p.x - sx) / d * 5; p.ky = (p.y - sy) / d * 5;
+        const d = dist(p.x, p.y, sx, sy) || 1, kbMul = p.st.heavyPts >= 2 ? 0.45 : 1;
+        p.kx = (p.x - sx) / d * 5 * kbMul; p.ky = (p.y - sy) / d * 5 * kbMul;
         floater(p.x, p.y - 30, dmg, '#ff5a5a');
         sparks(p.x, p.y - 12, (p.x - sx) / d, (p.y - sy) / d, 6, '#ff7a7a');
         if (p.hp <= 0) {
@@ -3576,7 +3873,8 @@
         ctx.fillStyle = '#1b1820'; ctx.fillRect(x + fx * 22 * s, y - 29 * s - b, 2, 2);
         ctx.fillStyle = '#7a2a2a'; ctx.fillRect(x - 6 * s, y - 22 * s - b, 12 * s, 4 * s);
     }
-    function drawWolfMount(x, y, walk, fx, s) {
+    function drawWolfMount(x, y, walk, fx, s, dir, moving, bite) {
+        if (MOUNTART.wolf && MOUNTART.wolf(ctx, x, y, walk, dir !== undefined ? dir : 2, fx, s, moving !== undefined ? moving : walk > 0, tick, bite || 0)) return;
         const l = Math.sin(walk * 1.8) * 3, b = walk ? Math.abs(Math.sin(walk * 1.8)) * 1.5 : 0;
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(x, y + 1, 18 * s, 5 * s, 0, 0, 6.2832); ctx.fill();
         ctx.fillStyle = '#4e4a54';
@@ -3648,18 +3946,30 @@
         if (p.inv > 0 && (p.inv & 4)) ctx.globalAlpha = 0.45;
         const ride = riding(p), dir = heroDir(p), flip = (dir >= 2) && (p.fx || p.lfx) < 0, mfx = p.lfx || 1, back = dir === 1 || dir === 4;
         // mounts are seen from the front or the back when going straight down or up, from the side otherwise
-        const mdir = dir === 0 || dir === 1 ? dir : 2, horse = ride && S.mount === 'horse', charger = ride && (S.mount === 'charger' || S.mount === 'bonecharger'), shadow = ride && (S.mount === 'shadowmane' || S.mount === 'nightmare'), ffang = ride && (S.mount === 'frostfang' || S.mount === 'bloodfang'), nightt = ride && S.mount === 'nightterror';
-        const fly = ride && ((S.mount === 'dragon' && MOUNTART.hasDragon) || charger || nightt), z = fly ? (charger ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
-        const hy = charger ? y - z - (mdir === 2 ? 22 : mdir === 1 ? 28 : 32) : fly ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
-            : (horse || shadow) && mdir !== 2 ? y - 30 : ride ? y - ((horse || shadow) ? (MOUNTART.ready ? 19 : 25) : 21) : y, lean = p.lean / 8;
-        // where the rider sits: on the dragon's back (behind its neck), in the horse's saddle
-        const rx = charger ? x - (mdir === 2 ? mfx * 3 : 0) : fly ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : (horse || shadow) && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
-        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tick + p.i * 5, heroLv() === 'low' ? null : glowSprite(S.mount === 'bonecharger' ? '#44cc44' : '#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
-        else if (fly) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tick + p.i * 5, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
-        else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.32, p.moving, tick + p.i * 5);
-        else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.25, p.moving, tick + p.i * 5);
+        const mdir = dir === 0 || dir === 1 ? dir : 2, mt = ride ? S.mount : '';
+        const horse = mt === 'horse', charger = mt === 'charger', bonecharger = mt === 'bonecharger',
+            shadow = mt === 'shadowmane', nightmare = mt === 'nightmare',
+            ffang = mt === 'frostfang', bfang = mt === 'bloodfang',
+            dragon = mt === 'dragon' && MOUNTART.hasDragon, nightt = mt === 'nightterror' && MOUNTART.hasDragon;
+        const isSteed = horse || shadow || nightmare, isWingedHorse = charger || bonecharger, isDrake = dragon || nightt;
+        const fly = isDrake || isWingedHorse, z = fly ? (isWingedHorse ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
+        const hy = isWingedHorse ? y - z - (mdir === 2 ? 22 : mdir === 1 ? 28 : 30)
+            : isDrake ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
+            : isSteed && mdir !== 2 ? y - 26
+            : ride ? y - (isSteed ? (MOUNTART.ready ? 20 : 25) : 19) : y, lean = p.lean / 8;
+        // where the rider sits: on the dragon's back (behind its neck), in the horse's or direwolf's saddle
+        const rx = isWingedHorse ? x - (mdir === 2 ? mfx * 3 : 0) : isDrake ? x + (mdir === 2 ? (flip ? 7 : -7) : 0) : isSteed && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
+        const tMount = tick + p.i * 5, biteF = p.bite > 38 ? 1 : 0;
+        if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 0.95, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
+        else if (bonecharger) { MOUNTART.bonecharger(ctx, x, y, z, p.walk, mdir, mfx, 1.0, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#54e8a0')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#7affb8' : '#329678', 2, 0); }
+        else if (dragon) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
+        else if (nightt) { MOUNTART.nightterror(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.6, false); if (p.moving && (tick & 5) === 0 && heroLv() !== 'low') part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 20, tick & 4 ? '#e81e4a' : '#4e247a', 2.2, 0); }
+        else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.28, p.moving, tMount);
+        else if (nightmare) { MOUNTART.nightmare(ctx, x, y, p.walk, mdir, mfx, 1.28, p.moving, tMount); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 18, y - 4, 2, -p.ax * 0.4, -0.4, 0.4, 18, tick & 4 ? '#ff9a20' : '#ff2a18', 2, 0); }
+        else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.22, p.moving, tMount, biteF);
+        else if (bfang) MOUNTART.bloodfang(ctx, x, y, p.walk, mdir, mfx, 1.24, p.moving, tMount, biteF);
         else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.38, 'horse');
-        else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.28); }
+        else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.38); else drawWolfMount(x, y, p.walk, mfx, 1.15, mdir, p.moving, biteF); }
         if (back) drawHeroWeapon(p, rx, hy, dir, flip);
         if (ride) {                                        // sitting: hide the legs, show one leg down the side
             ctx.save(); ctx.beginPath(); ctx.rect(rx - 40, hy - 70, 80, 61); ctx.clip();
@@ -4311,7 +4621,16 @@
     /* ------------------------------------------------------------------ lifecycle */
 
     // load the chapter the save is in (or chapter 1), then show the title over its home
-    function finishInit() {
+    async function finishInit() {
+        if (window.MyPC && (!MyPC.app_config || MyPC.app_config.dev_mod === undefined)) {
+            try {
+                const r = await fetch('mypc-app.json?v=' + VERSION);
+                if (r.ok) {
+                    const j = await r.json();
+                    if (j && j.config) MyPC.app_config = Object.assign({}, j.config, MyPC.app_config || {});
+                }
+            } catch (e) {}
+        }
         readTune(); loadSettings(); applyZoom(); refreshHint();
         S = fresh();
         const saved = MyPC.load('save', null);

@@ -5,10 +5,29 @@ horse_walk.png, horse_run.png, horse_idle.png
   https://opengameart.org/content/animated-horse
   License: CC0 1.0 (public domain) - https://creativecommons.org/publicdomain/zero/1.0/
 
-dragon.png (flying_dragon-red-RGB.png)
-  "Flying Dragon" (red, single-headed) by ZaPaper
-  Credits to http://www.buko-studios.com/ - Commissioned by PlayCraft: www.playcraftapp.com
+shadowmane.png, nightmare.png, horse_ns.png
+  Derived from "[LPC] Horses" / "LPC Horse Extended" by bluecarrot16, Daniel Eddeland (daneeklu),
+  and Joshua Taylor
+  https://opengameart.org/content/lpc-horses
+  License: CC-BY-SA 3.0 / GPL 3.0 - https://creativecommons.org/licenses/by-sa/3.0/
+  Recolored and composited with barding, saddle, chanfron, and hellfire layers.
+
+wolf.png, frostfang.png, bloodfang.png
+  Derived from "[LPC] Wolf Animation" by Stephen "Redshrike" Challener,
+  contributed by William.Thompsonj, and "Wolf Variations" by Mumu
+  https://opengameart.org/content/lpc-wolf-animation
+  License: CC-BY 3.0 / OGA-BY 3.0 - https://creativecommons.org/licenses/by/3.0/
+  Recolored and composited with riding harnesses, glacial frost spines, and hellhound bone ribs.
+
+bonecharger.png
+  Derived from "Pegasus" (Stendhal / OpenGameArt) by Cabbit and AntumDeluge
+  https://github.com/arianne/stendhal
+  License: CC-BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/
+  Remapped to ossuary skeletal bone, necrotic slate wings, and soulfire mane.
+
+dragon.png, nightterror.png
+  "Flying Dragon" by ZaPaper for Buko Studios, commissioned by PlayCraft
   Rework and packaging: https://opengameart.org/content/flying-dragon-rework (AntumDeluge)
   Original: https://opengameart.org/content/red-dragon
   License: CC-BY 3.0 - https://creativecommons.org/licenses/by/3.0/
-  Used unchanged (the game draws it scaled).
+  dragon.png used unchanged; nightterror.png remapped to nocturnal obsidian-indigo scales and vampire crimson wings.

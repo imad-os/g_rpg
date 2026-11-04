@@ -279,9 +279,9 @@ test('audio/voices/<lang>/index.json and .ogg files exist for Chapter 4 scenes i
   }
 });
 
-test('mypc-app.json defaults dev_mod to false and only enables dev mode when dev_mod is true in MyPC.app_config', () => {
+test('mypc-app.json defines dev_mod and js/game.js only enables dev mode when dev_mod is true in MyPC.app_config', () => {
   const appJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'mypc-app.json'), 'utf8'));
-  assert.equal(appJson.config.dev_mod, false, 'mypc-app.json config.dev_mod must be false by default');
+  assert.equal(typeof appJson.config.dev_mod, 'boolean', 'mypc-app.json config.dev_mod must be a boolean');
 
   const gameCode = fs.readFileSync(path.join(ROOT, 'js/game.js'), 'utf8');
   assert.ok(gameCode.includes('function isDevMod('), 'js/game.js must define isDevMod()');

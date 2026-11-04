@@ -31,8 +31,15 @@
             devMaxGear: '★ Grant Lv 30, +8 Valyrian Arsenal & All Mounts',
             devTeleport: 'Teleport: {zone}',
             devChSwitch: 'Switch to Chapter {n} (Keep Save)',
-            sideQuestLbl: 'SIDE QUEST'
+            sideQuestLbl: 'SIDE QUEST',
+            role_heavy: '🛡 Tank', role_light: '⚔ Striker', role_mystic: '✦ Wizard / Healer', role_hybrid: '⚖ Balanced',
+            arm_heavy: 'Heavy · Tank', arm_light: 'Light · Striker', arm_mystic: 'Mystic · Wizard',
+            atkSpdL: 'ATK SPD', magL: 'MAGIC / HEAL'
         }, items: {
+            mystic_hood: 'Mystic Hood', silk_shoes: 'Apprentice Silk Shoes', astral_circlet: 'Astral Circlet', runic_boots: 'Runic Boots',
+            red_priest_robe: 'Red Priest Robes', blood_sword: 'Crimson Bloodblade', bone_reaper: 'Bone Reaper Axes', holy_relic: 'Sunfire Holy Staff',
+            shadow_ring: 'Nightwalker Hood', crimson_amulet: 'Bloodstone Circlet', vampire_armor: 'Dreadlord Plate',
+            nightstalker_garb: 'Nightstalker Garb', sanctified_vestment: 'Sanctified Vestment', dread_greaves: 'Dreadlord Greaves',
             frost_blade: 'Frost blade', runed_bow: 'Runed bow', ash_musket: 'Ash musket', grove_staff: 'Grove staff', warden_helm: 'Warden helm', frost_plate: 'Frost plate',
             runic_robe: 'Runic robe', wyrm_boots: 'Wyrm boots', dawnbreaker: 'Dawnbreaker', sylvan_warbow: 'Sylvan Warbow', thunderforge: 'Thunderforge', veilstaff: 'Veilstaff',
             ironwood_axes: 'Ironwood Dual Axes', twin_flintlocks: 'Twin Flintlocks', valyrian_blade: 'Valyrian Steel Blade', weirwood_bow: 'Weirwood Longbow',
@@ -70,8 +77,15 @@
             devMaxGear: '★ Donner Niv. 30, Arsenal Valyrien +8 et Montures',
             devTeleport: 'Téléporter : {zone}',
             devChSwitch: 'Aller au Chapitre {n} (Garder la sauvegarde)',
-            sideQuestLbl: 'QUÊTE ANNEXE'
+            sideQuestLbl: 'QUÊTE ANNEXE',
+            role_heavy: '🛡 Tank', role_light: '⚔ Assaillant', role_mystic: '✦ Mage / Soigneur', role_hybrid: '⚖ Équilibré',
+            arm_heavy: 'Lourd · Tank', arm_light: 'Léger · Assaillant', arm_mystic: 'Mystique · Mage',
+            atkSpdL: 'VIT ATQ', magL: 'MAGIE / SOIN'
         }, items: {
+            mystic_hood: 'Capuche mystique', silk_shoes: 'Souliers de soie', astral_circlet: 'Diadème astral', runic_boots: 'Bottes runiques',
+            red_priest_robe: 'Robe de Prêtre Rouge', blood_sword: 'Lame de Sang', bone_reaper: 'Haches Fauche-Os', holy_relic: 'Bâton Solaire Sacré',
+            shadow_ring: 'Capuche Marche-Nuit', crimson_amulet: 'Diadème de Pierre-Sang', vampire_armor: 'Armure de Seigneur Vampire',
+            nightstalker_garb: 'Tenue de Traqueur Nocturne', sanctified_vestment: 'Habit Sanctifié', dread_greaves: 'Grèves de l’Effroi',
             frost_blade: 'Lame de givre', runed_bow: 'Arc runique', ash_musket: 'Mousquet de cendre', grove_staff: 'Bâton du bosquet', warden_helm: 'Heaume du gardien', frost_plate: 'Plaque de givre',
             runic_robe: 'Robe runique', wyrm_boots: 'Bottes de wyrm', dawnbreaker: 'Brise-Aube', sylvan_warbow: 'Arc sylvestre', thunderforge: 'Forge-Tonnerre', veilstaff: 'Bâton du Voile',
             ironwood_axes: 'Doubles haches en ferbois', twin_flintlocks: 'Pistolets jumeaux', valyrian_blade: 'Lame en acier valyrien', weirwood_bow: 'Grand arc de barral',
@@ -109,8 +123,15 @@
             devMaxGear: '★ Dar Niv. 30, Arsenal Valyrio +8 y Monturas',
             devTeleport: 'Teletransportar: {zone}',
             devChSwitch: 'Cambiar al Capítulo {n} (Conservar partida)',
-            sideQuestLbl: 'MISIÓN SECUNDARIA'
+            sideQuestLbl: 'MISIÓN SECUNDARIA',
+            role_heavy: '🛡 Tanque', role_light: '⚔ Atacante', role_mystic: '✦ Mago / Sanador', role_hybrid: '⚖ Equilibrado',
+            arm_heavy: 'Pesada · Tanque', arm_light: 'Ligera · Atacante', arm_mystic: 'Mística · Mago',
+            atkSpdL: 'VEL ATQ', magL: 'MAGIA / CURA'
         }, items: {
+            mystic_hood: 'Capucha mística', silk_shoes: 'Zapatos de seda', astral_circlet: 'Diadema astral', runic_boots: 'Botas rúnicas',
+            red_priest_robe: 'Túnica de Sacerdote Rojo', blood_sword: 'Hoja de Sangre', bone_reaper: 'Hachas Segahuesos', holy_relic: 'Bastón Sagrado Solar',
+            shadow_ring: 'Capucha Nocturna', crimson_amulet: 'Diadema Carmesí', vampire_armor: 'Armadura de Señor Vampiro',
+            nightstalker_garb: 'Atuendo de Acechador Nocturno', sanctified_vestment: 'Vestimenta Santificada', dread_greaves: 'Grebas del Terror',
             frost_blade: 'Hoja de escarcha', runed_bow: 'Arco rúnico', ash_musket: 'Mosquete de ceniza', grove_staff: 'Bastón de la arboleda', warden_helm: 'Yelmo del guardián', frost_plate: 'Placas de escarcha',
             runic_robe: 'Túnica rúnica', wyrm_boots: 'Botas de sierpe', dawnbreaker: 'Rompealbas', sylvan_warbow: 'Arco silvano', thunderforge: 'Forjatruenos', veilstaff: 'Bastón del Velo',
             ironwood_axes: 'Hachas dobles de arciano', twin_flintlocks: 'Pistolas gemelas', valyrian_blade: 'Espada de acero valyrio', weirwood_bow: 'Arco largo de arciano',
@@ -148,8 +169,15 @@
             devMaxGear: '★ منح المستوى 30، أسلحة فاليريا +8 والمطايا',
             devTeleport: 'انتقال فوري: {zone}',
             devChSwitch: 'الانتقال إلى الفصل {n} (مع حفظ التقدم)',
-            sideQuestLbl: 'مهمة جانبية'
+            sideQuestLbl: 'مهمة جانبية',
+            role_heavy: '🛡 مدرع (تانك)', role_light: '⚔ مهاجم سريع', role_mystic: '✦ ساحر / معالج', role_hybrid: '⚖ متوازن',
+            arm_heavy: 'ثقيل · دفاعي', arm_light: 'خفيف · هجومي', arm_mystic: 'سحري · معالج',
+            atkSpdL: 'سرعة الهجوم', magL: 'قوة السحر والشفاء'
         }, items: {
+            mystic_hood: 'قلنسوة الساحر', silk_shoes: 'حذاء الحرير السحري', astral_circlet: 'تاج النجوم', runic_boots: 'حذاء الرون السحري',
+            red_priest_robe: 'رداء الكاهن الأحمر', blood_sword: 'نصل الدم القرمزي', bone_reaper: 'فأسا حاصد العظام', holy_relic: 'عصا الشمس المقدسة',
+            shadow_ring: 'قلنسوة الظل', crimson_amulet: 'تاج حجر الدم', vampire_armor: 'درع سيد الظلام',
+            nightstalker_garb: 'رداء صياد الليل', sanctified_vestment: 'الرداء المقدس', dread_greaves: 'واقيات الرعب',
             frost_blade: 'سيف الصقيع', runed_bow: 'القوس الروني', ash_musket: 'بندقية الرماد', grove_staff: 'عصا البستان', warden_helm: 'خوذة الحارس', frost_plate: 'درع الصقيع',
             runic_robe: 'الرداء الروني', wyrm_boots: 'حذاء التنين', dawnbreaker: 'كاسر الفجر', sylvan_warbow: 'قوس الغابة', thunderforge: 'مطرقة الرعد', veilstaff: 'عصا الحجاب',
             ironwood_axes: 'فأسا الخشب الحديدي', twin_flintlocks: 'مسدسا الصوان التوأمان', valyrian_blade: 'نصل الفولاذ الفاليري', weirwood_bow: 'قوس الويروود الطويل',
