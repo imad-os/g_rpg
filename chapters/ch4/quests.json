@@ -124,7 +124,7 @@
           }
         },
         {
-          "id": "braziers", "type": "waves", "zone": "c4_storm", "n": 3, "spots": [[16, 12.8], [32, 12.8], [24, 20.8]], "wave": ["raider", "archer", "raider"], "last": "shadow",
+          "id": "braziers", "type": "waves", "zone": "c4_storm", "n": 3, "spots": [[16.5, 13.3], [32.5, 13.3], [24.5, 21.3]], "wave": ["raider", "archer", "raider"], "last": "shadow",
           "goal": { "en": "Douse the three night-fire braziers in the Stormlands ({n}/{m}).", "fr": "Éteignez les trois braseros nocturnes ({n}/{m}).", "es": "Apaga los tres braseros nocturnos ({n}/{m}).", "ar": "أطفئ مواقد الليل الثلاثة في أراضي العاصفة ({n}/{m})." },
           "each": {
             "en": ["The first brazier hisses out! Fanatics and shadows leap from the smoke!", "The second night-fire dies! The storm howls across the bay!", "The final brazier shatters! The dark veil around Dragonstone tears open!"],
@@ -313,7 +313,7 @@
           "say": { "who": "samwell", "en": ["You found all the Dragonglass! Three horn blasts from the top of the Wall—White Walkers! Man the northern gate barricades!"], "fr": ["Vous avez tout le verredragon ! Trois coups de cor au sommet du Mur : les Marcheurs Blancs ! Aux barricades du tunnel nord !"], "es": ["¡Encontraste todo el vidriagón! ¡Tres toques de cuerno en lo alto del Muro: Caminantes Blancos! ¡A las barricadas del norte!"], "ar": ["لقد وجدت كل زجاج التنين! ثلاث نفخات بوق من أعلى الجدار — السائرون البيض! إلى متاريس البوابة الشمالية!"] }
         },
         {
-          "id": "watch_gate", "type": "waves", "zone": "c4_wall", "n": 2, "spots": [[18, 9.8], [29, 9.8]], "wave": ["wight", "wight", "icespider", "whitewalker"], "last": "giant",
+          "id": "watch_gate", "type": "waves", "zone": "c4_wall", "n": 2, "spots": [[18.5, 10.3], [29.5, 10.3]], "wave": ["wight", "wight", "icespider", "whitewalker"], "last": "giant",
           "goal": { "en": "Light the pitch barrels and defend the Tunnel Gate against the dead ({n}/{m}).", "fr": "Allumez les barils de poix et défendez la porte du tunnel ({n}/{m}).", "es": "Enciende los barriles de brea y defiende la puerta del túnel ({n}/{m}).", "ar": "أشعل براميل القطران ودافع عن بوابة النفق ضد الموتى ({n}/{m})." },
           "each": {
             "en": ["The western barricade flares! Wights and Pale Ice Spiders pour from the tunnel!", "The eastern barricade ignites! A Frost Giant and a White Walker charge the gate!"],
@@ -354,12 +354,12 @@
             "who": "mance",
             "en": ["Free Folk and kneelers fighting side by side—I never thought I'd live to see the day, friend. Up here, there is only one war: the living against the dead.", "The White Walkers raised three cursed Ice Spirals across the Fist of the First Men. Their frost feeds the undead dragon Viserion circling above the glacier.", "Shatter all three Ice Spirals to break the blizzard barrier, and bring that ice dragon down to earth!"],
             "fr": ["Le Peuple Libre et les gens du Sud côte à côte... Ici, il n'y a qu'une seule guerre : les vivants contre les morts.", "Les Marcheurs Blancs ont dressé trois Spirales de Glace maudites sur le Poing des Premiers Hommes. Leur givre nourrit le dragon mort-vivant Viserion.", "Brisez les trois Spirales de Glace pour dissiper la barrière de blizzard, et abattez ce dragon de glace !"],
-            "es": ["El Pueblo Libre y los sureños luchando codo con codo... Aquí arriba solo hay una guerra: los vivos contra los muertos.", "Los Caminantes Blancos alzaron tres Espirales de Hielo malditas en el Puño de los Primeros Hombres. Su escarcha alimenta al dragón no-muerto Viserion.", "¡Rompe las tres Espirales de Hielo para disipar la ventisca y derriba a ese dragón de hielo!"],
+            "es": ["El Pueblo Libre y los sureños luchando codo con codo... Aquí arriba solo hay una guerra: los vivos contra los muertos.", "Los Caminantes Blancos alzaron tres Espirales de Hielo malditas en el Puño de los Primeros Hommes. Su escarcha alimenta al dragón no-muerto Viserion.", "¡Rompe las tres Espirales de Hielo para disipar la ventisca y derriba a ese dragón de hielo!"],
             "ar": ["الشعب الحر وأهل الجنوب يقاتلون جنبًا إلى جنب... هنا لا توجد سوى حرب واحدة: الأحياء ضد الأموات.", "أقام السائرون البيض ثلاث دوامات جليدية ملعونة فوق قبضة الرجال الأوائل. صقيعها يغذي التنين الميت فيسيريون الذي يحوم فوق الجليد.", "حطم دوامات الجليد الثلاث لكسر حاجز العاصفة، وأسقط تنين الجليد إلى الأرض!"]
           }
         },
         {
-          "id": "obelisks", "type": "waves", "zone": "c4_beyond", "n": 3, "spots": [[9, 20.8], [38, 20.8], [23, 15.8]], "wave": ["wight", "whitewalker", "icespider", "wight"], "last": "whitewalker",
+          "id": "obelisks", "type": "waves", "zone": "c4_beyond", "n": 3, "spots": [[9, 21.3], [38, 21.3], [23, 16.3]], "wave": ["wight", "whitewalker", "icespider", "wight"], "last": "whitewalker",
           "goal": { "en": "Shatter the three White Walker Ice Spirals Beyond the Wall ({n}/{m}).", "fr": "Brisez les trois Spirales de Glace au-delà du Mur ({n}/{m}).", "es": "Rompe las tres Espirales de Hielo Más Allá del Muro ({n}/{m}).", "ar": "حطم دوامات الجليد الثلاث خلف الجدار ({n}/{m})." },
           "each": {
             "en": ["The western Ice Spiral cracks! Wights claw out of the frozen earth!", "The eastern Ice Spiral splinters! White Walkers ride out of the snowstorm!", "The central Ice Spiral shatters! A deafening dragon roar shakes the glacier!"],

@@ -1,0 +1,452 @@
+{
+  "about": "Hollowmere, Chapter 6: Super Mario — Kingdoms of Wonder. 6 Kingdoms, 19 Playable Maps, 6 Princess Rescues, 6 Royal Stars, and 3-Phase Bowser Final Boss.",
+  "quests": [
+    {
+      "id": "c6q1", "act": 1,
+      "title": { "en": "Kingdom 1: Mushroom Meadows", "fr": "Royaume 1 : Prairies Champignon", "es": "Reino 1: Praderas Champiñón", "ar": "المملكة ١: مروج الفطر" },
+      "story": {
+        "en": "Bowser's Koopa troop has invaded the Kingdoms of Wonder, stolen the six Royal Stars, and captured six Princesses! Meet Mario in the Mushroom Kingdom Village and liberate Mushroom Meadows from King Bob-omb.",
+        "fr": "La troupe Koopa de Bowser a envahi les Royaumes des Merveilles, volé les six Étoiles Royales et capturé six Princesses ! Rejoignez Mario au village et libérez les Prairies Champignon du Roi Bob-omb.",
+        "es": "¡La tropa Koopa de Bowser ha invadido los Reinos de la Maravilla, robado las seis Estrellas Reales y capturado a seis Princesas! Reúnete con Mario y libera las Praderas Champiñón del Rey Bob-omb.",
+        "ar": "غزا جيش باوزر ممالك العجائب، وسرق النجوم الملكية الست، واختطف ست أميرات! التقِ بماريو في قرية الفطر وحرر مروج الفطر من الملك بوب-أومب."
+      },
+      "steps": [
+        {
+          "id": "meet_mario", "type": "talk", "npc": "mario", "zone": "c6_village", "at": [22.5, 16.5],
+          "goal": { "en": "Speak with Mario in front of Peach's Castle in the Mushroom Village.", "fr": "Parlez à Mario devant le château de Peach au village Champignon.", "es": "Habla con Mario frente al Castillo de Peach en la Aldea Champiñón.", "ar": "تحدث مع ماريو أمام قلعة بيتش في قرية الفطر." },
+          "set": { "open": "m" },
+          "say": {
+            "who": "mario",
+            "en": [
+              "Mamma mia! Thank the stars you arrived, heroes! Bowser and his airship armada descended upon our world!",
+              "He stole the six Royal Stars that protect our lands and imprisoned six Princesses across six different Kingdoms—including Princess Peach inside his Darkfire Keep!",
+              "King Bob-omb holds Princess Daisy captive atop Bob-omb Mountain in Mushroom Meadows. Strike Question Blocks (?) for coins and Super Mushrooms, and visit Toadette's Boutique if you want a classic hero outfit! Let's-a go!"
+            ],
+            "fr": [
+              "Mamma mia ! Merci aux étoiles que vous soyez là, héros ! Bowser et sa flotte ont envahi notre monde !",
+              "Il a volé les six Étoiles Royales et enfermé six Princesses dans six Royaumes différents, dont la Princesse Peach !",
+              "Le Roi Bob-omb retient la Princesse Daisy au sommet du Mont Bob-omb. Frappez les blocs (?) pour des Super Champignons et allons-y ! Let's-a go !"
+            ],
+            "es": [
+              "¡Mamma mia! ¡Gracias a las estrellas que llegaron, héroes! ¡Bowser y su flota invadieron nuestro mundo!",
+              "¡Robó las seis Estrellas Reales y encerró a seis Princesas en seis Reinos distintos, incluida la Princesa Peach!",
+              "El Rey Bob-omb retiene a la Princesa Daisy en la Montaña Bob-omb. ¡Golpea los bloques (?) para conseguir Super Champiñones! ¡Let's-a go!"
+            ],
+            "ar": [
+              "ماما ميا! شكراً للنجوم على وصولكم أيها الأبطال! لقد هاجم باوزر وأسطوله عالمنا!",
+              "لقد سرق النجوم الملكية الست وسجن ست أميرات في ست ممالك مختلفة، من بينهن الأميرة بيتش!",
+              "يحتجز الملك بوب-أومب الأميرة ديزي فوق جبل بوب-أومب. اضربوا مكعبات الاستفهام (؟) للحصول على الفطر الخارق ولننطلق!"
+            ]
+          }
+        },
+        {
+          "id": "clear_m1_fields", "type": "kill", "zone": "c6_m1_fields", "foes": ["goomba", "koopa", "paratroopa"], "n": 6, "at": [22.5, 18.5],
+          "goal": { "en": "Defeat Bowser's Goombas and Koopas in Mushroom Fields ({n}/{m}).", "fr": "Vainquez les Goombas et Koopas dans les Champs Champignon ({n}/{m}).", "es": "Derrota a los Goombas y Koopas en los Campos Champiñón ({n}/{m}).", "ar": "اهزم جنود غومبا وكوبا في حقول الفطر ({n}/{m})." },
+          "say": { "who": null, "en": ["The road through Mushroom Fields is clear! Press north toward Toadstool Village."], "fr": ["La route des Champs Champignon est libre ! Avancez vers le Village Toadstool."], "es": ["¡El camino por los Campos Champiñón está despejado! Avanza hacia la Aldea Toadstool."], "ar": ["الطريق عبر حقول الفطر أصبح آمناً! تقدم شمالاً نحو قرية تودستول."] }
+        },
+        {
+          "id": "free_toadstool_bridge", "type": "interact", "zone": "c6_m2_village", "n": 2, "spots": [[12.5, 18.5], [32.5, 18.5]],
+          "goal": { "en": "Activate the Star Switches in Toadstool Village to lower the mountain bridge ({n}/{m}).", "fr": "Activez les interrupteurs Étoile au Village Toadstool ({n}/{m}).", "es": "Activa los interruptores Estrella en la Aldea Toadstool ({n}/{m}).", "ar": "فعّل مفاتيح النجمة في قرية تودستول لإنزال جسر الجبل ({n}/{m})." },
+          "each": {
+            "en": ["First Star Switch pressed! The western gear chimes!", "Second Star Switch pressed! The bridge to Bob-omb Mountain lowers!"],
+            "fr": ["Premier interrupteur activé !", "Second interrupteur activé ! Le pont vers le Mont Bob-omb s'abaisse !"],
+            "es": ["¡Primer interruptor activado!", "¡Segundo interruptor activado! ¡El puente hacia la Montaña Bob-omb desciende!"],
+            "ar": ["تم تفعيل المفتاح الأول!", "تم تفعيل المفتاح الثاني! نزل الجسر المؤدي إلى جبل بوب-أومب!"]
+          },
+          "say": { "who": null, "en": ["The path to Bob-omb Mountain is open! Ascend the summit and challenge King Bob-omb!"], "fr": ["La voie vers le Mont Bob-omb est ouverte !"], "es": ["¡El camino a la Montaña Bob-omb está abierto!"], "ar": ["الطريق إلى جبل بوب-أومب مفتوح الآن! اصعد القمة وتحدَّ الملك بوب-أومب!"] }
+        },
+        {
+          "id": "defeat_king_bobomb", "type": "boss", "boss": "king_bobomb", "zone": "c6_m3_mountain", "at": [22.5, 13.5],
+          "goal": { "en": "Defeat King Bob-omb atop Bob-omb Mountain.", "fr": "Vainquez le Roi Bob-omb au sommet du Mont Bob-omb.", "es": "Derrota al Rey Bob-omb en la cima de la Montaña Bob-omb.", "ar": "اهزم الملك بوب-أومب فوق قمة جبل بوب-أومب." },
+          "set": { "stars": 1 },
+          "say": {
+            "who": null,
+            "en": ["BAAA-BOOM! King Bob-omb's royal fuse fizzles out, and the first Royal Star shines above the summit! Now free Princess Daisy from her cage!"],
+            "fr": ["BAAA-BOUM ! Le Roi Bob-omb est vaincu et la première Étoile Royale brille ! Libérez maintenant la Princesse Daisy !"],
+            "es": ["¡BAAA-BUM! ¡El Rey Bob-omb cae derrotado y la primera Estrella Real brilla! ¡Ahora libera a la Princesa Daisy!"],
+            "ar": ["بوووم! سقط الملك بوب-أومب وسطعت النجمة الملكية الأولى! حرر الآن الأميرة ديزي!"]
+          }
+        },
+        {
+          "id": "rescue_daisy", "type": "talk", "npc": "daisy", "zone": "c6_m3_mountain", "at": [22.5, 8.5],
+          "goal": { "en": "Rescue Princess Daisy at the summit of Bob-omb Mountain.", "fr": "Sauvez la Princesse Daisy au sommet du Mont Bob-omb.", "es": "Rescata a la Princesa Daisy en la cima de la Montaña Bob-omb.", "ar": "أنقذ الأميرة ديزي في قمة جبل بوب-أومب." },
+          "set": { "open": "j", "rescued": "daisy" },
+          "say": {
+            "who": "daisy",
+            "en": [
+              "Woohoo! You really blasted that big pompous bomb off his own mountain!",
+              "Take this first Royal Star, heroes! Its power opens the gate to the Jungle Bloom Kingdom, where Petey Piranha holds Princess Eclair captive!"
+            ],
+            "fr": [
+              "Youhou ! Vous avez envoyé cette grosse bombe hors de sa montagne !",
+              "Prenez cette première Étoile Royale ! Son pouvoir ouvre le Royaume de la Jungle Fleurie où Petey Piranha retient la Princesse Éclair !"
+            ],
+            "es": [
+              "¡Yuju! ¡Hicieron volar a esa gran bomba fuera de su montaña!",
+              "¡Tomen esta primera Estrella Real! ¡Su poder abre el Reino de la Jungla Florida donde Petey Piranha retiene a la Princesa Eclair!"
+            ],
+            "ar": [
+              "يا للروعة! لقد أطاحتم بذلك المتغطرس من فوق جبله!",
+              "خذوا هذه النجمة الملكية الأولى! قوتها تفتح بوابة مملكة الأدغال المزهرة حيث يحتجز بيتي بيرانها الأميرة إكلير!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6q2", "act": 1,
+      "title": { "en": "Kingdom 2: Jungle Bloom Kingdom", "fr": "Royaume 2 : Jungle Fleurie", "es": "Reino 2: Jungla Florida", "ar": "المملكة ٢: مملكة الأدغال المزهرة" },
+      "story": {
+        "en": "Venture into the lush Jungle Bloom Kingdom, cross the Waterfall Gardens, defeat Petey Piranha in the Giant Plant Sanctuary, and rescue Princess Eclair.",
+        "fr": "Explorez le Royaume de la Jungle Fleurie, traversez les Jardins des Cascades, vainquez Petey Piranha et sauvez la Princesse Éclair.",
+        "es": "Adéntrate en el Reino de la Jungla Florida, cruza los Jardines de la Cascada, derrota a Petey Piranha y rescata a la Princesa Eclair.",
+        "ar": "ادخل مملكة الأدغال المزهرة، واعبر حدائق الشلالات، واهزم بيتي بيرانها، وأنقذ الأميرة إكلير."
+      },
+      "steps": [
+        {
+          "id": "clear_j1_jungle", "type": "kill", "zone": "c6_j1_jungle", "foes": ["piranha", "wiggler", "monty_mole"], "n": 6, "at": [22.5, 18.5],
+          "goal": { "en": "Clear the Piranha Plants, Wigglers, and Monty Moles in the Tropical Jungle ({n}/{m}).", "fr": "Éliminez les Plantes Piranha, Wigglers et Topi Taupes dans la Jungle Tropicale ({n}/{m}).", "es": "Elimina a las Plantas Piraña, Florugas y Monty Moles en la Jungla Tropical ({n}/{m}).", "ar": "اقضِ على نباتات البيرانها واليرقات في الأدغال الاستوائية ({n}/{m})." },
+          "say": { "who": null, "en": ["The overgrown jungle vines recede! Head north into the Waterfall Gardens."], "fr": ["Les lianes reculent ! Avancez vers les Jardins des Cascades."], "es": ["¡Las lianas retroceden! Avanza hacia los Jardines de la Cascada."], "ar": ["تراجعت كروم الأدغال الكثيفة! اتجه شمالاً نحو حدائق الشلالات."] }
+        },
+        {
+          "id": "purify_j2_springs", "type": "interact", "zone": "c6_j2_gardens", "n": 2, "spots": [[11.5, 16.5], [33.5, 16.5]],
+          "goal": { "en": "Purify the two Bloom Lotuses in the Waterfall Gardens ({n}/{m}).", "fr": "Purifiez les deux Lotus Fleuris dans les Jardins des Cascades ({n}/{m}).", "es": "Purifica los dos Lotos Floridos en los Jardines de la Cascada ({n}/{m}).", "ar": "طهر زهرتي اللوتس في حدائق الشلالات ({n}/{m})." },
+          "each": {
+            "en": ["Crystal water washes away the toxic sludge from the western cascade!", "The eastern cascade sparkles! The sanctuary vine-gate opens!"],
+            "fr": ["L'eau cristalline purifie la cascade ouest !", "La cascade est scintille ! La porte du sanctuaire s'ouvre !"],
+            "es": ["¡El agua cristalina limpia la cascada oeste!", "¡La cascada este brilla! ¡La puerta del santuario se abre!"],
+            "ar": ["المياه الصافية تطهر الشلال الغربي!", "الشلال الشرقي يتلألأ! فتحت بوابة المحمية!"]
+          },
+          "say": { "who": null, "en": ["The Giant Plant Sanctuary is open! Confront Petey Piranha!"], "fr": ["Le Sanctuaire Géant est ouvert ! Affrontez Petey Piranha !"], "es": ["¡El Santuario de la Planta Gigante está abierto! ¡Enfrenta a Petey Piranha!"], "ar": ["محمية النبات العملاق مفتوحة الآن! واجه بيتي بيرانها!"] }
+        },
+        {
+          "id": "defeat_petey", "type": "boss", "boss": "petey_piranha", "zone": "c6_j3_sanctuary", "at": [22.5, 13.5],
+          "goal": { "en": "Defeat Petey Piranha in the Giant Plant Sanctuary.", "fr": "Vainquez Petey Piranha dans le Sanctuaire Géant.", "es": "Derrota a Petey Piranha en el Santuario de la Planta Gigante.", "ar": "اهزم بيتي بيرانها في محمية النبات العملاق." },
+          "set": { "stars": 2 },
+          "say": {
+            "who": null,
+            "en": ["Petey Piranha crashes to the sanctuary floor in a shower of golden petals! The second Royal Star gleams—now free Princess Eclair!"],
+            "fr": ["Petey Piranha s'effondre dans une pluie de pétales dorés ! Libérez maintenant la Princesse Éclair !"],
+            "es": ["¡Petey Piranha cae en una lluvia de pétalos dorados! ¡Ahora libera a la Princesa Eclair!"],
+            "ar": ["سقط بيتي بيرانها وسط مطر من البتلات الذهبية! حرر الآن الأميرة إكلير!"]
+          }
+        },
+        {
+          "id": "rescue_eclair", "type": "talk", "npc": "eclair", "zone": "c6_j3_sanctuary", "at": [22.5, 8.5],
+          "goal": { "en": "Rescue Princess Eclair in the Giant Plant Sanctuary.", "fr": "Sauvez la Princesse Éclair dans le Sanctuaire Géant.", "es": "Rescata a la Princesa Eclair en el Santuario de la Planta Gigante.", "ar": "أنقذ الأميرة إكلير في محمية النبات العملاق." },
+          "set": { "open": "b", "rescued": "eclair" },
+          "say": {
+            "who": "eclair",
+            "en": [
+              "Bless you, brave travelers! The flowers of the Jungle Bloom Kingdom can breathe the sunlight once more.",
+              "With this second Royal Star, the misty lantern road to the Boo Haunted Kingdom is unsealed. Please save Princess Shokora from King Boo!"
+            ],
+            "fr": [
+              "Merci, braves voyageurs ! Les fleurs de notre royaume respirent à nouveau la lumière.",
+              "Avec cette deuxième Étoile Royale, la route vers le Royaume Hanté des Boo est ouverte. Sauvez la Princesse Shokora du Roi Boo !"
+            ],
+            "es": [
+              "¡Gracias, valientes viajeros! Las flores de nuestro reino vuelven a respirar la luz del sol.",
+              "Con esta segunda Estrella Real, el camino al Reino Embrujado de los Boo se abre. ¡Salven a la Princesa Shokora del Rey Boo!"
+            ],
+            "ar": [
+              "بارككم النور أيها الأبطال الشجعان! أزهار مملكتنا تتنفس ضوء الشمس من جديد.",
+              "بهذه النجمة الملكية الثانية، انفتح الطريق نحو مملكة الأشباح المسكونة. أرجوكم أنقذوا الأميرة شوكورا من الملك بو!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6q3", "act": 2,
+      "title": { "en": "Kingdom 3: Boo Haunted Kingdom", "fr": "Royaume 3 : Royaume Hanté des Boo", "es": "Reino 3: Reino Embrujado Boo", "ar": "المملكة ٣: مملكة الأشباح المسكونة" },
+      "story": {
+        "en": "Brave the Whispering Ghost Forest, solve the illusion switches inside the Haunted Mansion, defeat King Boo in his Royal Hall, and rescue Princess Shokora.",
+        "fr": "Traversez la Forêt des Fantômes, résolvez les illusions du Manoir Hanté, vainquez le Roi Boo et sauvez la Princesse Shokora.",
+        "es": "Cruza el Bosque Fantasma, resuelve las ilusiones de la Mansión Embrujada, derrota al Rey Boo y rescata a la Princesa Shokora.",
+        "ar": "اعبر غابة الأشباح الهامسة، وفك أوهام القصر المسكون، واهزم الملك بو، وأنقذ الأميرة شوكورا."
+      },
+      "steps": [
+        {
+          "id": "clear_b1_forest", "type": "kill", "zone": "c6_b1_forest", "foes": ["boo", "dry_bones", "peepa"], "n": 6, "at": [22.5, 18.5],
+          "goal": { "en": "Banish Boos, Dry Bones, and Peepas in the Whispering Ghost Forest ({n}/{m}).", "fr": "Chassez les Boos, Skelerex et Peepas dans la Forêt des Fantômes ({n}/{m}).", "es": "Expulsa a los Boos, Huesitos y Peepas en el Bosque Fantasma ({n}/{m}).", "ar": "اطرد الأشباح والهياكل العظمية في غابة الأشباح الهامسة ({n}/{m})." },
+          "say": { "who": null, "en": ["The wrought-iron gates of the Haunted Mansion creak open!"], "fr": ["Les grilles du Manoir Hanté s'ouvrent en grinçant !"], "es": ["¡Las rejas de la Mansión Embrujada se abren!"], "ar": ["فتحت البوابات الحديدية للقصر المسكون!"] }
+        },
+        {
+          "id": "mansion_lanterns", "type": "interact", "zone": "c6_b2_mansion", "n": 3, "spots": [[10.5, 20.5], [34.5, 20.5], [22.5, 14.5]],
+          "goal": { "en": "Light the three Starlight Chandeliers in the Haunted Mansion to dispel King Boo's illusion ({n}/{m}).", "fr": "Allumez les trois Candélabres Étoilés dans le Manoir Hanté ({n}/{m}).", "es": "Enciende los tres Candelabros Estelares en la Mansión Embrujada ({n}/{m}).", "ar": "أضئ الثريات النجمية الثلاث في القصر المسكون لكسر وهم الملك بو ({n}/{m})." },
+          "each": {
+            "en": ["First Starlight Chandelier lit! A phantom wall vanishes!", "Second Starlight Chandelier lit! The eerie laughter echoes!", "Third Starlight Chandelier lit! The grand doors to King Boo's Royal Hall appear!"],
+            "fr": ["Premier candélabre allumé !", "Deuxième candélabre allumé !", "Troisième candélabre allumé ! Les portes de la Salle Royale apparaissent !"],
+            "es": ["¡Primer candelabro encendido!", "¡Segundo candelabro encendido!", "¡Tercer candelabro encendido! ¡Las puertas del Salón Real aparecen!"],
+            "ar": ["أضيئت الثريا الأولى!", "أضيئت الثريا الثانية!", "أضيئت الثريا الثالثة! ظهرت أبواب القاعة الملكية للملك بو!"]
+          },
+          "say": { "who": null, "en": ["King Boo's illusion is shattered! Enter King Boo's Royal Hall!"], "fr": ["L'illusion du Roi Boo est brisée ! Entrez dans la Salle Royale !"], "es": ["¡La ilusión del Rey Boo se ha roto! ¡Entra al Salón Real!"], "ar": ["تحطم وهم الملك بو! ادخل القاعة الملكية!"] }
+        },
+        {
+          "id": "defeat_king_boo", "type": "boss", "boss": "king_boo", "zone": "c6_b3_hall", "at": [22.5, 13.5],
+          "goal": { "en": "Defeat King Boo in his Royal Hall.", "fr": "Vainquez le Roi Boo dans sa Salle Royale.", "es": "Derrota al Rey Boo en su Salón Real.", "ar": "اهزم الملك بو في قاعته الملكية." },
+          "set": { "stars": 3 },
+          "say": {
+            "who": null,
+            "en": ["King Boo's crown tumbles to the carpet as the third Royal Star blazes with light! Free Princess Shokora!"],
+            "fr": ["La couronne du Roi Boo tombe au sol et la troisième Étoile Royale brille ! Libérez la Princesse Shokora !"],
+            "es": ["¡La corona del Rey Boo cae al suelo y la tercera Estrella Real brilla! ¡Libera a la Princesa Shokora!"],
+            "ar": ["سقط تاج الملك بو وسطعت النجمة الملكية الثالثة! حرر الأميرة شوكورا!"]
+          }
+        },
+        {
+          "id": "rescue_shokora", "type": "talk", "npc": "shokora", "zone": "c6_b3_hall", "at": [22.5, 8.5],
+          "goal": { "en": "Rescue Princess Shokora in King Boo's Royal Hall.", "fr": "Sauvez la Princesse Shokora dans la Salle Royale.", "es": "Rescata a la Princesa Shokora en el Salón Real.", "ar": "أنقذ الأميرة شوكورا في القاعة الملكية." },
+          "set": { "open": "f", "rescued": "shokora" },
+          "say": {
+            "who": "shokora",
+            "en": [
+              "You pierced the veil of shadows and broke King Boo's ghostly spell! Thank you, heroes!",
+              "Take the third Royal Star—it opens the snowy mountain pass to the Frostpeak Kingdom, where the magikoopa Kamek has imprisoned Princess Rosalina!"
+            ],
+            "fr": [
+              "Vous avez brisé le sort spectral du Roi Boo ! Merci, héros !",
+              "Prenez la troisième Étoile Royale : elle ouvre le col enneigé vers le Royaume de Givrecime où Kamek retient la Princesse Harmonie !"
+            ],
+            "es": [
+              "¡Rompieron el hechizo espectral del Rey Boo! ¡Gracias, héroes!",
+              "Tomen la tercera Estrella Real: abre el paso nevado hacia el Reino Cumbrehelada, donde Kamek retiene a la Princesa Rosalina."
+            ],
+            "ar": [
+              "لقد كسرتم تعويذة الملك بو الشبحية! شكراً لكم أيها الأبطال!",
+              "خذوا النجمة الملكية الثالثة، فهي تفتح الممر الثلجي نحو مملكة قمة الصقيع حيث سجن كاميك الأميرة روزالينا!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6q4", "act": 2,
+      "title": { "en": "Kingdom 4: Frostpeak Kingdom", "fr": "Royaume 4 : Royaume de Givrecime", "es": "Reino 4: Reino Cumbrehelada", "ar": "المملكة ٤: مملكة قمة الصقيع" },
+      "story": {
+        "en": "Climb through Snowball Valley and the Frozen Crystal Caverns, defeat Kamek in his Ice Palace, and rescue Princess Rosalina.",
+        "fr": "Traversez la Vallée des Boules de Neige et les Cavernes de Cristal, vainquez Kamek dans son Palais de Glace et sauvez la Princesse Harmonie.",
+        "es": "Cruza el Valle Bola de Nieve y las Cavernas de Cristal Helado, derrota a Kamek en su Palacio de Hielo y rescata a la Princesa Rosalina.",
+        "ar": "اعبر وادي كرات الثلج وكهوف الكريستال المتجمدة، واهزم كاميك في قصر الجليد، وأنقذ الأميرة روزالينا."
+      },
+      "steps": [
+        {
+          "id": "clear_f1_valley", "type": "kill", "zone": "c6_f1_valley", "foes": ["shy_guy", "snow_pokey", "ice_bro"], "n": 6, "at": [22.5, 18.5],
+          "goal": { "en": "Defeat Shy Guys, Snow Pokeys, and Ice Bros in Snowball Valley ({n}/{m}).", "fr": "Vainquez les Maskass, Pokeys de Neige et Frères Glace ({n}/{m}).", "es": "Derrota a los Shy Guys, Pokeys de Nieve y Hermanos Hielo ({n}/{m}).", "ar": "اهزم جنود شاي غاي وإخوة الجليد في وادي كرات الثلج ({n}/{m})." },
+          "say": { "who": null, "en": ["The blizzard subsides! Enter the Frozen Crystal Caverns ahead."], "fr": ["Le blizzard se calme ! Entrez dans les Cavernes de Cristal."], "es": ["¡La ventisca amaina! Entra en las Cavernas de Cristal Helado."], "ar": ["هدأت العاصفة الثلجية! ادخل كهوف الكريستال المتجمدة."] }
+        },
+        {
+          "id": "shatter_f2_crystals", "type": "interact", "zone": "c6_f2_caverns", "n": 2, "spots": [[12.5, 17.5], [32.5, 17.5]],
+          "goal": { "en": "Align the two Star Prisms in the Frozen Crystal Caverns to melt the Ice Palace seal ({n}/{m}).", "fr": "Alignez les deux Prismes Étoilés dans les Cavernes de Cristal ({n}/{m}).", "es": "Alinea los dos Prismas Estelares en las Cavernas de Cristal ({n}/{m}).", "ar": "وجّه منشوري النجوم في كهوف الكريستال لإذابة ختم قصر الجليد ({n}/{m})." },
+          "each": {
+            "en": ["First Star Prism aligned! A warm beam of starlight reflects across the ice!", "Second Star Prism aligned! The frozen barrier to Kamek's Ice Palace shatters!"],
+            "fr": ["Premier prisme aligné !", "Second prisme aligné ! La barrière de glace se brise !"],
+            "es": ["¡Primer prisma alineado!", "¡Segundo prisma alineado! ¡La barrera de hielo se rompe!"],
+            "ar": ["تم توجيه المنشور الأول!", "تم توجيه المنشور الثاني! تحطم الحاجز الجليدي المؤدي لقصر كاميك!"]
+          },
+          "say": { "who": null, "en": ["The way to Kamek's Ice Palace is clear! Defeat Kamek and free Princess Rosalina!"], "fr": ["La voie vers le Palais de Glace de Kamek est libre !"], "es": ["¡El camino al Palacio de Hielo de Kamek está despejado!"], "ar": ["الطريق إلى قصر كاميك الجليدي مفتوح! اهزم كاميك وحرر الأميرة روزالينا!"] }
+        },
+        {
+          "id": "defeat_kamek", "type": "boss", "boss": "kamek", "zone": "c6_f3_palace", "at": [22.5, 13.5],
+          "goal": { "en": "Defeat Kamek in the Ice Palace.", "fr": "Vainquez Kamek dans le Palais de Glace.", "es": "Derrota a Kamek en el Palacio de Hielo.", "ar": "اهزم الساحر كاميك في قصر الجليد." },
+          "set": { "stars": 4 },
+          "say": {
+            "who": null,
+            "en": ["Kamek's broomstick spirals out of control as his frost spell shatters! The fourth Royal Star shines—now free Princess Rosalina!"],
+            "fr": ["Le balai de Kamek tourbillonne et son charme se brise ! Libérez la Princesse Harmonie !"],
+            "es": ["¡La escoba de Kamek pierde el control y su hechizo se rompe! ¡Libera a la Princesa Rosalina!"],
+            "ar": ["فقد كاميك السيطرة على عصاه السحرية وتحطمت تعويذته! حرر الآن الأميرة روزالينا!"]
+          }
+        },
+        {
+          "id": "rescue_rosalina", "type": "talk", "npc": "rosalina", "zone": "c6_f3_palace", "at": [22.5, 8.5],
+          "goal": { "en": "Rescue Princess Rosalina in the Ice Palace.", "fr": "Sauvez la Princesse Harmonie dans le Palais de Glace.", "es": "Rescata a la Princesa Rosalina en el Palacio de Hielo.", "ar": "أنقذ الأميرة روزالينا في قصر الجليد." },
+          "set": { "open": "s", "rescued": "rosalina" },
+          "say": {
+            "who": "rosalina",
+            "en": [
+              "May the stars shine upon you, brave heroes. Kamek's geometric magic could not withstand your courage.",
+              "With the fourth Royal Star restored, a rainbow launch bridge now ascends to the Koopa Sky Kingdom. Bowser Jr.'s airship armada holds Princess Pauline above the clouds!"
+            ],
+            "fr": [
+              "Que les étoiles veillent sur vous, braves héros. La magie de Kamek n'a pas résisté à votre courage.",
+              "Avec la quatrième Étoile Royale, un pont arc-en-ciel s'élève vers le Royaume Céleste Koopa où Bowser Jr. retient la Princesse Pauline !"
+            ],
+            "es": [
+              "Que las estrellas brillen sobre ustedes, héroes. La magia de Kamek no pudo contra su valor.",
+              "Con la cuarta Estrella Real, un puente arcoíris asciende al Reino Celeste Koopa, ¡donde Bowser Jr. retiene a la Princesa Pauline!"
+            ],
+            "ar": [
+              "لتشرق النجوم عليكم أيها الأبطال الشجعان. لم يصمد سحر كاميك أمام شجاعتكم.",
+              "مع استعادة النجمة الملكية الرابعة، يرتفع الآن جسر قوس قزح نحو مملكة السماء حيث يحتجز باوزر الابن الأميرة بولين!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6q5", "act": 3,
+      "title": { "en": "Kingdom 5: Koopa Sky Kingdom", "fr": "Royaume 5 : Royaume Céleste Koopa", "es": "Reino 5: Reino Celeste Koopa", "ar": "المملكة ٥: مملكة السماء كوبا" },
+      "story": {
+        "en": "Ascend the Cloudtop Gardens, board the Koopa Airship Fleet, defeat Bowser Jr. in his Floating Fortress, and rescue Princess Pauline.",
+        "fr": "Montez aux Jardins des Nuages, abordez la Flotte de Dirigeables, vainquez Bowser Jr. et sauvez la Princesse Pauline.",
+        "es": "Asciende a los Jardines de las Nubes, aborda la Flota de Barcos Voladores, derrota a Bowser Jr. y rescata a la Princesa Pauline.",
+        "ar": "اصعد إلى حدائق السحاب، واقتحم أسطول السفن الطائرة، واهزم باوزر الابن، وأنقذ الأميرة بولين."
+      },
+      "steps": [
+        {
+          "id": "clear_s1_clouds", "type": "kill", "zone": "c6_s1_clouds", "foes": ["lakitu", "paratroopa", "hammer_bro"], "n": 6, "at": [22.5, 18.5],
+          "goal": { "en": "Defeat Lakitus, Paratroopas, and Hammer Bros in the Cloudtop Gardens ({n}/{m}).", "fr": "Vainquez les Lakitus, Paratroopas et Frères Marto dans les Jardins des Nuages ({n}/{m}).", "es": "Derrota a los Lakitus, Paratroopas y Hermanos Martillo en los Jardines de las Nubes ({n}/{m}).", "ar": "اهزم جنود لاكيتو وإخوة المطرقة في حدائق السحاب ({n}/{m})." },
+          "say": { "who": null, "en": ["The sky-bridge extends to the Koopa Airship Fleet! Board the flagship deck!"], "fr": ["Le pont céleste rejoint la Flotte de Dirigeables !"], "es": ["¡El puente celeste llega a la Flota de Barcos Voladores!"], "ar": ["امتد الجسر السماوي نحو أسطول السفن الطائرة! اصعد على متن السفينة!"] }
+        },
+        {
+          "id": "disable_s2_cannons", "type": "interact", "zone": "c6_s2_airship", "n": 2, "spots": [[12.5, 16.5], [32.5, 16.5]],
+          "goal": { "en": "Sabotage the two Airship Anchor Winches to dock with Junior's Floating Fortress ({n}/{m}).", "fr": "Sabotez les deux treuils du dirigeable ({n}/{m}).", "es": "Sabotea los dos cabrestantes del barco volador ({n}/{m}).", "ar": "عطّل رافعتي السفينة الطائرة للرسو عند قلعة باوزر الابن العائمة ({n}/{m})." },
+          "each": {
+            "en": ["Port anchor winch jammed! The airship cannons cease fire!", "Starboard anchor winch released! The boarding ramp to Junior's Floating Fortress drops!"],
+            "fr": ["Treuil bâbord bloqué !", "Treuil tribord relâché ! La rampe vers la Forteresse Flottante s'abaisse !"],
+            "es": ["¡Cabrestante de babor bloqueado!", "¡Cabrestante de estribor soltado! ¡La rampa hacia la Fortaleza Flotante baja!"],
+            "ar": ["تم تعطيل الرافعة اليسرى!", "تم تعطيل الرافعة اليمنى! نزلت منصة العبور نحو القلعة العائمة!"]
+          },
+          "say": { "who": null, "en": ["Storm Junior's Floating Fortress and defeat Bowser Jr.!"], "fr": ["Prenez d'assaut la Forteresse Flottante et vainquez Bowser Jr. !"], "es": ["¡Asalta la Fortaleza Flotante y derrota a Bowser Jr.!"], "ar": ["اقتحم القلعة العائمة واهزم باوزر الابن!"] }
+        },
+        {
+          "id": "defeat_bowser_jr", "type": "boss", "boss": "bowser_jr", "zone": "c6_s3_fortress", "at": [22.5, 13.5],
+          "goal": { "en": "Defeat Bowser Jr. in Junior's Floating Fortress.", "fr": "Vainquez Bowser Jr. dans sa Forteresse Flottante.", "es": "Derrota a Bowser Jr. en su Fortaleza Flotante.", "ar": "اهزم باوزر الابن في قلعته العائمة." },
+          "set": { "stars": 5 },
+          "say": {
+            "who": null,
+            "en": ["Bowser Jr.'s Junior Clown Car sputters smoke as he retreats! The fifth Royal Star shines—now free Princess Pauline!"],
+            "fr": ["La Koopa-Mobile de Bowser Jr. fume alors qu'il bat en retraite ! Libérez la Princesse Pauline !"],
+            "es": ["¡ElHelikoopa de Bowser Jr. echa humo mientras se retira! ¡Libera a la Princesa Pauline!"],
+            "ar": ["تراجعت مركبة باوزر الابن وسط الدخان! سطعت النجمة الملكية الخامسة، حرر الآن الأميرة بولين!"]
+          }
+        },
+        {
+          "id": "rescue_pauline", "type": "talk", "npc": "pauline", "zone": "c6_s3_fortress", "at": [22.5, 8.5],
+          "goal": { "en": "Rescue Princess Pauline in Junior's Floating Fortress.", "fr": "Sauvez la Princesse Pauline dans la Forteresse Flottante.", "es": "Rescata a la Princesa Pauline en la Fortaleza Flotante.", "ar": "أنقذ الأميرة بولين في القلعة العائمة." },
+          "set": { "open": "d", "rescued": "pauline" },
+          "say": {
+            "who": "pauline",
+            "en": [
+              "Encore, heroes! That was a superstar performance up here in the clouds!",
+              "With five Royal Stars united, the Star Bridge to Bowser's Darkfire Kingdom is open! March into his volcanic fortress, defeat Bowser, and rescue Princess Peach!"
+            ],
+            "fr": [
+              "Bravo, héros ! Quelle performance digne de superstars au-dessus des nuages !",
+              "Avec cinq Étoiles Royales réunies, le Pont Étoilé vers le Royaume Sombre-Feu de Bowser est ouvert ! Allez sauver la Princesse Peach !"
+            ],
+            "es": [
+              "¡Bravo, héroes! ¡Fue una actuación de superestrellas aquí en las nubes!",
+              "¡Con cinco Estrellas Reales unidas, el Puente Estelar hacia el Reino Fuego Oscuro de Bowser está abierto! ¡Rescaten a la Princesa Peach!"
+            ],
+            "ar": [
+              "مرحى أيها الأبطال! كان ذلك عرضاً بطولياً مذهلاً فوق السحاب!",
+              "مع اجتماع خمس نجوم ملكية، انفتح جسر النجوم نحو مملكة النار المظلمة! اقتحموا قلعة باوزر وأنقذوا الأميرة بيتش!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6q6", "act": 4,
+      "title": { "en": "Kingdom 6: Bowser's Darkfire Kingdom", "fr": "Royaume 6 : Royaume Sombre-Feu de Bowser", "es": "Reino 6: Reino Fuego Oscuro de Bowser", "ar": "المملكة ٦: مملكة باوزر النارية المظلمة" },
+      "story": {
+        "en": "Storm the Burning Badlands and the Darkfire Fortress, vanquish Bowser across all three of his epic combat phases (THE KING, THE DESTROYER, and RAGE), reclaim the final Royal Star, and rescue Princess Peach!",
+        "fr": "Traversez les Terres Brûlantes et la Forteresse Sombre-Feu, triomphez de Bowser à travers ses trois phases (LE ROI, LE DESTRUCTEUR et RAGE) et sauvez la Princesse Peach !",
+        "es": "Cruza las Tierras Ardientes y la Fortaleza Fuego Oscuro, derrota a Bowser en sus tres fases (EL REY, EL DESTRUCTOR y FURIA) y rescata a la Princesa Peach.",
+        "ar": "اقتحم الأراضي المشتعلة وقلعة النار المظلمة، واهزم باوزر عبر أطواره الثلاثة (الملك، المدمر، والغضب)، واستعد النجمة الملكية الأخيرة وأنقذ الأميرة بيتش!"
+      },
+      "steps": [
+        {
+          "id": "clear_d1_badlands", "type": "kill", "zone": "c6_d1_badlands", "foes": ["fire_bro", "chain_chomp", "koopa_guard"], "n": 6, "at": [22.5, 18.5],
+          "goal": { "en": "Defeat Bowser's elite vanguard in the Burning Badlands ({n}/{m}).", "fr": "Vainquez l'avant-garde d'élite dans les Terres Brûlantes ({n}/{m}).", "es": "Derrota a la vanguardia de élite en las Tierras Ardientes ({n}/{m}).", "ar": "اهزم طليعة جيش باوزر في الأراضي المشتعلة ({n}/{m})." },
+          "say": { "who": null, "en": ["The drawbridge to the Darkfire Fortress crashes down over the lava moat!"], "fr": ["Le pont-levis de la Forteresse Sombre-Feu s'abaisse sur la lave !"], "es": ["¡El puente levadizo de la Fortaleza Fuego Oscuro cae sobre la lava!"], "ar": ["نزل الجسر المتحرك لقلعة النار المظلمة فوق خندق الحمم!"] }
+        },
+        {
+          "id": "unseal_d2_throne", "type": "interact", "zone": "c6_d2_fortress", "n": 2, "spots": [[11.5, 16.5], [33.5, 16.5]],
+          "goal": { "en": "Break the two Bowser Seals in the Darkfire Fortress to unlock the Throne Room ({n}/{m}).", "fr": "Brisez les deux Sceaux de Bowser dans la Forteresse Sombre-Feu ({n}/{m}).", "es": "Rompe los dos Sellos de Bowser en la Fortaleza Fuego Oscuro ({n}/{m}).", "ar": "حطم ختمي باوزر في قلعة النار المظلمة لفتح قاعة العرش ({n}/{m})." },
+          "each": {
+            "en": ["First Bowser Seal shattered! The iron chains on the throne doors rattle!", "Second Bowser Seal shattered! The great gates to Bowser's Throne Room swing open!"],
+            "fr": ["Premier sceau brisé !", "Second sceau brisé ! Les portes de la Salle du Trône de Bowser s'ouvrent !"],
+            "es": ["¡Primer sello roto!", "¡Segundo sello roto! ¡Las grandes puertas del Salón del Trono de Bowser se abren!"],
+            "ar": ["تحطم الختم الأول!", "تحطم الختم الثاني! فتحت البوابات الكبرى لقاعة عرش باوزر!"]
+          },
+          "say": { "who": null, "en": ["Enter Bowser's Throne Room for the final battle!"], "fr": ["Entrez dans la Salle du Trône de Bowser pour le combat final !"], "es": ["¡Entra al Salón del Trono de Bowser para la batalla final!"], "ar": ["ادخل قاعة عرش باوزر للمعركة النهائية الحاسمة!"] }
+        },
+        {
+          "id": "defeat_bowser", "type": "boss", "boss": "bowser", "zone": "c6_d3_throne", "at": [22.5, 14.5],
+          "goal": { "en": "Defeat Bowser across all 3 phases (THE KING, THE DESTROYER, and RAGE) in his Throne Room!", "fr": "Vainquez Bowser à travers ses 3 phases (LE ROI, LE DESTRUCTEUR et RAGE) !", "es": "¡Derrota a Bowser en sus 3 fases (EL REY, EL DESTRUCTOR y FURIA)!", "ar": "اهزم باوزر عبر أطواره الثلاثة (الملك، المدمر، والغضب) في قاعة عرشه!" },
+          "set": { "stars": 6 },
+          "say": {
+            "who": null,
+            "en": [
+              "GWAHAHA—NOOO! Bowser's RAGE aura shatters in a blinding supernova of starlight as the Koopa King collapses!",
+              "The sixth and final Royal Star ascends! Now free Princess Peach at the north of the Throne Room!"
+            ],
+            "fr": [
+              "GWAHAHA—NOOON ! L'aura de RAGE de Bowser vole en éclats dans une supernova d'étoiles !",
+              "La sixième Étoile Royale s'élève ! Libérez maintenant la Princesse Peach !"
+            ],
+            "es": [
+              "¡GWAHAHA—NOOO! ¡El aura de FURIA de Bowser se rompe en una supernova de luz estelar!",
+              "¡La sexta Estrella Real se eleva! ¡Ahora libera a la Princesa Peach!"
+            ],
+            "ar": [
+              "غواهاها—لااا! تحطمت هالة غضب باوزر في انفجار نجمي مبهر وسقط ملك الكوبا!",
+              "ارتفعت النجمة الملكية السادسة والأخيرة! حرر الآن الأميرة بيتش!"
+            ]
+          }
+        },
+        {
+          "id": "rescue_peach", "type": "talk", "npc": "peach", "zone": "c6_d3_throne", "at": [22.5, 8.5],
+          "goal": { "en": "Rescue Princess Peach in Bowser's Throne Room.", "fr": "Sauvez la Princesse Peach dans la Salle du Trône de Bowser.", "es": "Rescata a la Princesa Peach en el Salón del Trono de Bowser.", "ar": "أنقذ الأميرة بيتش في قاعة عرش باوزر." },
+          "set": { "rescued": "peach" },
+          "say": {
+            "who": "peach",
+            "en": [
+              "Oh, thank you so much, brave heroes! You stood fearless against Bowser's fury and saved all six Princesses!",
+              "With all six Royal Stars united, their light will carry us safely back to the Mushroom Kingdom Village. Mario, Luigi, and everyone are waiting to celebrate!"
+            ],
+            "fr": [
+              "Oh, merci infiniment, braves héros ! Vous avez affronté la fureur de Bowser et sauvé les six Princesses !",
+              "Avec les six Étoiles Royales réunies, retournons au Village du Royaume Champignon pour célébrer avec Mario et Luigi !"
+            ],
+            "es": [
+              "¡Oh, muchísimas gracias, valientes héroes! ¡Enfrentaron la furia de Bowser y salvaron a las seis Princesas!",
+              "¡Con las seis Estrellas Reales reunidas, regresemos a la Aldea Champiñón para celebrar con Mario y Luigi!"
+            ],
+            "ar": [
+              "أوه، شكراً جزيلاً لكم أيها الأبطال الشجعان! لقد صمدتم أمام غضب باوزر وأنقذتم الأميرات الست جميعاً!",
+              "مع اتحاد النجوم الملكية الست، لنعد إلى قرية مملكة الفطر للاحتفال مع ماريو ولويجي والجميع!"
+            ]
+          }
+        },
+        {
+          "id": "victory_mario", "type": "talk", "npc": "mario", "zone": "c6_village", "at": [22.5, 16.5],
+          "goal": { "en": "Return to the Mushroom Kingdom Village and celebrate victory with Mario and Princess Peach!", "fr": "Retournez au Village Champignon et célébrez la victoire avec Mario et Peach !", "es": "¡Regresa a la Aldea Champiñón y celebra la victoria con Mario y Peach!", "ar": "عد إلى قرية مملكة الفطر واحتفل بالنصر مع ماريو والأميرة بيتش!" },
+          "say": {
+            "who": "mario",
+            "en": [
+              "WAHOO! You did it! All six Royal Stars shine above Peach's Castle, and every Princess is home safe and sound!",
+              "Accept the legendary Royal Star Rod and our eternal gratitude, Superstar Heroes of the Kingdoms of Wonder!"
+            ],
+            "fr": [
+              "WAHOU ! Vous avez réussi ! Les six Étoiles Royales brillent sur le Château de Peach et toutes les Princesses sont saines et sauves !",
+              "Acceptez la légendaire Baguette Étoile Royale et notre gratitude éternelle, Héros Superstars !"
+            ],
+            "es": [
+              "¡WAHOO! ¡Lo lograron! ¡Las seis Estrellas Reales brillan sobre el Castillo de Peach y todas las Princesas están a salvo!",
+              "¡Acepten el Cetro Estrella Real y nuestra eterna gratitud, Héroes Superestrellas!"
+            ],
+            "ar": [
+              "واهوو! لقد فعلتموها! النجوم الملكية الست تسطع فوق قلعة بيتش وجميع الأميرات عدن بسلام!",
+              "اقبلوا صولجان النجمة الملكي الأسطوري وامتناننا الأبدي يا أبطال ممالك العجائب!"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

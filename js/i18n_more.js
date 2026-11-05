@@ -9,14 +9,22 @@ en: {
         browseForge: 'Show me your weapons and armour.', browsePotions: 'I need potions.', askWork: 'Any work for me?', reward: 'Reward',
         accept: 'Accept', later: 'Not now', sideQuests: 'Side quests', forge: 'Tobin\'s Forge', owned: 'Owned', bought2: 'Bought: {item}! (now worn)',
         potionShop: 'Hana\'s Potions', healN: 'Heals {n}', healFull: 'Heals fully', equip: 'Equipment', none: 'None', equipped: 'Worn', back: 'Back',
-        slot_weapon: 'Weapon', slot_head: 'Head', slot_body: 'Body', slot_feet: 'Feet'
+        slot_weapon: 'Weapon', slot_head: 'Head', slot_body: 'Body', slot_feet: 'Feet', slot_costume: 'Costume',
+        mMushroom: 'Super Mushroom ({n})', gotMushroom: 'You got a Super Mushroom! (1.5× Giant Power + Heal)',
+        usedMushroom: '🍄 Super Mushroom! 1.5× Giant Scale & Full Vitality!',
+        costumeShop: 'Toadette\'s Royal Costume Boutique', cosmeticOnly: 'Cosmetic Overlay (Keeps Armor Stats)',
+        browseCostumes: 'Show me your royal costumes!'
     },
     items: {
         stick: 'Walking stick', iron_sword: 'Iron sword', steel_sword: 'Star-steel sword', knight_blade: 'Knight\'s blade',
         hunter_bow: 'Hunter\'s bow', long_bow: 'Longbow', flintlock: 'Flintlock pistol', musket: 'Musket',
         leather_cap: 'Leather cap', iron_helm: 'Iron helm', knight_helm: 'Knight\'s helm',
         padded_vest: 'Padded vest', chainmail: 'Chain mail', plate_armor: 'Plate armour',
-        leather_boots: 'Leather boots', swift_boots: 'Swift boots', iron_greaves: 'Iron greaves'
+        leather_boots: 'Leather boots', swift_boots: 'Swift boots', iron_greaves: 'Iron greaves',
+        star_rod: 'Star Rod Blade', super_hammer: 'Ultra Star Hammer', fire_flower_staff: 'Fire Flower Staff',
+        koopa_bow: 'Koopa Shell Bow', bullet_blaster: 'Bullet Bill Blasters', wing_cap_helm: 'Wing Cap Helm',
+        royal_star_plate: 'Royal Star Plate', mushroom_tunic: 'Super Star Tunic', starlight_robe: 'Rosalina\'s Starlight Robe',
+        plumber_boots: 'Super Jump Boots', mario_costume: 'Mario Costume', luigi_costume: 'Luigi Costume', peach_costume: 'Princess Peach Costume'
     },
     zone: { barrow: 'The Barrow Crypt', mine: 'The Deep Mine' },
     boss: { knight: 'The Crypt Knight' },
@@ -60,14 +68,22 @@ fr: {
         browseForge: 'Montrez-moi vos armes et armures.', browsePotions: 'Il me faut des potions.', askWork: 'Vous avez du travail pour moi ?', reward: 'Récompense',
         accept: 'Accepter', later: 'Pas maintenant', sideQuests: 'Quêtes secondaires', forge: 'La forge de Tobin', owned: 'Possédé', bought2: 'Acheté : {item} ! (équipé)',
         potionShop: 'Les potions de Hana', healN: 'Soigne {n}', healFull: 'Soigne tout', equip: 'Équipement', none: 'Aucun', equipped: 'Porté', back: 'Retour',
-        slot_weapon: 'Arme', slot_head: 'Tête', slot_body: 'Corps', slot_feet: 'Pieds'
+        slot_weapon: 'Arme', slot_head: 'Tête', slot_body: 'Corps', slot_feet: 'Pieds', slot_costume: 'Costume',
+        mMushroom: 'Super Champignon ({n})', gotMushroom: 'Vous obtenez un Super Champignon ! (Taille 1,5× + Soin)',
+        usedMushroom: '🍄 Super Champignon ! Taille géante 1,5× et vitalité restaurée !',
+        costumeShop: 'Boutique Royale de Costumes de Toadette', cosmeticOnly: 'Apparence cosmétique (garde vos stats)',
+        browseCostumes: 'Montrez-moi vos costumes royaux !'
     },
     items: {
         stick: 'Bâton de marche', iron_sword: 'Épée de fer', steel_sword: 'Épée d\'acier-étoile', knight_blade: 'Lame de chevalier',
         hunter_bow: 'Arc de chasseur', long_bow: 'Arc long', flintlock: 'Pistolet à silex', musket: 'Mousquet',
         leather_cap: 'Bonnet de cuir', iron_helm: 'Casque de fer', knight_helm: 'Heaume de chevalier',
         padded_vest: 'Gilet matelassé', chainmail: 'Cotte de mailles', plate_armor: 'Armure de plates',
-        leather_boots: 'Bottes de cuir', swift_boots: 'Bottes de vitesse', iron_greaves: 'Jambières de fer'
+        leather_boots: 'Bottes de cuir', swift_boots: 'Bottes de vitesse', iron_greaves: 'Jambières de fer',
+        star_rod: 'Lame Bâton Étoile', super_hammer: 'Ultra Marteau Étoile', fire_flower_staff: 'Sceptre Fleur de Feu',
+        koopa_bow: 'Arc Carapace Koopa', bullet_blaster: 'Pistolets Bill Balle', wing_cap_helm: 'Casquette Ailée',
+        royal_star_plate: 'Armure Étoile Royale', mushroom_tunic: 'Tunique Super Étoile', starlight_robe: 'Robe Stellaire d\'Harmonie',
+        plumber_boots: 'Bottes de Super Saut', mario_costume: 'Costume de Mario', luigi_costume: 'Costume de Luigi', peach_costume: 'Costume de Princesse Peach'
     },
     zone: { barrow: 'La Crypte du Tertre', mine: 'La Mine Profonde' },
     boss: { knight: 'Le Chevalier de la Crypte' },
@@ -111,14 +127,22 @@ es: {
         browseForge: 'Enséñame tus armas y armaduras.', browsePotions: 'Necesito pociones.', askWork: '¿Tienes trabajo para mí?', reward: 'Recompensa',
         accept: 'Aceptar', later: 'Ahora no', sideQuests: 'Misiones secundarias', forge: 'La forja de Tobin', owned: 'Tuyo', bought2: '¡Comprado: {item}! (equipado)',
         potionShop: 'Las pociones de Hana', healN: 'Cura {n}', healFull: 'Cura del todo', equip: 'Equipo', none: 'Nada', equipped: 'Puesto', back: 'Volver',
-        slot_weapon: 'Arma', slot_head: 'Cabeza', slot_body: 'Cuerpo', slot_feet: 'Pies'
+        slot_weapon: 'Arma', slot_head: 'Cabeza', slot_body: 'Cuerpo', slot_feet: 'Pies', slot_costume: 'Disfraz',
+        mMushroom: 'Superchampiñón ({n})', gotMushroom: '¡Conseguiste un Superchampiñón! (Escala 1.5× + Cura)',
+        usedMushroom: '🍄 ¡Superchampiñón! ¡Tamaño gigante 1.5× y salud restaurada!',
+        costumeShop: 'Boutique Real de Disfraces de Toadette', cosmeticOnly: 'Atuendo cosmético (mantiene tus estadísticas)',
+        browseCostumes: '¡Enséñame tus disfraces reales!'
     },
     items: {
         stick: 'Bastón', iron_sword: 'Espada de hierro', steel_sword: 'Espada de acero estelar', knight_blade: 'Hoja de caballero',
         hunter_bow: 'Arco de cazador', long_bow: 'Arco largo', flintlock: 'Pistola de chispa', musket: 'Mosquete',
         leather_cap: 'Gorro de cuero', iron_helm: 'Yelmo de hierro', knight_helm: 'Yelmo de caballero',
         padded_vest: 'Chaleco acolchado', chainmail: 'Cota de malla', plate_armor: 'Armadura de placas',
-        leather_boots: 'Botas de cuero', swift_boots: 'Botas veloces', iron_greaves: 'Grebas de hierro'
+        leather_boots: 'Botas de cuero', swift_boots: 'Botas veloces', iron_greaves: 'Grebas de hierro',
+        star_rod: 'Espada Cetro Estelar', super_hammer: 'Ultra Martillo Estelar', fire_flower_staff: 'Báculo Flor de Fuego',
+        koopa_bow: 'Arco Caparazón Koopa', bullet_blaster: 'Pistolas Bill Bala', wing_cap_helm: 'Gorra Alada',
+        royal_star_plate: 'Coraza Estrella Real', mushroom_tunic: 'Túnica Superestrella', starlight_robe: 'Túnica Estelar de Estela',
+        plumber_boots: 'Botas de Supersalto', mario_costume: 'Disfraz de Mario', luigi_costume: 'Disfraz de Luigi', peach_costume: 'Disfraz de Princesa Peach'
     },
     zone: { barrow: 'La Cripta del Túmulo', mine: 'La Mina Profunda' },
     boss: { knight: 'El Caballero de la Cripta' },
@@ -162,14 +186,22 @@ ar: {
         browseForge: 'أرني السيوف والدروع.', browsePotions: 'أريد أدوية.', askWork: 'هل عندك عمل لي؟', reward: 'الجائزة',
         accept: 'موافق', later: 'ليس الآن', sideQuests: 'مهام إضافية', forge: 'ورشة توبين', owned: 'عندك', bought2: 'اشتريت: {item}! (لبسته)',
         potionShop: 'أدوية هانا', healN: 'يعيد {n} صحة', healFull: 'يعيد كل الصحة', equip: 'أغراضي', none: 'لا شيء', equipped: 'ألبسه', back: 'رجوع',
-        slot_weapon: 'السلاح', slot_head: 'الرأس', slot_body: 'الجسم', slot_feet: 'القدمان'
+        slot_weapon: 'السلاح', slot_head: 'الرأس', slot_body: 'الجسم', slot_feet: 'القدمان', slot_costume: 'الزي',
+        mMushroom: 'الفطر الخارق ({n})', gotMushroom: 'حصلت على الفطر الخارق! (حجم عملاق 1.5× + شفاء)',
+        usedMushroom: '🍄 الفطر الخارق! حجم عملاق 1.5× وشفاء كامل!',
+        costumeShop: 'متجر توديت للأزياء الملكية', cosmeticOnly: 'مظهر تجميلي (يحافظ على قوة دروعك)',
+        browseCostumes: 'أرني الأزياء الملكية!'
     },
     items: {
         stick: 'عصا خشب', iron_sword: 'سيف حديد', steel_sword: 'سيف النجمة', knight_blade: 'سيف الفارس',
         hunter_bow: 'قوس الصياد', long_bow: 'القوس الطويل', flintlock: 'مسدس قديم', musket: 'بندقية قديمة',
         leather_cap: 'قبعة جلد', iron_helm: 'خوذة حديد', knight_helm: 'خوذة الفارس',
         padded_vest: 'سترة جلد', chainmail: 'درع حلقات', plate_armor: 'درع حديد كامل',
-        leather_boots: 'حذاء جلد', swift_boots: 'حذاء السرعة', iron_greaves: 'حذاء حديد'
+        leather_boots: 'حذاء جلد', swift_boots: 'حذاء السرعة', iron_greaves: 'حذاء حديد',
+        star_rod: 'سيف عصا النجمة', super_hammer: 'مطرقة النجمة الخارقة', fire_flower_staff: 'عصا زهرة النار',
+        koopa_bow: 'قوس صدفة كوبا', bullet_blaster: 'مسدسات بيل الرصاصة', wing_cap_helm: 'القبعة المجنحة',
+        royal_star_plate: 'درع النجمة الملكية', mushroom_tunic: 'سترة النجمة الخارقة', starlight_robe: 'رداء روزالينا النجمي',
+        plumber_boots: 'حذاء القفز الخارق', mario_costume: 'زي ماريو', luigi_costume: 'زي لويجي', peach_costume: 'زي الأميرة بيتش'
     },
     zone: { barrow: 'سرداب التلّ', mine: 'المنجم العميق' },
     boss: { knight: 'فارس السرداب' },

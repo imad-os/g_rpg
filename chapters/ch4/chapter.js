@@ -48,6 +48,7 @@ HM_CHAPTERS.def.ch4 = function (api) {
         else if (g === 'beyond' && z === 'c4_wall') api.openTiles(103, 120, 'gate');
         else if (g === 'altar' && z === 'c4_beyond') api.openTiles(113, 105, 'gate2');
         else return;
+        api.Z.ftx = -1; api.Z.fty = -1; if (api.GT) api.GT.ok = false;
         api.SND.fx('door'); api.SND.fx('slam'); api.shake = 10;
     }
 
@@ -56,17 +57,79 @@ HM_CHAPTERS.def.ch4 = function (api) {
         const s = e.s;
         apply(s.set);
         c.st++; c.c = 0; c.m = 0; wave = null;
+        if (api.GT) api.GT.ok = false;
         api.SND.fx('quest'); api.save();
         const pg = (before || []).concat(s.type === 'talk' || s.type === 'choice' ? [] : sayPages(s.say));
         const next = () => { startStep(); if (after) after(); else if (C().st < STEPS.length) announce(); };
         if (pg.length) api.say(pg, null, next); else next();
     }
 
+    function findSpawnPos(cx, cy) {
+        if (!api.feetSolid || !api.feetSolid(cx, cy)) return [cx, cy];
+        for (let r = 24; r <= 120; r += 24) {
+            for (let k = 0; k < 8; k++) {
+                const a = k * 0.785398, nx = cx + Math.cos(a) * r, ny = cy + Math.sin(a) * r;
+                if (!api.feetSolid(nx, ny)) return [nx, ny];
+            }
+        }
+        return [cx, cy];
+    }
+
+    function ensureQuestFoes() {
+        const Z = api.Z;
+        if (!Z || !Z.id || !api.FOES || !api.spawnFoe) return;
+        const c = C(), s = step();
+        if (s && s.type === 'kill' && s.zone === Z.id && s.foes && s.foes.length) {
+            const need = Math.max(0, (s.n || 1) - (c.c || 0));
+            let alive = 0;
+            for (const f of api.FOES) if (f.on && s.foes.indexOf(f.t) >= 0) alive++;
+            const defFoes = (Z.def && Z.def.foes) ? Z.def.foes.filter(df => s.foes.indexOf(df.t) >= 0) : [];
+            let idx = 0;
+            while (alive < need && idx < 24) {
+                const ft = s.foes[idx % s.foes.length];
+                let bx = s.at ? s.at[0] * TS : 24 * TS, by = s.at ? s.at[1] * TS : 18 * TS;
+                if (defFoes.length) {
+                    const df = defFoes[idx % defFoes.length];
+                    bx = df.x * TS; by = df.y * TS;
+                } else {
+                    const ang = idx * 1.3;
+                    bx += Math.cos(ang) * 48; by += Math.sin(ang) * 36;
+                }
+                const pos = findSpawnPos(bx, by);
+                const nf = api.spawnFoe(ft, pos[0], pos[1], false);
+                idx++;
+                if (!nf) break;
+                alive++;
+            }
+        }
+        if (api.qState && QUESTS) {
+            for (const q of QUESTS) {
+                if (q.type === 'kill' && api.qState(q.id) === 1 && Z.def && Z.def.foes) {
+                    const defFoes = Z.def.foes.filter(df => df.t === q.foe);
+                    if (!defFoes.length) continue;
+                    const rem = Math.max(0, (q.n || 1) - ((S().sqc && S().sqc[q.id]) || 0));
+                    let alive = 0;
+                    for (const f of api.FOES) if (f.on && f.t === q.foe) alive++;
+                    let idx = 0;
+                    while (alive < rem && idx < 16) {
+                        const df = defFoes[idx % defFoes.length];
+                        const pos = findSpawnPos(df.x * TS, df.y * TS);
+                        const nf = api.spawnFoe(q.foe, pos[0], pos[1], false);
+                        idx++;
+                        if (!nf) break;
+                        alive++;
+                    }
+                }
+            }
+        }
+    }
+
     function startStep() {
-        const s = step(); if (!s) return;
+        const s = step(); if (!s || !api.Z) return;
         const Z = api.Z;
         if (s.type === 'reach' && s.zone === Z.id) return complete();
         if (s.type === 'collect' && s.zone === Z.id) spawnPicks();
+        if (s.type === 'kill' && s.zone === Z.id) ensureQuestFoes();
         if (s.type === 'boss' && s.zone === Z.id) wakeBoss();
     }
 
@@ -81,8 +144,23 @@ HM_CHAPTERS.def.ch4 = function (api) {
     function wakeBoss() {
         const b = bossDef(); if (!b) return;
         if (api.boss && api.boss.on && api.boss.t === b.t) return;
-        api.boss = api.spawnFoe(b.t, b.x * TS, b.y * TS, false);
-        if (api.boss) { api.burst(api.boss.x, api.boss.y - 20, 30, '#6ae8ff', 3); api.ringFx(api.boss.x, api.boss.y, 90, '#6ae8ff'); }
+        const pos = findSpawnPos(b.x * TS, b.y * TS);
+        api.boss = api.spawnFoe(b.t, pos[0], pos[1], false);
+        if (api.boss) {
+            api.boss.boss = true;
+            if (!api.boss.d.boss || api.boss.d.bossHp) {
+                api.boss.d = Object.assign({}, api.boss.d, {
+                    boss: true,
+                    hp: api.boss.d.bossHp || api.boss.d.hp,
+                    dmg: api.boss.d.bossDmg || api.boss.d.dmg
+                });
+                const mul = (api.coopMul ? api.coopMul() : 1) * (api.TUNE ? api.TUNE.enemyDifficulty : 1);
+                api.boss.max = api.boss.hp = Math.max(1, Math.round(api.boss.d.hp * mul));
+                api.boss.active = false;
+            }
+            api.burst(api.boss.x, api.boss.y - 20, 30, '#6ae8ff', 3);
+            api.ringFx(api.boss.x, api.boss.y, 90, '#6ae8ff');
+        }
     }
 
     function spawnPicks() {
@@ -97,6 +175,7 @@ HM_CHAPTERS.def.ch4 = function (api) {
         const s = step(), c = C();
         if (!s || s.type !== 'collect' || (c.m & (1 << d.v))) return;
         c.m |= 1 << d.v; c.c++;
+        if (api.GT) api.GT.ok = false;
         api.toast(api.txt(T().ui.c4pickedUp, { name: loc(s.goal).split('(')[0].trim(), n: c.c, m: s.n }));
         if (c.c >= s.n) complete(); else api.save();
     }
@@ -106,14 +185,17 @@ HM_CHAPTERS.def.ch4 = function (api) {
         const c = C(), key = s.id === 'obelisks' ? 'anchors' : 'wards';
         c[key] |= 1 << i;
         wave = { i };
-        api.SND.fx('roar'); api.shake = 12; api.ringFx(s.spots[i][0] * TS, s.spots[i][1] * TS, 90, key === 'anchors' ? '#6ae8ff' : '#ff6a2a');
+        const sx = s.spots[i][0] * TS, sy = s.spots[i][1] * TS;
+        api.SND.fx('roar'); api.shake = 12; api.ringFx(sx, sy, 90, key === 'anchors' ? '#6ae8ff' : '#ff6a2a');
         const list = s.wave.slice(); if (s.last && c.c === s.n - 1) list.push(s.last);
         if (api.P[1].on || api.P[2].on) list.push(list[0]);
         list.forEach((t, k) => {
-            const a = k * 6.2832 / list.length, x = s.spots[i][0] * TS + Math.cos(a) * 90, y = s.spots[i][1] * TS + Math.sin(a) * 60;
-            const f = api.spawnFoe(t, api.feetSolid(x, y) ? s.spots[i][0] * TS : x, api.feetSolid(x, y) ? s.spots[i][1] * TS + 40 : y, false);
+            const a = k * 6.2832 / list.length, x = sx + Math.cos(a) * 72, y = sy + Math.sin(a) * 52;
+            const pos = findSpawnPos(x, y);
+            const f = api.spawnFoe(t, pos[0], pos[1], false);
             if (f) { f.tag = 'w'; f.active = true; api.burst(f.x, f.y - 10, 12, '#6ae8ff', 2); }
         });
+        if (api.GT) api.GT.ok = false;
         api.say(eachPages(s, i), null, () => api.toast(api.txt(T().ui.c4waveLeft, { n: list.length })));
     }
     function checkWave() {
@@ -121,7 +203,9 @@ HM_CHAPTERS.def.ch4 = function (api) {
         let left = 0; for (const f of api.FOES) if (f.on && f.tag === 'w') left++;
         if (left) return;
         const s = step(), c = C();
+        if (!s || s.type !== 'waves') { wave = null; return; }
         c.m |= 1 << wave.i; c.c++; wave = null;
+        if (api.GT) api.GT.ok = false;
         api.SND.fx('level'); api.toast(T().ui.c4waveDone);
         if (c.c >= s.n) complete(); else { api.save(); setTimeout(announce, 1800); }
     }
@@ -696,10 +780,14 @@ HM_CHAPTERS.def.ch4 = function (api) {
     }
 
     function onKill(f) {
+        if (api.GT) api.GT.ok = false;
+        if (wave && f && f.tag === 'w') checkWave();
         const s = step(), c = C();
         if (s && s.type === 'kill' && s.zone === api.Z.id && s.foes.indexOf(f.t) >= 0) {
             c.c++; api.toast(objective(api.L));
-            if (c.c >= s.n) complete(); else api.save();
+            if (c.c >= s.n) complete(); else { ensureQuestFoes(); api.save(); }
+        } else {
+            ensureQuestFoes();
         }
     }
 
@@ -772,6 +860,7 @@ HM_CHAPTERS.def.ch4 = function (api) {
         if (api.boss && api.boss.on && api.boss.t !== 'valyrianlord' && !(s && s.type === 'boss' && s.boss === api.boss.t)) { api.boss.on = false; api.boss = null; }
         if (s && s.type === 'collect' && s.zone === id) spawnPicks();
         if (s && s.type === 'boss' && s.zone === id) wakeBoss();
+        ensureQuestFoes();
         buff = '';
     }
 
@@ -839,6 +928,8 @@ HM_CHAPTERS.def.ch4 = function (api) {
 
     function update() {
         const c = C(), Z = api.Z, p = api.P[0];
+        const s = step();
+        if (s && s.type === 'reach' && Z && s.zone === Z.id) { complete(); return; }
         if ((api.tick & 15) === 0) syncCh4Music();
         if (wave && (api.tick & 15) === 0) checkWave();
         if (buff === 'stark' && (api.tick % 180) === 0) {
@@ -894,22 +985,46 @@ HM_CHAPTERS.def.ch4 = function (api) {
     function npcAt(id) { for (const n of api.Z.npcs) if (n.id === id) { GT.x = n.x; GT.y = n.y; return true; } return false; }
     function target() {
         const c = C(), s = step(), Z = api.Z;
-        if (!s) return false;
+        if (Z && Z.def && Z.def.depth) {
+            if (Z.id === 'c4_val5' && api.boss && api.boss.on) { GT.x = api.boss.x; GT.y = api.boss.y; return true; }
+            if (Z.def.down) { GT.x = Z.def.down[0] * TS; GT.y = Z.def.down[1] * TS; return true; }
+        }
+        if (!s || !Z) return false;
         if (s.zone !== Z.id) return api.hop(s.zone);
         if ((s.type === 'talk' || s.type === 'choice') && npcAt(s.npc)) return true;
+        if (s.type === 'waves' && wave) {
+            let bestW = null, bdW = 1e9;
+            for (const f of api.FOES) if (f.on && f.tag === 'w') { const d = api.dist(f.x, f.y, api.P[0].x, api.P[0].y); if (d < bdW) { bdW = d; bestW = f; } }
+            if (bestW) { GT.x = bestW.x; GT.y = bestW.y; return true; }
+            checkWave();
+        }
         if (s.spots) {
             let best = -1, bd = 1e9;
             for (let i = 0; i < s.spots.length; i++) { if (c.m & (1 << i)) continue; const d = api.dist(s.spots[i][0] * TS, s.spots[i][1] * TS, api.P[0].x, api.P[0].y); if (d < bd) { bd = d; best = i; } }
             if (best >= 0 && !(s.type === 'waves' && wave)) { GT.x = s.spots[best][0] * TS; GT.y = s.spots[best][1] * TS; return true; }
         }
         if (s.type === 'rescue') { for (let i = 0; i < s.npcs.length; i++) if (!(c.m & (1 << i)) && npcAt(s.npcs[i])) return true; }
-        if (s.type === 'kill' || (s.type === 'waves' && wave)) {
+        if (s.type === 'kill') {
             let best = null, bd = 1e9;
-            for (const f of api.FOES) if (f.on && (s.type === 'waves' ? f.tag === 'w' : s.foes.indexOf(f.t) >= 0)) { const d = api.dist(f.x, f.y, api.P[0].x, api.P[0].y); if (d < bd) { bd = d; best = f; } }
+            for (const f of api.FOES) if (f.on && s.foes.indexOf(f.t) >= 0) { const d = api.dist(f.x, f.y, api.P[0].x, api.P[0].y); if (d < bd) { bd = d; best = f; } }
+            if (!best) {
+                ensureQuestFoes();
+                for (const f of api.FOES) if (f.on && s.foes.indexOf(f.t) >= 0) { const d = api.dist(f.x, f.y, api.P[0].x, api.P[0].y); if (d < bd) { bd = d; best = f; } }
+            }
             if (best) { GT.x = best.x; GT.y = best.y; return true; }
         }
-        if (s.type === 'boss' && api.boss && api.boss.on) { GT.x = api.boss.x; GT.y = api.boss.y; return true; }
-        if (s.at) { GT.x = s.at[0] * TS; GT.y = s.at[1] * TS; return true; }
+        if (s.type === 'boss') {
+            if (!(api.boss && api.boss.on && api.boss.t === s.boss)) wakeBoss();
+            if (api.boss && api.boss.on) {
+                if (api.boss.invul) {
+                    let bestSh = null, bdSh = 1e9;
+                    for (const f of api.FOES) if (f.on && f.tag === 'nksh') { const d = api.dist(f.x, f.y, api.P[0].x, api.P[0].y); if (d < bdSh) { bdSh = d; bestSh = f; } }
+                    if (bestSh) { GT.x = bestSh.x; GT.y = bestSh.y; return true; }
+                }
+                GT.x = api.boss.x; GT.y = api.boss.y; return true;
+            }
+        }
+        if (s.at && s.type === 'reach') { GT.x = s.at[0] * TS; GT.y = s.at[1] * TS; return true; }
         return false;
     }
 
@@ -992,7 +1107,7 @@ HM_CHAPTERS.def.ch4 = function (api) {
         drawUnder(x, cx, cy, t) { ART.drawUnder(x, api.Z, cx, cy, t); },
         drawOver(x, cx, cy, t) { ART.drawOver(x, api.Z, cx, cy, t, api.glow); },
         objective, story, idle, extras, news, visible, tile, interact, onKill, bossDown, onZone, arrive, update, target, score, npcExtra, questDone, mods, pickup, journal, zoneOpen,
-        devUnlockAll, devSkipStep,
+        ensureQuestFoes, devUnlockAll, devSkipStep,
         whatNext() { return objective(api.L); },
         stageOf() { return C() ? C().st : 0; },
         music(zone, def) {

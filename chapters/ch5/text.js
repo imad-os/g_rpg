@@ -754,3 +754,33 @@ ar: {
         }
     }
 })();
+
+window.HM_C5_POOL = [
+    { id: 'c5p_thrall', giver: 'alucard', type: 'kill', foe: 'vampire_thrall', n: 5, zone: 'c5_village', stage: 0, t: {
+        en: { title: 'Cull the Thralls', offer: 'Vampire thralls prowl the outskirts of Blackthorn. Cut down 5 of them.', goal: 'Slay Vampire Thralls ({n}/{m}).', done: 'Well fought. The village perimeter holds.' },
+        fr: { title: 'Purger les Serviteurs', offer: 'Des serviteurs vampires rôdent autour de Blackthorn. Éliminez-en 5.', goal: 'Tuer les serviteurs vampires ({n}/{m}).', done: 'Bien combattu. Le périmètre tient.' },
+        es: { title: 'Purgar a los Siervos', offer: 'Siervos vampiros merodean por Blackthorn. Abate a 5 de ellos.', goal: 'Mata siervos vampiros ({n}/{m}).', done: 'Bien luchado. El perímetro resiste.' },
+        ar: { title: 'تطهير الأتباع', offer: 'أتباع مصاصي الدماء يتجولون حول بلاكثورن. اقضِ على 5 منهم.', goal: 'اقضِ على أتباع مصاصي الدماء ({n}/{m}).', done: 'قتال رائع. محيط القرية آمن.' }
+    } },
+    { id: 'c5p_gargoyle', giver: 'jonathan', type: 'kill', foe: 'gargoyle', n: 4, zone: 'c5_dracula', stage: 3, t: {
+        en: { title: 'Stone Watchers', offer: 'Stone gargoyles guard the battlements of Castle Dracula. Shatter 4 of them.', goal: 'Shatter Gargoyles in Castle Dracula ({n}/{m}).', done: 'Their stone wings will trouble us no more.' },
+        fr: { title: 'Veilleurs de Pierre', offer: 'Des gargouilles gardent les remparts du château Dracula. Brisez-en 4.', goal: 'Briser les gargouilles ({n}/{m}).', done: 'Leurs ailes de pierre ne nous nuiront plus.' },
+        es: { title: 'Vigías de Piedra', offer: 'Gárgolas de piedra vigilan el Castillo de Drácula. Destruye 4.', goal: 'Destruye gárgolas ({n}/{m}).', done: 'Sus alas de piedra ya no nos molestarán.' },
+        ar: { title: 'حراس الحجر', offer: 'تماثيل الغرغول تحرس أسوار قلعة دراكولا. حطم 4 منها.', goal: 'حطم تماثيل الغرغول ({n}/{m}).', done: 'لن تزعجنا أجنحتها الحجرية بعد الآن.' }
+    } },
+    { id: 'c5p_rat', giver: 'mina', type: 'kill', foe: 'plague_rat', n: 6, zone: 'c5_nosferatu', stage: 5, t: {
+        en: { title: 'Plague Carriers', offer: 'Swarms of plague rats spread Orlok\'s blight. Exterminate 6 of them in Nosferatu\'s Wasteland.', goal: 'Slay Plague Rats ({n}/{m}).', done: 'Thank you! That will slow the spread of the blight.' },
+        fr: { title: 'Porteurs de Peste', offer: 'Des rats de peste répandent le fléau d\'Orlok. Exterminez-en 6.', goal: 'Tuer les rats de peste ({n}/{m}).', done: 'Merci ! Cela ralentira la contagion.' },
+        es: { title: 'Portadores de Peste', offer: 'Enjambres de ratas propagan la plaga de Orlok. Extermina a 6.', goal: 'Mata ratas de plaga ({n}/{m}).', done: '¡Gracias! Eso frenará el contagio.' },
+        ar: { title: 'حاملو الطاعون', offer: 'أسراب جرذان الطاعون تنشر وباء أورلوك. ابِد 6 منها.', goal: 'اقضِ على جرذان الطاعون ({n}/{m}).', done: 'شكرًا لك! هذا سيبطئ انتشار الوباء.' }
+    } },
+    { id: 'c5p_knight', giver: 'vanhelsing', type: 'elite', foe: 'crimson_knight', zone: 'c5_crimson', stage: 11, name: {
+        en: 'Lord Vane the Bloodsworn', fr: 'Seigneur Vane le Sang-Juré', es: 'Lord Vane el Jurasangre', ar: 'اللورد فين حليف الدم'
+    }, t: {
+        en: { title: 'The Bloodsworn Champion', offer: 'Lord Vane the Bloodsworn commands the Crimson Guard. Hunt him down in the Crimson Empire.', goal: 'Slay Lord Vane in the Crimson Empire.', done: 'A decisive blow against the Crimson Court!' },
+        fr: { title: 'Le Champion Sang-Juré', offer: 'Le seigneur Vane commande la Garde Cramoisie. Traquez-le dans l\'Empire Cramoisi.', goal: 'Vaincre le seigneur Vane.', done: 'Un coup décisif contre la Cour Cramoisie !' },
+        es: { title: 'El Campeón Jurasangre', offer: 'Lord Vane comanda la Guardia Carmesí. Dalo caza en el Imperio Carmesí.', goal: 'Derrota a Lord Vane.', done: '¡Un golpe decisivo contra la Corte Carmesí!' },
+        ar: { title: 'البطل حليف الدم', offer: 'اللورد فين يقود الحرس القرمزي. طارده في الإمبراطورية القرمزية.', goal: 'اهزم اللورد فين في الإمبراطورية القرمزية.', done: 'ضربة حاسمة ضد البلاط القرمزي!' }
+    } }
+];
+

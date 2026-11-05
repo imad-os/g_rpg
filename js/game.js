@@ -43,7 +43,7 @@
         let k = 0; for (let j = 0; j < i; j++) if (g[j] === g[i]) k++;                  // the first of a gender wears the main colours, the next ones the others
         return GLOOKS[g[i] ? 1 : 0][k];
     }
-    const NOGEAR = { head: '', body: '', feet: '' };
+    const NOGEAR = { head: '', body: '', feet: '', costume: '' };
     // a soft round glow of one colour (cached), for magic, shiny weapons and lights
     const GLOW = {};
     function glowSprite(col) {
@@ -90,8 +90,8 @@
     let riftClear = false;
 
     // balance, set by the owner in MyPC.app_config (all optional; 1 = the 1.7.0 game, which was too generous)
-    const TUNE = { coinDrops: 0.6, gearDrops: 0.5, mountSpeed: 1, petSpeed: 1.5, enemyDifficulty: 1.3 };
-    const TUNE_MAX = { coinDrops: 5, gearDrops: 10, mountSpeed: 3, petSpeed: 4, enemyDifficulty: 5 };
+    const TUNE = { coinDrops: 0.6, gearDrops: 0.5, mountSpeed: 1, petSpeed: 1.5, enemyDifficulty: 1.3, mushroomDuration: 60 };
+    const TUNE_MAX = { coinDrops: 5, gearDrops: 10, mountSpeed: 3, petSpeed: 4, enemyDifficulty: 5, mushroomDuration: 300 };
     function readTune() {
         const c = (window.MyPC && MyPC.app_config) || {};
         for (const k in TUNE) { const v = +c[k]; if (c[k] !== undefined && c[k] !== '' && isFinite(v)) TUNE[k] = Math.max(k === 'coinDrops' || k === 'gearDrops' ? 0 : 0.2, Math.min(TUNE_MAX[k], v)); }
@@ -154,14 +154,16 @@
 
     function fresh() {
         return { v: 3, stage: 0, ore: 0, caps: 0, sword: false, key: false, gate: false, seal: false, hearth: false, tide: false, stone: false,
-                 heart: false, page: false, lit: false, picked: {}, cut: false, coins: 0, potions: 1, big: 0, xp: 0, lvl: 1,
+                 heart: false, page: false, lit: false, picked: {}, cut: false, coins: 0, potions: 1, big: 0, mushrooms: 0, xp: 0, lvl: 1,
                  zone: 'village', x: 21.5, y: 10.5, kills: 0, time: 0, scored: false,
                  bag: [{ u: 1, id: 'stick', r: 0, up: 0, b: [] }], uid: 1, iron: 0,
-                 eq: [0, 1, 2, 3].map(() => ({ weapon: 1, head: 0, body: 0, feet: 0 })),
+                 eq: [0, 1, 2, 3].map(() => ({ weapon: 1, head: 0, body: 0, feet: 0, costume: 0 })),
+                 costumes: [[], [], [], []], costumeEq: ['', '', '', ''],
                  sq: {}, sqc: {}, opened: {}, star: false, crypt: false, qdone: 0,
                  pq: {}, pqDone: [], pqOffer: {}, pet: '', petNames: {}, mounts: [], mount: '', gender: [0, 1, 0, 1],
                  seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 },
-                 c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} } };
+                 c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} },
+                 c6: { st: 0, c: 0, m: 0, stars: 0, open: {}, rescued: {}, blocks: {}, switches: {}, seen: {} } };
     }
     // older saves: their gear (a list of names) becomes items in the bag, and Tobin's sword is never lost
     function migrate(s) {
@@ -174,8 +176,8 @@
             for (const id of names) if (window.HM_ITEMS[id]) { s.bag.push({ u: ++s.uid, id, r: 0, up: 0, b: [] }); uidOf[id] = s.uid; }
             const old = Array.isArray(s.eq) ? s.eq : [];
             s.eq = [0, 1].map(i => {
-                const e = old[i] || {}, out = { weapon: uidOf.stick, head: 0, body: 0, feet: 0 };
-                for (const sl of ['weapon', 'head', 'body', 'feet']) if (e[sl] && uidOf[e[sl]]) out[sl] = uidOf[e[sl]];
+                const e = old[i] || {}, out = { weapon: uidOf.stick, head: 0, body: 0, feet: 0, costume: 0 };
+                for (const sl of ['weapon', 'head', 'body', 'feet', 'costume']) if (e[sl] && uidOf[e[sl]]) out[sl] = uidOf[e[sl]];
                 if (s.sword && (!e.weapon || e.weapon === 'stick')) out.weapon = uidOf.iron_sword;
                 return out;
             });
@@ -183,7 +185,13 @@
         }
         // saves of two heroes: heroes 3 and 4 start with the plain stick and the default looks
         const stick = (s.bag || []).find(b => b.id === 'stick');
-        while (s.eq.length < MAXP) s.eq.push({ weapon: stick ? stick.u : 1, head: 0, body: 0, feet: 0 });
+        while (s.eq.length < MAXP) s.eq.push({ weapon: stick ? stick.u : 1, head: 0, body: 0, feet: 0, costume: 0 });
+        for (let i = 0; i < s.eq.length; i++) if (s.eq[i] && s.eq[i].costume === undefined) s.eq[i].costume = 0;
+        if (!Array.isArray(s.costumes)) s.costumes = [[], [], [], []];
+        while (s.costumes.length < MAXP) s.costumes.push([]);
+        if (!Array.isArray(s.costumeEq)) s.costumeEq = ['', '', '', ''];
+        while (s.costumeEq.length < MAXP) s.costumeEq.push('');
+        if (typeof s.mushrooms !== 'number') s.mushrooms = 0;
         if (!Array.isArray(s.gender)) s.gender = [0, 1];
         while (s.gender.length < MAXP) s.gender.push(s.gender.length & 1);
         if (!s.petNames || typeof s.petNames !== 'object') s.petNames = {};
@@ -231,8 +239,8 @@
     const MAXP = 4;                                         // up to four heroes: the TV (or a phone) plus three phones
     const P = [0, 1, 2, 3].map(i => ({ i, on: i === 0, dev: '', x: 0, y: 0, fx: 0, fy: 1, ax: 0, ay: 1, hp: 10, atk: 0, swing: 0, inv: 0,
         down: false, downT: 0, walk: 0, kx: 0, ky: 0, hold: 0, moving: false, r: 7, sy: 0, kind: 3, lean: 0, flash: 0, anim: 'sword', bite: 0, lfx: 1,
-        sta: 50, cdHeal: 0, cdPower: 0, cdDistant: 0, tapT: -99, aura: 0, auraCol: '#fff',
-        st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, atkSpd: 0, mag: 0, role: 'hybrid', heavyPts: 0, lightPts: 0, mysticPts: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '' } }));
+        sta: 50, cdHeal: 0, cdPower: 0, cdDistant: 0, tapT: -99, aura: 0, auraCol: '#fff', mushT: 0, mushMax: 3600,
+        st: { atk: 1, cd: 20, kind: 'sword', def: 0, spd: 0, atkSpd: 0, mag: 0, role: 'hybrid', heavyPts: 0, lightPts: 0, mysticPts: 0, crit: 10, hp: 0, gold: 0, col: '#a07a4a', col2: '#6b4a2e' }, gear: { head: '', body: '', feet: '', costume: '' } }));
     function nPlayers() { let n = 0; for (const p of P) if (p.on) n++; return n; }
     // every hero who joins makes the foes 20% harder: health, armour and the blows they deal
     function coopMul() { return 1 + 0.2 * (nPlayers() - 1); }
@@ -299,7 +307,7 @@
         st.crit = w.kind === 'gun' || w.kind === 'pistols' || (wi && wi.id === 'winters_fang') ? 20 : 10; st.hp = 0; st.gold = 0;
         for (let k = 0; k < SLOTS.length; k++) {
             const it = itemOf(e[SLOTS[k]]); if (!it) continue;
-            const base = ITEMS[it.id]; if (!base) continue;
+            const base = ITEMS[it.id]; if (!base || base.slot === 'costume' || base.cosmetic) continue;
             if (k > 0) {
                 st.def += (base.def || 0) + it.up;
                 st.spd += base.spd || 0;
@@ -341,8 +349,8 @@
         st.atkSpd = Math.max(-0.35, Math.min(0.40, st.atkSpd));
         st.cd = Math.max(8, Math.round(w.cd / (1 + st.atkSpd)));
 
-        const h = itemOf(e.head), bd = itemOf(e.body), ft = itemOf(e.feet);
-        p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : ''; p.gear.weapon = wi ? wi.id : 'stick'; p.wr = wi ? wi.r : 0;
+        const h = itemOf(e.head), bd = itemOf(e.body), ft = itemOf(e.feet), cs = itemOf(e.costume);
+        p.gear.head = h ? h.id : ''; p.gear.body = bd ? bd.id : ''; p.gear.feet = ft ? ft.id : ''; p.gear.costume = cs ? cs.id : ((S && S.costumeEq && S.costumeEq[p.i]) || ''); p.gear.weapon = wi ? wi.id : 'stick'; p.wr = wi ? wi.r : 0;
         p.lgMask = (h && h.r >= 3 ? 1 : 0) | (bd && bd.r >= 3 ? 2 : 0) | (ft && ft.r >= 3 ? 4 : 0);
         if (p.hp > maxHp(p)) p.hp = maxHp(p);
     }
@@ -353,7 +361,8 @@
     // armour: 6% less damage per point up to 10 points (60%), then less and less for each point, never more than 80%
     function defCut(d) { return d <= 10 ? d * 0.06 : 0.6 + 0.2 * (1 - 10 / d); }
     function rollBonuses(id, r) {
-        const base = ITEMS[id], pool = LOOT.bonuses[base.slot === 'weapon' ? 'weapon' : 'armour'].slice(), out = [], t = Math.max(1, base.tier || 1);
+        const base = ITEMS[id]; if (!base || base.cosmetic || base.slot === 'costume') return [];
+        const pool = LOOT.bonuses[base.slot === 'weapon' ? 'weapon' : 'armour'].slice(), out = [], t = Math.max(1, base.tier || 1);
         for (let k = 0; k < r && pool.length; k++) {
             const type = pool.splice((Math.random() * pool.length) | 0, 1)[0];
             const v = type === 'a' || type === 'd' ? t + ((Math.random() * (t + 1)) | 0) : type === 'c' ? 3 + r + ((Math.random() * 5) | 0)
@@ -366,7 +375,7 @@
     // legendary: LOOT.chance, raised by the pity counter (after LOOT.pity pieces without one, the next is legendary)
     function rollItem(tier, minR) {
         const ids = [];
-        for (const id in ITEMS) { const t = ITEMS[id].tier; if (t >= 1 && t <= tier && t >= tier - 1 && !ITEMS[id].super) ids.push(id); }
+        for (const id in ITEMS) { const t = ITEMS[id].tier; if (t >= 1 && t <= tier && t >= tier - 1 && !ITEMS[id].super && !ITEMS[id].cosmetic && ITEMS[id].slot !== 'costume') ids.push(id); }
         const id = ids[(Math.random() * ids.length) | 0], c = LOOT.chance, x = Math.random();
         let r = x < c[3] ? 3 : x < c[3] + c[2] ? 2 : x < c[3] + c[2] + c[1] ? 1 : 0;
         r = Math.max(r, minR || 0);
@@ -403,6 +412,7 @@
     }
     function statLine(it) {
         const base = ITEMS[it.id]; if (!base) return '';
+        if (base.slot === 'costume' || base.cosmetic) return T.ui.cosmeticOnly || 'Cosmetic Overlay (Does not alter stats)';
         let s = '';
         if (base.slot === 'weapon') s = T.ui.atk + ' ' + (base.atk + it.up * upStep(base)) + (base.kind !== 'sword' ? ' · ' + T.ui[base.kind] : '');
         else {
@@ -421,7 +431,7 @@
         return s;
     }
     // worn by hero 1, or by hero 2 while they play (hero 2's slots fall back to nothing if it was sold)
-    function worn(u) { if (!u) return false; for (const p of P) { const e = S.eq[p.i]; if (p.on && (e.weapon === u || e.head === u || e.body === u || e.feet === u)) return true; } return false; }
+    function worn(u) { if (!u) return false; for (const p of P) { const e = S.eq[p.i]; if (p.on && (e.weapon === u || e.head === u || e.body === u || e.feet === u || e.costume === u)) return true; } return false; }
 
     /* ------------------------------------------------------------------ side quests */
 
@@ -440,6 +450,7 @@
     function acceptQuest(q) {
         S.sq[q.id] = 1; S.sqc[q.id] = 0;
         if (q.type === 'fetch' && S.star) S.sq[q.id] = 2;
+        if (CH && CH.ensureQuestFoes) CH.ensureQuestFoes();
         S.track = 'sq:' + q.id; GT.ok = false; hudLast.obj = '';
         SND.fx('quest'); toast(txt(T.ui.qNew, { name: T.quests[q.id].title })); save();
     }
@@ -566,8 +577,17 @@
                 let have = false; for (const n of Z.npcs) if (n.id === 'q:' + npc) have = true;
                 if (!have) { const p = spot(seed, 0); Z.npcs.push({ id: 'q:' + npc, look: d.who.look, x: p[0], y: p[1], hx: p[0], hy: p[1], kind: 2, sy: p[1], walk: 0, fx: 0, fy: 1, bob: 2 }); }
             } else if (d.type === 'elite') {
-                const p = spot(seed, 0), f = spawnFoe(d.foe, p[0], p[1], false);
-                if (f) { f.elite = npc; f.ename = d.name[L] || d.name.en; f.max = f.hp = Math.round((f.d.hp * (f.d.hp > 300 ? 2.5 : 5) + S.lvl * 3) * TUNE.enemyDifficulty * coopMul()); f.r = Math.round(f.d.r * 1.35); f.bonus = f.d.def ? 4 : 1; f.def += 2; }
+                let have = false; for (const f of FOES) if (f.on && f.elite === npc) have = true;
+                if (!have) {
+                    const p = spot(seed, 0), f = spawnFoe(d.foe, p[0], p[1], false);
+                    if (f) { f.elite = npc; f.ename = d.name[L] || d.name.en; f.max = f.hp = Math.round((f.d.hp * (f.d.hp > 300 ? 2.5 : 5) + S.lvl * 3) * TUNE.enemyDifficulty * coopMul()); f.r = Math.round(f.d.r * 1.35); f.bonus = f.d.def ? 4 : 1; f.def += 2; }
+                }
+            } else if (d.type === 'kill') {
+                let alive = 0; for (const f of FOES) if (f.on && f.t === d.foe) alive++;
+                for (let k = alive; k < Math.max(0, (d.n || 1) - (q.c || 0)); k++) {
+                    const p = spot(seed, k);
+                    if (!spawnFoe(d.foe, p[0], p[1], false)) break;
+                }
             }
         }
     }
@@ -654,7 +674,7 @@
         }
         atmoStart(def.atmo || '');
         spawnPool();
-        hideBoss();
+        if (!boss || !boss.active) hideBoss();
         music();
         bgDirty = true;
     }
@@ -724,9 +744,19 @@
     /* ------------------------------------------------------------------ helpers */
 
     function spawnFoe(t, x, y, minion) {
+        if (t !== 'blood_crystal' && Z && Z.tiles && Z.cols && feetSolid(x, y)) {
+            outer: for (let r = 16; r <= 80; r += 16) {
+                for (let k = 0; k < 8; k++) {
+                    const a = k * 0.785398, nx = x + Math.cos(a) * r, ny = y + Math.sin(a) * r;
+                    if (!feetSolid(nx, ny)) { x = nx; y = ny; break outer; }
+                }
+            }
+        }
         for (const f of FOES) if (!f.on) {
-            const d = FOE[t];
-            f.on = true; f.t = t; f.d = d; f.x = f.hx = x; f.y = f.hy = y; f.r = d.r;
+            const rawD = FOE[t];
+            if (!rawD) return null;
+            const d = (minion && rawD.boss) ? Object.assign({}, rawD, { boss: false }) : rawD;
+            f.on = true; f.t = t; f.d = d; f.boss = !!d.boss; f.x = f.hx = x; f.y = f.hy = y; f.r = d.r;
             f.max = f.hp = Math.max(1, Math.round(d.hp * (d.boss ? 1 + 0.5 * (nPlayers() - 1) : 1) * TUNE.enemyDifficulty * coopMul()));
             f.def = Math.round((d.def || 0) * coopMul()); f.tag = '';
             f.st = 0; f.tm = 0; f.cd = 60; f.vx = f.vy = f.kx = f.ky = 0; f.hurt = 0; f.minion = minion; f.mask = 0; f.ring = 0;
@@ -757,6 +787,34 @@
             return;
         }
         addToBag(it);                                       // no room on the ground: straight into the bag
+    }
+    function dropMushroom(x, y) {
+        for (const d of DROPS) if (!d.on) {
+            d.on = true; d.k = 5; d.v = 1; d.x = x; d.y = y;
+            d.vx = (Math.random() - 0.5) * 1.4; d.vy = (Math.random() - 0.5) * 0.9;
+            d.z = 12; d.vz = 3.2; d.t = 3600; d.sy = y;
+            ringFx(x, y, 42, '#ff3a2a'); SND.fx('qblock');
+            return d;
+        }
+        return null;
+    }
+    function useMushroom(p, fromPickup) {
+        p = p || P[0];
+        if (!fromPickup) {
+            if ((S.mushrooms || 0) <= 0) return toast(T.ui.noPotion);
+            S.mushrooms--;
+        }
+        const dur = Math.max(300, Math.round((TUNE.mushroomDuration || 60) * 60));
+        p.mushMax = dur;
+        p.mushT = dur;
+        p.hp = Math.min(maxHp(p), p.hp + Math.max(12, Math.ceil(maxHp(p) * 0.45)));
+        if (p.down) { p.down = false; p.inv = 90; }
+        SND.fx('mushroom');
+        burst(p.x, p.y - 14, 22, '#ffd23f', 2.0);
+        burst(p.x, p.y - 10, 14, '#ff3a2a', 1.5);
+        ringFx(p.x, p.y - 8, 52, '#ffd23f');
+        toast(txt(fromPickup ? (T.ui.gotMushroom || '🍄 Super Mushroom! 1.5× Giant Mode!') : (T.ui.usedMushroom || '{name} grew to 1.5× size!'), { name: heroName(p.i) }));
+        save();
     }
     function coins(x, y, total) { while (total > 0) { const v = total >= 10 ? 5 : 1; drop(x, y, 0, v); total -= v; } }
     function shot(x, y, vx, vy, dmg, r, k, owner) {
@@ -819,8 +877,8 @@
         const em = CH && CH.gems ? CH.gems() : 0;
         if (em !== hudLast.em) { hudLast.em = em; $('em0').className = 'em r' + (em & 1 ? ' on' : ''); $('em1').className = 'em b' + (em & 2 ? ' on' : ''); $('em2').className = 'em s' + (em & 4 ? ' on' : ''); $('em3').className = 'em h' + (em & 8 ? ' on' : ' off'); }
         if (S.coins !== hudLast.coins) { hudLast.coins = S.coins; $('stCoins').textContent = '● ' + S.coins; }
-        const pk = S.potions * 100 + S.big;
-        if (pk !== hudLast.pot) { hudLast.pot = pk; $('stPot').textContent = '♥ ' + S.potions + (S.big ? '  ✚ ' + S.big : ''); refreshMenu(); }
+        const pk = S.potions * 10000 + S.big * 100 + (S.mushrooms || 0);
+        if (pk !== hudLast.pot) { hudLast.pot = pk; $('stPot').textContent = '♥ ' + S.potions + (S.big ? '  ✚ ' + S.big : '') + (S.mushrooms ? '  🍄 ' + S.mushrooms : ''); refreshMenu(); }
         if (S.lvl !== hudLast.lvl) { hudLast.lvl = S.lvl; $('stLv').textContent = T.ui.lv + ' ' + S.lvl; }
         let mh = 0, np = 0;
         for (const q of P) { const m = maxHp(q); mh = mh * 31 + m; if (q.on) np++; }
@@ -1170,6 +1228,7 @@
         const hasSave = !!MyPC.load('save', null);
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
+        if (CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.playCh6 || '🍄 Chapter 6: Kingdoms of Wonder', fn: () => playChapter6() });
         if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.playCh5 || '🩸 Chapter 5: The Blood Kingdoms', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
         if (isDevMod()) OV.items.push({ label: T.ui.devTools || '🛠 Dev Mode (Teleport, Gear, Mounts, Pets)', fn: devScreen });
@@ -1180,6 +1239,7 @@
     }
     function confirmNew() {
         OV.items = [{ label: T.ui.no, fn: showTitle }];
+        if (CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.devJumpCh6 || '▶ Play Chapter 6 (Keep Save)', fn: () => playChapter6() });
         if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.devJumpCh5 || '▶ Play Chapter 5 (Keep Save)', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
         OV.items.push({ label: T.ui.yes, fn: newGame });
@@ -1243,7 +1303,7 @@
         });
     }
     function track(k) {
-        S.track = k; save(); SND.fx('quest'); GT.ok = false;
+        S.track = k; save(); SND.fx('quest'); GT.ok = false; hudLast.obj = '';
         toast(k === 'main' ? T.ui.trackMain : T.ui.trackOn); renderList();
     }
     // where a tracked side quest wants you (false: nothing to point at, the main story is used)
@@ -1255,9 +1315,13 @@
     function foeSpot(t, elite) {
         let best = null, bd = 1e9;
         for (const f of FOES) if (f.on && (elite ? f.elite === elite : f.t === t)) { const d = dist(f.x, f.y, P[0].x, P[0].y); if (d < bd) { bd = d; best = f; } }
+        if (!best && !elite && CH && CH.ensureQuestFoes) {
+            CH.ensureQuestFoes();
+            for (const f of FOES) if (f.on && f.t === t) { const d = dist(f.x, f.y, P[0].x, P[0].y); if (d < bd) { bd = d; best = f; } }
+        }
         if (best) { GT.x = best.x; GT.y = best.y; return true; }
         if (elite) return false;
-        for (const z in MAPS) if (z !== Z.id && MAPS[z].foes) for (const f of MAPS[z].foes) if (f.t === t) return hop(z);
+        for (const z in MAPS) if (z !== Z.id && zoneOpen(z) && MAPS[z].foes) for (const f of MAPS[z].foes) if (f.t === t) return hop(z);
         return false;
     }
     function trackTarget() {
@@ -1437,7 +1501,7 @@
     }
     function potionScreen() {
         listScreen({
-            title: () => CH.storeName ? CH.storeName() : T.ui.store, info: () => '● ' + S.coins + '   ♥ ' + S.potions + '   ✚ ' + S.big,
+            title: () => CH.storeName ? CH.storeName() : T.ui.store, info: () => '● ' + S.coins + '   ♥ ' + S.potions + '   ✚ ' + S.big + (S.mushrooms ? '   🍄 ' + S.mushrooms : ''),
             rows: () => SHOPS.potions.map(p => ({
                 label: p.id === 'small' ? T.ui.potS : T.ui.potB, sub: p.id === 'small' ? txt(T.ui.healN, { n: p.heal }) : T.ui.healFull,
                 right: txt(T.ui.nCoins, { n: p.price }), dim: S.coins < p.price,
@@ -1446,7 +1510,15 @@
                     S.coins -= p.price; if (p.id === 'small') S.potions++; else S.big++;
                     SND.fx('buy'); save(); renderList();
                 }
-            })).concat((CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0 && !(m === 'wolf' && CH.noWolf)).map(m => ({
+            })).concat(CHID === 'ch6' ? [{
+                label: '🍄 Super Mushroom', sub: 'Restores 45% HP + 1.5× Giant Mode for 60s',
+                right: txt(T.ui.nCoins, { n: 65 }), dim: S.coins < 65,
+                fn: () => {
+                    if (S.coins < 65) return toast(T.ui.poor);
+                    S.coins -= 65; S.mushrooms = (S.mushrooms || 0) + 1;
+                    SND.fx('buy'); save(); renderList();
+                }
+            }] : []).concat((CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0 && !(m === 'wolf' && CH.noWolf)).map(m => ({
                 label: mountName(m), sub: m === 'horse' ? T.ui.horseSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
                 fn: () => {
                     if (S.coins < MOUNTS[m].price) return toast(T.ui.poor);
@@ -1455,11 +1527,104 @@
                 } }))).concat([{ label: T.ui.leave, fn: closeList }])
         });
     }
+    let csHero = 0, csConfirm = '';
+    function ensureCostumeBagItem(cid) {
+        let it = S.bag.find(x => x && x.id === cid);
+        if (!it) {
+            it = { u: ++S.uid, id: cid, r: 3, up: 0, b: [] };
+            if (S.bag.length < LOOT.bagSize) S.bag.push(it);
+        }
+        return it;
+    }
+    function costumeShopScreen(heroIdx) {
+        if (heroIdx !== undefined) csHero = heroIdx;
+        csConfirm = '';
+        if (!Array.isArray(S.costumes)) S.costumes = [[], [], [], []];
+        if (!Array.isArray(S.costumeEq)) S.costumeEq = ['', '', '', ''];
+        const list = SHOPS.costumes || ['mario_costume', 'luigi_costume', 'peach_costume'];
+        listScreen({
+            title: () => (T.ui.costumeShop || '🍄 Royal Costume Boutique') + (nPlayers() > 1 ? ' · ' + heroName(csHero) : ''),
+            info: () => '● ' + S.coins + '   ·   ' + (T.ui.cosmeticOnly || 'Cosmetic Overlay (Does not alter stats)'),
+            rows: () => {
+                const owned = S.costumes[csHero] || (S.costumes[csHero] = []);
+                const curEq = S.costumeEq[csHero] || (itemOf(S.eq[csHero].costume) && itemOf(S.eq[csHero].costume).id) || '';
+                const rows = [];
+                if (nPlayers() > 1) {
+                    rows.push({
+                        label: '⇄ Switch Hero: ' + heroName(csHero) + ' ▸ ' + heroName(nextHero(csHero)),
+                        sub: 'Each player owns & equips costumes independently',
+                        right: 'P' + (csHero + 1),
+                        fn: () => { csHero = nextHero(csHero); csConfirm = ''; renderList(); }
+                    });
+                }
+                for (const cid of list) {
+                    const def = ITEMS[cid]; if (!def) continue;
+                    const isOwned = owned.indexOf(cid) >= 0;
+                    const isEq = curEq === cid;
+                    const desc = cid === 'mario_costume' ? 'Iconic Red Cap with M emblem, Blue Overalls & White Gloves'
+                        : cid === 'luigi_costume' ? 'Iconic Green Cap with L emblem, Navy Overalls & White Gloves'
+                        : 'Royal Pink Princess Gown, Golden Crown & Sapphire Brooch';
+                    rows.push({
+                        label: itemName(cid),
+                        cls: 'r3',
+                        img: gearImg(cid),
+                        sub: (csConfirm === cid && !isOwned) ? 'Press Confirm again to buy for ' + def.price + ' Coins!' : (desc + ' · ' + (T.ui.cosmeticOnly || 'Cosmetic Only')),
+                        right: isEq ? 'EQUIPPED ✓' : isOwned ? 'Equip' : txt(T.ui.nCoins, { n: def.price }),
+                        mark: isEq || csConfirm === cid,
+                        dim: !isOwned && S.coins < def.price,
+                        fn: () => {
+                            if (!isOwned) {
+                                if (S.coins < def.price) return toast(T.ui.poor);
+                                if (csConfirm !== cid) { csConfirm = cid; SND.fx('move'); renderList(); return; }
+                                S.coins -= def.price;
+                                owned.push(cid);
+                                const it = ensureCostumeBagItem(cid);
+                                S.costumeEq[csHero] = cid;
+                                S.eq[csHero].costume = it ? it.u : 0;
+                                csConfirm = '';
+                                recalcAll(); SND.fx('star');
+                                toast(heroName(csHero) + ' unlocked & equipped ' + itemName(cid) + '!');
+                                save(); renderList();
+                            } else {
+                                if (isEq) {
+                                    S.costumeEq[csHero] = '';
+                                    S.eq[csHero].costume = 0;
+                                    recalcAll(); SND.fx('ok');
+                                    toast(heroName(csHero) + ' removed costume overlay.');
+                                } else {
+                                    const it = ensureCostumeBagItem(cid);
+                                    S.costumeEq[csHero] = cid;
+                                    S.eq[csHero].costume = it ? it.u : 0;
+                                    recalcAll(); SND.fx('equip');
+                                    toast(heroName(csHero) + ' equipped ' + itemName(cid) + '!');
+                                }
+                                save(); renderList();
+                            }
+                        }
+                    });
+                }
+                if (curEq) {
+                    rows.push({
+                        label: '✕ Remove Costume Overlay (Show Equipped Armor)',
+                        sub: 'Currently wearing: ' + itemName(curEq),
+                        fn: () => {
+                            S.costumeEq[csHero] = '';
+                            S.eq[csHero].costume = 0;
+                            recalcAll(); SND.fx('ok'); save(); renderList();
+                        }
+                    });
+                }
+                rows.push({ label: T.ui.leave, fn: closeList });
+                return rows;
+            }
+        });
+    }
     // equipment: boxes with pictures (name on top), tabs for the slots, and the details of the chosen piece
     function rtl() { return document.documentElement.dir === 'rtl'; }
     const GICONS = {};
     function gearImg(id) {
-        const base = ITEMS[id], useKn = KN.ok && base.kind !== 'axes' && base.kind !== 'pistols' && base.kind !== 'hammer';
+        const base = ITEMS[id]; if (!base) return document.createElement('canvas');
+        const useKn = KN.ok && base.kind !== 'axes' && base.kind !== 'pistols' && base.kind !== 'hammer' && base.slot !== 'costume';
         const key = id + (useKn ? ':k' : ':p');
         if (GICONS[key]) { const im = new Image(); im.src = GICONS[key]; return im; }
         const c = document.createElement('canvas'); c.width = c.height = 32;
@@ -1470,7 +1635,19 @@
             try { GICONS[key] = c.toDataURL(); const im = new Image(); im.src = GICONS[key]; return im; } catch (e) { return c; }
         }
         x.fillStyle = base.col; x.strokeStyle = base.col; x.lineWidth = 3;
-        if (base.kind === 'staff') {                           // a staff with a glowing orb
+        if (base.slot === 'costume') {
+            if (id === 'peach_costume') {
+                x.fillStyle = '#ffd23f'; x.fillRect(10, 3, 12, 4); x.fillRect(10, 1, 2, 3); x.fillRect(15, 0, 2, 4); x.fillRect(20, 1, 2, 3);
+                x.fillStyle = '#ff85c0'; x.beginPath(); x.moveTo(10, 10); x.lineTo(22, 10); x.lineTo(27, 29); x.lineTo(5, 29); x.closePath(); x.fill();
+                x.fillStyle = '#2fa8ff'; x.fillRect(14, 12, 4, 4);
+            } else {
+                x.fillStyle = base.col; x.beginPath(); x.arc(16, 11, 8, Math.PI, 0); x.fill(); x.fillRect(7, 10, 20, 3);
+                x.fillStyle = '#ffffff'; x.fillRect(14, 6, 4, 4);
+                x.fillStyle = base.col; x.fillRect(8, 15, 16, 8);
+                x.fillStyle = base.col2 || '#2458d8'; x.fillRect(10, 15, 12, 14);
+                x.fillStyle = '#ffd23f'; x.fillRect(11, 18, 2, 2); x.fillRect(19, 18, 2, 2);
+            }
+        } else if (base.kind === 'staff') {                    // a staff with a glowing orb
             x.strokeStyle = base.col2; x.lineWidth = 3; x.beginPath(); x.moveTo(8, 28); x.lineTo(21, 9); x.stroke();
             x.drawImage(glowSprite(base.col), 11, -1, 22, 22); x.fillStyle = '#ffffff'; x.beginPath(); x.arc(22, 10, 3, 0, 6.2832); x.fill();
         } else if (base.kind === 'gun') {                      // a flintlock: wooden stock, dark barrel
@@ -1499,6 +1676,7 @@
         const o = { atk: 0, def: 0, spd: 0, atkSpd: 0, mag: 0, crit: 0, hp: 0, gold: 0 };
         if (!it) return o;
         const base = ITEMS[it.id];
+        if (!base || base.slot === 'costume' || base.cosmetic) return o;
         if (base.slot === 'weapon') o.atk = base.atk + it.up * upStep(base);
         else {
             o.def = (base.def || 0) + it.up;
@@ -1513,7 +1691,7 @@
         return o;
     }
     function nextHero(i) { for (let k = 1; k <= MAXP; k++) { const j = (i + k) % MAXP; if (P[j].on) return j; } return i; }
-    /* The gear screen: on the left the hero as it would look, in the middle the four worn pieces (OK on one lists the
+    /* The gear screen: on the left the hero as it would look, in the middle the worn pieces (OK on one lists the
      * pieces of that kind, with the one you are on worn by the preview), on the right the stats of the piece you are on,
      * each with its change against what is worn: atk 4 (-1) in red, (+2) in green. A mouse works too. */
     const EQ = { hero: 0, si: 0, focus: 'slots', ri: 0, gi: 0, midEl: null, detEl: null, gridEl: null, items: null };
@@ -1548,7 +1726,10 @@
     }
     function gearItems() {
         const e = S.eq[EQ.hero], sl = SLOTS[EQ.si];
-        const list = S.bag.filter(it => ITEMS[it.id] && ITEMS[it.id].slot === sl);
+        if (sl === 'costume' && Array.isArray(S.costumes) && Array.isArray(S.costumes[EQ.hero])) {
+            for (const cid of S.costumes[EQ.hero]) ensureCostumeBagItem(cid);
+        }
+        const list = S.bag.filter(it => ITEMS[it.id] && ITEMS[it.id].slot === sl && (sl !== 'costume' || !Array.isArray(S.costumes) || !Array.isArray(S.costumes[EQ.hero]) || S.costumes[EQ.hero].indexOf(it.id) >= 0 || e.costume === it.u));
         list.sort((a, b) => (e[sl] === b.u ? 1 : 0) - (e[sl] === a.u ? 1 : 0) || b.r - a.r || ITEMS[b.id].tier - ITEMS[a.id].tier || b.up - a.up);
         if (sl !== 'weapon') list.push(null);             // the last box takes the piece off
         return list;
@@ -1557,6 +1738,12 @@
         if (!it) { det.appendChild(el('div', 'gdk', EQ.focus === 'list' ? T.ui.takeOff : T.ui.noneWorn)); return; }
         const base = ITEMS[it.id];
         det.appendChild(el('div', 'gdn r' + it.r, itemLabel(it)));
+        if (base.slot === 'costume' || base.cosmetic) {
+            det.appendChild(el('div', 'gdk', (T.ui.slot_costume || 'Costume') + ' · ' + (T.ui.cosmeticOnly || 'Cosmetic Overlay (Does not alter stats)')));
+            const who = P.filter(q => q.on && (S.eq[q.i].costume === it.u || (S.costumeEq && S.costumeEq[q.i] === it.id))).map(q => heroName(q.i)).join(', ');
+            det.appendChild(el('div', 'gdh', who ? txt(T.ui.worn, { name: who }) : T.ui.noneWorn));
+            return;
+        }
         const roleTag = base.role && T.ui['arm_' + base.role] ? ' · ' + T.ui['arm_' + base.role] : '';
         det.appendChild(el('div', 'gdk', T.ui['slot_' + base.slot] + (base.slot === 'weapon' ? ' · ' + T.ui[base.kind] : roleTag) + ' · ' + txt(T.ui.tier, { n: base.tier || 0 })));
         const a = itemStats(it), b = itemStats(cur), same = cur === it;
@@ -1584,11 +1771,11 @@
     }
     function updateGearSel(playFx) {
         if (!EQ.midEl || !EQ.detEl) return renderGear();
-        const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list';
-        if (!list) EQ.si = Math.min(EQ.ri, 3);
+        const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list', nSlots = SLOTS.length;
+        if (!list) EQ.si = Math.min(EQ.ri, nSlots - 1);
         const sl = SLOTS[EQ.si], items = list ? (EQ.items || gearItems()) : null, cur = itemOf(e[sl]);
         if (list && EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
-        const look = list ? items[EQ.gi] : EQ.ri < 4 ? cur : null;
+        const look = list ? items[EQ.gi] : EQ.ri < nSlots ? cur : null;
         gearPreview(list ? look : undefined);
         if (!list) {
             const ch = EQ.midEl.children;
@@ -1603,7 +1790,7 @@
             }
         }
         EQ.detEl.textContent = '';
-        if (list || EQ.ri < 4) gearDetails(EQ.detEl, look, cur);
+        if (list || EQ.ri < nSlots) gearDetails(EQ.detEl, look, cur);
         EQ.detEl.appendChild(el('div', 'ghelp', list ? T.ui.gearHelpList : T.ui.gearHelpSlots));
         if (playFx) {
             SND.fx('move');
@@ -1612,11 +1799,11 @@
         if (remoteMenu) mirrorMenu();
     }
     function renderGear() {
-        const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list';
-        if (!list) EQ.si = Math.min(EQ.ri, 3);
+        const e = S.eq[EQ.hero], rows = eqRows(), list = EQ.focus === 'list', nSlots = SLOTS.length;
+        if (!list) EQ.si = Math.min(EQ.ri, nSlots - 1);
         const sl = SLOTS[EQ.si], items = list ? gearItems() : null, cur = itemOf(e[sl]);
         if (list && EQ.gi >= items.length) EQ.gi = Math.max(0, items.length - 1);
-        const look = list ? items[EQ.gi] : EQ.ri < 4 ? cur : null;
+        const look = list ? items[EQ.gi] : EQ.ri < nSlots ? cur : null;
         const box = el('div', 'gearbox'), head = el('div', 'lhead'), st = P[EQ.hero].st;
         const roleLbl = T.ui['role_' + (st.role || 'hybrid')] || '⚖ Balanced';
         head.appendChild(el('div', 'ltitle', T.ui.equip + (nPlayers() > 1 ? ': ' + heroName(EQ.hero) : '') + '  ·  ' + roleLbl));
@@ -1635,7 +1822,7 @@
         main.appendChild(doll);
         const mid = el('div', 'gmid');
         let grid = null;
-        if (!list) {                                     // the four worn pieces, then switch hero and close
+        if (!list) {                                     // the five worn pieces, then switch hero and close
             rows.forEach((r, i) => {
                 const sel = i === EQ.ri, row = el('div', 'gs' + (sel ? ' sel' : '') + (r === 'close' || r === 'hero' ? ' gsx' : ''));
                 if (r === 'close') row.appendChild(el('div', 'gsl', T.ui.close));
@@ -1665,7 +1852,7 @@
         }
         main.appendChild(mid);
         const det = el('div', 'gdet');
-        if (list || EQ.ri < 4) gearDetails(det, look, cur);
+        if (list || EQ.ri < nSlots) gearDetails(det, look, cur);
         det.appendChild(el('div', 'ghelp', list ? T.ui.gearHelpList : T.ui.gearHelpSlots));
         main.appendChild(det);
         box.appendChild(main);
@@ -1674,10 +1861,10 @@
         if (list && grid) { const selEl = grid.children[EQ.gi]; if (selEl) grid.scrollTop = Math.max(0, selEl.offsetTop - grid.clientHeight / 2 + selEl.offsetHeight / 2); }
         announceLater(list ? (look ? itemLabel(look) + '. ' + statLine(look) : T.ui.takeOff) : rows[EQ.ri] === 'close' ? T.ui.close : rows[EQ.ri] === 'hero' ? heroName(nextHero(EQ.hero)) : T.ui['slot_' + rows[EQ.ri]] + ': ' + (cur ? itemLabel(cur) : T.ui.noneWorn));
     }
-    // Return in the list goes back to the four pieces (the screen closes from there)
+    // Return in the list goes back to the slots (the screen closes from there)
     function gearBack() { if (EQ.focus === 'list') { EQ.focus = 'slots'; SND.fx('ok'); renderGear(); return true; } return false; }
     function gearInput(a) {
-        const e = S.eq[EQ.hero], rows = eqRows();
+        const e = S.eq[EQ.hero], rows = eqRows(), nSlots = SLOTS.length;
         const dx = a === 'left' ? -1 : a === 'right' ? 1 : 0, h = rtl() ? -dx : dx;    // in Arabic the boxes run right to left
         if (EQ.focus === 'slots') {
             if (a === 'up' || a === 'down') { EQ.ri = (EQ.ri + (a === 'down' ? 1 : -1) + rows.length) % rows.length; return updateGearSel(true); }
@@ -1686,7 +1873,7 @@
                 if (r === 'close') return closeList();
                 if (r === 'hero') EQ.hero = nextHero(EQ.hero);
                 else { EQ.si = EQ.ri; EQ.focus = 'list'; const its = gearItems(); EQ.gi = Math.max(0, its.findIndex(it => it && e[r] === it.u)); }
-            } else if (a === 'right' || a === 'left') { if (h > 0 && EQ.ri < 4) return gearInput('confirm'); return; }
+            } else if (a === 'right' || a === 'left') { if (h > 0 && EQ.ri < nSlots) return gearInput('confirm'); return; }
             else return;
         } else {
             const items = EQ.items || gearItems(), sl = SLOTS[EQ.si];
@@ -1695,7 +1882,13 @@
             else if (a === 'up') { if (EQ.gi >= GCOLS) EQ.gi -= GCOLS; return updateGearSel(true); }
             else if (a === 'confirm') {
                 const it = items[EQ.gi];
-                if (!it || (e[sl] === it.u && sl !== 'weapon')) e[sl] = 0; else e[sl] = it.u;
+                if (!it || (e[sl] === it.u && sl !== 'weapon')) {
+                    e[sl] = 0;
+                    if (sl === 'costume' && S.costumeEq) S.costumeEq[EQ.hero] = '';
+                } else {
+                    e[sl] = it.u;
+                    if (sl === 'costume' && S.costumeEq) S.costumeEq[EQ.hero] = it.id;
+                }
                 recalcAll(); SND.fx('equip'); save(); EQ.focus = 'slots';
             } else return;
         }
@@ -1993,7 +2186,7 @@
                     const tp = d => { setPetKind(PET_KINDS[(idx + (d || 1) + PET_KINDS.length) % PET_KINDS.length]); renderList(); };
                     r.push({ label: txt(T.ui.petRow, { val: petName(pk) }), sub: T.ui.petSub, right: '◀ ' + petName(pk) + ' ▶', side: d => tp(rtl() ? -d : d), fn: () => petScreen() });
                 }
-                if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
+                if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5') || CHAPTERS.enabled('ch6'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', right: '▸', fn: devScreen });
                 r.push({ label: T.ui.credits, sub: T.ui.creditsText, fn: () => {} }, { label: T.ui.close, fn: () => { VOICE.stop(); closeList(); } });
                 return r;
             }
@@ -2026,13 +2219,21 @@
                         right: cd > 0 ? Math.ceil(cd / 60) + ' s' : qmP.sta < ABIL[a].cost ? '' : '✓', dim: cd > 0 || qmP.sta < ABIL[a].cost, fn: go(() => ability(qmP, a)) });
                 }
                 r.push({ label: txt(T.ui.mPotionS, { n: S.potions }), dim: S.potions <= 0, fn: go(() => drink(false)) },
-                       { label: txt(T.ui.mPotionB, { n: S.big }), dim: S.big <= 0, fn: go(() => drink(true)) },
-                       { label: T.ui.mEquip, fn: () => { ovHide(); equipScreen(qmP.i); } },
+                       { label: txt(T.ui.mPotionB, { n: S.big }), dim: S.big <= 0, fn: go(() => drink(true)) });
+                if ((S.mushrooms || 0) > 0 || CHID === 'ch6') {
+                    r.push({
+                        label: txt(T.ui.mMushroom || '🍄 Super Mushroom ({n})', { n: S.mushrooms || 0 }),
+                        sub: qmP.mushT > 0 ? ('Active: ' + Math.ceil(qmP.mushT / 60) + 's left (1.5× Giant Mode)') : 'Heal + 1.5× Character Size for 60s',
+                        dim: (S.mushrooms || 0) <= 0,
+                        fn: go(() => useMushroom(qmP, false))
+                    });
+                }
+                r.push({ label: T.ui.mEquip, fn: () => { ovHide(); equipScreen(qmP.i); } },
                        { label: T.ui.mMounts, sub: S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot, fn: mountScreen },
                        { label: T.ui.mPets || 'Pets', sub: S.pet ? txt(T.ui.petFollowing || 'Following: {name}', { name: petName(S.petKind || 'cat') }) : (T.ui.petNone || 'No pet spawned'), fn: petScreen },
                        { label: T.ui.mBestiary, fn: bestiaryScreen },
                        { label: T.ui.mSettings, fn: settingsScreen });
-                if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
+                if (isDevMod() && (CHAPTERS.enabled('ch4') || CHAPTERS.enabled('ch5') || CHAPTERS.enabled('ch6'))) r.push({ label: T.ui.devTools || '⚔ Chapter & Dev Tools', sub: T.ui.devSub || '', fn: devScreen });
                 if (coopAvail()) r.push({ label: T.ui.mCoop, fn: () => { ovHide(); toPlay(); coopScreen(); } });
                 r.push({ label: T.ui.close, fn: closeList });
                 return r;
@@ -2249,8 +2450,67 @@
         })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
     }
 
+    function prepareChapter6Save(s) {
+        s = prepareChapter5Save(s);
+        if (s.c5) s.c5.st = 36;
+        if (!s.c6) s.c6 = { st: 0, c: 0, m: 0, stars: 0, rescued: {}, open: {}, blocks: {}, switches: {}, seen: {} };
+        if (typeof s.mushrooms !== 'number') s.mushrooms = 3;
+        else s.mushrooms = Math.max(s.mushrooms, 3);
+        if (!Array.isArray(s.costumes)) s.costumes = [[], [], [], []];
+        if (!Array.isArray(s.costumeEq)) s.costumeEq = ['', '', '', ''];
+        if (s.lvl < 28) {
+            s.lvl = 28; s.xp = 0;
+            s.coins = Math.max(s.coins || 0, 3200);
+            s.iron = Math.max(s.iron || 0, 50);
+            s.potions = Math.max(s.potions || 0, 10);
+            s.big = Math.max(s.big || 0, 5);
+        }
+        return s;
+    }
+
+    function playChapter6(toZone, tx, ty) {
+        S = prepareChapter6Save(S);
+        const inCh6 = CHAPTERS.of(S.zone) === 'ch6';
+        const z = toZone || (inCh6 ? S.zone : 'c6_village');
+        const x = tx !== undefined ? tx : (inCh6 && !toZone ? S.x : 22.5);
+        const y = ty !== undefined ? ty : (inCh6 && !toZone ? S.y : 26.5);
+        S.zone = z; S.x = x; S.y = y;
+        recalcAll(); save();
+        for (const q of P) { q.hp = maxHp(q); q.down = false; }
+        ovHide(); mode = 'fade'; fadeT = 20; fadeHold = true;
+        return enterChapter('ch6').then(() => new Promise(resolve => {
+            fadeHold = false;
+            loading(() => {
+                loadZone(z); placePlayers(x, y); toPlay(); mode = 'fade';
+                banner((T.zone && T.zone[z]) || 'Kingdoms of Wonder');
+                if (CH.arrive) CH.arrive(z);
+                resolve();
+            });
+        })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
+    }
+
     function devTeleportScreen() {
         const allZones = [
+            // Chapter 6: Super Mario — Kingdoms of Wonder (19 Playable Maps)
+            ['ch6', 'c6_village',      22.5, 26.5, 'Ch 6 · Mushroom Kingdom Hub Village'],
+            ['ch6', 'c6_m1_fields',    22.5, 31.5, 'Ch 6 · K1-1: Mushroom Fields'],
+            ['ch6', 'c6_m2_village',   22.5, 31.5, 'Ch 6 · K1-2: Toadstool Village'],
+            ['ch6', 'c6_m3_mountain',  22.5, 31.5, 'Ch 6 · K1-3: Bob-omb Mountain (King Bob-omb)'],
+            ['ch6', 'c6_j1_jungle',    22.5, 31.5, 'Ch 6 · K2-1: Tropical Jungle'],
+            ['ch6', 'c6_j2_gardens',   22.5, 31.5, 'Ch 6 · K2-2: Waterfall Gardens'],
+            ['ch6', 'c6_j3_sanctuary', 22.5, 31.5, 'Ch 6 · K2-3: Giant Plant Sanctuary (Petey Piranha)'],
+            ['ch6', 'c6_b1_forest',    22.5, 31.5, 'Ch 6 · K3-1: Whispering Ghost Forest'],
+            ['ch6', 'c6_b2_mansion',   22.5, 31.5, 'Ch 6 · K3-2: Haunted Mansion'],
+            ['ch6', 'c6_b3_hall',      22.5, 31.5, 'Ch 6 · K3-3: King Boo\'s Royal Hall (King Boo)'],
+            ['ch6', 'c6_f1_valley',    22.5, 31.5, 'Ch 6 · K4-1: Snowball Valley'],
+            ['ch6', 'c6_f2_caverns',   22.5, 31.5, 'Ch 6 · K4-2: Frozen Crystal Caverns'],
+            ['ch6', 'c6_f3_palace',    22.5, 31.5, 'Ch 6 · K4-3: Kamek\'s Ice Palace (Kamek)'],
+            ['ch6', 'c6_s1_clouds',    22.5, 31.5, 'Ch 6 · K5-1: Cloudtop Gardens'],
+            ['ch6', 'c6_s2_airship',   22.5, 31.5, 'Ch 6 · K5-2: Koopa Airship Fleet'],
+            ['ch6', 'c6_s3_fortress',  22.5, 31.5, 'Ch 6 · K5-3: Junior\'s Floating Fortress (Bowser Jr.)'],
+            ['ch6', 'c6_d1_badlands',  22.5, 31.5, 'Ch 6 · K6-1: Burning Badlands'],
+            ['ch6', 'c6_d2_fortress',  22.5, 31.5, 'Ch 6 · K6-2: Darkfire Fortress'],
+            ['ch6', 'c6_d3_throne',    22.5, 31.5, 'Ch 6 · K6-3: Bowser\'s Throne Room (Bowser 3-Phase)'],
             // Chapter 5: The Blood Kingdoms
             ['ch5', 'c5_village',   22.5, 25.5, 'Ch 5 · Blackthorn Village (Dominion Hub)'],
             ['ch5', 'c5_dracula',   22.5, 28.5, 'Ch 5 · Castle Dracula & Bloodmoon Peaks'],
@@ -2286,7 +2546,11 @@
                 right: (Z && Z.id === zid) ? '✓' : '▸',
                 mark: !!(Z && Z.id === zid),
                 fn: () => {
-                    if (ch === 'ch5') {
+                    if (ch === 'ch6') {
+                        S = prepareChapter6Save(S);
+                        if (S.c6) S.c6.open = { m: true, j: true, b: true, f: true, s: true, d: true };
+                        playChapter6(zid, zx, zy);
+                    } else if (ch === 'ch5') {
                         S = prepareChapter5Save(S);
                         if (S.c5) S.c5.open = { dracula: true, nosferatu: true, brides: true, crimson: true, shadow: true, undying: true, carmilla: true };
                         playChapter5(zid, zx, zy);
@@ -2344,22 +2608,27 @@
                 const eqNow = S.bag && S.bag.find(x => x.u === (S.eq[0] && S.eq[0][def.slot]));
                 const isEquipped = !!(eqNow && eqNow.id === gid);
                 return {
-                    label: itemName(gid) + ' (+8)',
-                    sub: 'Tier ' + (def.tier || 1) + ' · ' + (T.ui['slot_' + def.slot] || def.slot) + ' · ' + statLine({ id: gid, up: 8, b: [] }),
+                    label: itemName(gid) + (def.cosmetic ? '' : ' (+8)'),
+                    sub: 'Tier ' + (def.tier || 1) + ' · ' + (T.ui['slot_' + def.slot] || def.slot) + ' · ' + statLine({ id: gid, up: def.cosmetic ? 0 : 8, b: [] }),
                     right: isEquipped ? 'EQUIPPED ✓' : 'Spawn & Equip',
                     mark: isEquipped,
                     fn: () => {
                         let it = S.bag.find(x => x.id === gid);
                         if (!it) {
                             if (S.bag.length >= LOOT.bagSize) S.bag.shift();
-                            it = { u: ++S.uid, id: gid, r: 3, up: 8, b: rollBonuses(gid, 3) };
+                            it = { u: ++S.uid, id: gid, r: 3, up: def.cosmetic ? 0 : 8, b: rollBonuses(gid, 3) };
                             S.bag.push(it);
                         } else {
-                            it.r = 3; it.up = 8;
+                            it.r = 3; it.up = def.cosmetic ? 0 : 8;
+                        }
+                        if (def.slot === 'costume') {
+                            if (!Array.isArray(S.costumes)) S.costumes = [[], [], [], []];
+                            if (S.costumes[0].indexOf(gid) < 0) S.costumes[0].push(gid);
+                            if (S.costumeEq) S.costumeEq[0] = gid;
                         }
                         S.eq[0][def.slot] = it.u;
                         recalcAll(); save(); SND.fx('equip');
-                        toast('Equipped +8 ' + itemName(gid) + '!');
+                        toast('Equipped ' + itemName(gid) + '!');
                         renderList();
                     }
                 };
@@ -2399,7 +2668,7 @@
 
     function devScreen() {
         if (!isDevMod()) return;
-        if (!S) S = prepareChapter5Save(fresh());
+        if (!S) S = prepareChapter6Save(fresh());
         const c4Zones = [
             ['c4_river', 22.5, 25.5, 'The Riverlands (Riverrun Camp)'],
             ['c4_kings', 24.5, 30.5, 'King\'s Landing & Red Keep'],
@@ -2423,19 +2692,26 @@
         ];
         listScreen({
             title: () => T.ui.devTools || '🛠 Dev Mode & Testing Suite',
-            info: () => (T.ui.level || 'Lv') + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  ⛏ ' + S.iron + '  ·  ' + (CHID || 'ch1').toUpperCase(),
+            info: () => (T.ui.level || 'Lv') + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  🍄 ' + (S.mushrooms || 0) + '  ·  ' + (CHID || 'ch1').toUpperCase(),
             rows: () => {
                 const rows = [
+                    { label: '🍄 Play Chapter 6 Now (Super Mario: Kingdoms of Wonder)', sub: 'Teleport to Mushroom Kingdom Hub Village (Keep Save)', fn: () => playChapter6('c6_village', 22.5, 26.5) },
+                    { label: '🍄 Activate Super Mushroom (1.5× Giant Mode) Now', sub: 'Grows active heroes to 1.5× size for 60s + grants +5 Super Mushrooms', fn: () => {
+                        S.mushrooms = (S.mushrooms || 0) + 5;
+                        for (const q of P) if (q.on) useMushroom(q, true);
+                        closeList();
+                    } },
+                    { label: '👑 Open Royal Costume Boutique (Mario, Luigi, Peach)', sub: 'Preview, buy, or equip Cosmetic Costume Overlays', right: '▸', fn: () => costumeShopScreen(0) },
                     { label: '🩸 Play Chapter 5 Now (Keep Save & Complete Ch 1–4)', sub: 'Teleport to Blackthorn Village in The Blood Kingdoms', fn: () => playChapter5('c5_village', 22.5, 25.5) },
                     { label: '⚔ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)', sub: 'Teleport to Riverrun in Westeros', fn: () => playChapter4('c4_river', 22.5, 25.5) },
-                    { label: '🗺 Teleport: Any Chapter (Ch 1–5) & Any Zone ▸', sub: 'Jump directly to any hub, kingdom, or boss arena', right: '▸', fn: devTeleportScreen },
-                    { label: '⚔ Gear & Weapons Spawner (Tier 1–7 +8) ▸', sub: 'Spawn & equip Blood Sword, Bone Reaper, Holy Relic, Vampire Armor, etc.', right: '▸', fn: devGearScreen },
+                    { label: '🗺 Teleport: Any Chapter (Ch 1–6) & Any Zone ▸', sub: 'Jump directly to any hub, kingdom, or boss arena', right: '▸', fn: devTeleportScreen },
+                    { label: '⚔ Gear, Costumes & Weapons Spawner (Tier 1–8 +8) ▸', sub: 'Spawn & equip Star Rod, Super Hammer, Costumes, Vampire Armor, etc.', right: '▸', fn: devGearScreen },
                     { label: '🐎 Mounts & Pets Switcher (All 10 Mounts & 3 Pets) ▸', sub: 'Ride Night Terror, Bone Charger, Nightmare, Bloodfang, or switch Pets', right: '▸', fn: devMountPetScreen },
                     { label: T.ui.devMaxGear || '★ Instant Max Loadout (Lv 30, +8 Gear, All Mounts)', fn: () => { devGrantMaxGear(); renderList(); } },
-                    { label: '💰 +5,000 Coins, +100 Iron & +10 Potions', fn: () => {
-                        S.coins += 5000; S.iron += 100; S.potions += 10; S.big += 5;
+                    { label: '💰 +5,000 Coins, +100 Iron, +10 Potions & +5 Mushrooms', fn: () => {
+                        S.coins += 5000; S.iron += 100; S.potions += 10; S.big += 5; S.mushrooms = (S.mushrooms || 0) + 5;
                         for (const q of P) if (q.on) { q.hp = maxHp(q); q.down = false; }
-                        save(); SND.fx('coin'); toast('+5,000 Coins, +100 Iron & Full Heal!'); renderList();
+                        save(); SND.fx('coin'); toast('+5,000 Coins, +5 Super Mushrooms & Full Heal!'); renderList();
                     } },
                     { label: '⬆ Level +5 (Current Lv ' + S.lvl + ')', fn: () => {
                         S.lvl = Math.min(50, (S.lvl || 1) + 5); recalcAll();
@@ -2471,6 +2747,7 @@
                     } });
                 }
                 rows.push(
+                    { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 6 }), fn: () => { closeList(); playChapter6('c6_village', 22.5, 26.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 5 }), fn: () => { closeList(); playChapter5('c5_village', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 4 }), fn: () => { closeList(); playChapter4('c4_river', 22.5, 25.5); } },
                     { label: txt(T.ui.devChSwitch || 'Switch to Chapter {n} (Keep Save)', { n: 3 }), fn: () => { closeList(); changeZone('c3_dawn', 22.5, 25.5); } },
@@ -2564,11 +2841,11 @@
         get shake() { return shake; }, set shake(v) { shake = v; }, set flash(v) { flashT = v; }, set freeze(v) { freeze = v; },
         get camX() { return camX; }, get camY() { return camY; },
         txt, lines, say, closeDlg, yesNo, toast, banner, slides, toPlay, save, talk, talkChoices,
-        spawnFoe, shot, hazard, part, burst, sparks, smoke, ringFx, floater, coins, loot, drop, dropGear, rollItem, giveItem, addToBag, addXp,
+        spawnFoe, shot, hazard, part, burst, sparks, smoke, ringFx, floater, coins, loot, drop, dropGear, dropMushroom, useMushroom, rollItem, giveItem, addToBag, addXp,
         hurt, hitFoe, petHurt, dist, moveEnt, chase, leash, wander, nearest, activate, showBoss, hideBoss, music, minions, maxHp,
         loadZone, placePlayers, changeZone, travel, startFade, addStatic, solidAt, codeAt, openTiles, ahead, frontX, frontY,
-        forgeScreen, potionScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, setCloth, setPetKind, shareStory, itemName,
-        scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, potion: () => drink(false),
+        forgeScreen, potionScreen, costumeShopScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, setCloth, setPetKind, shareStory, itemName,
+        scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, playChapter6, prepareChapter6Save, potion: () => drink(false),
         makeItem, itemLabel, drawFoeBody, coopMul, get tier() { return fxLevel(); }
     };
 
@@ -3111,20 +3388,22 @@
     }
     function killFoe(f) {
         f.on = false; S.kills++; S.seen[f.t] = (S.seen[f.t] || 0) + 1; SND.fx('die');
-        gainStamina(f.d.boss || f.elite ? STA_BIG : STA_KILL);
+        GT.ok = false; ST.ok = false; hudLast.obj = '';
+        const isBoss = (f.d.boss || f.boss || f === boss) && !f.minion;
+        gainStamina(isBoss || f.elite ? STA_BIG : STA_KILL);
         if (CH.onKill) CH.onKill(f);
         const col = f.t === 'shade' || f.t === 'wisp' ? '#c9cfdc' : f.t === 'bones' || f.t === 'knight' ? '#e8e4d8' : f.t === 'bat' ? '#5a4a6a' : '#a08a6a';
-        burst(f.x, f.y - 8, f.d.boss || f.elite ? 40 : 14, col, f.d.boss || f.elite ? 3 : 2);
-        for (let i = 0; i < (f.d.boss ? 10 : 3); i++) part(f.x + (Math.random() - 0.5) * 10, f.y - 10, 10, 0, 0, 0.6 + Math.random() * 0.6, 50, '#e8ecff', 2, -0.01);
-        ringFx(f.x, f.y - 6, f.d.boss ? 90 : 26, f.d.boss ? '#ffe9a8' : '#ffffff');
-        coins(f.x, f.y, loot(f.d.coin * (f.elite ? 5 : 1)));
+        burst(f.x, f.y - 8, isBoss || f.elite ? 40 : 14, col, isBoss || f.elite ? 3 : 2);
+        for (let i = 0; i < (isBoss ? 10 : 3); i++) part(f.x + (Math.random() - 0.5) * 10, f.y - 10, 10, 0, 0, 0.6 + Math.random() * 0.6, 50, '#e8ecff', 2, -0.01);
+        ringFx(f.x, f.y - 6, isBoss ? 90 : 26, isBoss ? '#ffe9a8' : '#ffffff');
+        coins(f.x, f.y, loot((f.d.coin || f.d.gold || 0) * (f.elite ? 5 : 1)));
         if (f.elite) { const g2 = f.elite; f.elite = ''; poolReady(g2); dropGear(f.x, f.y, rollItem(zoneTier(), 2)); }
-        if (!f.d.boss && Math.random() < 0.15) drop(f.x, f.y, 1, 3);
-        if (f.d.boss || Math.random() < LOOT.foeDrop * TUNE.gearDrops * (Z.def.rift ? 2 : 1)) dropGear(f.x, f.y, rollItem(zoneTier(), f.d.boss ? 2 : 0));
-        if (Math.random() < (LOOT.oreDrop[f.t] || 0)) drop(f.x, f.y, 3, f.d.boss ? 3 : 1);
+        if (!isBoss && Math.random() < 0.15) drop(f.x, f.y, 1, 3);
+        if (isBoss || Math.random() < LOOT.foeDrop * TUNE.gearDrops * (Z.def.rift ? 2 : 1)) dropGear(f.x, f.y, rollItem(zoneTier(), isBoss ? 2 : 0));
+        if (Math.random() < (LOOT.oreDrop[f.t] || 0)) drop(f.x, f.y, 3, isBoss ? 3 : 1);
         addXp(f.d.xp);
         countKill(f.t);
-        if (f.d.boss) bossDown(f);
+        if (isBoss) bossDown(f);
     }
     function addXp(n) {
         S.xp += n; shareNow({ x: n });
@@ -3171,6 +3450,7 @@
         else if (d.k === 1) { p.hp = Math.min(maxHp(p), p.hp + d.v); SND.fx('heal'); }
         else if (d.k === 2) { const it = d.it; d.it = null; addToBag(it); burst(d.x, d.y - 6, 14, LOOT.colors[it.r], 1.5); }
         else if (d.k === 3) { S.iron += d.v; shareNow({ o: d.v }); SND.fx('pick'); toast(txt(T.ui.gotIron, { n: d.v })); }
+        else if (d.k === 5) { S.mushrooms = (S.mushrooms || 0) + 1; useMushroom(p, true); }
         else if (d.qg === '@ch') { SND.fx('pick'); burst(d.x, d.y - 6, 12, '#9ad8ff', 1.5); ringFx(d.x, d.y, 30, '#9ad8ff'); if (CH.pickup) CH.pickup(d); }   // a main-quest item of the chapter
         else {                                              // a quest item
             const q = S.pq[d.qg], df = poolDef(q);
@@ -3248,6 +3528,16 @@
         if (p.lean > 0) p.lean--;
         if (p.flash > 0) p.flash--;
         if (p.aura > 0) p.aura--;
+        if (p.mushT > 0) {
+            p.mushT--;
+            if ((tick + p.i * 9) % 18 === 0 && heroLv() !== 'low') {
+                part(p.x + (Math.random() - 0.5) * 18, p.y - 10 - Math.random() * 28, 4, (Math.random() - 0.5) * 0.4, -0.4, 0.5, 22, (tick & 16) ? '#ffd23f' : '#ff5a4a', 2.2, -0.01);
+            }
+            if (p.mushT === 0) {
+                SND.fx('powerdown');
+                ringFx(p.x, p.y - 8, 36, '#ffffff');
+            }
+        }
         if (p.cdHeal > 0) p.cdHeal--; if (p.cdPower > 0) p.cdPower--; if (p.cdDistant > 0) p.cdDistant--;
         if (p.down) {
             const other = P.find(q => q !== p && q.on && !q.down);
@@ -4218,22 +4508,39 @@
         else if (bfang) MOUNTART.bloodfang(ctx, x, y, p.walk, mdir, mfx, 1.24, p.moving, tMount, biteF);
         else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.48, 'horse');
         else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.48); else drawWolfMount(x, y, p.walk, mfx, 1.15, mdir, p.moving, biteF); }
-        if (back) drawHeroWeapon(p, rx, hy, dir, flip);
+        const mushMax = p.mushMax || 3600;
+        const mushScale = p.mushT > 0 ? (p.mushT > mushMax - 24 ? 1 + 0.5 * ((mushMax - p.mushT) / 24) : p.mushT < 30 ? 1 + 0.5 * (p.mushT / 30) : 1.5) : 1;
+        const drawWep = () => {
+            if (mushScale !== 1) {
+                ctx.save(); ctx.translate(rx, hy); ctx.scale(mushScale, mushScale); ctx.translate(-rx, -hy);
+                drawHeroWeapon(p, rx, hy, dir, flip);
+                ctx.restore();
+            } else drawHeroWeapon(p, rx, hy, dir, flip);
+        };
+        if (back) drawWep();
         if (ride) {                                        // sitting: hide the legs, show one leg down the side
-            ctx.save(); ctx.beginPath(); ctx.rect(rx - 40, hy - 70, 80, 61); ctx.clip();
-            HEROART.draw(ctx, rx, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50 && mode === 'play', 1);
+            ctx.save(); ctx.beginPath(); ctx.rect(rx - 40 * mushScale, hy - 75 * mushScale, 80 * mushScale, 66 * mushScale); ctx.clip();
+            HEROART.draw(ctx, rx, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50 && mode === 'play', mushScale);
             ctx.restore();
             const ft = HEROART.FEET[p.gear.feet], side = dir >= 2 ? (flip ? 1 : -2) : 0;
-            ctx.fillStyle = look.pants; ctx.fillRect(rx - 2 + side, hy - 10, 4, 9);
-            ctx.fillStyle = ft ? ft.main : look.shoes; ctx.fillRect(rx - 2.5 + side, hy - 2, 5, 4);
-        } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50 && mode === 'play', 1);
-        if (!back) drawHeroWeapon(p, rx, hy, dir, flip);
+            const cId = p.gear.costume, co = cId && HEROART.COSTUME ? HEROART.COSTUME[cId] : null;
+            ctx.fillStyle = co ? co.pants : look.pants; ctx.fillRect(rx + (-2 + side) * mushScale, hy - 10 * mushScale, 4 * mushScale, 9 * mushScale);
+            ctx.fillStyle = co ? co.shoes : (ft ? ft.main : look.shoes); ctx.fillRect(rx + (-2.5 + side) * mushScale, hy - 2 * mushScale, 5 * mushScale, 4 * mushScale);
+        } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50 && mode === 'play', mushScale);
+        if (!back) drawWep();
         legendAura(p, rx, hy);
         ctx.globalAlpha = 1;
+        const labelTop = hy - Math.round(48 * mushScale);
+        if (p.mushT > 0) {
+            ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+            const sec = Math.ceil(p.mushT / 60) + 's';
+            ctx.fillStyle = '#000'; ctx.fillText('🍄 ' + sec, x + 1, labelTop - (nPlayers() > 1 ? 11 : -1));
+            ctx.fillStyle = '#ffd23f'; ctx.fillText('🍄 ' + sec, x, labelTop - (nPlayers() > 1 ? 12 : 0));
+        }
         if (nPlayers() > 1) {
             ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillStyle = '#000'; ctx.fillText((p.i + 1) + 'P', x + 1, hy - 47);
-            ctx.fillStyle = PCOL[p.i]; ctx.fillText((p.i + 1) + 'P', x, hy - 48);
+            ctx.fillStyle = '#000'; ctx.fillText((p.i + 1) + 'P', x + 1, labelTop + 1);
+            ctx.fillStyle = PCOL[p.i]; ctx.fillText((p.i + 1) + 'P', x, labelTop);
         }
     }
     const PCOL = ['#8af0e0', '#ffb38a', '#c9a8ff', '#a8e88a'];       // the colour of each hero's label and HUD name
@@ -4345,6 +4652,17 @@
             else if (sl === 'head') { ctx.beginPath(); ctx.arc(x, y - 2 + b, 5, Math.PI, 0); ctx.fill(); }
             else if (sl === 'body') ctx.fillRect(x - 4, y - 9 + b, 8, 9);
             else { ctx.fillRect(x - 4, y - 9 + b, 3, 8); ctx.fillRect(x - 4, y - 2 + b, 7, 3); }
+            return;
+        }
+        if (d.k === 5) {                                   // Super Mushroom: red cap with white spots & cream stem
+            const b = Math.sin(tick * 0.12 + d.x) * 1.5;
+            ctx.globalAlpha = 0.38; ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(x, y - 3 + b, 10, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
+            ctx.fillStyle = '#f5dfb8'; ctx.fillRect(x - 4, y - 2 + b, 8, 6);
+            ctx.fillStyle = '#1b1820'; ctx.fillRect(x - 2, y - 1 + b, 1.5, 2.5); ctx.fillRect(x + 1, y - 1 + b, 1.5, 2.5);
+            ctx.fillStyle = '#e52521'; ctx.beginPath(); ctx.ellipse(x, y - 4 + b, 8, 6, 0, Math.PI, 0); ctx.fill();
+            ctx.fillRect(x - 8, y - 5 + b, 16, 3);
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(x, y - 7 + b, 2.2, 0, 6.2832); ctx.arc(x - 5, y - 4.5 + b, 1.8, 0, 6.2832); ctx.arc(x + 5, y - 4.5 + b, 1.8, 0, 6.2832); ctx.fill();
             return;
         }
         if (d.k === 4) { drawQuestItem(x, y + 4, d.icon); return; }
@@ -4561,37 +4879,6 @@
 
     /* ------------------------------------------------------------------ the guide arrow */
 
-    // find the target of any active side quest (sq or pq), returning true and setting GT.x, GT.y if found
-    function anySideTarget() {
-        for (const q of QUESTS) {
-            const st = qState(q.id);
-            if (st === 1 || st === 2) {
-                if (st === 2 && npcSpot(q.giver)) return true;
-                if (st === 1 && q.type === 'rescue' && npcSpot(q.who)) return true;
-                if (st === 1 && q.type === 'kill' && foeSpot(q.foe, '')) return true;
-                if (st === 1 && q.type !== 'rescue' && q.type !== 'kill' && npcSpot(q.giver)) return true;
-            }
-        }
-        for (const npc in S.pq) {
-            const q = S.pq[npc], d = poolDef(q);
-            if (!q || !d) continue;
-            if (q.st === 2 && npcSpot(npc)) return true;
-            if (q.st === 1) {
-                if (d.type === 'deliver' && npcSpot(d.to)) return true;
-                if (d.zone && d.zone !== Z.id && hop(d.zone)) return true;
-                if (d.type === 'collect') {
-                    let best = null, bd = 1e9;
-                    for (const o of DROPS) if (o.on && o.k === 4 && o.qg === npc) { const dd = dist(o.x, o.y, P[0].x, P[0].y); if (dd < bd) { bd = dd; best = o; } }
-                    if (best) { GT.x = best.x; GT.y = best.y; return true; }
-                }
-                if (d.type === 'rescue' && npcSpot('q:' + npc)) return true;
-                if (d.type === 'elite' && foeSpot(d.foe, npc)) return true;
-                if (foeSpot(d.foe, '')) return true;
-            }
-        }
-        return false;
-    }
-
     // where the story wants you, in which zone (GT.side = false for Main Quest [Yellow], true for Side Quest [Green])
     function target() {
         GT.side = false;
@@ -4600,9 +4887,11 @@
             let best = null, bd = 1e9; for (const f of FOES) if (f.on) { const d = dist(f.x, f.y, P[0].x, P[0].y); if (d < bd) { bd = d; best = f; } }
             if (!best) return false; GT.x = best.x; GT.y = best.y; return true;
         }
-        if (S.track && S.track !== 'main' && trackTarget()) { GT.side = true; return true; }
+        if (S.track && S.track !== 'main') {
+            if (trackTarget()) { GT.side = true; return true; }
+            if (S.track && S.track !== 'main') return false;
+        }
         if (CH && CH.target && CH.target()) return true;
-        if (anySideTarget()) { GT.side = true; return true; }
         return false;
     }
     // the next doorway on the way to zone z: down from the village hub, or back up toward it
@@ -4615,7 +4904,6 @@
         GT.x = (e.x + e.w / 2) * TS; GT.y = (e.y + e.h / 2) * TS; return true;
     }
     const GT = { x: 0, y: 0, t: 0, ok: false, px: 0, py: 0, side: false };
-    const ST = { x: 0, y: 0, ok: false };
     function exitTo(to) { const ex = Z.def.exits; for (let i = 0; i < ex.length; i++) if (ex[i].to === to) return ex[i]; return ex[0]; }
     function nearestPick(zone, c) {
         let best = null, bd = 1e9;
@@ -4752,20 +5040,9 @@
         if (!GT.ok || tick % 15 === 0) {
             GT.ok = target();
             if (GT.ok) guidePoint();
-            // When GT is pointing to a Main Quest (yellow), also check if there is an active Side Quest for a secondary green arrow
-            ST.ok = false;
-            if (GT.ok && !GT.side && !Z.def.rift) {
-                const gx = GT.x, gy = GT.y, gpx = GT.px, gpy = GT.py, gs = GT.side;
-                if (anySideTarget()) {
-                    ST.x = GT.x; ST.y = GT.y;
-                    ST.ok = dist(ST.x, ST.y, gx, gy) > 24;
-                }
-                GT.x = gx; GT.y = gy; GT.px = gpx; GT.py = gpy; GT.side = gs;
-            }
         }
         if (!GT.ok) return;
-        const mainAng = renderQuestArrow(cx, cy, GT.x, GT.y, GT.px, GT.py, GT.side, null);
-        if (ST.ok) renderQuestArrow(cx, cy, ST.x, ST.y, ST.x, ST.y, true, mainAng);
+        renderQuestArrow(cx, cy, GT.x, GT.y, GT.px, GT.py, GT.side, null);
     }
 
     /* ------------------------------------------------------------------ loop, screen */
@@ -4864,7 +5141,7 @@
 
     // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT, ST };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, playChapter6, prepareChapter6Save, useMushroom, dropMushroom, costumeShopScreen, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT };
 
     /* ------------------------------------------------------------------ lifecycle */
 

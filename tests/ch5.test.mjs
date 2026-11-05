@@ -342,7 +342,7 @@ test('3-Role Armor & Weapon Synergy System: every armor piece has valid role, ba
     for (const lang of ['en', 'fr', 'es', 'ar']) {
       assert.ok(TEXT[lang].items[id], `Item ${id} must have a localized name in ${lang}`);
     }
-    if (def.slot === 'weapon') continue;
+    if (def.slot === 'weapon' || def.slot === 'costume') continue;
 
     assert.ok(['heavy', 'light', 'mystic'].includes(def.role), `Armor ${id} must have role heavy, light, or mystic`);
     if (def.role === 'heavy') {
@@ -371,4 +371,173 @@ test('3-Role Armor & Weapon Synergy System: every armor piece has valid role, ba
   assert.ok(mysticCount >= 8, 'Must have at least 8 Mystic/Wizard-Healer armor pieces across tiers');
 });
 
+test('All 8 Chapter 5 main quests, Three Brides boss fight, Carmilla crystals, and pool quests work end-to-end without stuck target arrows', () => {
+  const ctx = loadBrowserEnv();
+  ctx.setTimeout = () => 0;
+  ctx.clearTimeout = () => {};
+  vm.createContext(ctx);
+  ctx.HM_C5_QUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'chapters/ch5/quests.json'), 'utf8'));
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/text.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/maps.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/art.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/chapter.js'), 'utf8'), ctx);
 
+  // Verify HM_C5_POOL contains valid pool quest objects, not item strings
+  assert.ok(Array.isArray(ctx.HM_C5_POOL) && ctx.HM_C5_POOL.length >= 4, 'HM_C5_POOL must define procedural quest objects');
+  for (const pq of ctx.HM_C5_POOL) {
+    assert.equal(typeof pq, 'object');
+    assert.ok(pq.id && pq.giver && pq.type && pq.foe && pq.zone && pq.t && pq.t.en, `Pool quest ${pq.id} must have complete definition`);
+  }
+
+  const MAPS = ctx.HM_C5_MAPS;
+  const GT = { x: 0, y: 0, ok: false };
+  const S = {
+    c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, seen: { arrive: 1 }, infected: 0, bloodMoon: 0, altarBuff: 0 },
+    mounts: [],
+    sq: {},
+    sqc: {}
+  };
+  const FOES = Array.from({ length: 48 }, () => ({ on: false }));
+  let bossRef = null;
+  let ch5 = null;
+
+  const api = {
+    TS: 32,
+    GT,
+    S,
+    L: 'en',
+    TEXT: ctx.HM_C5_TEXT,
+    T: () => ctx.HM_C5_TEXT.en,
+    Z: null,
+    P: [{ x: 24 * 32, y: 18 * 32, on: true, hp: 100 }],
+    FOES,
+    SND: { fx: () => {}, play: () => {} },
+    get boss() { return bossRef; },
+    set boss(v) { bossRef = v; },
+    dist: (x1, y1, x2, y2) => Math.hypot(x1 - x2, y1 - y2),
+    txt: (s, v) => String(s || '').replace(/\{(\w+)\}/g, (_, k) => (v && v[k] !== undefined ? v[k] : '')),
+    toast: () => {},
+    save: () => {},
+    openTiles: () => {},
+    ringFx: () => {},
+    burst: () => {},
+    dropGear: () => {},
+    addToBag: () => {},
+    makeItem: (id, r) => ({ id, r }),
+    say: (_pg, _ch, cb) => { if (cb) cb(); },
+    hop: () => { GT.x = 32; GT.y = 32; return true; },
+    feetSolid: () => false,
+    qState: (id) => S.sq[id] || 0,
+    spawnFoe: (t, x, y, minion) => {
+      for (const f of FOES) if (!f.on) {
+        const rawD = ch5.foes[t];
+        const d = (minion && rawD.boss) ? Object.assign({}, rawD, { boss: false }) : rawD;
+        f.on = true; f.t = t; f.d = d; f.boss = !!d.boss; f.x = x; f.y = y; f.minion = !!minion;
+        f.max = f.hp = d.hp;
+        return f;
+      }
+      return null;
+    }
+  };
+
+  ch5 = ctx.HM_CHAPTERS.def.ch5(api);
+
+  function enterZone(zid) {
+    const def = MAPS[zid];
+    for (const f of FOES) f.on = false;
+    bossRef = null;
+    api.Z = {
+      id: zid,
+      def,
+      cols: def.rows[0].length,
+      rows: def.rows.length,
+      npcs: (def.npcs || []).map(n => ({ id: n.id, x: n.x * 32, y: n.y * 32 })),
+      statics: [],
+      c5props: []
+    };
+    for (const f of def.foes || []) api.spawnFoe(f.t, f.x * 32, f.y * 32, false);
+    if (def.boss && !S[def.boss.flag]) bossRef = api.spawnFoe(def.boss.t, def.boss.x * 32, def.boss.y * 32, false);
+    ch5.onZone(zid);
+    ch5.arrive(zid);
+  }
+
+  function simulateKill(f) {
+    f.on = false;
+    const isBoss = (f.d.boss || f.boss || f === bossRef) && !f.minion;
+    ch5.onKill(f);
+    if (isBoss) {
+      bossRef = null;
+      ch5.bossDown(f);
+    }
+  }
+
+  const allSteps = [];
+  for (const q of ctx.HM_C5_QUESTS.quests) for (const s of q.steps) allSteps.push(s);
+
+  enterZone('c5_village');
+
+  for (let idx = 0; idx < allSteps.length; idx++) {
+    const s = allSteps[idx];
+    assert.equal(S.c5.st, idx, `Should be at step ${idx} (${s.id})`);
+    if (api.Z.id !== s.zone) enterZone(s.zone);
+    if (S.c5.st > idx) continue; // completed on arrive (type === 'reach')
+
+    if (s.type !== 'boss') {
+      assert.equal(bossRef, null, `Boss must not spawn prematurely during non-boss step ${s.id} in ${s.zone}`);
+    }
+
+    if (s.type === 'kill') {
+      for (const f of FOES) if (f.on && s.foes.includes(f.t)) f.on = false;
+    }
+
+    assert.ok(ch5.target(), `Step ${s.id} (${s.type}) must provide a valid target`);
+
+    if (s.type === 'talk') {
+      assert.ok(ch5.story(s.npc), `Step ${s.id} talk with ${s.npc} must advance quest`);
+    } else if (s.type === 'interact') {
+      for (const [sx, sy] of s.spots) {
+        const px = sx * 32, py = sy * 32;
+        api.P[0].x = px; api.P[0].y = py;
+        assert.ok(ch5.interact(api.P[0], px, py), `Step ${s.id} interact at [${sx}, ${sy}] must succeed`);
+      }
+    } else if (s.type === 'kill') {
+      for (let k = 0; k < s.n; k++) {
+        assert.ok(ch5.target(), `Step ${s.id} kill ${k + 1}/${s.n} must find or respawn a live foe`);
+        const targetFoe = FOES.find(f => f.on && s.foes.includes(f.t) && f.x === GT.x && f.y === GT.y);
+        assert.ok(targetFoe, `Step ${s.id} arrow must point to an actual live foe, never a static spawn coordinate`);
+        simulateKill(targetFoe);
+      }
+    } else if (s.type === 'boss') {
+      assert.ok(bossRef && bossRef.on && bossRef.t === s.boss, `Step ${s.id} boss ${s.boss} must be spawned`);
+      if (s.boss === 'bride_crimson') {
+        const sisters = FOES.filter(f => f.on && (f.t === 'bride_shadow' || f.t === 'bride_frost'));
+        assert.equal(sisters.length, 2, 'Three Brides encounter must spawn bride_shadow and bride_frost minions');
+        for (const sis of sisters) {
+          assert.equal(sis.d.boss, false, 'Sister minion must have d.boss === false so killing her does not despawn the boss fight');
+          simulateKill(sis);
+        }
+        assert.ok(bossRef && bossRef.on, 'Killing bride sisters must not clear main boss bride_crimson');
+      }
+      if (s.boss === 'carmilla') {
+        bossRef.hp = bossRef.max - 50;
+        const crystals = FOES.filter(f => f.on && f.t === 'blood_crystal');
+        assert.ok(crystals.length >= 2, 'Carmilla cathedral must have blood crystals');
+        for (const cr of crystals) {
+          assert.ok(ch5.target());
+          const pointedCrystal = FOES.find(f => f.on && f.t === 'blood_crystal' && f.x === GT.x && f.y === GT.y);
+          assert.ok(pointedCrystal, 'Target arrow must point to active blood_crystal while Carmilla is damaged');
+          simulateKill(pointedCrystal);
+        }
+      }
+      assert.ok(ch5.target(), `Step ${s.id} arrow must point to boss ${s.boss}`);
+      assert.equal(GT.x, bossRef.x);
+      assert.equal(GT.y, bossRef.y);
+      simulateKill(bossRef);
+    }
+
+    assert.ok(S.c5.st > idx, `Step ${s.id} (${s.type}) must advance quest stage upon completion`);
+  }
+
+  assert.equal(S.c5.st, allSteps.length, 'All Chapter 5 steps must complete cleanly');
+  assert.equal(S.c5.beacons, 7, 'All 7 Blood Kingdoms must be liberated');
+});

@@ -1,0 +1,1304 @@
+# CHAPTER 6 — SUPER MARIO: KINGDOMS OF WONDER
+## Complete Game Development & Implementation Specification
+
+You are working on my existing RPG game project. Your task is to develop a complete new chapter: **Chapter 6 — Super Mario: Kingdoms of Wonder**.
+
+This chapter must be a colorful, joyful, funny, adventurous fantasy experience inspired by the Super Mario universe.
+
+**IMPORTANT CONTEXT:** This is a private personal game played exclusively by me and my friend (two players). It is not intended for commercial distribution. We want a very recognizable Super Mario-inspired experience. However, private use does not automatically remove copyright restrictions. Use properly licensed open-source assets and original implementations; do not assume Nintendo's official assets are open source.
+
+---
+
+# 1. CRITICAL DEVELOPMENT RULES
+
+Before writing any code:
+
+1. Inspect the complete existing repository.
+2. Understand the current RPG architecture, game engine, rendering system, player controller, animation system, combat mechanics, inventory, equipment, NPCs, quests, save system and multiplayer implementation.
+3. Inspect existing chapters to understand how new chapters are implemented.
+4. Inspect all relevant MyPC SDK documentation and existing app integration.
+5. Identify reusable systems and existing assets.
+6. Prepare an implementation plan before modifying files.
+
+**DO NOT REBUILD THE GAME.**
+
+This is an additional chapter, not a replacement for the existing RPG.
+
+Strictly preserve:
+
+- Existing chapters and their functionality.
+- Existing player characters and progression.
+- Existing equipment, inventory and statistics.
+- Existing combat and enemy AI architecture.
+- Existing multiplayer functionality.
+- Existing save/load functionality.
+- Existing controller support.
+- Existing UI and navigation conventions.
+- Existing world and map-loading architecture.
+
+Do not rename or restructure unrelated files.
+
+Do not introduce unnecessary dependencies or replace working systems.
+
+If a required feature already exists, extend it instead of implementing a second independent system.
+
+Do not use placeholder content when a complete implementation is possible.
+
+---
+
+# 3. CHAPTER STORYLINE
+
+## The invasion of the Mushroom Kingdom
+
+The Mushroom Kingdom was once a peaceful, beautiful land filled with colorful villages, magical mushrooms, flowers, floating islands and friendly inhabitants.
+
+Bowser has invaded the kingdom.
+
+He has allied himself with powerful rulers and captured six princesses across six different kingdoms.
+
+Six Royal Stars have been stolen and distributed among the rulers.
+
+The players arrive in the Mushroom Kingdom and meet Mario, who explains what happened.
+
+Mario becomes the main village NPC and the central character guiding the adventure.
+
+The players must:
+
+1. Explore six kingdoms.
+2. Complete their missions.
+3. Defeat each kingdom's boss.
+4. Rescue the captured princesses.
+5. Recover six Royal Stars.
+6. Unlock Bowser's Darkfire Castle.
+7. Defeat Bowser in his three-phase final battle.
+8. Rescue Princess Peach and restore peace.
+
+The storyline must be delivered through NPC conversations, environmental storytelling, quests, boss introductions, cinematic sequences and rewards.
+
+Keep dialogue entertaining, funny, expressive and appropriate for a colorful fantasy adventure.
+
+---
+
+# 4. MAIN VILLAGE
+
+Create a colorful Mushroom Kingdom village that acts as the central hub for the entire chapter.
+
+Visual requirements:
+
+- Large colorful mushrooms.
+- Small fantasy houses.
+- Flower gardens.
+- Water fountains.
+- Wooden bridges.
+- Colorful flags.
+- Decorative blocks.
+- A central castle.
+- Shops and merchants.
+- NPC inhabitants.
+- Secret areas and hidden collectibles.
+
+The village must feel alive.
+
+## Main NPCs
+
+### Mario
+
+Mario is the main NPC of Chapter 6.
+
+He must:
+
+- Welcome the players.
+- Explain the invasion.
+- Introduce each kingdom.
+- Provide the main storyline missions.
+- Give hints about bosses.
+- React to princess rescues.
+- Provide chapter progression dialogue.
+- Celebrate the final victory.
+
+Use an appropriate character model, rigging, animations and expressive idle behavior.
+
+### Luigi
+
+Luigi is another important NPC.
+
+Give him:
+
+- Optional missions.
+- Funny dialogue.
+- Special rewards.
+- Village interactions.
+- Some exploration-related hints.
+
+### Princess Peach
+
+Initially captured by Bowser.
+
+After the final battle, she returns to the village and participates in the ending celebration.
+
+### Toad-inspired villagers
+
+Populate the village with different inhabitants, each with unique appearances and behaviors.
+
+Include:
+
+- Merchants.
+- Quest givers.
+- Guards.
+- Children.
+- Wandering villagers.
+- Special dialogue NPCs.
+
+Avoid making the village feel empty.
+
+---
+
+# 5. THE SIX KINGDOMS
+
+Implement six kingdoms with three maps each.
+
+Every kingdom must have:
+
+- A unique visual identity.
+- Its own monsters and enemy variations.
+- Different environmental mechanics.
+- Exploration and secrets.
+- Collectibles.
+- Side missions.
+- At least one major boss.
+- A princess rescue mission.
+- A Royal Star reward.
+
+Every map must be fully playable and connected through the existing world/map-loading system.
+
+## KINGDOM 1 — MUSHROOM MEADOWS
+
+**Boss: King Bob-omb**
+
+Princess: Princess Daisy.
+
+### Map 1: Mushroom Fields
+
+Environment:
+
+- Beautiful green hills.
+- Giant mushrooms.
+- Colorful flowers.
+- Floating blocks.
+- Coin formations.
+- Hidden caves.
+- Small bridges.
+- Secret underground tunnels.
+
+Enemies:
+
+- Goombas.
+- Koopa Troopas.
+- Paratroopas.
+- Piranha Plants.
+- Bob-ombs.
+
+### Map 2: Toadstool Village
+
+Environment:
+
+- Colorful mushroom houses.
+- Friendly and hostile inhabitants.
+- Small farms.
+- Underground passages.
+- Hidden treasures.
+
+Missions:
+
+- Help villagers.
+- Find missing supplies.
+- Clear enemy camps.
+- Discover a secret passage to the mountain.
+
+### Map 3: Bob-omb Mountain
+
+Boss arena.
+
+Boss: King Bob-omb.
+
+Boss mechanics:
+
+- Explosive throws.
+- Ground slams.
+- Rolling attacks.
+- Timed explosions.
+- Multiple combat stages.
+
+The players must exploit openings after his attacks.
+
+Reward: Royal Star 1 and rescue of Princess Daisy.
+
+---
+
+## KINGDOM 2 — JUNGLE BLOOM KINGDOM
+
+**Boss: Petey Piranha**
+
+Princess: Princess Eclair.
+
+### Map 1: Tropical Jungle
+
+Environment:
+
+- Huge tropical trees.
+- Oversized vegetation.
+- Swinging vines.
+- Waterfalls.
+- Hidden caves.
+- Dense foliage.
+
+Enemies:
+
+- Piranha Plants.
+- Nipper Plants.
+- Wigglers.
+- Monty Moles.
+- Swoopers.
+
+### Map 2: Waterfall Gardens
+
+Environment:
+
+- Large waterfalls.
+- Water channels.
+- Ancient ruins.
+- Poisonous plants.
+- Hidden platforms.
+- Secret treasure areas.
+
+Introduce environmental mechanics such as moving water platforms and poisonous pools.
+
+### Map 3: Giant Plant Sanctuary
+
+Boss: Petey Piranha.
+
+Boss mechanics:
+
+- Giant plant attacks.
+- Root attacks.
+- Poison pools.
+- Ground slams.
+- Multiple vulnerable body parts.
+- Different attack patterns depending on health.
+
+Reward: Royal Star 2 and rescue of Princess Eclair.
+
+---
+
+## KINGDOM 3 — BOO HAUNTED KINGDOM
+
+**Boss: King Boo**
+
+Princess: Princess Shokora.
+
+### Map 1: Whispering Ghost Forest
+
+Environment:
+
+- Purple and blue skies.
+- Haunted trees.
+- Floating candles.
+- Ghosts.
+- Strange pathways.
+- Fog and magical particles.
+
+Enemies:
+
+- Boos.
+- Big Boos.
+- Dry Bones.
+- Peepas.
+- Swoopers.
+
+### Map 2: Haunted Mansion
+
+Environment:
+
+- Multiple floors.
+- Moving corridors.
+- Haunted portraits.
+- Secret doors.
+- Invisible platforms.
+- Hidden rooms.
+
+Introduce environmental puzzles involving ghost illusions and switches.
+
+### Map 3: King Boo's Royal Hall
+
+Boss: King Boo.
+
+Boss mechanics:
+
+- Invisibility.
+- Teleportation.
+- Ghost clones.
+- Projectile attacks.
+- Illusion mechanics.
+- Temporary vulnerability windows.
+
+Reward: Royal Star 3 and rescue of Princess Shokora.
+
+---
+
+## KINGDOM 4 — FROSTPEAK KINGDOM
+
+**Boss: Kamek**
+
+Princess: Princess Rosalina.
+
+### Map 1: Snowball Valley
+
+Environment:
+
+- Snow-covered mountains.
+- Frozen lakes.
+- Snow-covered trees.
+- Snowmen.
+- Ice bridges.
+- Snowstorms.
+
+Enemies:
+
+- Shy Guys.
+- Snow Pokeys.
+- Ice Bros.
+- Cooligans.
+- Spinies.
+
+### Map 2: Frozen Crystal Caverns
+
+Environment:
+
+- Blue magical crystals.
+- Underground ice formations.
+- Frozen waterfalls.
+- Slippery platforms.
+- Hidden passages.
+
+Introduce ice-related environmental mechanics.
+
+### Map 3: Kamek's Ice Palace
+
+Boss: Kamek.
+
+Boss mechanics:
+
+- Magical projectiles.
+- Teleportation.
+- Transformations.
+- Summoning monsters.
+- Ice attacks.
+- Arena manipulation.
+
+Reward: Royal Star 4 and rescue of Princess Rosalina.
+
+---
+
+## KINGDOM 5 — KOOPA SKY KINGDOM
+
+**Boss: Bowser Jr.**
+
+Princess: Princess Pauline.
+
+### Map 1: Cloudtop Gardens
+
+Environment:
+
+- Floating islands.
+- Cloud bridges.
+- Colorful skies.
+- Floating platforms.
+- Flying creatures.
+- Sky gardens.
+
+Enemies:
+
+- Lakitus.
+- Bullet Bills.
+- Buzzy Beetles.
+- Hammer Bros.
+- Magikoopas.
+
+### Map 2: Koopa Airship Fleet
+
+Environment:
+
+- Large flying ships.
+- Mechanical cannons.
+- Moving platforms.
+- Enemy soldiers.
+- Explosive barrels.
+- Flying enemies.
+
+Introduce airship environmental hazards.
+
+### Map 3: Junior's Floating Fortress
+
+Boss: Bowser Jr.
+
+Boss mechanics:
+
+- Clown-car attacks.
+- Aerial bombardment.
+- Projectile attacks.
+- Summoned enemies.
+- Moving arena.
+- Different attack stages.
+
+Reward: Royal Star 5 and rescue of Princess Pauline.
+
+---
+
+## KINGDOM 6 — BOWSER'S DARKFIRE KINGDOM
+
+**Final boss: Bowser**
+
+Princess: Princess Peach.
+
+### Map 1: Burning Badlands
+
+Environment:
+
+- Lava rivers.
+- Burning mountains.
+- Volcanic rocks.
+- Fire hazards.
+- Destroyed bridges.
+- Dark orange skies.
+
+Enemies:
+
+- Dry Bones.
+- Fire Bros.
+- Hammer Bros.
+- Magikoopas.
+- Chain Chomps.
+- Lava Bubbles.
+- Elite Koopa guards.
+
+### Map 2: Darkfire Fortress
+
+Environment:
+
+- Large castle corridors.
+- Mechanical doors.
+- Lava chambers.
+- Fire traps.
+- Enemy barracks.
+- Secret passages.
+- Dangerous platforms.
+
+Introduce progressively harder enemy encounters.
+
+### Map 3: Bowser's Throne Room
+
+Final boss arena.
+
+Create a memorable cinematic introduction and the final three-phase encounter.
+
+---
+
+# 6. FINAL BOSS — BOWSER
+
+Bowser must be the most impressive boss in the entire chapter.
+
+Implement three completely distinct combat phases.
+
+## Phase 1 — THE KING
+
+Appearance:
+
+Classic Bowser-inspired appearance.
+
+Abilities:
+
+- Fireballs.
+- Claw attacks.
+- Tail sweeps.
+- Ground stomps.
+- Charging attacks.
+
+At approximately 65% health, transition into Phase 2.
+
+## Phase 2 — THE DESTROYER
+
+Appearance:
+
+Larger, more aggressive and visually more intimidating.
+
+Abilities:
+
+- Stronger fire attacks.
+- Arena-wide attacks.
+- Faster charging attacks.
+- Shell attacks.
+- Destruction of arena elements.
+- Summoning Koopa soldiers.
+
+At approximately 30% health, transition into Phase 3.
+
+## Phase 3 — RAGE
+
+This is the ultimate final stage.
+
+Appearance:
+
+- Enormous rage-powered Bowser.
+- Glowing eyes.
+- Burning shell.
+- Strong fire effects.
+- More aggressive animations.
+- Intense visual effects.
+
+Abilities:
+
+- Faster attack combinations.
+- Powerful ground impacts.
+- Fire explosions.
+- Large-area attacks.
+- Dangerous charging sequences.
+- New attack patterns.
+
+Two-player mechanics:
+
+- Allow one player to distract Bowser.
+- Allow the other player to attack vulnerable areas.
+- Introduce cooperative attack opportunities.
+- Avoid making the fight dependent on only one player.
+
+Phase 3 must feel substantially different from the first two phases.
+
+Use proper transition cinematics, animations, audio changes, health bars and attack-pattern changes.
+
+The final fight must be challenging but fair.
+
+---
+
+# 7. NEW DROP — SUPER MUSHROOM
+
+Introduce a new collectible item called:
+
+**Super Mushroom**
+
+Visual design:
+
+- Red mushroom cap.
+- White spots.
+- Light-colored stem.
+- Distinctive collectible animation.
+
+When collected:
+
+1. Play a special pickup animation.
+2. Play a cheerful power-up sound.
+3. Increase the player's visual character scale to 150%.
+4. Scale equipped armor and cosmetic overlays consistently.
+5. Add magical particles.
+6. Restore a small amount of health.
+7. Display an appropriate temporary power-up indicator.
+
+Important technical requirements:
+
+- The character's visual scale must become 1.5×.
+- Do not scale the entire game world or gameplay systems.
+- Preserve movement speed unless explicitly configured otherwise.
+- Preserve attack timing and combat balance.
+- Handle collision and character positioning safely.
+- Synchronize the effect correctly in multiplayer.
+- Each player must have independent mushroom effects.
+- Restore the original scale smoothly when the effect expires.
+
+Initial default duration: 60 seconds.
+
+Make the duration configurable.
+
+The mushroom must be implemented in:
+
+- Monster drop tables.
+- Item database.
+- Inventory.
+- Item icons.
+- Tooltip system.
+- Pickup system.
+- Save/load system.
+
+Add rare drops and hidden mushroom locations.
+
+---
+
+# 8. NEW COSMETIC EQUIPMENT — THREE COSTUMES
+
+Add three new cosmetic outfits.
+
+These are overlays worn on top of existing armor.
+
+Create a new equipment slot:
+
+**Costume Overlay**
+
+It must not replace existing armor or affect its statistics.
+
+### Mario Costume
+
+- Red cap.
+- Red shirt.
+- Blue overalls.
+- White gloves.
+- Appropriate footwear.
+
+### Luigi Costume
+
+- Green cap.
+- Green shirt.
+- Blue overalls.
+- White gloves.
+- Appropriate footwear.
+
+### Princess Peach Costume
+
+- Pink dress.
+- Crown.
+- Gloves.
+- Decorative accessories.
+
+Technical requirements:
+
+- Compatible with the existing character equipment system.
+- Must render correctly over equipped armor.
+- No changes to defense, attack or other statistics.
+- Support both players independently.
+- Save equipped costume selection.
+- Include suitable animations.
+- Ensure no clipping or major visual conflicts with existing armor.
+
+If the existing skeletal system makes a complete overlay impossible, implement the closest compatible modular equipment solution without changing the underlying character system.
+
+---
+
+# 9. NEW NPC — COSTUME MERCHANT
+
+Introduce a new NPC in the main village.
+
+This NPC owns a dedicated costume shop.
+
+Shop requirements:
+
+- Colorful decoration.
+- Costume displays.
+- Interactive dialogue.
+- Existing game currency integration.
+- Purchase confirmation.
+- Permanent costume unlocks.
+- 3D costume previews.
+- Separate ownership for both players.
+
+The merchant sells:
+
+1. Mario Costume.
+2. Luigi Costume.
+3. Princess Peach Costume.
+
+Do not create a separate currency system.
+
+---
+
+# 10. MONSTERS AND ANIMATION SYSTEM
+
+Implement recognizable Mario-inspired monster families with complete behavior.
+
+Required enemy families include:
+
+- Goombas.
+- Koopa Troopas.
+- Paratroopas.
+- Bob-ombs.
+- Boos.
+- Big Boos.
+- Piranha Plants.
+- Nipper Plants.
+- Wigglers.
+- Monty Moles.
+- Shy Guys.
+- Bullet Bills.
+- Lakitus.
+- Hammer Bros.
+- Fire Bros.
+- Dry Bones.
+- Spinies.
+- Buzzy Beetles.
+- Chain Chomps.
+- Lava Bubbles.
+- Magikoopas.
+- Snow Pokeys.
+- Ice Bros.
+
+Do not implement every enemy as a simple copy of the same AI.
+
+Each family must have recognizable behavior and attacks.
+
+### Required animations
+
+Goombas:
+- Idle.
+- Walk.
+- Turn.
+- Jump.
+- Attack.
+- Hit reaction.
+- Defeat.
+
+Koopas:
+- Walk.
+- Shell retreat.
+- Shell spin.
+- Shell attack.
+- Recovery.
+- Defeat.
+
+Bob-ombs:
+- Idle.
+- Walk.
+- Fuse activation.
+- Chase.
+- Explosion.
+
+Boos:
+- Float.
+- Idle.
+- Hide.
+- Chase.
+- Disappear.
+- Attack.
+
+Piranha Plants:
+- Emerge.
+- Idle.
+- Bite.
+- Retreat.
+- Poison attack.
+- Defeat.
+
+Wigglers:
+- Walk.
+- Turn.
+- Angry transformation.
+- Charge.
+- Defeat.
+
+Shy Guys:
+- Walk.
+- Throw.
+- Dodge.
+- Attack.
+- Hit reaction.
+- Defeat.
+
+Bullet Bills:
+- Launch.
+- Flight.
+- Tracking.
+- Collision.
+- Explosion.
+
+Hammer Bros:
+- Jump.
+- Throw hammer.
+- Land.
+- Attack.
+- Defeat.
+
+Dry Bones:
+- Walk.
+- Attack.
+- Collapse.
+- Rebuild.
+
+Chain Chomps:
+- Idle.
+- Bark.
+- Pull against chain.
+- Charge.
+- Bite.
+- Return.
+
+Reuse animations where technically appropriate, but preserve each enemy's identity.
+
+---
+
+# 11. GRAPHICS AND ASSET REQUIREMENTS
+
+This chapter must have a high-quality visual presentation.
+
+Do not use random low-quality assets simply because they are free.
+
+Prioritize:
+
+- Quaternius.
+- Kenney.
+- KayKit.
+- OpenGameArt.
+- Other reputable open asset libraries.
+
+Search for additional suitable assets where necessary.
+
+### Asset requirements
+
+Characters:
+- High-quality stylized 3D models.
+- Rigged skeletal systems.
+- Complete animation sets.
+- Consistent proportions.
+
+Monsters:
+- Distinctive silhouettes.
+- Expressive faces.
+- Appropriate textures.
+- Proper animations.
+
+Environments:
+- Modular environment assets.
+- High-quality textures.
+- Colorful vegetation.
+- Decorative objects.
+- Appropriate lighting.
+- Environmental effects.
+
+Items:
+- Mushroom models.
+- Coins.
+- Stars.
+- Collectibles.
+- Treasure chests.
+
+UI:
+- Colorful item icons.
+- Kingdom selection screens.
+- Boss health bars.
+- Mission indicators.
+- Royal Star progression.
+- Costume previews.
+
+### License requirements
+
+For every external asset:
+
+- Record its original source.
+- Record its exact license.
+- Record attribution requirements.
+- Keep required license notices.
+- Do not assume a website's entire collection shares one license.
+- Prefer CC0 assets where suitable.
+- Do not use Nintendo game files, extracted models, textures, sounds or animations as supposedly open-source assets.
+
+Create a chapter asset manifest documenting all external assets and licenses.
+
+### Art direction
+
+The entire chapter must use a coherent visual style.
+
+Target:
+
+- Cheerful.
+- Colorful.
+- Whimsical.
+- Cartoon-like.
+- Friendly.
+- Expressive.
+- High-quality fantasy platform-adventure aesthetics.
+
+Avoid realistic horror, excessively dark environments or visually inconsistent assets.
+
+---
+
+# 12. AUDIO AND SOUND DESIGN
+
+Audio quality is extremely important.
+
+Do not use MIDI soundtrack playback for this chapter.
+
+Use high-quality properly licensed open-source or freely licensed audio assets.
+
+Provide:
+
+### Music
+
+- Mushroom Meadows exploration music.
+- Jungle Bloom exploration music.
+- Boo Kingdom exploration music.
+- Frostpeak exploration music.
+- Koopa Sky exploration music.
+- Darkfire exploration music.
+- Six individual boss themes.
+- Village background music.
+- Final Bowser battle music.
+- Special RAGE phase soundtrack.
+- Victory and celebration music.
+
+Music should be colorful, playful, orchestral and adventurous.
+
+The Bowser soundtrack must become progressively more intense.
+
+### Sound effects
+
+- Jumping.
+- Landing.
+- Coin collection.
+- Mushroom pickup.
+- Power-up transformation.
+- Enemy footsteps.
+- Enemy attacks.
+- Enemy defeat.
+- Explosions.
+- Fireballs.
+- Magical attacks.
+- Ghost effects.
+- Waterfalls.
+- Lava.
+- Boss introductions.
+- Boss damage.
+- Boss phase transitions.
+- Princess rescue.
+- Royal Star collection.
+
+Include spatial audio where appropriate.
+
+Avoid excessive simultaneous audio playback.
+
+Use compressed OGG or MP3 music and optimized short sound effects.
+
+Preload critical combat effects and avoid loading all kingdom audio simultaneously.
+
+---
+
+# 13. MISSIONS AND REWARDS
+
+Every kingdom must have:
+
+- Main storyline missions.
+- Optional side missions.
+- Hidden collectibles.
+- Treasure locations.
+- Enemy camps.
+- Special encounters.
+- Boss progression.
+
+Examples:
+
+Mushroom Meadows:
+- Help the villagers.
+- Recover stolen supplies.
+- Find hidden mushrooms.
+- Defeat the Bob-omb army.
+
+Jungle Bloom:
+- Clear poisonous plants.
+- Rescue trapped explorers.
+- Discover ancient ruins.
+- Defeat Petey Piranha.
+
+Boo Kingdom:
+- Find missing villagers.
+- Discover hidden mansion rooms.
+- Solve ghost puzzles.
+- Defeat King Boo.
+
+Frostpeak:
+- Recover magical crystals.
+- Help frozen inhabitants.
+- Navigate dangerous ice paths.
+- Defeat Kamek.
+
+Koopa Sky:
+- Destroy enemy cannons.
+- Sabotage airships.
+- Rescue captured inhabitants.
+- Defeat Bowser Jr.
+
+Darkfire:
+- Destroy fortress defenses.
+- Defeat elite Koopa guards.
+- Find the entrance to Bowser's throne room.
+- Defeat Bowser.
+
+Rewards must integrate with existing progression and inventory.
+
+---
+
+# 14. VISUAL EFFECTS AND CINEMATICS
+
+Create high-quality effects throughout the chapter.
+
+Required effects:
+
+- Coins flying when enemies are defeated.
+- Star particles.
+- Colorful damage effects.
+- Fireballs.
+- Explosions.
+- Smoke.
+- Magic projectiles.
+- Ghost illusions.
+- Poison pools.
+- Snowstorms.
+- Lava particles.
+- Mushroom growth transformation.
+- Boss entrance effects.
+- Princess rescue effects.
+- Royal Star collection effects.
+
+Create short cinematic moments for:
+
+1. Chapter introduction.
+2. Each boss introduction.
+3. Each princess rescue.
+4. Each Royal Star recovery.
+5. Bowser's Phase 2 transformation.
+6. Bowser's RAGE transformation.
+7. Final victory.
+
+Cinematics must not unnecessarily interrupt gameplay.
+
+Allow skipping where appropriate.
+
+---
+
+# 15. TWO-PLAYER GAMEPLAY
+
+The chapter must support the existing two-player architecture.
+
+Do not introduce a separate multiplayer implementation.
+
+Ensure:
+
+- Both players can explore together.
+- Both players can interact with NPCs.
+- Quest progression works correctly.
+- Bosses can target either player.
+- Boss difficulty is balanced for two players.
+- Each player receives appropriate rewards.
+- Costume ownership and equipment remain independent.
+- Super Mushroom effects are independent.
+- Both players see synchronized boss transitions.
+- Multiplayer save/load behavior remains compatible.
+
+Do not allow one player's mushroom effect, costume or inventory changes to overwrite the other player's data.
+
+---
+
+# 16. PERFORMANCE OPTIMIZATION
+
+The target hardware has limited resources.
+
+Optimization is mandatory.
+
+### 3D models
+
+- Use optimized GLB/glTF models.
+- Avoid unnecessarily high polygon counts.
+- Use mesh simplification where necessary.
+- Share materials when possible.
+- Use instancing for repeated environmental objects.
+- Use efficient skeletal animation.
+
+### Textures
+
+- Prefer optimized WebP, KTX2 or other formats supported by the existing renderer.
+- Use appropriate texture resolutions.
+- Avoid unnecessarily large textures.
+- Reuse texture atlases where appropriate.
+
+### Rendering
+
+- Avoid excessive real-time shadows.
+- Avoid expensive post-processing.
+- Limit particle counts.
+- Use level-of-detail techniques where supported.
+- Avoid rendering unnecessary distant objects.
+- Use frustum culling.
+
+### Memory
+
+- Load kingdom assets on demand.
+- Unload assets when appropriate.
+- Avoid duplicated textures and models.
+- Keep audio loading controlled.
+- Prevent memory leaks.
+- Monitor performance during kingdom transitions.
+
+Do not sacrifice gameplay quality unnecessarily. Optimize intelligently.
+
+---
+
+# 17. SAVE SYSTEM AND PROGRESSION
+
+Integrate all chapter data with the existing save system.
+
+Persist:
+
+- Unlocked kingdoms.
+- Completed missions.
+- Rescued princesses.
+- Recovered Royal Stars.
+- Boss defeat states.
+- Mushroom inventory.
+- Costume ownership.
+- Equipped costume.
+- Optional quest progression.
+- Chapter completion.
+
+Do not break existing saves.
+
+Use backward-compatible save modifications.
+
+If a migration is necessary, implement a safe migration without losing previous chapter progress.
+
+---
+
+# 18. IMPLEMENTATION WORKFLOW
+
+Work in controlled stages.
+
+### Stage 1 — Repository inspection
+
+Inspect:
+
+- Existing chapters.
+- World architecture.
+- Maps.
+- NPC systems.
+- Enemy AI.
+- Combat.
+- Animation.
+- Inventory.
+- Equipment.
+- Drops.
+- Quests.
+- Multiplayer.
+- Save/load.
+- Audio.
+- MyPC integration.
+
+Identify exact files and systems that must be modified.
+
+### Stage 2 — Chapter foundation
+
+Implement:
+
+- Chapter registration.
+- Kingdom selection and progression.
+- Main village.
+- NPCs.
+- Map loading.
+- Quest integration.
+
+### Stage 3 — Kingdom implementation
+
+Implement all six kingdoms and their 18 maps.
+
+Ensure each map is playable before moving to the next.
+
+### Stage 4 — Monsters and bosses
+
+Implement the enemy families, animations, AI and all six boss encounters.
+
+### Stage 5 — New items and cosmetics
+
+Implement:
+
+- Super Mushroom.
+- Mushroom drop tables.
+- Costume Overlay slot.
+- Three costumes.
+- Costume merchant.
+
+### Stage 6 — Storyline and audio
+
+Implement dialogues, missions, princess rescues, music, sound effects and cinematics.
+
+### Stage 7 — Performance and compatibility
+
+Test the chapter on the target MyPC environment.
+
+### Stage 8 — Final quality assurance
+
+Test the complete chapter from the village introduction through the final Bowser battle and ending.
+
+Do not consider a feature complete merely because its files exist. It must actually work in the running game.
+
+---
+
+# 19. FINAL ACCEPTANCE CRITERIA
+
+The chapter is complete only when all of the following are satisfied:
+
+- [ ] Main village fully implemented.
+- [ ] Mario implemented as the main NPC.
+- [ ] Luigi implemented as an NPC.
+- [ ] Costume merchant implemented.
+- [ ] All six kingdoms implemented.
+- [ ] All 18 maps implemented and playable.
+- [ ] All six bosses implemented.
+- [ ] Bowser has three functioning phases.
+- [ ] RAGE is the final and most difficult phase.
+- [ ] Princess rescue progression works.
+- [ ] Six Royal Stars are collectible.
+- [ ] Super Mushroom works at 1.5× visual scale.
+- [ ] Mushroom drops and inventory work.
+- [ ] Three costumes are implemented.
+- [ ] Cosmetic overlays work with existing armor.
+- [ ] All required monster families have functioning AI.
+- [ ] Required animations are implemented or validly reused.
+- [ ] Each kingdom has its own music.
+- [ ] Boss music and audio transitions work.
+- [ ] High-quality sound effects are integrated.
+- [ ] Asset licenses are documented.
+- [ ] Two-player functionality works.
+- [ ] Existing saves remain compatible.
+- [ ] Existing chapters remain unaffected.
+- [ ] No MyPC lifecycle or controller regressions.
+- [ ] Performance is acceptable on target hardware.
+- [ ] No missing assets, broken map transitions or critical console errors.
+
+---
+
+# 20. FINAL INSTRUCTIONS
+
+This is a substantial chapter. Prioritize quality and completeness over rushing.
+
+Do not simplify the six kingdoms into small generic rooms.
+
+Do not create empty maps with a few enemies and call them complete.
+
+Every kingdom must have a distinct atmosphere, meaningful exploration, recognizable monsters and memorable encounters.
+
+Use high-quality open-source assets wherever possible. If an ideal asset does not exist, find a suitable licensed alternative or create an original lightweight asset.
+
+Do not replace the game's existing architecture.
+
+Do not break existing functionality to introduce new features.
+
+Keep all implementation changes focused on Chapter 6 and the minimum necessary shared-system extensions.
+
+**At the end of development, provide a detailed report containing:**
+
+1. Files created.
+2. Files modified.
+3. Kingdoms and maps implemented.
+4. Enemies and bosses implemented.
+5. New items and equipment.
+6. External assets and their licenses.
+7. Audio assets integrated.
+8. Performance optimizations.
+9. Tests performed and their results.
+10. Known limitations or unfinished features.
+
+If a feature cannot be completed, explicitly report it rather than pretending it works.
+
+**Final objective:** Deliver a complete, colorful, joyful, high-quality Super Mario-inspired RPG chapter that feels like a genuine adventure, with six unique kingdoms, memorable bosses, entertaining missions, recognizable enemies, beautiful environments and an epic three-phase Bowser finale.
+
+This is our private two-player game, designed for me and my friend to enjoy together. Make it fun, memorable and technically reliable.

@@ -16,7 +16,10 @@ window.HM_C4_MAPS = (function () {
     function hash(x, y, s) { let h = (x * 374761393 + y * 668265263 + s * 982451653) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
     function scatter(g, x0, y0, x1, y1, c, chance, seed, on) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (g[y] && g[y][x] === (on || '.') && hash(x, y, seed) < chance) g[y][x] = c; }
     function clear(g, props, c) { for (const p of props) rect(g, p.x - 1, p.y - 1, p.x + (p.w || 1), p.y + (p.h || 1) + 1, c || '.'); }
-    function unblock(g, pts) { for (const q of pts) for (let y = Math.floor(q[1]) - 1; y <= Math.floor(q[1]) + 1; y++) for (let x = Math.floor(q[0]) - 1; x <= Math.floor(q[0]) + 1; x++) if (g[y] && 'TkPrFB'.indexOf(g[y][x]) >= 0) g[y][x] = q[2] || '.'; }
+    function unblock(g, pts) { for (const q of pts) for (let y = Math.floor(q[1]) - 1; y <= Math.floor(q[1]) + 1; y++) for (let x = Math.floor(q[0]) - 1; x <= Math.floor(q[0]) + 1; x++) if (g[y] && 'TkPrFBc'.indexOf(g[y][x]) >= 0) g[y][x] = q[2] || '.'; }
+    function unblockFoes(g, foes, defTile) {
+        unblock(g, foes.map(f => [f.x, f.y, defTile || '.']));
+    }
     const rows = g => g.map(r => r.join(''));
 
     /* ---------------- 1. The Riverlands & Riverrun War Camp ---------------- */
@@ -48,11 +51,17 @@ window.HM_C4_MAPS = (function () {
             { k: 'boat', x: 25, y: 27, w: 2, h: 1 },
             { k: 'banner', x: 19, y: 2, w: 1, h: 1, c: 'stark' }, { k: 'banner', x: 24, y: 2, w: 1, h: 1, c: 'stark' }
         ];
+        const foes = [
+            { t: 'raider', x: 35.5, y: 11.5 }, { t: 'raider', x: 40.5, y: 12.5 }, { t: 'archer', x: 42.5, y: 9.5 },
+            { t: 'raider', x: 38.5, y: 21.5 }, { t: 'archer', x: 41.5, y: 22.5 }, { t: 'raider', x: 9.5, y: 22.5 },
+            { t: 'archer', x: 6.5, y: 21.5 }, { t: 'raider', x: 11.5, y: 5.5 }, { t: 'archer', x: 32.5, y: 11.5 }
+        ];
         scatter(g, 1, 2, 44, 24, 'T', 0.05, 3); scatter(g, 1, 2, 44, 24, 'F', 0.05, 5); scatter(g, 1, 2, 44, 24, 'k', 0.03, 7);
         clear(g, props.filter(p => p.k !== 'boat'));
         rect(g, 15, 8, 29, 19, 'x'); rect(g, 21, 2, 22, 29, '='); rect(g, 21, 30, 22, 30, 'g');
         rect(g, 1, 14, 44, 15, '='); rect(g, 20, 25, 24, 29, 'w');
         unblock(g, [[22.5, 16.6, 'x'], [19.5, 12.6, 'x'], [26.5, 12.6, 'x'], [10.5, 11.5, '.'], [38.5, 10.5, '.'], [14.5, 22.5, '.'], [23.5, 25.8, 'w']]);
+        unblockFoes(g, foes, '.');
         put(g, [8, 7, 35, 7, 7, 23, 41, 12], 'p'); put(g, [42, 2, 2, 12], 'C'); put(g, [18, 8, 25, 8, 18, 19, 25, 19], 'L');
         return {
             ground: 'dawn', art: 1, music: 'c4_river', atmo: 'leaves', spawn: [22.5, 25.5], tier: 5,
@@ -62,10 +71,7 @@ window.HM_C4_MAPS = (function () {
                 { id: 'gendry', x: 5.5, y: 19.7 }, { id: 'qyburn', x: 33.5, y: 19.7 }, { id: 'jaime', x: 28.5, y: 16.6 },
                 { id: 'salladhor', x: 23.5, y: 25.8 }, { id: 'folk1', x: 11.5, y: 14.6, roam: 3 }
             ],
-            foes: [
-                { t: 'raider', x: 36, y: 11 }, { t: 'raider', x: 40, y: 12 }, { t: 'archer', x: 42, y: 10 },
-                { t: 'raider', x: 38, y: 21 }, { t: 'archer', x: 41, y: 22 }, { t: 'raider', x: 9, y: 22 }, { t: 'archer', x: 6, y: 21 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 31, w: 2, h: 1, to: 'c4_kings', tx: 22.5, ty: 2.5 },
                 { x: 21, y: 0, w: 2, h: 1, to: 'c4_north', tx: 23.5, ty: 36.5 },
@@ -82,7 +88,7 @@ window.HM_C4_MAPS = (function () {
         rect(g, 13, 6, 31, 16, 'x');                                   // Red Keep courtyard
         rect(g, 1, 17, 46, 18, '='); rect(g, 46, 17, 46, 18, 'g'); rect(g, 47, 17, 47, 18, '='); // east gate to Stormlands
         rect(g, 3, 14, 11, 25, 'd'); rect(g, 33, 14, 44, 25, 'd');     // Flea Bottom & Alchemists' alleys
-        rect(g, 1, 27, 46, 27, 'x');                                   // Blackwater quay
+        rect(g, 1, 26, 46, 27, 'x');                                   // Blackwater quay
         rect(g, 1, 28, 46, 32, '~');                                   // Blackwater Bay (Wildfire-lit waters)
         const props = [
             { k: 'house', x: 14, y: 2, w: 5, h: 3, roof: 'red' },
@@ -94,21 +100,24 @@ window.HM_C4_MAPS = (function () {
             { k: 'banner', x: 29, y: 7, w: 1, h: 1, c: 'lannister' },
             { k: 'lore', x: 42, y: 6, w: 1, h: 1, n: 0 }
         ];
-        scatter(g, 1, 1, 45, 26, 'T', 0.04, 11); scatter(g, 1, 1, 45, 26, 'F', 0.06, 13);
+        const foes = [
+            { t: 'raider', x: 6.5, y: 20.5 }, { t: 'raider', x: 9.5, y: 23.5 }, { t: 'archer', x: 5.5, y: 16.5 },
+            { t: 'raider', x: 37.5, y: 21.5 }, { t: 'archer', x: 41.5, y: 19.5 }, { t: 'raider', x: 39.5, y: 24.5 },
+            { t: 'archer', x: 15.5, y: 21.5 }, { t: 'archer', x: 29.5, y: 21.5 }, { t: 'archer', x: 34.5, y: 16.5 },
+            { t: 'kraken', x: 12.5, y: 26.8 }, { t: 'kraken', x: 23.5, y: 26.8 }, { t: 'kraken', x: 34.5, y: 26.8 }
+        ];
+        scatter(g, 1, 1, 45, 25, 'T', 0.04, 11); scatter(g, 1, 1, 45, 25, 'F', 0.06, 13);
         clear(g, props, 'x');
-        rect(g, 13, 6, 31, 16, 'x'); rect(g, 21, 0, 23, 26, '='); rect(g, 1, 17, 45, 18, '='); rect(g, 46, 17, 46, 18, 'g');
+        rect(g, 13, 6, 31, 16, 'x'); rect(g, 21, 0, 23, 26, '='); rect(g, 1, 17, 45, 18, '='); rect(g, 46, 17, 46, 18, 'g'); rect(g, 1, 26, 46, 27, 'x');
         unblock(g, [[22.5, 14.6, 'x'], [17.5, 11.6, 'x'], [8, 18, 'd'], [38, 18, 'd'], [14, 26, 'x'], [42, 6, '.']]);
+        unblockFoes(g, foes, 'd');
         put(g, [14, 8, 30, 8, 14, 15, 30, 15, 20, 26, 24, 26], 'L');
         put(g, [4, 24, 43, 24, 32, 3], 'C'); put(g, [10, 20, 36, 20, 18, 25], 'p');
         return {
             ground: 'dawn', art: 1, music: 'c4_kings', atmo: 'embers', spawn: [22.5, 2.5], tier: 5,
             rows: rows(g), props,
             npcs: [{ id: 'tyrion', x: 22.5, y: 14.6 }, { id: 'varys', x: 17.5, y: 11.6 }],
-            foes: [
-                { t: 'raider', x: 6, y: 20 }, { t: 'raider', x: 9, y: 23 }, { t: 'archer', x: 5, y: 16 },
-                { t: 'raider', x: 37, y: 21 }, { t: 'archer', x: 41, y: 19 }, { t: 'raider', x: 39, y: 24 },
-                { t: 'kraken', x: 12, y: 27 }, { t: 'kraken', x: 34, y: 27 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 0, w: 3, h: 1, to: 'c4_river', tx: 21.5, ty: 28.5 },
                 { x: 47, y: 17, w: 1, h: 2, to: 'c4_storm', tx: 3.5, ty: 17.5 }
@@ -134,22 +143,25 @@ window.HM_C4_MAPS = (function () {
             { k: 'banner', x: 18, y: 9, w: 1, h: 1, c: 'baratheon' },
             { k: 'banner', x: 30, y: 9, w: 1, h: 1, c: 'baratheon' }
         ];
+        const foes = [
+            { t: 'raider', x: 18.5, y: 15.5 }, { t: 'archer', x: 30.5, y: 15.5 },
+            { t: 'shadow', x: 36.5, y: 14.5 }, { t: 'shadow', x: 10.5, y: 15.5 }, { t: 'shadow', x: 42.5, y: 18.5 }, { t: 'shadow', x: 20.5, y: 23.5 },
+            { t: 'unicorn', x: 40.5, y: 21.5 }, { t: 'unicorn', x: 8.5, y: 13.5 }, { t: 'unicorn', x: 36.5, y: 23.5 },
+            { t: 'kraken', x: 18.5, y: 26.2 }, { t: 'kraken', x: 32.5, y: 26.2 }, { t: 'kraken', x: 42.5, y: 26.2 }
+        ];
         scatter(g, 1, 11, 48, 26, 'P', 0.05, 21, 'a'); scatter(g, 1, 11, 48, 26, 'r', 0.04, 23, 'a');
         clear(g, props.filter(p => p.k !== 'ward'), 'a');
         rect(g, 16, 1, 33, 10, 'x'); rect(g, 1, 17, 44, 18, 'd'); rect(g, 23, 10, 26, 24, 'd');
         for (const p of props) if (p.k === 'ward') g[p.y][p.x] = ',';
-        unblock(g, [[12.5, 22.6, 'a'], [15.5, 22.6, 'a'], [24.5, 14.6, 'd'], [16, 12.8, 'a'], [32, 12.8, 'a'], [24, 20.8, 'd']]);
+        unblock(g, [[12.5, 22.6, 'a'], [15.5, 22.6, 'a'], [24.5, 14.6, 'd'], [16.5, 13.5, 'a'], [32.5, 13.5, 'a'], [24.5, 21.5, 'd']]);
+        unblockFoes(g, foes, 'a');
         put(g, [17, 2, 32, 2, 17, 8, 32, 8], 'L');
         put(g, [3, 12, 46, 12, 45, 24], 'C'); put(g, [19, 22, 35, 22, 40, 14], 'p');
         return {
             ground: 'ashen', art: 1, music: 'c4_storm', atmo: 'ash', spawn: [3.5, 17.5], tier: 5,
             rows: rows(g), props,
             npcs: [{ id: 'davos', x: 12.5, y: 22.6 }, { id: 'brienne', x: 15.5, y: 22.6 }, { id: 'melisandre', x: 24.5, y: 14.6 }],
-            foes: [
-                { t: 'raider', x: 18, y: 15 }, { t: 'archer', x: 30, y: 15 }, { t: 'shadow', x: 36, y: 14 },
-                { t: 'unicorn', x: 40, y: 21 }, { t: 'unicorn', x: 8, y: 13 },
-                { t: 'kraken', x: 18, y: 26 }, { t: 'kraken', x: 32, y: 26 }, { t: 'kraken', x: 42, y: 26 }
-            ],
+            foes,
             boss: { t: 'shadow', x: 25, y: 6.5, flag: 'c4shadow' }, arena: [25, 6.5],
             exits: [{ x: 0, y: 17, w: 1, h: 2, to: 'c4_kings', tx: 44.5, ty: 17.5 }]
         };
@@ -174,11 +186,17 @@ window.HM_C4_MAPS = (function () {
             { k: 'banner', x: 26, y: 22, w: 1, h: 1, c: 'stark' },
             { k: 'lore', x: 43, y: 33, w: 1, h: 1, n: 1 }
         ];
+        const foes = [
+            { t: 'direwolf', x: 8.5, y: 18.5 }, { t: 'direwolf', x: 12.5, y: 33.5 }, { t: 'direwolf', x: 37.5, y: 16.5 },
+            { t: 'direwolf', x: 41.5, y: 28.5 }, { t: 'direwolf', x: 35.5, y: 34.5 }, { t: 'direwolf', x: 10.5, y: 13.5 },
+            { t: 'wight', x: 6.5, y: 29.5 }, { t: 'wight', x: 42.5, y: 18.5 }, { t: 'unicorn', x: 36.5, y: 13.5 }, { t: 'giant', x: 9.5, y: 34.5 }
+        ];
         scatter(g, 1, 12, 46, 38, 'P', 0.09, 31); scatter(g, 1, 12, 46, 38, 'r', 0.03, 35);
         clear(g, props, '.');
         rect(g, 15, 22, 32, 31, 'x'); rect(g, 17, 3, 31, 11, 'x'); rect(g, 23, 12, 24, 38, '=');
         rect(g, 6, 23, 14, 25, '='); rect(g, 33, 23, 42, 25, '='); rect(g, 23, 0, 24, 1, 'q');
         unblock(g, [[20.5, 26.6, 'x'], [9.5, 24.6, '='], [39.5, 22.6, '.'], [14.5, 14.6, '.'], [24, 9.6, 'x'], [43, 33, '.']]);
+        unblockFoes(g, foes, '.');
         put(g, [18, 4, 30, 4, 18, 10, 30, 10], 'R');
         put(g, [3, 14, 44, 14, 4, 35], 'C'); put(g, [18, 25, 29, 25, 12, 18], 'p');
         return {
@@ -188,11 +206,7 @@ window.HM_C4_MAPS = (function () {
                 { id: 'arya', x: 20.5, y: 26.6 },
                 { id: 'scout1', x: 9.5, y: 24.6 }, { id: 'scout2', x: 39.5, y: 22.6 }, { id: 'scout3', x: 14.5, y: 14.6 }
             ],
-            foes: [
-                { t: 'direwolf', x: 8, y: 18 }, { t: 'direwolf', x: 12, y: 33 }, { t: 'direwolf', x: 37, y: 16 },
-                { t: 'direwolf', x: 41, y: 28 }, { t: 'direwolf', x: 35, y: 34 }, { t: 'direwolf', x: 10, y: 13 },
-                { t: 'wight', x: 6, y: 29 }, { t: 'wight', x: 42, y: 18 }, { t: 'unicorn', x: 36, y: 13 }, { t: 'giant', x: 9, y: 34 }
-            ],
+            foes,
             exits: [
                 { x: 23, y: 39, w: 2, h: 1, to: 'c4_river', tx: 21.5, ty: 2.6 },
                 { x: 23, y: 0, w: 2, h: 1, to: 'c4_wall', tx: 23.5, ty: 34.5 }
@@ -218,11 +232,18 @@ window.HM_C4_MAPS = (function () {
             { k: 'banner', x: 29, y: 11, w: 1, h: 1, c: 'targaryen' },
             { k: 'lore', x: 42, y: 26, w: 1, h: 1, n: 2 }
         ];
+        const foes = [
+            { t: 'kraken', x: 11.5, y: 22.5 }, { t: 'kraken', x: 23.5, y: 22.5 }, { t: 'kraken', x: 36.5, y: 22.5 }, { t: 'kraken', x: 16.5, y: 19.2 },
+            { t: 'firewyrm', x: 8.5, y: 28.5 }, { t: 'firewyrm', x: 18.5, y: 30.5 }, { t: 'firewyrm', x: 30.5, y: 29.5 },
+            { t: 'firewyrm', x: 38.5, y: 17.5 }, { t: 'firewyrm', x: 25.5, y: 28.5 }, { t: 'firewyrm', x: 34.5, y: 27.5 },
+            { t: 'shadow', x: 6.5, y: 17.5 }
+        ];
         scatter(g, 1, 25, 40, 34, 'F', 0.06, 41); scatter(g, 1, 25, 40, 34, 'r', 0.04, 43);
         clear(g, props.filter(p => p.k !== 'boat'), 'x');
         rect(g, 14, 11, 33, 18, 'x'); rect(g, 16, 1, 32, 10, 'x');
-        rect(g, 2, 20, 45, 24, '~'); rect(g, 10, 20, 12, 24, 'w'); rect(g, 22, 20, 25, 24, 'w'); rect(g, 35, 20, 37, 24, 'w');
         unblock(g, [[22.5, 14.6, 'x'], [26.5, 14.6, 'x'], [12.5, 14.6, '='], [33.5, 14.6, '='], [42, 26, '.']]);
+        unblockFoes(g, foes, '.');
+        rect(g, 2, 20, 45, 24, '~'); rect(g, 10, 20, 12, 24, 'w'); rect(g, 22, 20, 25, 24, 'w'); rect(g, 35, 20, 37, 24, 'w');
         put(g, [15, 12, 32, 12, 17, 2, 31, 2, 21, 25, 26, 25], 'L');
         put(g, [3, 27, 38, 28, 17, 3], 'C'); put(g, [14, 26, 30, 26, 8, 17], 'p');
         return {
@@ -232,11 +253,7 @@ window.HM_C4_MAPS = (function () {
                 { id: 'daenerys', x: 22.5, y: 14.6 }, { id: 'jorah', x: 26.5, y: 14.6 },
                 { id: 'jaqen', x: 12.5, y: 14.6 }, { id: 'folk2', x: 33.5, y: 14.6 }
             ],
-            foes: [
-                { t: 'kraken', x: 14, y: 22 }, { t: 'kraken', x: 20, y: 22 }, { t: 'kraken', x: 31, y: 22 },
-                { t: 'firewyrm', x: 8, y: 28 }, { t: 'firewyrm', x: 18, y: 30 }, { t: 'firewyrm', x: 30, y: 29 },
-                { t: 'firewyrm', x: 38, y: 17 }, { t: 'shadow', x: 6, y: 17 }
-            ],
+            foes,
             boss: { t: 'elderwyrm', x: 24, y: 5.5, flag: 'c4wyrm' }, arena: [24, 5.5],
             exits: [{ x: 0, y: 14, w: 1, h: 2, to: 'c4_river', tx: 42.5, ty: 14.5 }]
         };
@@ -253,28 +270,31 @@ window.HM_C4_MAPS = (function () {
         const props = [
             { k: 'house', x: 14, y: 11, w: 5, h: 3, roof: 'slate' },   // Lord Commander's Keep
             { k: 'house', x: 28, y: 11, w: 5, h: 3, roof: 'slate' },   // Maester Aemon's Library
-            { k: 'ward', x: 18, y: 9, w: 1, h: 1, n: 0 },              // West Tunnel Barricade (spot [18, 9.8])
-            { k: 'ward', x: 29, y: 9, w: 1, h: 1, n: 1 },              // East Tunnel Barricade (spot [29, 9.8])
+            { k: 'ward', x: 18, y: 9, w: 1, h: 1, n: 0 },              // West Tunnel Barricade (spot [18.5, 10.3])
+            { k: 'ward', x: 29, y: 9, w: 1, h: 1, n: 1 },              // East Tunnel Barricade (spot [29.5, 10.3])
             { k: 'fire', x: 23, y: 16, w: 1, h: 1 },
             { k: 'lore', x: 42, y: 14, w: 1, h: 1, n: 3 }
+        ];
+        const foes = [
+            { t: 'wight', x: 9.5, y: 12.5 }, { t: 'wight', x: 38.5, y: 12.5 }, { t: 'wight', x: 6.5, y: 28.5 },
+            { t: 'wight', x: 40.5, y: 28.5 }, { t: 'wight', x: 11.5, y: 31.5 }, { t: 'wight', x: 35.5, y: 31.5 },
+            { t: 'icespider', x: 11.5, y: 20.5 }, { t: 'icespider', x: 36.5, y: 20.5 }, { t: 'icespider', x: 7.5, y: 16.5 },
+            { t: 'whitewalker', x: 8.5, y: 10.5 }, { t: 'whitewalker', x: 39.5, y: 10.5 }
         ];
         scatter(g, 1, 9, 46, 36, 'P', 0.08, 51); scatter(g, 1, 9, 46, 36, 'r', 0.04, 53);
         clear(g, props.filter(p => p.k !== 'ward'), '.');
         rect(g, 1, 1, 46, 7, '#'); rect(g, 22, 0, 25, 8, 'x'); rect(g, 22, 1, 25, 1, 'g');
         rect(g, 14, 15, 33, 23, 'x'); rect(g, 23, 8, 24, 36, '=');
         for (const p of props) if (p.k === 'ward') g[p.y][p.x] = 'x';
-        unblock(g, [[23.5, 18.6, 'x'], [19.5, 18.6, 'x'], [27.5, 18.6, 'x'], [8, 24, '.'], [38, 24, '.'], [14, 14, '.'], [18, 9.8, 'x'], [29, 9.8, 'x'], [42, 14, '.']]);
+        unblock(g, [[23.5, 18.6, 'x'], [19.5, 18.6, 'x'], [27.5, 18.6, 'x'], [8, 24, '.'], [38, 24, '.'], [14, 14, '.'], [18.5, 10.3, 'x'], [29.5, 10.3, 'x'], [42, 14, '.']]);
+        unblockFoes(g, foes, '.');
         put(g, [15, 15, 32, 15, 21, 8, 26, 8], 'L');
         put(g, [3, 10, 44, 10, 4, 34], 'C'); put(g, [12, 22, 35, 22, 20, 30], 'p');
         return {
             ground: 'frost', art: 1, music: 'c4_wall', atmo: 'snow', spawn: [23.5, 34.5], tier: 6,
             rows: rows(g), props,
             npcs: [{ id: 'jon', x: 23.5, y: 18.6 }, { id: 'samwell', x: 19.5, y: 18.6 }, { id: 'aemon', x: 27.5, y: 18.6 }],
-            foes: [
-                { t: 'wight', x: 9, y: 12 }, { t: 'wight', x: 38, y: 12 }, { t: 'wight', x: 6, y: 28 }, { t: 'wight', x: 40, y: 28 },
-                { t: 'icespider', x: 11, y: 20 }, { t: 'icespider', x: 36, y: 20 },
-                { t: 'whitewalker', x: 8, y: 10 }, { t: 'whitewalker', x: 39, y: 10 }
-            ],
+            foes,
             exits: [
                 { x: 23, y: 37, w: 2, h: 1, to: 'c4_north', tx: 23.5, ty: 2.6 },
                 { x: 22, y: 0, w: 4, h: 1, to: 'c4_beyond', tx: 23.5, ty: 35.5 }
@@ -292,16 +312,24 @@ window.HM_C4_MAPS = (function () {
         rect(g, 14, 8, 34, 14, 'i');                                   // Undead Viserion glacier arena
         const props = [
             { k: 'throne', x: 23, y: 1, w: 3, h: 1, c: 'void' },       // Heart of Winter Ice Altar
-            { k: 'anchor', x: 8, y: 20, w: 2, h: 1, n: 0 },            // West Ice Spiral (spot [9, 20.8])
-            { k: 'anchor', x: 37, y: 20, w: 2, h: 1, n: 1 },           // East Ice Spiral (spot [38, 20.8])
-            { k: 'anchor', x: 22, y: 15, w: 2, h: 1, n: 2 },           // Center Ice Spiral (spot [23, 15.8])
+            { k: 'anchor', x: 8, y: 20, w: 2, h: 1, n: 0 },            // West Ice Spiral (spot [9, 21.3])
+            { k: 'anchor', x: 37, y: 20, w: 2, h: 1, n: 1 },           // East Ice Spiral (spot [38, 21.3])
+            { k: 'anchor', x: 22, y: 15, w: 2, h: 1, n: 2 },           // Center Ice Spiral (spot [23, 16.3])
             { k: 'tent', x: 13, y: 27, w: 3, h: 2, c: 'snow' },
             { k: 'fire', x: 17, y: 29, w: 1, h: 1 }
+        ];
+        const foes = [
+            { t: 'wight', x: 10.5, y: 24.5 }, { t: 'wight', x: 36.5, y: 24.5 }, { t: 'wight', x: 12.5, y: 17.5 }, { t: 'wight', x: 35.5, y: 17.5 },
+            { t: 'whitewalker', x: 7.5, y: 22.5 }, { t: 'whitewalker', x: 40.5, y: 22.5 },
+            { t: 'icespider', x: 14.5, y: 21.5 }, { t: 'icespider', x: 33.5, y: 21.5 }, { t: 'icespider', x: 8.5, y: 31.5 },
+            { t: 'giant', x: 6.5, y: 27.5 }, { t: 'giant', x: 41.5, y: 27.5 },
+            { t: 'children', x: 11.5, y: 15.5 }, { t: 'children', x: 36.5, y: 15.5 }, { t: 'children', x: 39.5, y: 32.5 }, { t: 'children', x: 9.5, y: 33.5 }
         ];
         scatter(g, 1, 15, 46, 36, 'P', 0.08, 61); scatter(g, 1, 15, 46, 36, 'c', 0.03, 63); scatter(g, 1, 15, 46, 36, 'r', 0.03, 65);
         clear(g, props, '.');
         rect(g, 14, 1, 34, 6, 'i'); rect(g, 22, 7, 25, 7, 'q'); rect(g, 14, 8, 34, 14, 'i'); rect(g, 22, 15, 25, 36, 'x');
-        unblock(g, [[15.5, 29.6, '.'], [18.5, 29.6, '.'], [27.5, 29.6, '.'], [9, 20.8, '.'], [38, 20.8, '.'], [23, 15.8, 'x']]);
+        unblock(g, [[15.5, 29.6, '.'], [18.5, 29.6, '.'], [27.5, 29.6, '.'], [9, 21.3, '.'], [38, 21.3, '.'], [23, 16.3, 'x']]);
+        unblockFoes(g, foes, '.');
         put(g, [15, 2, 33, 2, 15, 6, 33, 6, 15, 9, 33, 9], 'c');
         put(g, [3, 16, 44, 16, 4, 34], 'C'); put(g, [11, 25, 36, 25, 20, 32], 'p');
         return {
@@ -312,13 +340,7 @@ window.HM_C4_MAPS = (function () {
                 { id: 'ally_stark', x: 27.5, y: 29.6 }, { id: 'ally_baratheon', x: 27.5, y: 29.6 },
                 { id: 'ally_lannister', x: 27.5, y: 29.6 }, { id: 'ally_targaryen', x: 27.5, y: 29.6 }
             ],
-            foes: [
-                { t: 'wight', x: 10, y: 24 }, { t: 'wight', x: 36, y: 24 }, { t: 'wight', x: 12, y: 17 }, { t: 'wight', x: 35, y: 17 },
-                { t: 'whitewalker', x: 7, y: 22 }, { t: 'whitewalker', x: 40, y: 22 },
-                { t: 'icespider', x: 14, y: 21 }, { t: 'icespider', x: 33, y: 21 }, { t: 'icespider', x: 8, y: 31 },
-                { t: 'giant', x: 6, y: 27 }, { t: 'giant', x: 41, y: 27 },
-                { t: 'children', x: 11, y: 15 }, { t: 'children', x: 36, y: 15 }, { t: 'children', x: 39, y: 32 }, { t: 'children', x: 9, y: 33 }
-            ],
+            foes,
             boss: { t: 'nightking', x: 24, y: 4.5, flag: 'c4nightking' }, arena: [24, 4.5],
             exits: [{ x: 22, y: 37, w: 4, h: 1, to: 'c4_wall', tx: 23.5, ty: 2.6 }]
         };

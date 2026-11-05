@@ -88,9 +88,25 @@ window.HM_ITEMS = {
     vampire_armor:       { slot: 'body', role: 'heavy',  tier: 7, def: 17, hp: 28, spd: -0.05, atkSpd: -0.15, price: 2900, col: '#1c1424', col2: '#8a1828' },
     nightstalker_garb:   { slot: 'body', role: 'light',  tier: 7, def: 8,  atk: 7, crit: 10, spd: 0.12, atkSpd: 0.18, price: 2750, col: '#1e1828', col2: '#7a4cff' },
     sanctified_vestment: { slot: 'body', role: 'mystic', tier: 7, def: 7,  hp: 12, mag: 0.35, spd: 0.08, price: 2700, col: '#f4ecd8', col2: '#ffd700' },
-    dread_greaves:       { slot: 'feet', role: 'heavy',  tier: 7, def: 8,  hp: 14, spd: -0.03, atkSpd: -0.06, price: 1750, col: '#281822', col2: '#b81828' }
+    dread_greaves:       { slot: 'feet', role: 'heavy',  tier: 7, def: 8,  hp: 14, spd: -0.03, atkSpd: -0.06, price: 1750, col: '#281822', col2: '#b81828' },
+    // chapter 6 (Super Mario: Kingdoms of Wonder): Tier 8 gear & Cosmetic Costumes
+    star_rod:            { slot: 'weapon', tier: 8, kind: 'sword',   atk: 35, cd: 15, price: 3200, super: 1, fx: 'wave',    col: '#ffd700', col2: '#ff5277' },
+    super_hammer:        { slot: 'weapon', tier: 8, kind: 'hammer',  atk: 44, cd: 24, price: 3400, super: 1, fx: 'thunder', col: '#e62222', col2: '#2e2e34' },
+    fire_flower_staff:   { slot: 'weapon', tier: 8, kind: 'staff',   atk: 33, cd: 17, price: 3100, super: 1, fx: 'holyburn',col: '#ff6a1a', col2: '#ffd23f' },
+    koopa_bow:           { slot: 'weapon', tier: 8, kind: 'bow',     atk: 26, cd: 18, price: 2950, col: '#28c840', col2: '#ffd23f' },
+    bullet_blaster:      { slot: 'weapon', tier: 8, kind: 'pistols', atk: 34, cd: 31, price: 3300, col: '#2a2e38', col2: '#ff3a28' },
+    wing_cap_helm:       { slot: 'head', role: 'light',  tier: 8, def: 7,  atk: 6, crit: 10, spd: 0.12, atkSpd: 0.12, price: 2200, col: '#e62222', col2: '#ffffff' },
+    royal_star_plate:    { slot: 'body', role: 'heavy',  tier: 8, def: 20, hp: 34, spd: -0.04, atkSpd: -0.14, price: 3500, col: '#ffd700', col2: '#3a78ff' },
+    mushroom_tunic:      { slot: 'body', role: 'light',  tier: 8, def: 10, atk: 9, crit: 12, spd: 0.14, atkSpd: 0.20, price: 3300, col: '#e62222', col2: '#2058d8' },
+    starlight_robe:      { slot: 'body', role: 'mystic', tier: 8, def: 9,  hp: 16, mag: 0.40, spd: 0.10, price: 3250, col: '#5ad8ff', col2: '#ffd700' },
+    plumber_boots:       { slot: 'feet', role: 'light',  tier: 8, def: 5,  atk: 5, crit: 6,  spd: 0.28, atkSpd: 0.12, price: 2100, col: '#6b3e1e', col2: '#ffd23f' },
+    // Cosmetic Costumes (Chapter 6 Costume Overlay slot: visual-only, zero combat stats)
+    mario_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 800, cosmetic: true, col: '#e62222', col2: '#2058d8' },
+    luigi_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 800, cosmetic: true, col: '#22b838', col2: '#1a44b8' },
+    peach_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 950, cosmetic: true, col: '#ff85c2', col2: '#ffd700' }
 };
-window.HM_SLOTS = ['weapon', 'head', 'body', 'feet'];
+window.HM_SLOTS = ['weapon', 'head', 'body', 'feet', 'costume'];
+window.HM_COSTUMES = ['mario_costume', 'luigi_costume', 'peach_costume'];
 
 /* Loot. Every piece of gear you own is its own item: { u: id, id: base item, r: rarity, up: +0..+8, b: [[bonus, value]] }
  * Rarity 0 common, 1 rare (1 bonus), 2 epic (2 bonuses), 3 legendary (3 bonuses).
@@ -105,7 +121,8 @@ window.HM_LOOT = {
     foeDrop: 0.035,                               // chance that a normal foe drops gear (bosses always do, rare or better)
     oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1, stonebrute: 0.4, yeti: 0.3, riftborn: 1, hollowsoldier: 0.12, cryptbones: 0.12,
                wight: 0.15, whitewalker: 0.45, giant: 0.5, firewyrm: 0.45, icespider: 0.2, shadow: 0.25, kraken: 1, viserion: 1, nightking: 1,
-               blood_bat: 0.15, vampire_thrall: 0.2, vampire_knight: 0.5, flesh_golem: 0.6, dracula: 1, carmilla: 1, orlok: 1, undying_king: 1 },
+               blood_bat: 0.15, vampire_thrall: 0.2, vampire_knight: 0.5, flesh_golem: 0.6, dracula: 1, carmilla: 1, orlok: 1, undying_king: 1,
+               goomba: 0.15, koopa: 0.2, bobomb: 0.3, dry_bones: 0.25, hammer_bro: 0.4, chain_chomp: 0.5, king_bobomb: 1, petey_piranha: 1, king_boo: 1, kamek: 1, bowser_jr: 1, bowser: 1 },
     bagSize: 48,
     maxUp: 8
 };
@@ -114,8 +131,10 @@ window.HM_LOOT = {
 window.HM_SHOPS = {
     forge: ['steel_sword', 'knight_blade', 'hunter_bow', 'long_bow', 'flintlock', 'musket', 'oak_staff', 'ember_staff', 'star_staff', 'mage_robe',
             'leather_cap', 'mystic_hood', 'iron_helm', 'knight_helm', 'padded_vest', 'chainmail', 'plate_armor',
-            'leather_boots', 'swift_boots', 'silk_shoes', 'iron_greaves', 'blood_sword', 'vampire_armor', 'nightstalker_garb', 'sanctified_vestment', 'dread_greaves'],
-    potions: [{ id: 'small', price: 8, heal: 8 }, { id: 'big', price: 20, heal: 99 }]
+            'leather_boots', 'swift_boots', 'silk_shoes', 'iron_greaves', 'blood_sword', 'vampire_armor', 'nightstalker_garb', 'sanctified_vestment', 'dread_greaves',
+            'star_rod', 'super_hammer', 'fire_flower_staff', 'koopa_bow', 'bullet_blaster', 'wing_cap_helm', 'royal_star_plate', 'mushroom_tunic', 'starlight_robe', 'plumber_boots'],
+    potions: [{ id: 'small', price: 8, heal: 8 }, { id: 'big', price: 20, heal: 99 }],
+    costumes: ['mario_costume', 'luigi_costume', 'peach_costume']
 };
 
 /* Side quests. All optional, all repeatable to finish (foes come back when you re-enter an area).

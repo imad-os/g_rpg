@@ -18,6 +18,17 @@ window.HM_C5_MAPS = (function () {
     function scatter(g, x0, y0, x1, y1, c, chance, seed, on) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (g[y] && g[y][x] === (on || '.') && hash(x, y, seed) < chance) g[y][x] = c; }
     function clear(g, props, c) { for (const p of props) rect(g, p.x - 1, p.y - 1, p.x + (p.w || 1), p.y + (p.h || 1) + 1, c || '.'); }
     function unblock(g, pts) { for (const q of pts) for (let y = Math.floor(q[1]) - 1; y <= Math.floor(q[1]) + 1; y++) for (let x = Math.floor(q[0]) - 1; x <= Math.floor(q[0]) + 1; x++) if (g[y] && 'TkPrFB^#'.indexOf(g[y][x]) >= 0) g[y][x] = q[2] || '.'; }
+    function unblockFoes(g, foes, defTile) {
+        const d = defTile || '.';
+        for (const f of foes) {
+            if (f.t === 'blood_crystal') continue;
+            const fx = Math.floor(f.x), fy = Math.floor(f.y);
+            for (let y = fy - 1; y <= fy + 1; y++) for (let x = fx - 1; x <= fx + 1; x++) {
+                if (g[y] && 'TkPrFBcCpL'.indexOf(g[y][x]) >= 0) g[y][x] = d;
+            }
+        }
+        return foes;
+    }
     const rows = g => g.map(r => r.join(''));
 
     /* ---------------- 1. Blackthorn Village (Dominion Hub) ---------------- */
@@ -67,6 +78,13 @@ window.HM_C5_MAPS = (function () {
         put(g, [15, 9, 29, 9, 15, 19, 29, 19, 20, 4, 24, 4], 'L');
         put(g, [42, 3, 3, 23], 'C'); put(g, [13, 13, 31, 13, 17, 21], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'blood_bat', x: 34, y: 8 }, { t: 'blood_bat', x: 38, y: 10 }, { t: 'blood_bat', x: 40, y: 7 },
+            { t: 'blood_bat', x: 42, y: 11 }, { t: 'blood_bat', x: 12, y: 5 },
+            { t: 'vampire_thrall', x: 35, y: 12 }, { t: 'vampire_thrall', x: 39, y: 12 },
+            { t: 'vampire_thrall', x: 15, y: 5 }, { t: 'vampire_thrall', x: 32, y: 9 }
+        ], '.');
+
         return {
             ground: 'gothic', art: 1, music: 'c5_village', atmo: 'bloodmoon', spawn: [22.5, 25.5], tier: 7,
             rows: rows(g), props,
@@ -78,11 +96,7 @@ window.HM_C5_MAPS = (function () {
                 { id: 'hana', x: 36.5, y: 21.7 },
                 { id: 'salladhor', x: 23.5, y: 24.8 }
             ],
-            foes: [
-                { t: 'blood_bat', x: 34, y: 8 }, { t: 'blood_bat', x: 38, y: 10 }, { t: 'blood_bat', x: 40, y: 7 },
-                { t: 'vampire_thrall', x: 35, y: 12 }, { t: 'vampire_thrall', x: 39, y: 12 },
-                { t: 'blood_bat', x: 12, y: 5 }, { t: 'vampire_thrall', x: 15, y: 5 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 0, w: 3, h: 1, to: 'c5_dracula', tx: 22.5, ty: 28.5 },
                 { x: 0, y: 14, w: 1, h: 3, to: 'c5_nosferatu', tx: 43.5, ty: 15.5 },
@@ -116,16 +130,19 @@ window.HM_C5_MAPS = (function () {
         put(g, [14, 7, 31, 7, 14, 14, 31, 14, 14, 21, 31, 21], 'L');
         put(g, [9, 4, 36, 4], 'C'); put(g, [10, 24, 35, 24], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'blood_bat', x: 15, y: 23 }, { t: 'blood_bat', x: 30, y: 23 }, { t: 'blood_bat', x: 12, y: 20 },
+            { t: 'vampire_thrall', x: 16, y: 18 }, { t: 'vampire_thrall', x: 29, y: 18 },
+            { t: 'vampire_knight', x: 17, y: 13 }, { t: 'vampire_knight', x: 28, y: 13 },
+            { t: 'vampire_knight', x: 15, y: 11 }, { t: 'vampire_knight', x: 30, y: 11 }
+        ], 'x');
+
         return {
             ground: 'crimson', art: 1, music: 'c5_dracula', atmo: 'bloodmoon', spawn: [22.5, 28.5], tier: 7, dark: true,
             rows: rows(g), props,
             npcs: [],
             boss: { t: 'dracula', x: 23.5, y: 12.5, flag: 'c5_dracula' },
-            foes: [
-                { t: 'blood_bat', x: 15, y: 23 }, { t: 'blood_bat', x: 30, y: 23 },
-                { t: 'vampire_thrall', x: 16, y: 18 }, { t: 'vampire_thrall', x: 29, y: 18 },
-                { t: 'vampire_knight', x: 17, y: 13 }, { t: 'vampire_knight', x: 28, y: 13 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 31, w: 3, h: 1, to: 'c5_village', tx: 22.5, ty: 2.5 }
             ]
@@ -164,17 +181,21 @@ window.HM_C5_MAPS = (function () {
         put(g, [16, 6, 29, 6, 16, 12, 29, 12, 20, 22, 25, 22], 'L');
         put(g, [4, 27, 41, 4], 'C'); put(g, [12, 12, 34, 12, 18, 24], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'plague_rat', x: 11, y: 13 }, { t: 'plague_rat', x: 35, y: 12 },
+            { t: 'plague_rat', x: 16, y: 23 }, { t: 'plague_rat', x: 25, y: 15 },
+            { t: 'rotting_ghoul', x: 9, y: 14 }, { t: 'rotting_ghoul', x: 38, y: 13 },
+            { t: 'rotting_ghoul', x: 13, y: 24 }, { t: 'rotting_ghoul', x: 26, y: 18 },
+            { t: 'rotting_ghoul', x: 20, y: 18 }, { t: 'rotting_ghoul', x: 31, y: 15 },
+            { t: 'night_stalker', x: 19, y: 11 }, { t: 'night_stalker', x: 27, y: 11 }
+        ], '.');
+
         return {
             ground: 'plague', art: 1, music: 'c5_nosferatu', atmo: 'plague_fog', spawn: [22.5, 29.5], tier: 7, dark: true,
             rows: rows(g), props,
             npcs: [],
             boss: { t: 'orlok', x: 23.5, y: 8.5, flag: 'c5_orlok' },
-            foes: [
-                { t: 'plague_rat', x: 11, y: 13 }, { t: 'plague_rat', x: 35, y: 12 }, { t: 'plague_rat', x: 16, y: 23 },
-                { t: 'rotting_ghoul', x: 9, y: 14 }, { t: 'rotting_ghoul', x: 38, y: 13 },
-                { t: 'rotting_ghoul', x: 13, y: 24 }, { t: 'rotting_ghoul', x: 26, y: 18 },
-                { t: 'night_stalker', x: 19, y: 11 }, { t: 'night_stalker', x: 27, y: 11 }
-            ],
+            foes,
             exits: [
                 { x: 45, y: 14, w: 1, h: 3, to: 'c5_village', tx: 2.5, ty: 15.5 },
                 { x: 21, y: 31, w: 3, h: 1, to: 'c5_village', tx: 2.5, ty: 15.5 }
@@ -214,6 +235,15 @@ window.HM_C5_MAPS = (function () {
         put(g, [14, 6, 32, 6, 14, 13, 32, 13, 13, 22, 18, 22], 'L');
         put(g, [5, 5, 42, 5], 'C'); put(g, [19, 22, 33, 22], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'blood_wolf', x: 26, y: 18 }, { t: 'blood_wolf', x: 30, y: 19 },
+            { t: 'blood_wolf', x: 34, y: 17 }, { t: 'blood_wolf', x: 28, y: 24 },
+            { t: 'blood_wolf', x: 36, y: 25 }, { t: 'blood_wolf', x: 10, y: 12 },
+            { t: 'blood_bat', x: 24, y: 18 }, { t: 'blood_bat', x: 32, y: 22 },
+            { t: 'blood_bat', x: 38, y: 18 }, { t: 'blood_bat', x: 40, y: 12 },
+            { t: 'vampire_thrall', x: 18, y: 11 }
+        ], '.');
+
         return {
             ground: 'gothic', art: 1, music: 'c5_brides', atmo: 'bloodmoon', spawn: [2.5, 15.5], tier: 7,
             rows: rows(g), props,
@@ -221,12 +251,7 @@ window.HM_C5_MAPS = (function () {
                 { id: 'vanhelsing', x: 15.5, y: 23.5 }
             ],
             boss: { t: 'bride_crimson', x: 23.5, y: 9.5, flag: 'c5_brides' },
-            foes: [
-                { t: 'blood_wolf', x: 26, y: 18 }, { t: 'blood_wolf', x: 30, y: 19 },
-                { t: 'blood_wolf', x: 34, y: 17 }, { t: 'blood_wolf', x: 28, y: 24 },
-                { t: 'blood_bat', x: 24, y: 18 }, { t: 'blood_bat', x: 32, y: 22 },
-                { t: 'blood_bat', x: 38, y: 18 }, { t: 'vampire_thrall', x: 18, y: 11 }
-            ],
+            foes,
             exits: [
                 { x: 0, y: 14, w: 1, h: 3, to: 'c5_village', tx: 43.5, ty: 15.5 },
                 { x: 21, y: 33, w: 3, h: 1, to: 'c5_village', tx: 43.5, ty: 15.5 },
@@ -253,7 +278,7 @@ window.HM_C5_MAPS = (function () {
             // Alembics placed 2 tiles above the spots [[9.5, 14.5], [36.5, 13.5], [17.5, 21.5]]
             { k: 'alembic', x: 9, y: 12, w: 1, h: 1 },                   // spot [9.5, 14.5]
             { k: 'alembic', x: 36, y: 11, w: 1, h: 1 },                  // spot [36.5, 13.5]
-            { k: 'alembic', x: 17, y: 19, w: 1, h: 1 },                  // spot [17.5, 21.5]
+            { k: 'alembic', x: 17, y: 19, w: 1, h: 1 },                 // spot [17.5, 21.5]
             { k: 'fountain', x: 21, y: 16, w: 3, h: 2 },
             { k: 'shrine', x: 32, y: 22, w: 2, h: 2 },
             { k: 'banner', x: 16, y: 6, w: 1, h: 1, c: 'crimson' }, { k: 'banner', x: 29, y: 6, w: 1, h: 1, c: 'crimson' }
@@ -264,16 +289,18 @@ window.HM_C5_MAPS = (function () {
         put(g, [15, 8, 30, 8, 15, 16, 30, 16, 15, 24, 30, 24], 'L');
         put(g, [5, 26, 40, 26], 'C'); put(g, [12, 18, 33, 18], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'blood_maiden', x: 13, y: 14 }, { t: 'blood_maiden', x: 33, y: 14 },
+            { t: 'flesh_golem', x: 15, y: 21 }, { t: 'flesh_golem', x: 30, y: 21 },
+            { t: 'vampire_knight', x: 18, y: 11 }, { t: 'vampire_knight', x: 27, y: 11 }
+        ], 'x');
+
         return {
             ground: 'crimson', art: 1, music: 'c5_crimson', atmo: 'bloodmoon', spawn: [22.5, 28.5], tier: 7, dark: true,
             rows: rows(g), props,
             npcs: [],
             boss: { t: 'blood_queen', x: 23.5, y: 10.5, flag: 'c5_blood_queen' },
-            foes: [
-                { t: 'blood_maiden', x: 13, y: 14 }, { t: 'blood_maiden', x: 33, y: 14 },
-                { t: 'flesh_golem', x: 15, y: 21 }, { t: 'flesh_golem', x: 30, y: 21 },
-                { t: 'vampire_knight', x: 18, y: 11 }, { t: 'vampire_knight', x: 27, y: 11 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 0, w: 3, h: 1, to: 'c5_village', tx: 22.5, ty: 28.5 },
                 { x: 21, y: 31, w: 3, h: 1, to: 'c5_village', tx: 22.5, ty: 28.5 }
@@ -308,17 +335,20 @@ window.HM_C5_MAPS = (function () {
         put(g, [15, 7, 30, 7, 15, 16, 30, 16, 15, 24, 30, 24], 'L');
         put(g, [5, 5, 40, 5], 'C'); put(g, [13, 22, 33, 22], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'shadow_assassin', x: 13, y: 13 }, { t: 'shadow_assassin', x: 34, y: 13 },
+            { t: 'shadow_assassin', x: 20, y: 20 }, { t: 'shadow_assassin', x: 26, y: 20 },
+            { t: 'night_stalker', x: 15, y: 22 }, { t: 'night_stalker', x: 31, y: 22 },
+            { t: 'night_stalker', x: 11, y: 18 }, { t: 'night_stalker', x: 35, y: 18 },
+            { t: 'vampire_knight', x: 18, y: 10 }, { t: 'vampire_knight', x: 27, y: 10 }
+        ], 'x');
+
         return {
             ground: 'shadow', art: 1, music: 'c5_shadow', atmo: 'shadow_mist', spawn: [22.5, 29.5], tier: 7, dark: true,
             rows: rows(g), props,
             npcs: [],
             boss: { t: 'ruthven', x: 23.5, y: 9.5, flag: 'c5_ruthven' },
-            foes: [
-                { t: 'shadow_assassin', x: 13, y: 13 }, { t: 'shadow_assassin', x: 34, y: 13 },
-                { t: 'shadow_assassin', x: 20, y: 20 }, { t: 'night_stalker', x: 15, y: 22 },
-                { t: 'night_stalker', x: 31, y: 22 }, { t: 'vampire_knight', x: 18, y: 10 },
-                { t: 'vampire_knight', x: 27, y: 10 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 31, w: 3, h: 1, to: 'c5_brides', tx: 44.5, ty: 15.5 },
                 { x: 21, y: 0, w: 3, h: 1, to: 'c5_undying', tx: 22.5, ty: 29.5 }
@@ -350,19 +380,23 @@ window.HM_C5_MAPS = (function () {
         put(g, [16, 8, 29, 8, 16, 16, 29, 16, 16, 24, 29, 24], 'L');
         put(g, [5, 5, 40, 5], 'C'); put(g, [11, 22, 34, 22], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'undead_walker', x: 16, y: 23 }, { t: 'undead_walker', x: 28, y: 23 },
+            { t: 'undead_walker', x: 20, y: 21 }, { t: 'undead_walker', x: 25, y: 21 },
+            { t: 'undead_walker', x: 13, y: 25 }, { t: 'undead_walker', x: 32, y: 25 },
+            { t: 'undead_walker', x: 18, y: 15 }, { t: 'undead_walker', x: 27, y: 15 },
+            { t: 'undead_runner', x: 14, y: 17 }, { t: 'undead_runner', x: 31, y: 17 },
+            { t: 'undead_runner', x: 22, y: 18 },
+            { t: 'bone_archer', x: 13, y: 12 }, { t: 'bone_archer', x: 32, y: 12 },
+            { t: 'bone_archer', x: 18, y: 13 }, { t: 'bone_archer', x: 27, y: 13 }
+        ], 'x');
+
         return {
             ground: 'undead', art: 1, music: 'c5_undying', atmo: 'plague_fog', spawn: [22.5, 29.5], tier: 7, dark: true,
             rows: rows(g), props,
             npcs: [],
             boss: { t: 'undying_king', x: 23.5, y: 9.5, flag: 'c5_undying_king' },
-            foes: [
-                { t: 'undead_walker', x: 16, y: 23 }, { t: 'undead_walker', x: 28, y: 23 },
-                { t: 'undead_walker', x: 20, y: 21 }, { t: 'undead_walker', x: 25, y: 21 },
-                { t: 'undead_runner', x: 14, y: 17 }, { t: 'undead_runner', x: 31, y: 17 },
-                { t: 'undead_runner', x: 22, y: 18 },
-                { t: 'bone_archer', x: 13, y: 12 }, { t: 'bone_archer', x: 32, y: 12 },
-                { t: 'bone_archer', x: 18, y: 13 }, { t: 'bone_archer', x: 27, y: 13 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 31, w: 3, h: 1, to: 'c5_shadow', tx: 22.5, ty: 2.5 },
                 { x: 21, y: 0, w: 3, h: 1, to: 'c5_carmilla', tx: 22.5, ty: 29.5 }
@@ -399,18 +433,20 @@ window.HM_C5_MAPS = (function () {
         put(g, [16, 7, 30, 7, 16, 15, 30, 15, 16, 25, 30, 25], 'L');
         put(g, [7, 5, 40, 5], 'C'); put(g, [12, 26, 35, 26], 'p');
 
+        const foes = unblockFoes(g, [
+            { t: 'blood_crystal', x: 14.5, y: 9.5 },
+            { t: 'blood_crystal', x: 32.5, y: 9.5 },
+            { t: 'vampire_knight', x: 16, y: 16 }, { t: 'vampire_knight', x: 31, y: 16 },
+            { t: 'blood_maiden', x: 13, y: 22 }, { t: 'blood_maiden', x: 34, y: 22 },
+            { t: 'shadow_assassin', x: 19, y: 26 }, { t: 'shadow_assassin', x: 28, y: 26 }
+        ], 'x');
+
         return {
             ground: 'crimson', art: 1, music: 'c5_carmilla', atmo: 'bloodmoon', spawn: [22.5, 29.5], tier: 7, dark: true,
             rows: rows(g), props,
             npcs: [],
             boss: { t: 'carmilla', x: 23.5, y: 9.5, flag: 'c5_carmilla' },
-            foes: [
-                { t: 'blood_crystal', x: 14.5, y: 9.5 },
-                { t: 'blood_crystal', x: 32.5, y: 9.5 },
-                { t: 'vampire_knight', x: 16, y: 16 }, { t: 'vampire_knight', x: 31, y: 16 },
-                { t: 'blood_maiden', x: 13, y: 22 }, { t: 'blood_maiden', x: 34, y: 22 },
-                { t: 'shadow_assassin', x: 19, y: 26 }, { t: 'shadow_assassin', x: 28, y: 26 }
-            ],
+            foes,
             exits: [
                 { x: 21, y: 33, w: 4, h: 1, to: 'c5_undying', tx: 22.5, ty: 2.5 }
             ]

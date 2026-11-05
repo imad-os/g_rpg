@@ -2,7 +2,7 @@
  * Dark Gothic Horror RPG expansion across 7 vampire & undead dominions.
  * Implements the full CHAPTER_API contract, 8 main quests across 4 Acts, side quests,
  * Blood Moon event, Vampire Infection & Holy Shrine cleansing, and 9 bosses culminating in Queen Carmilla. */
-window.HM_C5_POOL = ['blood_sword', 'vampire_armor', 'nightstalker_garb', 'sanctified_vestment', 'dread_greaves', 'shadow_ring', 'crimson_amulet', 'holy_relic', 'bone_reaper'];
+window.HM_C5_POOL = window.HM_C5_POOL || [];
 
 HM_CHAPTERS.def.ch5 = function (api) {
     'use strict';
@@ -77,6 +77,7 @@ HM_CHAPTERS.def.ch5 = function (api) {
         else if (g === 'undying' && z === 'c5_shadow') api.openTiles(113, 61, 'gate2');
         else if (g === 'carmilla' && z === 'c5_undying') api.openTiles(113, 61, 'gate2');
         else return;
+        api.Z.ftx = -1; api.Z.fty = -1; if (api.GT) api.GT.ok = false;
         if (api.SND) { api.SND.fx('door'); api.SND.fx('slam'); }
         api.shake = 10;
     }
@@ -86,6 +87,7 @@ HM_CHAPTERS.def.ch5 = function (api) {
         const s = e.s;
         apply(s.set);
         c.st++; c.c = 0; c.m = 0;
+        if (api.GT) api.GT.ok = false;
         if (api.SND) api.SND.fx('quest');
         if (api.save) api.save();
         const pg = (before || []).concat(s.type === 'talk' ? [] : sayPages(s.say));
@@ -93,10 +95,71 @@ HM_CHAPTERS.def.ch5 = function (api) {
         if (pg.length && api.say) api.say(pg, null, next); else next();
     }
 
+    function findSpawnPos(cx, cy) {
+        if (!api.feetSolid || !api.feetSolid(cx, cy)) return [cx, cy];
+        for (let r = 24; r <= 120; r += 24) {
+            for (let k = 0; k < 8; k++) {
+                const a = k * 0.785398, nx = cx + Math.cos(a) * r, ny = cy + Math.sin(a) * r;
+                if (!api.feetSolid(nx, ny)) return [nx, ny];
+            }
+        }
+        return [cx, cy];
+    }
+
+    function ensureQuestFoes() {
+        const Z = api.Z;
+        if (!Z || !Z.id || !api.FOES || !api.spawnFoe) return;
+        const c = C(), s = step();
+        if (s && s.type === 'kill' && s.zone === Z.id && s.foes && s.foes.length) {
+            const need = Math.max(0, (s.n || 1) - (c.c || 0));
+            let alive = 0;
+            for (const f of api.FOES) if (f.on && s.foes.indexOf(f.t) >= 0) alive++;
+            const defFoes = (Z.def && Z.def.foes) ? Z.def.foes.filter(df => s.foes.indexOf(df.t) >= 0) : [];
+            let idx = 0;
+            while (alive < need && idx < 24) {
+                const ft = s.foes[idx % s.foes.length];
+                let bx = s.at ? s.at[0] * TS : 24 * TS, by = s.at ? s.at[1] * TS : 18 * TS;
+                if (defFoes.length) {
+                    const df = defFoes[idx % defFoes.length];
+                    bx = df.x * TS; by = df.y * TS;
+                } else {
+                    const ang = idx * 1.3;
+                    bx += Math.cos(ang) * 48; by += Math.sin(ang) * 36;
+                }
+                const pos = findSpawnPos(bx, by);
+                const nf = api.spawnFoe(ft, pos[0], pos[1], false);
+                idx++;
+                if (!nf) break;
+                alive++;
+            }
+        }
+        if (api.qState && QUESTS) {
+            for (const q of QUESTS) {
+                if (q.type === 'kill' && api.qState(q.id) === 1 && Z.def && Z.def.foes) {
+                    const defFoes = Z.def.foes.filter(df => df.t === q.foe);
+                    if (!defFoes.length) continue;
+                    const rem = Math.max(0, (q.n || 1) - ((S().sqc && S().sqc[q.id]) || 0));
+                    let alive = 0;
+                    for (const f of api.FOES) if (f.on && f.t === q.foe) alive++;
+                    let idx = 0;
+                    while (alive < rem && idx < 16) {
+                        const df = defFoes[idx % defFoes.length];
+                        const pos = findSpawnPos(df.x * TS, df.y * TS);
+                        const nf = api.spawnFoe(q.foe, pos[0], pos[1], false);
+                        idx++;
+                        if (!nf) break;
+                        alive++;
+                    }
+                }
+            }
+        }
+    }
+
     function startStep() {
         const s = step(); if (!s || !api.Z) return;
         const Z = api.Z;
         if (s.type === 'reach' && s.zone === Z.id) return complete();
+        if (s.type === 'kill' && s.zone === Z.id) ensureQuestFoes();
         if (s.type === 'boss' && s.zone === Z.id) wakeBoss();
     }
 
@@ -105,21 +168,27 @@ HM_CHAPTERS.def.ch5 = function (api) {
         if (s && s.type === 'boss' && api.Z && s.zone === api.Z.id) {
             return { t: s.boss, x: s.at ? s.at[0] : 23.5, y: s.at ? s.at[1] : 9.5, flag: 'c5_' + s.boss };
         }
-        const b = api.Z && api.Z.def && api.Z.def.boss;
-        return b && !S()[b.flag] ? b : null;
+        return null;
     }
 
     function wakeBoss() {
         const b = bossDef(); if (!b || !api.spawnFoe) return;
         if (api.boss && api.boss.on && api.boss.t === b.t) return;
-        api.boss = api.spawnFoe(b.t, b.x * TS, b.y * TS, false);
+        if (S() && b.flag) S()[b.flag] = false;
+        const pos = findSpawnPos(b.x * TS, b.y * TS);
+        api.boss = api.spawnFoe(b.t, pos[0], pos[1], false);
         if (api.boss) {
+            api.boss.boss = true;
             if (api.burst) api.burst(api.boss.x, api.boss.y - 20, 30, '#ff2848', 3);
             if (api.ringFx) api.ringFx(api.boss.x, api.boss.y, 90, '#ff2848');
             // In Widow's Forest, the Three Brides fight together!
             if (b.t === 'bride_crimson') {
-                api.spawnFoe('bride_shadow', (b.x - 4) * TS, (b.y + 1.5) * TS, true);
-                api.spawnFoe('bride_frost', (b.x + 4) * TS, (b.y + 1.5) * TS, true);
+                const p1 = findSpawnPos((b.x - 4) * TS, (b.y + 1.5) * TS);
+                const p2 = findSpawnPos((b.x + 4) * TS, (b.y + 1.5) * TS);
+                const s1 = api.spawnFoe('bride_shadow', p1[0], p1[1], true);
+                if (s1) { s1.d = Object.assign({}, s1.d, { boss: false }); s1.active = true; }
+                const s2 = api.spawnFoe('bride_frost', p2[0], p2[1], true);
+                if (s2) { s2.d = Object.assign({}, s2.d, { boss: false }); s2.active = true; }
             }
         }
     }
@@ -369,6 +438,10 @@ HM_CHAPTERS.def.ch5 = function (api) {
             if (api.toast) api.toast(T().ui.c5carmillaPhase3);
             if (api.ringFx) api.ringFx(f.x, f.y, 120, '#ff1838');
             api.shake = 15;
+            if (crystals === 0 && api.spawnFoe) {
+                api.spawnFoe('blood_crystal', 14.5 * TS, 9.5 * TS, true);
+                api.spawnFoe('blood_crystal', 32.5 * TS, 9.5 * TS, true);
+            }
             if (api.minions && api.minions() < 3) {
                 api.spawnFoe('vampire_knight', f.x - 48, f.y + 24, true);
                 api.spawnFoe('vampire_knight', f.x + 48, f.y + 24, true);
@@ -723,15 +796,27 @@ HM_CHAPTERS.def.ch5 = function (api) {
     }
 
     function onKill(f) {
+        if (api.GT) api.GT.ok = false;
         const s = step(), c = C(), u = T().ui || {};
         if (f && f.t === 'blood_crystal') {
+            if (api.Z && api.Z.statics) {
+                let bestSt = null, bdSt = 96;
+                for (const st of api.Z.statics) if (st.on && st.k === 'crystal') {
+                    const sx = st.cx || (st.dx + st.dw * 0.5), sy = st.cy || (st.dy + st.dh * 0.5);
+                    const d = Math.hypot(sx - f.x, sy - f.y);
+                    if (d < bdSt) { bdSt = d; bestSt = st; }
+                }
+                if (bestSt) bestSt.on = false;
+            }
             if (api.toast) api.toast(u.c5crystalShatter || 'Blood Crystal shattered!');
             if (api.ringFx) api.ringFx(f.x, f.y, 60, '#ff2848');
         }
         if (s && s.type === 'kill' && api.Z && s.zone === api.Z.id && s.foes && s.foes.indexOf(f.t) >= 0) {
             c.c++;
             if (api.toast) api.toast(objective(api.L));
-            if (c.c >= s.n) complete(); else if (api.save) api.save();
+            if (c.c >= s.n) complete(); else { ensureQuestFoes(); if (api.save) api.save(); }
+        } else {
+            ensureQuestFoes();
         }
     }
 
@@ -824,7 +909,7 @@ HM_CHAPTERS.def.ch5 = function (api) {
         const s = step();
         if (api.boss && api.boss.on && !(s && s.type === 'boss' && s.boss === api.boss.t)) { api.boss.on = false; api.boss = null; }
         if (s && s.type === 'boss' && s.zone === id) wakeBoss();
-        else if (api.Z && api.Z.def && api.Z.def.boss && !S()[api.Z.def.boss.flag]) wakeBoss();
+        ensureQuestFoes();
     }
 
     function arrive(id) {
@@ -841,7 +926,8 @@ HM_CHAPTERS.def.ch5 = function (api) {
     }
 
     function update() {
-        const c = C();
+        const c = C(), s = step();
+        if (s && s.type === 'reach' && api.Z && s.zone === api.Z.id) { complete(); return; }
         if (((api.tick || 0) & 15) === 0) syncCh5Music();
         if (c.altarBuff > 0) c.altarBuff--;
         if (c.infected > 0) c.infected--;
@@ -876,10 +962,31 @@ HM_CHAPTERS.def.ch5 = function (api) {
                 const d = api.dist ? api.dist(f.x, f.y, p0.x, p0.y) : Math.hypot(f.x - p0.x, f.y - p0.y);
                 if (d < bd) { bd = d; best = f; }
             }
+            if (!best) {
+                ensureQuestFoes();
+                for (const f of api.FOES) if (f.on && s.foes && s.foes.indexOf(f.t) >= 0) {
+                    const d = api.dist ? api.dist(f.x, f.y, p0.x, p0.y) : Math.hypot(f.x - p0.x, f.y - p0.y);
+                    if (d < bd) { bd = d; best = f; }
+                }
+            }
             if (best) { GT.x = best.x; GT.y = best.y; return true; }
         }
-        if (s.type === 'boss' && api.boss && api.boss.on) { GT.x = api.boss.x; GT.y = api.boss.y; return true; }
-        if (s.at) { GT.x = s.at[0] * TS; GT.y = s.at[1] * TS; return true; }
+        if (s.type === 'boss') {
+            if (!(api.boss && api.boss.on && api.boss.t === s.boss)) wakeBoss();
+            if (api.boss && api.boss.on) {
+                if (s.boss === 'carmilla' && (api.boss.hp < api.boss.max || api.boss.p3) && api.FOES) {
+                    const p0 = (api.P && api.P[0]) || { x: 0, y: 0 };
+                    let bestCr = null, bdCr = 1e9;
+                    for (const f of api.FOES) if (f.on && f.t === 'blood_crystal') {
+                        const d = api.dist ? api.dist(f.x, f.y, p0.x, p0.y) : Math.hypot(f.x - p0.x, f.y - p0.y);
+                        if (d < bdCr) { bdCr = d; bestCr = f; }
+                    }
+                    if (bestCr) { GT.x = bestCr.x; GT.y = bestCr.y; return true; }
+                }
+                GT.x = api.boss.x; GT.y = api.boss.y; return true;
+            }
+        }
+        if (s.at && s.type === 'reach') { GT.x = s.at[0] * TS; GT.y = s.at[1] * TS; return true; }
         return false;
     }
 
@@ -961,7 +1068,7 @@ HM_CHAPTERS.def.ch5 = function (api) {
         drawUnder(x, cx, cy, t) { ART.drawUnder(x, api.Z, cx, cy, t); },
         drawOver(x, cx, cy, t) { ART.drawOver(x, api.Z, cx, cy, t, api.glow); },
         objective, story, idle, extras, news, visible, tile, interact, onKill, bossDown, onZone, arrive, update, target, mods, journal, zoneOpen,
-        devUnlockAll, devSkipStep,
+        ensureQuestFoes, devUnlockAll, devSkipStep,
         whatNext() { return objective(api.L); },
         stageOf() { return C().st || 0; },
         music(zone) {

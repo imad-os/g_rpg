@@ -288,3 +288,210 @@ test('mypc-app.json defines dev_mod and js/game.js only enables dev mode when de
   assert.ok(gameCode.includes('c.dev_mod === true'), 'isDevMod must check c.dev_mod === true');
   assert.ok(gameCode.includes('if (isDevMod() && CHAPTERS.enabled(\'ch4\'))'), 'dev tools in menus must be guarded by isDevMod()');
 });
+
+test('All 8 Chapter 4 main quests, shadow_boss, waves, and kill steps complete end-to-end without stuck target arrows', () => {
+  const ctx = loadBrowserEnv();
+  ctx.MyPC = { announce: () => {} };
+  runScript(ctx, 'js/i18n.js');
+  runScript(ctx, 'js/i18n_more.js');
+  runScript(ctx, 'js/i18n_talk.js');
+  runScript(ctx, 'js/i18n_pets.js');
+  runScript(ctx, 'js/i18n_rift.js');
+  runScript(ctx, 'js/i18n_v3.js');
+  runScript(ctx, 'js/items.js');
+  runScript(ctx, 'js/mounts.js');
+  runScript(ctx, 'js/hero.js');
+  runScript(ctx, 'js/chapters.js');
+
+  ctx.window.HM_C4_QUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'chapters/ch4/quests.json'), 'utf8'));
+  runScript(ctx, 'chapters/ch4/text.js');
+  runScript(ctx, 'chapters/ch4/maps.js');
+  runScript(ctx, 'chapters/ch4/valyria.js');
+  runScript(ctx, 'chapters/ch4/art.js');
+  runScript(ctx, 'chapters/ch4/chapter.js');
+
+  const MAPS = ctx.window.HM_C4_MAPS;
+  const GT = { x: 0, y: 0, ok: false };
+  const S = {
+    c4: { st: 0, c: 0, m: 0, beacons: 0, great: false, open: {}, banner: '', lore: 0, rep: {}, gift: {}, wards: 0, anchors: 0, aemon: false, seen: { arrive: 1 } },
+    mounts: [],
+    sq: {},
+    sqc: {},
+    kills: 0,
+    lvl: 20,
+    qdone: 0
+  };
+  const FOES = Array.from({ length: 48 }, () => ({ on: false }));
+  const DROPS = Array.from({ length: 32 }, () => ({ on: false }));
+  let bossRef = null;
+  let ch4 = null;
+
+  const api = {
+    TS: 32,
+    GT,
+    S,
+    L: 'en',
+    TEXT: ctx.window.HM_TEXT,
+    T: ctx.window.HM_TEXT.en,
+    Z: null,
+    P: [{ x: 24 * 32, y: 18 * 32, on: true, hp: 100 }, { on: false }, { on: false }],
+    FOES,
+    DROPS,
+    TUNE: { enemyDifficulty: 1 },
+    SND: { fx: () => {}, play: () => {} },
+    get boss() { return bossRef; },
+    set boss(v) { bossRef = v; },
+    coopMul: () => 1,
+    dist: (x1, y1, x2, y2) => Math.hypot(x1 - x2, y1 - y2),
+    txt: (s, v) => String(s || '').replace(/\{(\w+)\}/g, (_, k) => (v && v[k] !== undefined ? v[k] : '')),
+    lines: (w, k) => [[w, k, null]],
+    toast: () => {},
+    save: () => {},
+    music: () => {},
+    toPlay: () => {},
+    travel: () => {},
+    openTiles: () => {},
+    ringFx: () => {},
+    burst: () => {},
+    part: () => {},
+    dropGear: () => {},
+    addToBag: () => {},
+    makeItem: (id, r) => ({ id, r }),
+    itemLabel: (it) => it.id,
+    closeDlg: () => {},
+    say: (_pg, ch, cb) => {
+      if (ch && ch.length) ch[0].fn();
+      else if (cb) cb();
+    },
+    scene: (steps, cb) => {
+      for (const st of steps || []) if (st.fn) st.fn();
+      if (cb) cb();
+    },
+    slides: (_pages, cb) => { if (cb) cb(); },
+    hop: () => { GT.x = 32; GT.y = 32; return true; },
+    feetSolid: () => false,
+    qState: (id) => S.sq[id] || 0,
+    spawnFoe: (t, x, y, minion) => {
+      for (const f of FOES) if (!f.on) {
+        const d = ch4.foes[t] || { hp: 50, dmg: 10, r: 12 };
+        f.on = true; f.t = t; f.d = d; f.boss = !!d.boss; f.x = x; f.y = y; f.minion = !!minion; f.tag = '';
+        f.max = f.hp = d.hp;
+        return f;
+      }
+      return null;
+    }
+  };
+
+  ch4 = ctx.window.HM_CHAPTERS.def.ch4(api);
+
+  function enterZone(zid) {
+    const def = MAPS[zid];
+    for (const f of FOES) f.on = false;
+    for (const d of DROPS) d.on = false;
+    bossRef = null;
+    api.Z = {
+      id: zid,
+      def,
+      cols: def.rows[0].length,
+      rows: def.rows.length,
+      npcs: (def.npcs || []).map(n => ({ id: n.id, x: n.x * 32, y: n.y * 32 })),
+      c4props: []
+    };
+    for (const f of def.foes || []) api.spawnFoe(f.t, f.x * 32, f.y * 32, false);
+    if (def.boss && !S[def.boss.flag]) bossRef = api.spawnFoe(def.boss.t, def.boss.x * 32, def.boss.y * 32, false);
+    ch4.onZone(zid);
+    ch4.arrive(zid);
+  }
+
+  function simulateKill(f) {
+    f.on = false;
+    const isBoss = (f.d.boss || f.boss || f === bossRef) && !f.minion;
+    ch4.onKill(f);
+    if (isBoss) {
+      bossRef = null;
+      ch4.bossDown(f);
+    }
+  }
+
+  const allSteps = [];
+  for (const q of ctx.window.HM_C4_QUESTS.quests) for (const s of q.steps) allSteps.push(s);
+
+  enterZone('c4_river');
+
+  for (let idx = 0; idx < allSteps.length; idx++) {
+    const s = allSteps[idx];
+    assert.equal(S.c4.st, idx, `Should be at step ${idx} (${s.id})`);
+    if (api.Z.id !== s.zone) enterZone(s.zone);
+    if (S.c4.st > idx) continue; // completed on arrive (type === 'reach')
+
+    // Pre-kill all existing foes before a kill step to verify ensureQuestFoes() respawns needed targets!
+    if (s.type === 'kill') {
+      for (const f of FOES) if (f.on && s.foes.includes(f.t)) f.on = false;
+    }
+
+    assert.ok(ch4.target(), `Step ${s.id} (${s.type}) must provide a valid target`);
+
+    if (s.type === 'talk' || s.type === 'choice') {
+      assert.ok(ch4.story(s.npc), `Step ${s.id} talk with ${s.npc} must advance quest`);
+    } else if (s.type === 'interact') {
+      for (const [sx, sy] of s.spots) {
+        const px = sx * 32, py = sy * 32;
+        api.P[0].x = px; api.P[0].y = py;
+        assert.ok(ch4.interact(api.P[0], px, py), `Step ${s.id} interact at [${sx}, ${sy}] must succeed`);
+      }
+    } else if (s.type === 'rescue') {
+      for (const npcId of s.npcs) {
+        assert.ok(ch4.story(npcId), `Step ${s.id} rescue ${npcId} must succeed`);
+      }
+    } else if (s.type === 'collect') {
+      const picks = DROPS.filter(d => d.on && d.k === 4 && d.qg === '@ch');
+      assert.equal(picks.length, s.n, `Step ${s.id} must spawn ${s.n} collect drops`);
+      for (const d of picks) ch4.pickup(d);
+    } else if (s.type === 'waves') {
+      for (const [sx, sy] of s.spots) {
+        const px = sx * 32, py = sy * 32;
+        api.P[0].x = px; api.P[0].y = py;
+        assert.ok(ch4.interact(api.P[0], px, py), `Step ${s.id} wave start at [${sx}, ${sy}] must succeed`);
+        const waveFoes = FOES.filter(f => f.on && f.tag === 'w');
+        assert.ok(waveFoes.length > 0, `Step ${s.id} wave must spawn tagged foes`);
+        for (const wf of waveFoes) {
+          assert.ok(ch4.target(), `Step ${s.id} wave target must point to alive wave foe`);
+          simulateKill(wf);
+        }
+      }
+    } else if (s.type === 'kill') {
+      for (let k = 0; k < s.n; k++) {
+        assert.ok(ch4.target(), `Step ${s.id} kill ${k + 1}/${s.n} must find or respawn a live foe`);
+        const targetFoe = FOES.find(f => f.on && s.foes.includes(f.t) && f.x === GT.x && f.y === GT.y);
+        assert.ok(targetFoe, `Step ${s.id} arrow must point to an actual live foe, never a static empty spawn coordinate`);
+        simulateKill(targetFoe);
+      }
+    } else if (s.type === 'boss') {
+      assert.ok(bossRef && bossRef.on && bossRef.t === s.boss, `Step ${s.id} boss ${s.boss} must be spawned`);
+      assert.ok(bossRef.d.boss || bossRef.boss, `Step ${s.id} boss ${s.boss} must have boss flag set so killing it triggers bossDown`);
+      assert.ok(ch4.target(), `Step ${s.id} arrow must point to boss ${s.boss}`);
+      assert.equal(GT.x, bossRef.x);
+      assert.equal(GT.y, bossRef.y);
+      simulateKill(bossRef);
+    }
+
+    assert.ok(S.c4.st > idx, `Step ${s.id} (${s.type}) must advance quest stage upon completion`);
+  }
+
+  assert.equal(S.c4.st, allSteps.length, 'All Chapter 4 steps must complete cleanly');
+  assert.equal(S.c4.great, true, 'Great Pyre must be lit at end of Chapter 4');
+});
+
+test('js/game.js shows only one quest arrow: yellow when Main Quest is followed, green only when a Side Quest is followed', () => {
+  const gameCode = fs.readFileSync(path.join(ROOT, 'js/game.js'), 'utf8');
+  assert.ok(!gameCode.includes('const ST ='), 'js/game.js must not maintain a secondary ST arrow state');
+  assert.ok(!gameCode.includes('anySideTarget'), 'js/game.js must not fall back to or overlay anySideTarget when Main Quest is followed');
+
+  // Verify drawGuide calls renderQuestArrow exactly once
+  const drawGuideMatch = gameCode.match(/function drawGuide\(cx, cy\)\s*\{[\s\S]*?\n    \}/);
+  assert.ok(drawGuideMatch, 'drawGuide must exist in js/game.js');
+  const arrowCalls = drawGuideMatch[0].match(/renderQuestArrow\(/g) || [];
+  assert.equal(arrowCalls.length, 1, 'drawGuide must call renderQuestArrow only once (single arrow)');
+});
+
+

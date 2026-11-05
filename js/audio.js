@@ -223,7 +223,18 @@ window.HM_AUDIO = (function () {
         cannon: () => { hiss(0.6, 0.7, 500); tone(120, 30, 0.5, 'square', 0.3); },
         arcane: () => { tone(300, 1200, 0.5, 'sawtooth', 0.08); tone(1400, 2600, 0.4, 'sine', 0.06, 0.1); },
         boom: () => { tone(90, 30, 0.5, 'sine', 0.4); hiss(0.4, 0.4, 500); },
-        burn: () => hiss(0.4, 0.3, 700)
+        burn: () => hiss(0.4, 0.3, 700),
+        // Chapter 6 (Super Mario: Kingdoms of Wonder) synthesized SFX
+        jump: () => { tone(260, 620, 0.16, 'square', 0.12); },
+        mushroom: () => { [262, 330, 392, 523, 392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0, 0.11, 'square', 0.12, i * 0.052)); },
+        powerdown: () => { [880, 659, 523, 392, 294, 220].forEach((f, i) => tone(f, 0, 0.11, 'square', 0.11, i * 0.055)); },
+        fireball: () => { tone(850, 220, 0.11, 'triangle', 0.16); hiss(0.08, 0.15, 1600); },
+        shell: () => { tone(420, 140, 0.12, 'square', 0.2); tone(740, 320, 0.08, 'triangle', 0.15, 0.03); },
+        boo: () => { [680, 560, 720, 520, 760].forEach((f, i) => tone(f, f * 0.85, 0.12, 'sine', 0.12, i * 0.075)); },
+        star: () => { [523, 659, 784, 1047, 988, 1047, 1319, 1568].forEach((f, i) => tone(f, 0, 0.24, 'triangle', 0.18, i * 0.08)); },
+        rescue: () => { [392, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, 0, 0.3, 'triangle', 0.18, i * 0.095)); },
+        pipe: () => { [0, 0.09, 0.18].forEach(d => tone(440, 180, 0.08, 'square', 0.14, d)); },
+        qblock: () => { tone(180, 280, 0.09, 'triangle', 0.22); tone(784, 1175, 0.14, 'square', 0.12, 0.06); }
     };
     let hoofStep = false;
     function voiceHit(f1, f2, formant) {
