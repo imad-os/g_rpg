@@ -67,10 +67,11 @@ window.HM_C5_MAPS = (function () {
             { k: 'gargoyle', x: 19, y: 3, w: 1, h: 1 }, { k: 'gargoyle', x: 25, y: 3, w: 1, h: 1 },
             { k: 'banner', x: 14, y: 9, w: 1, h: 1, c: 'dracula' }, { k: 'banner', x: 30, y: 9, w: 1, h: 1, c: 'dracula' },
             { k: 'well', x: 28, y: 17, w: 1, h: 1 },
-            { k: 'wagon', x: 11, y: 20, w: 2, h: 1 }
+            { k: 'wagon', x: 11, y: 20, w: 2, h: 1 },
+            { k: 'boat', x: 25, y: 25, w: 2, h: 1 }
         ];
         scatter(g, 1, 2, 44, 24, 'T', 0.04, 101); scatter(g, 1, 2, 44, 24, 'F', 0.05, 103); scatter(g, 1, 2, 44, 24, 'k', 0.03, 107);
-        clear(g, props);
+        clear(g, props.filter(p => p.k !== 'boat'));
         rect(g, 14, 9, 30, 20, 'x'); rect(g, 5, 8, 11, 12, 'x');
         rect(g, 21, 2, 23, 29, '='); rect(g, 2, 14, 44, 16, '='); rect(g, 20, 24, 24, 29, 'w');
         rect(g, 21, 1, 23, 1, 'q'); rect(g, 1, 14, 1, 16, 'g'); rect(g, 21, 30, 23, 30, 'g');

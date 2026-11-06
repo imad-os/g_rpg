@@ -541,3 +541,42 @@ test('All 8 Chapter 5 main quests, Three Brides boss fight, Carmilla crystals, a
   assert.equal(S.c5.st, allSteps.length, 'All Chapter 5 steps must complete cleanly');
   assert.equal(S.c5.beacons, 7, 'All 7 Blood Kingdoms must be liberated');
 });
+
+test('Salladhor Saan in Chapter 5 provides options to sail to Chapter 6 (Kingdoms of Wonder) and Chapter 4', () => {
+  const ctx = loadBrowserEnv();
+  ctx.HM_CHAPTERS.enabled = () => true;
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/text.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch5/chapter.js'), 'utf8'), ctx);
+
+  for (const l of ['en', 'fr', 'es', 'ar']) {
+    assert.ok(ctx.HM_C5_TEXT[l].ui.c5sailKingdoms, `Missing c5sailKingdoms in ${l}`);
+    assert.ok(ctx.HM_C5_TEXT[l].ui.c5sailWesteros, `Missing c5sailWesteros in ${l}`);
+  }
+
+  let traveledTo = null;
+  const api = {
+    TS: 32,
+    S: { c5: { st: 21, c: 0, m: 0, open: {} }, mounts: [] },
+    L: 'en',
+    TEXT: ctx.HM_C5_TEXT,
+    T: () => ctx.HM_C5_TEXT.en,
+    Z: { id: 'c5_village' },
+    P: [{ x: 23.5 * 32, y: 24.8 * 32, on: true }],
+    travel: (zid, tx, ty) => { traveledTo = { zid, tx, ty }; },
+    closeDlg: () => {},
+    talk: () => {}
+  };
+
+  const ch5 = ctx.HM_CHAPTERS.def.ch5(api);
+  const choices = [];
+  ch5.extras('salladhor', choices);
+
+  const ch6Option = choices.find(c => c.label.includes('Chapter 6') || c.label.includes('Kingdoms of Wonder'));
+  assert.ok(ch6Option, 'Salladhor Saan in Chapter 5 must offer option to sail to Chapter 6');
+
+  ch6Option.fn();
+  assert.ok(traveledTo, 'Clicking Chapter 6 sailing option must trigger travel');
+  assert.equal(traveledTo.zid, 'c6_village', 'Must travel to c6_village');
+});
+

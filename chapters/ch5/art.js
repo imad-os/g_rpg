@@ -121,6 +121,19 @@ window.HM_C5_ART = (function () {
     /* ---------------- Big Props ---------------- */
     function bigProp(p) {
         const k = p.k;
+        if (k === 'boat') {
+            return cached('c5boat', 64, 36, x => {
+                oval(x, 32, 28, 26, 6, 'rgba(0,0,0,0.35)');
+                x.fillStyle = '#22161e';
+                x.beginPath();
+                x.moveTo(8, 14); x.lineTo(20, 28); x.lineTo(46, 28); x.lineTo(58, 12); x.lineTo(12, 12);
+                x.closePath(); x.fill();
+                x.strokeStyle = '#521422'; x.lineWidth = 2; x.stroke();
+                // Mast & sail
+                x.fillStyle = '#42303c'; x.fillRect(30, 4, 3, 20);
+                x.fillStyle = '#7a1828'; x.beginPath(); x.moveTo(33, 5); x.lineTo(48, 12); x.lineTo(33, 18); x.closePath(); x.fill();
+            });
+        }
         if (k === 'shrine') {
             return cached('shrine', 64, 68, x => {
                 oval(x, 32, 62, 22, 6, 'rgba(0,0,0,0.35)');

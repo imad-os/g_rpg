@@ -738,7 +738,12 @@ HM_CHAPTERS.def.ch5 = function (api) {
             if (api.Z.id !== 'c5_undying' && (o.undying || c.st >= 17)) ch.push({ label: u.c5travelUndying || 'The Undying Kingdom', fn: () => { api.closeDlg(); api.travel('c5_undying', 22.5, 29.5); } });
             if (api.Z.id !== 'c5_carmilla' && (o.carmilla || c.st >= 20)) ch.push({ label: u.c5travelCarmilla || 'Carmilla\'s Blood Cathedral', fn: () => { api.closeDlg(); api.travel('c5_carmilla', 22.5, 29.5); } });
             if (api.Z.id !== 'c5_village') ch.push({ label: u.c5travelBack || 'Return to Blackthorn Village', fn: () => { api.closeDlg(); api.travel('c5_village', 22.5, 25.5); } });
-            if (id === 'salladhor') ch.push({ label: u.c5sailWesteros || 'Sail to Westeros (Chapter 4)', fn: () => { api.closeDlg(); api.travel('c4_river', 22.5, 25.5); } });
+            if (id === 'salladhor') {
+                ch.push({ label: u.c5sailWesteros || 'Sail to Westeros (Chapter 4)', fn: () => { api.closeDlg(); api.travel('c4_river', 22.5, 25.5); } });
+                if (window.HM_CHAPTERS && window.HM_CHAPTERS.enabled && window.HM_CHAPTERS.enabled('ch6')) {
+                    ch.push({ label: u.c5sailKingdoms || 'Sail to Kingdoms of Wonder (Chapter 6)', fn: () => { api.closeDlg(); api.travel('c6_village', 22.5, 26.5); } });
+                }
+            }
         }
     }
 
@@ -794,6 +799,10 @@ HM_CHAPTERS.def.ch5 = function (api) {
                 if (api.SND) api.SND.fx('magic');
                 if (api.ringFx) api.ringFx(o.cx, o.cy, 56, '#ff2848');
                 if (api.toast) api.toast(u.c5altarBlessing || 'Blood Altar grants +30% Crimson Fury!');
+                return true;
+            }
+            if (o.k === 'boat') {
+                if (api.talk) api.talk('salladhor');
                 return true;
             }
         }
