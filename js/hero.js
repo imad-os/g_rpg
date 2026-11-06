@@ -77,93 +77,95 @@ window.HM_HERO = (function () {
         x.save(); x.translate(X, Y); if (s !== 1) x.scale(s, s); if (flip) x.scale(-1, 1);
         if (Q) x.scale(0.84, 1);                         // turned a little: narrower shoulders
         if (lean) x.rotate(lean * 0.12);
-        const sw = walk ? Math.sin(walk) : 0, bob = walk ? -Math.abs(Math.cos(walk)) * 1.2 : 0;
+        const sw = walk ? Math.sin(walk) : 0, bob = walk ? -Math.abs(Math.cos(walk)) * 1.3 : 0;
         const cos = COSTUME[gear.costume || look.costume];
         const bd = cos ? null : BODY[gear.body], hd = cos ? null : HEAD[gear.head], ft = cos ? null : FEET[gear.feet];
         const tunic = cos ? (cos.kind === 'plumber' ? cos.shirt : cos.dress) : (bd ? bd.main : look.tunic);
         const tdark = cos ? (cos.kind === 'plumber' ? cos.overallsDark : cos.dressDark) : (bd ? bd.dark : shade(look.tunic));
         const tlight = cos ? (cos.kind === 'plumber' ? '#ffd23f' : cos.dressLight) : (bd ? bd.light : look.trim);
         const side = dir === 2, back = dir === 1;
+        const wId = gear.weapon || '';
+        const isAxes = !!(gear.axes || (wId && window.HM_ITEMS && window.HM_ITEMS[wId] && window.HM_ITEMS[wId].kind === 'axes') || /axes/i.test(wId));
         // shadow
         if (!F) { x.fillStyle = 'rgba(0,0,0,0.3)'; x.beginPath(); x.ellipse(0, 0, 9, 3.4, 0, 0, 6.2832); x.fill(); }
         x.translate(0, bob);
         // cape behind the body (in front when seen from the back)
-        if (look.cape && !back && !cos) poly4(x, -7, -24, 7, -24, side ? 3 : 9, -6, side ? -11 - sw * 2 : -9, -6, shade(look.cape));
-        // legs
+        if (look.cape && !back && !cos) poly4(x, -7, -26.5, 7, -26.5, side ? 3 : 9, -7, side ? -11 - sw * 2 : -9, -7, shade(look.cape));
+        // legs (full 14.5px length from hip y=-14.5 to ground y=0 so running stride is clearly visible)
         const pants = cos ? (cos.kind === 'plumber' ? cos.overalls : cos.dressDark) : look.pants;
         const shoe = cos ? (cos.kind === 'plumber' ? cos.shoes : '#e04088') : (ft ? ft.main : look.shoes);
         const shoeTop = cos ? shoe : (ft ? ft.top : look.shoes);
         if (side) {
-            leg(x, -1 + sw * 3, -12, pants, shoe, shoeTop, ft, 1);
-            leg(x, -1 - sw * 3, -12, shade(pants), shade(shoe), shoeTop, ft, 1);
+            leg(x, -0.8, -14.5, shade(pants), shade(shoe), shoeTop, ft, 1, -sw);
+            leg(x, -0.8, -14.5, pants, shoe, shoeTop, ft, 1, sw);
         } else {
-            leg(x, -4, -12 - Math.max(0, sw) * 1.5, pants, shoe, shoeTop, ft, 0);
-            leg(x, 1, -12 - Math.max(0, -sw) * 1.5, pants, shoe, shoeTop, ft, 0);
+            leg(x, -4.1, -14.5, pants, shoe, shoeTop, ft, 0, sw);
+            leg(x, 0.7, -14.5, pants, shoe, shoeTop, ft, 0, -sw);
         }
         // the far arm (side view) goes behind the body
-        if (side) arm(x, -1 - sw * 2.5, tunic, tdark, cos ? '#ffffff' : look.skin, bd, 1);
-        // torso: a tunic that flares at the hem, or armour, or costume overlay
-        const tw = side ? 6 : 7.5;
+        if (side) arm(x, -1 - sw * 2.2, tunic, tdark, cos ? '#ffffff' : look.skin, bd, 1, -sw, isAxes);
+        // torso: balanced 13.5px upper body (from y=-27.5 to y=-14) so legs have full room below
+        const tw = side ? 5.8 : 7.2;
         if (cos && cos.kind === 'plumber') {
             // Shirt + blue overalls with straps and yellow buttons
-            poly4(x, -tw, -25, tw, -25, tw + 1, -9, -tw - 1, -9, cos.shirt);
-            poly4(x, -tw + 0.5, -19, tw - 0.5, -19, tw + 1, -9, -tw - 1, -9, cos.overalls);
-            rect(x, -tw - 1, -11, tw * 2 + 2, 2, cos.overallsDark);
+            poly4(x, -tw, -27.5, tw, -27.5, tw + 0.8, -13.5, -tw - 0.8, -13.5, cos.shirt);
+            poly4(x, -tw + 0.5, -21.5, tw - 0.5, -21.5, tw + 0.8, -13.5, -tw - 0.8, -13.5, cos.overalls);
+            rect(x, -tw - 0.8, -15, tw * 2 + 1.6, 1.6, cos.overallsDark);
             if (!side) {
-                rect(x, -4.8, -25, 2.2, 7, cos.overalls);
-                rect(x, 2.6, -25, 2.2, 7, cos.overalls);
+                rect(x, -4.6, -27.5, 2.1, 6.5, cos.overalls);
+                rect(x, 2.5, -27.5, 2.1, 6.5, cos.overalls);
                 if (!back) {
-                    oval(x, -3.7, -17.5, 1.4, 1.4, '#ffd23f');
-                    oval(x, 3.7, -17.5, 1.4, 1.4, '#ffd23f');
+                    oval(x, -3.5, -20.2, 1.3, 1.3, '#ffd23f');
+                    oval(x, 3.5, -20.2, 1.3, 1.3, '#ffd23f');
                 }
             } else {
-                rect(x, -1.5, -25, 2.6, 7, cos.overalls);
-                oval(x, 0, -17.5, 1.4, 1.4, '#ffd23f');
+                rect(x, -1.4, -27.5, 2.5, 6.5, cos.overalls);
+                oval(x, 0, -20.2, 1.3, 1.3, '#ffd23f');
             }
         } else if (cos && cos.kind === 'princess') {
             // Royal pink gown with panniers, frill hem, and sapphire brooch
-            poly4(x, -tw + 1, -25, tw - 1, -25, tw + 4.5, -4, -tw - 4.5, -4, cos.dress);
-            poly4(x, -tw - 2, -15, tw + 2, -15, tw + 3.5, -11, -tw - 3.5, -11, cos.dressDark);
-            rect(x, -tw - 4.5, -5.5, (tw + 4.5) * 2, 1.8, cos.dressLight);
-            oval(x, -tw, -23.5, 2.8, 2.4, cos.dressLight);
-            oval(x, tw, -23.5, 2.8, 2.4, cos.dressLight);
+            poly4(x, -tw + 1, -27.5, tw - 1, -27.5, tw + 4.2, -5.5, -tw - 4.2, -5.5, cos.dress);
+            poly4(x, -tw - 1.8, -17.5, tw + 1.8, -17.5, tw + 3.2, -13.5, -tw - 3.2, -13.5, cos.dressDark);
+            rect(x, -tw - 4.2, -7, (tw + 4.2) * 2, 1.6, cos.dressLight);
+            oval(x, -tw, -25.8, 2.6, 2.2, cos.dressLight);
+            oval(x, tw, -25.8, 2.6, 2.2, cos.dressLight);
             if (!back) {
-                oval(x, side ? 2.5 : 0, -21.5, 2.1, 2.4, '#ffd700');
-                oval(x, side ? 2.5 : 0, -21.5, 1.4, 1.7, cos.jewel);
+                oval(x, side ? 2.5 : 0, -23.8, 2.0, 2.2, '#ffd700');
+                oval(x, side ? 2.5 : 0, -23.8, 1.3, 1.5, cos.jewel);
             }
         } else {
-            poly4(x, -tw, -25, tw, -25, tw + 1.5, -9, -tw - 1.5, -9, tunic);
-            rect(x, -tw - 1.5, -11, tw * 2 + 3, 2, tdark);                       // hem shadow
-            if (!bd) {                                                          // cloth: a collar and a trim line
-                rect(x, side ? -1 : -2, -25, side ? 3 : 4, 3, look.trim);
-                if (!side) rect(x, -0.5, -22, 1, 9, tdark);
+            poly4(x, -tw, -27.5, tw, -27.5, tw + 1.2, -13.5, -tw - 1.2, -13.5, tunic);
+            rect(x, -tw - 1.2, -15, tw * 2 + 2.4, 1.6, tdark);                    // hem shadow
+            if (!bd) {                                                            // cloth: a collar and a trim line
+                rect(x, side ? -1 : -2, -27.5, side ? 3 : 4, 2.6, look.trim);
+                if (!side) rect(x, -0.5, -24.8, 1, 8, tdark);
             } else if (bd.kind === 'leather') {
-                rect(x, -tw + 1, -24, tw * 2 - 2, 1.5, bd.light);
-                for (let k = 0; k < 3; k++) rect(x, -tw + 2, -21 + k * 3.5, tw * 2 - 4, 0.8, bd.dark);
+                rect(x, -tw + 1, -26.5, tw * 2 - 2, 1.4, bd.light);
+                for (let k = 0; k < 3; k++) rect(x, -tw + 2, -23.8 + k * 2.8, tw * 2 - 4, 0.8, bd.dark);
             } else if (bd.kind === 'mail') {
-                for (let r = 0; r < 5; r++) for (let k = 0; k < (side ? 3 : 5); k++) rect(x, -tw + 1.5 + k * 2.8 + (r & 1), -23 + r * 3, 1.4, 1.4, (r + k) & 1 ? bd.light : bd.dark);
+                for (let r = 0; r < 4; r++) for (let k = 0; k < (side ? 3 : 5); k++) rect(x, -tw + 1.5 + k * 2.6 + (r & 1), -25.8 + r * 2.6, 1.3, 1.3, (r + k) & 1 ? bd.light : bd.dark);
             } else if (bd.kind === 'plate' || bd.kind === 'scale') {
-                poly4(x, -tw + 1, -24, tw - 1, -24, tw - 2, -14, -tw + 2, -14, bd.light);
-                poly4(x, -tw + 2, -23, tw - 2, -23, tw - 3, -15, -tw + 3, -15, bd.main);
-                if (bd.kind === 'scale') for (let r = 0; r < 3; r++) for (let k = -1; k <= 1; k++) oval(x, k * 3.2 + (r & 1) * 1.6, -21 + r * 2.6, 1.5, 1.1, bd.dark);
-                else { rect(x, -0.5, -23, 1, 8, bd.dark); oval(x, -2.5, -20, 1.3, 1, '#ffffff'); }
-                rect(x, -tw + 1, -15, tw * 2 - 2, 1, bd.trim);
-                if (!side) { oval(x, -tw - 0.5, -23.5, 3.4, 2.6, bd.light); oval(x, tw + 0.5, -23.5, 3.4, 2.6, bd.light); oval(x, -tw - 0.5, -23, 2.4, 1.6, bd.main); oval(x, tw + 0.5, -23, 2.4, 1.6, bd.main); }
-                else oval(x, 1, -23.5, 3.6, 2.8, bd.light);
+                poly4(x, -tw + 1, -26.5, tw - 1, -26.5, tw - 1.8, -17, -tw + 1.8, -17, bd.light);
+                poly4(x, -tw + 1.8, -25.5, tw - 1.8, -25.5, tw - 2.6, -17.8, -tw + 2.6, -17.8, bd.main);
+                if (bd.kind === 'scale') for (let r = 0; r < 3; r++) for (let k = -1; k <= 1; k++) oval(x, k * 3.0 + (r & 1) * 1.5, -23.8 + r * 2.3, 1.4, 1.0, bd.dark);
+                else { rect(x, -0.5, -25.5, 1, 7, bd.dark); oval(x, -2.4, -22.5, 1.2, 0.9, '#ffffff'); }
+                rect(x, -tw + 1, -17.5, tw * 2 - 2, 1, bd.trim);
+                if (!side) { oval(x, -tw - 0.5, -26, 3.2, 2.4, bd.light); oval(x, tw + 0.5, -26, 3.2, 2.4, bd.light); oval(x, -tw - 0.5, -25.5, 2.2, 1.5, bd.main); oval(x, tw + 0.5, -25.5, 2.2, 1.5, bd.main); }
+                else oval(x, 1, -26, 3.4, 2.6, bd.light);
             } else if (bd.kind === 'robe') {
-                rect(x, -1, -25, 2, 16, bd.trim); poly4(x, -tw - 1.5, -11, tw + 1.5, -11, tw + 2.5, -6, -tw - 2.5, -6, bd.main);
+                rect(x, -1, -27.5, 2, 14.5, bd.trim); poly4(x, -tw - 1.2, -14.5, tw + 1.2, -14.5, tw + 2.0, -10.5, -tw - 2.0, -10.5, bd.main);
             }
-            // belt
-            rect(x, -tw - 0.5, -14, tw * 2 + 1, 2, '#3a2416');
-            rect(x, side ? 1 : -1, -14.5, 2.4, 3, '#d8b04a');
+            // belt at waist y=-16.5
+            rect(x, -tw - 0.5, -16.8, tw * 2 + 1, 1.8, '#3a2416');
+            rect(x, side ? 1 : -1, -17.2, 2.2, 2.6, '#d8b04a');
         }
         // the near arm(s)
         const handCol = cos ? '#ffffff' : look.skin;
-        if (side) arm(x, 1 + sw * 2.5, tunic, tdark, handCol, bd, 0);
-        else { arm(x, -tw - 1.8, tunic, tdark, handCol, bd, 0, sw); arm(x, tw + 1.8, tunic, tdark, handCol, bd, 0, -sw); }
+        if (side) arm(x, 1 + sw * 2.2, tunic, tdark, handCol, bd, 0, sw, isAxes);
+        else { arm(x, -tw - 1.4, tunic, tdark, handCol, bd, 0, sw, isAxes); arm(x, tw + 1.4, tunic, tdark, handCol, bd, 0, -sw, isAxes); }
         // head
         head(x, look, hd, dir, cos);
-        if (look.cape && back && !cos) poly4(x, -8, -25, 8, -25, 10, -7 + sw, -10, -7 - sw, look.cape);
+        if (look.cape && back && !cos) poly4(x, -8, -27.5, 8, -27.5, 10, -8 + sw, -10, -8 - sw, look.cape);
         x.restore();
         F = false;
     }
@@ -172,20 +174,71 @@ window.HM_HERO = (function () {
         return SH[col] || (SH[col] = '#' + ((1 << 24) | ((r * 0.68) << 16) | ((g * 0.68) << 8) | (b * 0.68)).toString(16).slice(1));
     }
     const SH = {};
-    function leg(x, lx, top, pants, shoe, shoeTop, ft, side) {
-        rect(x, lx, top, 3.4, -top - 3, pants);
-        rect(x, lx - (side ? 0 : 0.4), -4, side ? 5 : 4.2, 4, shoe);
-        if (ft) { rect(x, lx - 0.4, -5.5, 4.2, 1.6, shoeTop); if (ft.wing) rect(x, lx - 1.6, -6, 1.6, 1.6, '#ffffff'); }
+    function leg(x, lx, top, pants, shoe, shoeTop, ft, side, stride) {
+        const s = stride || 0;
+        if (side) {
+            const kx = lx + 1.5 + s * 3.6, ky = -8.2 - Math.abs(s) * 0.8;
+            const fx = lx + 1.5 + s * 5.0 - Math.max(0, -s) * 1.4, fy = -4.0 - Math.max(0, s) * 2.4 - Math.max(0, -s) * 1.5;
+            // Upper thigh (hip to knee)
+            poly4(x, lx - 0.2, top, lx + 3.4, top, kx + 1.7, ky, kx - 1.7, ky, pants);
+            // Lower shin (knee to ankle)
+            poly4(x, kx - 1.5, ky, kx + 1.5, ky, fx + 1.5, fy + 0.8, fx - 1.5, fy + 0.8, pants);
+            // Boot
+            rect(x, fx - 1.8, fy, 5.2, 4.0, shoe);
+            if (ft) {
+                rect(x, fx - 1.6, fy - 1.4, 4.2, 1.5, shoeTop);
+                if (ft.wing) rect(x, fx - 2.8, fy - 2.0, 1.6, 1.6, '#ffffff');
+            }
+        } else {
+            const dx = s * 0.8;
+            const ky = -8.5 - Math.max(0, s) * 2.0;
+            const by = -4.0 - (s > 0 ? s * 3.2 : -s * 0.9);
+            const thighCol = s < -0.15 ? shade(pants) : pants;
+            // Upper thigh
+            rect(x, lx + dx * 0.4, top, 3.5, ky - top + 0.8, thighCol);
+            // Knee & lower shin
+            rect(x, lx + dx, ky, 3.3, by - ky + 0.6, pants);
+            // Boot
+            rect(x, lx + dx - 0.4, by, 4.2, 4.0, shoe);
+            if (ft) {
+                rect(x, lx + dx - 0.4, by - 1.4, 4.2, 1.5, shoeTop);
+                if (ft.wing) rect(x, lx + dx - 1.6, by - 2.0, 1.6, 1.6, '#ffffff');
+            }
+        }
     }
-    function arm(x, ax, tunic, tdark, skin, bd, far, sw) {
-        const swing = sw ? sw * 1.5 : 0;
-        rect(x, ax - 1.6, -23 + swing * 0.3, 3.2, 8, far ? tdark : (bd && bd.kind !== 'robe' ? bd.dark : tunic));
-        if (bd && (bd.kind === 'plate' || bd.kind === 'scale')) rect(x, ax - 1.6, -18 + swing * 0.3, 3.2, 1.2, bd.light);
-        oval(x, ax, -14 + swing * 0.3, 2.1, 2.1, skin);
+    function arm(x, ax, tunic, tdark, skin, bd, far, sw, axes) {
+        const swing = sw ? sw * 1.4 : 0;
+        const sleeveCol = far ? tdark : (bd && bd.kind !== 'robe' ? bd.dark : tunic);
+        if (axes) {
+            if (!far && Math.abs(ax) > 4) {
+                // Front/back relaxed Dual Axes stance: arms lowered and slightly spread outward from hips, elbows slightly bent
+                const out = ax < 0 ? -1 : 1;
+                const sx = ax - out * 0.4, sy = -25.8;
+                const ex = ax + out * 1.8, ey = -19.8 + swing * 0.18;
+                const hx = ax + out * 1.4, hy = -14.0 + swing * 0.25;
+                poly4(x, sx - 1.5, sy, sx + 1.5, sy, ex + 1.5, ey, ex - 1.5, ey, sleeveCol);
+                poly4(x, ex - 1.4, ey, ex + 1.4, ey, hx + 1.3, hy, hx - 1.3, hy, sleeveCol);
+                if (bd && (bd.kind === 'plate' || bd.kind === 'scale')) rect(x, ex - 1.5, ey - 0.6, 3.0, 1.2, bd.light);
+                oval(x, hx, hy, 2.1, 2.1, skin);
+                return;
+            } else {
+                // Side view relaxed Dual Axes stance: elbow slightly bent, forearm lowered beside hip
+                const sx = 0, sy = -25.8;
+                const ex = (far ? -1.8 : -1.0) + swing * 0.3, ey = -19.8;
+                const hx = (far ? -2.8 : 3.4) + swing * 0.5, hy = -14.0;
+                poly4(x, sx - 1.5, sy, sx + 1.5, sy, ex + 1.5, ey, ex - 1.5, ey, sleeveCol);
+                poly4(x, ex - 1.4, ey, ex + 1.4, ey, hx + 1.3, hy, hx - 1.3, hy, sleeveCol);
+                oval(x, hx, hy, 2.1, 2.1, skin);
+                return;
+            }
+        }
+        rect(x, ax - 1.6, -25.5 + swing * 0.35, 3.2, 8.8, sleeveCol);
+        if (bd && (bd.kind === 'plate' || bd.kind === 'scale')) rect(x, ax - 1.6, -19.8 + swing * 0.35, 3.2, 1.2, bd.light);
+        oval(x, ax, -15.5 + swing * 0.35, 2.1, 2.1, skin);
     }
     function head(x, look, hd, dir, cos) {
-        const side = dir === 2, back = dir === 1, hy = -31;
-        rect(x, -1.5, -27, 3, 2.5, look.skin);                               // neck
+        const side = dir === 2, back = dir === 1, hy = -33.5;
+        rect(x, -1.5, -29.5, 3, 2.6, look.skin);                             // neck
         oval(x, 0, hy, 7, 6.6, look.skin);
         if (look.style === 2 && !hd && !cos) oval(x, -2, hy - 4, 2.5, 1.4, '#ffffff');  // shine on a bald head
         // hair (not under a full helmet)
@@ -194,7 +247,7 @@ window.HM_HERO = (function () {
         if (!full && (look.style !== 2 || cos)) {
             if (back) { oval(x, -Q, hy - 0.5, 7.4, 7, hr); if (look.style === 1 || (cos && cos.kind === 'princess')) rect(x, -4 - Q * 1.5, hy + 2, 8, 9, hr); if (Q) oval(x, 5.4, hy + 1.5, 1.6, 2.2, look.skin); }
             else if (side) {
-                poly4(x, -7.4, hy - 1, 5, -38.6, 7.4, hy - 3, -3, hy + 5, hr);
+                poly4(x, -7.4, hy - 1, 5, hy - 7.6, 7.4, hy - 3, -3, hy + 5, hr);
                 oval(x, -1, hy - 3, 7, 4.6, hr);
                 if (look.style === 1 || (cos && cos.kind === 'princess')) { rect(x, -8.5, hy - 1, 3.6, 10, hr); }
             } else {

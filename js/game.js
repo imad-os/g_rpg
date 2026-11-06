@@ -215,6 +215,7 @@
                m === 'bloodfang' ? (T.ui.bloodfang || 'Bloodfang') :
                m === 'bonecharger' ? (T.ui.bonecharger || 'Bone Charger') :
                m === 'nightterror' ? (T.ui.nightterror || 'Night Terror') :
+               m === 'yoshi' ? (T.ui.yoshi || 'Yoshi') :
                T.ui.wolfMount;
     }
     // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
@@ -288,8 +289,8 @@
     const DROPS = []; for (let i = 0; i < 32; i++) DROPS.push({ on: false, kind: 5, k: 0, x: 0, y: 0, z: 0, vz: 0, vx: 0, vy: 0, t: 0, v: 0, sy: 0, it: null, qg: '', icon: '' });
     const FLOATS = []; for (let i = 0; i < 28; i++) FLOATS.push({ on: false, x: 0, y: 0, t: 0, s: '', col: '#fff', big: false });
     const RINGS = []; for (let i = 0; i < 32; i++) RINGS.push({ on: false, x: 0, y: 0, r: 0, max: 0, col: '#fff', w: 3 });
-    // the cat follows hero 1: half the hero's attack, defence and health, one and a half times the speed
-    const PET = { on: false, kind: 7, x: 0, y: 0, sy: 0, hp: 5, max: 5, down: 0, cd: 0, walk: 0, fx: 1, inv: 0, hurt: 0, regen: 0, lunge: 0, gx: -20, gy: 8, gt: 0, idle: 0, sit: false, sniff: false };
+    // the companion follows hero 1 at a comfortable distance, wandering and stopping at spots nearby
+    const PET = { on: false, kind: 7, x: 0, y: 0, sy: 0, hp: 5, max: 5, down: 0, cd: 0, walk: 0, fx: 1, inv: 0, hurt: 0, regen: 0, lunge: 0, gx: -68, gy: 18, wx: 0, wy: 0, gt: 0, pauseT: 0, idle: 0, sit: false, sniff: false };
     const DL = new Array(1800); let dlN = 0;
     let boss = null;
 
@@ -471,7 +472,7 @@
         S.coins += loot(r.coins || 0); S.big += r.big || 0;
         shareNow({ c: loot(r.coins || 0), b: r.big || 0, pet: r.pet || '', mount: r.mount || '' }); shareQuest('s', q.id, q.stage, q.after);
         if (r.item) giveItem(r.item, true, 1);
-        if (r.pet && !S.pet) { S.pet = r.pet; PET.x = P[0].x - 20; PET.y = P[0].y + 6; PET.hp = 99; PET.down = 0; setTimeout(() => toast(T.ui.gotPet), 2600); }
+        if (r.pet && !S.pet) { S.pet = r.pet; placePetNearHero(); PET.hp = 99; PET.down = 0; setTimeout(() => toast(T.ui.gotPet), 2600); }
         if (r.mount && S.mounts.indexOf(r.mount) < 0) { S.mounts.push(r.mount); if (!S.mount) S.mount = r.mount; refreshMenu(); setTimeout(() => toast(txt(T.ui.gotMount, { m: mountName(r.mount) })), 2600); }
         SND.fx('level'); ringFx(P[0].x, P[0].y - 10, 60, '#ffd23f');
         save();
@@ -595,7 +596,7 @@
     function countKill(t) {
         for (const npc in S.pq) {
             const q = S.pq[npc], d = poolDef(q);
-            if (d && q.st === 1 && d.type === 'kill' && d.foe === t && d.zone === Z.id && ++q.c >= d.n) poolReady(npc);
+            if (d && q.st === 1 && d.type === 'kill' && d.foe === t && (!d.zone || d.zone === Z.id || Z.def.rift) && ++q.c >= d.n) poolReady(npc);
         }
         for (const q of QUESTS) if (q.type === 'kill' && q.foe === t && qState(q.id) === 1) {
             S.sqc[q.id] = (S.sqc[q.id] || 0) + 1;
@@ -663,9 +664,35 @@
         for (const s of SHOTS) s.on = false;
         for (const d of DROPS) d.on = false;
         for (const h of HAZ) h.on = false;
+        if (typeof MOUNT_ANIM !== 'undefined') { MOUNT_ANIM.on = false; MOUNT_ANIM.state = ''; }
+        for (const p of P) { p.jumpZ = 0; p.jumpOffT = 0; }
         boss = null;
         for (const f of def.foes) spawnFoe(f.t, f.x * TS, f.y * TS, false);
         if (def.boss && !S[def.boss.flag]) boss = spawnFoe(def.boss.t, def.boss.x * TS, def.boss.y * TS, false);
+        if (QUESTS && def.foes && def.foes.length) {
+            for (const q of QUESTS) {
+                if (q.type === 'kill' && qState(q.id) === 1) {
+                    if ((S.sqc[q.id] || 0) >= q.n) { questReady(q); continue; }
+                    const matching = def.foes.filter(df => df.t === q.foe);
+                    if (matching.length) {
+                        const rem = Math.max(0, (q.n || 1) - (S.sqc[q.id] || 0));
+                        let alive = 0; for (const f of FOES) if (f.on && f.t === q.foe) alive++;
+                        let idx = 0;
+                        while (alive < rem && idx < 16) {
+                            const df = matching[idx % matching.length];
+                            const nf = spawnFoe(q.foe, (df.x + ((idx & 1) ? 0.8 : -0.8)) * TS, (df.y + ((idx & 2) ? 0.6 : -0.6)) * TS, false);
+                            idx++;
+                            if (!nf) break;
+                            alive++;
+                        }
+                    }
+                }
+            }
+        }
+        for (const npc in S.pq) {
+            const q = S.pq[npc], d = poolDef(q);
+            if (q && q.st === 1 && d && (d.type === 'kill' || d.type === 'collect') && (q.c || 0) >= (d.n || 1)) poolReady(npc);
+        }
         if (CH.onZone) CH.onZone(id);
         if (def.rift) riftFoes(def.rift);
         if (TREASURES[id]) for (let k = 0; k < TREASURES[id]; k++) {
@@ -735,8 +762,26 @@
             while (k < NEAR.length) { const o = NEAR[k++]; if (!feetSolid(P[0].x + o[0], P[0].y + o[1])) { P[i].x = P[0].x + o[0]; P[i].y = P[0].y + o[1]; break; } }
         }
         for (const p of P) { p.kx = p.ky = 0; p.inv = 60; p.atk = 0; p.swing = 0; p.sy = p.y; }
-        PET.x = P[0].x - 18; PET.y = P[0].y + 6; PET.sy = PET.y;
+        placePetNearHero();
         snapCamera();
+    }
+
+    const PET_SPAWN_OFFSETS = [[-68, 18], [68, 18], [-62, -26], [62, -26], [-80, 0], [80, 0], [0, 56], [0, -52]];
+    function placePetNearHero() {
+        const p = P[0];
+        let px = p.x - 68, py = p.y + 18;
+        if (Z && Z.tiles && Z.cols) {
+            for (const o of PET_SPAWN_OFFSETS) {
+                const cx = p.x + o[0], cy = p.y + o[1];
+                if (!feetSolid(cx, cy)) { px = cx; py = cy; break; }
+            }
+        }
+        PET.x = PET.wx = px;
+        PET.y = PET.wy = PET.sy = py;
+        PET.gx = px - p.x;
+        PET.gy = py - p.y;
+        PET.pauseT = 55;
+        PET.gt = 95;
     }
 
     function feetSolid(x, y) { return solidAt(x - 7, y - 5) || solidAt(x + 7, y - 5) || solidAt(x - 7, y + 3) || solidAt(x + 7, y + 3); }
@@ -1228,7 +1273,7 @@
         const hasSave = !!MyPC.load('save', null);
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
-        if (CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.playCh6 || '🍄 Chapter 6: Kingdoms of Wonder', fn: () => playChapter6() });
+        if (isDevMod() && CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.playCh6 || '🍄 Chapter 6: Kingdoms of Wonder', fn: () => playChapter6() });
         if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.playCh5 || '🩸 Chapter 5: The Blood Kingdoms', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
         if (isDevMod()) OV.items.push({ label: T.ui.devTools || '🛠 Dev Mode (Teleport, Gear, Mounts, Pets)', fn: devScreen });
@@ -1239,7 +1284,7 @@
     }
     function confirmNew() {
         OV.items = [{ label: T.ui.no, fn: showTitle }];
-        if (CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.devJumpCh6 || '▶ Play Chapter 6 (Keep Save)', fn: () => playChapter6() });
+        if (isDevMod() && CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.devJumpCh6 || '▶ Play Chapter 6 (Keep Save)', fn: () => playChapter6() });
         if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.devJumpCh5 || '▶ Play Chapter 5 (Keep Save)', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
         OV.items.push({ label: T.ui.yes, fn: newGame });
@@ -1332,6 +1377,10 @@
             if (st === 2) return npcSpot(q.giver);
             if (q.type === 'rescue') return npcSpot(q.who);
             if (q.type === 'kill') return foeSpot(q.foe, '');
+            if (q.type === 'fetch' && q.id === 'stariron' && !S.star) {
+                if (Z.id !== 'mine') return hop('mine');
+                GT.x = 34.5 * TS; GT.y = 13.5 * TS; return true;
+            }
             return npcSpot(q.giver);
         }
         if (k.indexOf('pq:') === 0) {
@@ -1518,8 +1567,8 @@
                     S.coins -= 65; S.mushrooms = (S.mushrooms || 0) + 1;
                     SND.fx('buy'); save(); renderList();
                 }
-            }] : []).concat((CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0 && !(m === 'wolf' && CH.noWolf)).map(m => ({
-                label: mountName(m), sub: m === 'horse' ? T.ui.horseSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
+            }] : []).concat((CHID === 'ch6' ? ['horse', 'wolf', 'yoshi'] : CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0).map(m => ({
+                label: mountName(m), sub: m === 'yoshi' ? (T.ui.yoshiSub || 'Friendly green dino steed whose tongue snaps at nearby foes') : m === 'horse' ? T.ui.horseSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
                 fn: () => {
                     if (S.coins < MOUNTS[m].price) return toast(T.ui.poor);
                     S.coins -= MOUNTS[m].price; S.mounts.push(m); S.mount = m; refreshMenu();
@@ -1910,6 +1959,7 @@
             else if (m === 'nightmare') MOUNTART.nightmare(ctx, 48, 86, 0, 2, 1, 0.96, false, 0);
             else if (m === 'frostfang') MOUNTART.frostfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else if (m === 'bloodfang') MOUNTART.bloodfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
+            else if (m === 'yoshi') MOUNTART.yoshi(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
             c.ok = MOUNTART.has ? MOUNTART.has(m) : true;
         } catch (e) {}
@@ -1929,12 +1979,13 @@
         listScreen({
             title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
             rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
-                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror'].map(m => {
-                    const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100, home = m === 'wolf' && CH.noWolf;
-                    const sub = (T.ui[m + 'Sub'] || mountName(m)) + ' · ' + T.ui.spd + ' ×' + sp;
-                    const how = T.ui[m + 'How'] || T.ui.notOwnedLong;
-                    return { label: mountName(m), sub: home ? T.ui.wolfStays : sub, img: mountIcon(m), dim: !own || home, mark: S.mount === m,
-                        right: !own ? T.ui.notOwned : home ? '' : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(how); if (home) return toast(T.ui.wolfStays); if (S.mount !== m) setMount(m); renderList(); } };
+                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi'].map(m => {
+                    const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100;
+                    const defaultSub = m === 'yoshi' ? 'Friendly green dino steed whose tongue snaps at nearby foes' : mountName(m);
+                    const sub = (T.ui[m + 'Sub'] || defaultSub) + ' · ' + T.ui.spd + ' ×' + sp;
+                    const how = T.ui[m + 'How'] || (m === 'yoshi' ? 'Unlocked in Chapter 6: Kingdoms of Wonder' : T.ui.notOwnedLong);
+                    return { label: mountName(m), sub, img: mountIcon(m), dim: !own, mark: S.mount === m,
+                        right: !own ? T.ui.notOwned : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(how); if (S.mount !== m) setMount(m); renderList(); } };
                 }))
                 .concat([{ label: T.ui.close, fn: closeList }])
         });
@@ -2043,7 +2094,7 @@
             return;
         }
         S.petKind = k; S.pet = '1';
-        PET.on = true; PET.x = P[0].x - 18; PET.y = P[0].y + 6; PET.sy = PET.y;
+        PET.on = true; placePetNearHero();
         PET.max = Math.max(4, Math.floor(maxHp(P[0]) / 2)); PET.hp = PET.max; PET.down = 0;
         bgDirty = true; save(); SND.fx('ok');
         toast((T.ui.petRow || 'Companion') + ': ' + petName(k));
@@ -2454,6 +2505,8 @@
         s = prepareChapter5Save(s);
         if (s.c5) s.c5.st = 36;
         if (!s.c6) s.c6 = { st: 0, c: 0, m: 0, stars: 0, rescued: {}, open: {}, blocks: {}, switches: {}, seen: {} };
+        if (!Array.isArray(s.mounts)) s.mounts = ['horse', 'wolf'];
+        if (s.mounts.indexOf('yoshi') < 0) s.mounts.push('yoshi');
         if (typeof s.mushrooms !== 'number') s.mushrooms = 3;
         else s.mushrooms = Math.max(s.mushrooms, 3);
         if (!Array.isArray(s.costumes)) s.costumes = [[], [], [], []];
@@ -2827,7 +2880,6 @@
         if (CH.start) CH.start();
         if (document && document.body) document.body.classList.toggle('ch4-theme', id === 'ch4');
         if (id === 'ch4' && S && !S.pet) { S.pet = '1'; if (!S.petKind || S.petKind === 'cat') S.petKind = 'direwolf'; }
-        if (S && CH.noWolf && S.mount === 'wolf') { S.mount = S.mounts.indexOf('horse') >= 0 ? 'horse' : ''; setTimeout(() => toast(T.ui.wolfStays), 2800); }
         if (CH.preload !== false) for (const k of chSongs) SND.prepare(k);
         menuKey = ''; if (S) refreshMenu();
     }
@@ -2912,15 +2964,229 @@
         const dev = p.dev; p.on = false; p.dev = ''; pNames[p.i] = ''; DEV[dev] = {};
         toast(txt(T.ui.p2left, { name: heroName(p.i) })); refreshNames(); refreshMenu();
     }
-    function setMount(m) {
-        if (m === 'wolf' && CH.noWolf) { toast(T.ui.wolfStays); return; }
+    const MOUNT_ANIM = { on: false, kind: 8, state: '', mount: '', x: 0, y: 0, sy: 0, tx: 0, ty: 0, t: 0, maxT: 0, walk: 0, dir: 2, fx: 1, moving: false };
+    function isWolfMount(m) { return m === 'wolf' || m === 'frostfang' || m === 'bloodfang'; }
+    function isDrakeMount(m) { return m === 'dragon' || m === 'nightterror'; }
+    function isFlyMount(m) { return !!(m && MOUNTS[m] && MOUNTS[m].fly); }
+    function playMountCry(m) {
+        if (!m) return;
+        if (m === 'yoshi') SND.fx('yoshiMount');
+        else if (isWolfMount(m)) SND.fx('wolfHowl');
+        else if (isDrakeMount(m)) SND.fx('dragonRoar');
+        else if (m === 'bonecharger') { SND.fx('spectralNeigh'); SND.fx('boneRattle'); }
+        else if (m === 'charger') SND.fx('spectralNeigh');
+        else if (m === 'nightmare') { SND.fx('horseNeigh'); SND.fx('burn'); }
+        else SND.fx('horseNeigh');
+    }
+    function playMountAmbient(m) {
+        if (!m) return;
+        if (m === 'yoshi') SND.fx('yoshiMount');
+        else if (isWolfMount(m)) SND.fx(Math.random() < 0.35 ? 'wolfHowl' : 'wolfGrowl');
+        else if (isDrakeMount(m)) SND.fx('dragonGrowl');
+        else if (m === 'bonecharger') SND.fx('boneRattle');
+        else if (m === 'charger') SND.fx(Math.random() < 0.4 ? 'spectralNeigh' : 'horseSnort');
+        else SND.fx('horseSnort');
+    }
+    function playMountStep(m, stepTick) {
+        if (!m) return;
+        if (m === 'yoshi') {
+            if (stepTick % 11 === 0) SND.fx('yoshiStep');
+        } else if (isDrakeMount(m)) {
+            if (stepTick % 22 === 0) SND.fx('wings');
+        } else if (m === 'bonecharger') {
+            if (stepTick % 13 === 0) SND.fx('boneHoof');
+            if (stepTick % 26 === 0) SND.fx('wings');
+        } else if (m === 'charger') {
+            if (stepTick % 13 === 0) SND.fx('hoof');
+            if (stepTick % 26 === 0) SND.fx('wings');
+        } else if (isWolfMount(m)) {
+            if (stepTick % 11 === 0) SND.fx('pawStep');
+        } else {
+            if (stepTick % 13 === 0) SND.fx('hoof');
+        }
+    }
+    function pickMountEntrance(p, m) {
+        const fly = isFlyMount(m), maxW = (Z.cols || 40) * TS - 24, maxH = (Z.rows || 36) * TS - 24;
+        const cands = [];
+        if (Z.def && Array.isArray(Z.def.exits)) {
+            for (const e of Z.def.exits) {
+                const ex = Math.max(24, Math.min(maxW, (e.x + e.w * 0.5) * TS));
+                const ey = Math.max(24, Math.min(maxH, (e.y + e.h * 0.5) * TS));
+                const d = dist(p.x, p.y, ex, ey);
+                if (d > 48 && d < 360) cands.push({ x: ex, y: ey });
+            }
+        }
+        for (let i = 0; i < 8; i++) {
+            const a = i * (Math.PI / 4) + (Math.random() - 0.5) * 0.35;
+            const r = 175 + Math.random() * 35;
+            const cx = Math.max(24, Math.min(maxW, p.x + Math.cos(a) * r));
+            const cy = Math.max(24, Math.min(maxH, p.y + Math.sin(a) * r * 0.8));
+            if (fly || !feetSolid(cx, cy)) cands.push({ x: cx, y: cy });
+        }
+        if (cands.length) return cands[(Math.random() * cands.length) | 0];
+        return { x: Math.max(24, Math.min(maxW, p.x - (p.lfx || 1) * 160)), y: p.y };
+    }
+    function pickNearestExit(px, py) {
+        const maxW = (Z.cols || 40) * TS - 16, maxH = (Z.rows || 36) * TS - 16;
+        let best = null, bestD = 1e9;
+        if (Z.def && Array.isArray(Z.def.exits)) {
+            for (const e of Z.def.exits) {
+                const ex = Math.max(16, Math.min(maxW, (e.x + e.w * 0.5) * TS));
+                const ey = Math.max(16, Math.min(maxH, (e.y + e.h * 0.5) * TS));
+                const d = dist(px, py, ex, ey);
+                if (d < bestD) { bestD = d; best = { x: ex, y: ey }; }
+            }
+        }
+        if (best && bestD <= 340) return best;
+        const edges = [
+            { x: Math.max(16, camX - 28), y: py },
+            { x: Math.min(maxW, camX + W + 28), y: py },
+            { x: px, y: Math.max(16, camY - 28) },
+            { x: px, y: Math.min(maxH, camY + H + 28) }
+        ];
+        for (const ed of edges) {
+            const d = dist(px, py, ed.x, ed.y);
+            if (d < bestD) { bestD = d; best = ed; }
+        }
+        return best || { x: Math.max(16, px - 200), y: py };
+    }
+    function setMount(m, instant) {
         if (S.mount && MOUNTS[S.mount].fly && !(m && MOUNTS[m].fly) && !Z.def.dark) for (const p of P) if (p.on && !p.down && feetSolid(p.x, p.y)) { toast(T.ui.flyLand); return; }
+        const prevM = S.mount;
         S.mount = m; if (m) S.lastMount = m; bgDirty = true; save(); refreshMenu();
         if (m && Z.def.dark) toast(T.ui.noRideDark);
-        for (const p of P) if (p.on) { burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
-        SND.fx(m ? 'equip' : 'move');
+        if (instant || !Z.def || Z.def.dark) {
+            MOUNT_ANIM.on = false; MOUNT_ANIM.state = '';
+            for (const p of P) if (p.on) { p.jumpZ = 0; p.jumpOffT = 0; burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
+            if (m) playMountCry(m); else SND.fx('move');
+            return;
+        }
+        if (mode === 'overlay') { ovHide(); toPlay(); }
+        const p0 = P[0];
+        if (m) {
+            const ent = pickMountEntrance(p0, m);
+            MOUNT_ANIM.on = true;
+            MOUNT_ANIM.state = 'whistle';
+            MOUNT_ANIM.mount = m;
+            MOUNT_ANIM.x = ent.x;
+            MOUNT_ANIM.y = ent.y;
+            MOUNT_ANIM.sy = isFlyMount(m) ? ent.y + 200 : ent.y;
+            MOUNT_ANIM.tx = p0.x;
+            MOUNT_ANIM.ty = p0.y;
+            MOUNT_ANIM.t = 30;
+            MOUNT_ANIM.maxT = 30;
+            MOUNT_ANIM.walk = 0;
+            MOUNT_ANIM.moving = true;
+            const dx = p0.x - ent.x, dy = p0.y - ent.y;
+            MOUNT_ANIM.fx = dx < 0 ? -1 : 1;
+            MOUNT_ANIM.dir = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy < 0 ? 1 : 0) : 2;
+            p0.mountAmbT = 260 + ((Math.random() * 180) | 0);
+            ringFx(p0.x, p0.y - 14, 26, '#ffe680');
+            SND.fx('whistle');
+        } else if (prevM) {
+            if (MOUNT_ANIM.on && MOUNT_ANIM.state === 'whistle') {
+                MOUNT_ANIM.on = false; MOUNT_ANIM.state = '';
+                SND.fx('move');
+                return;
+            }
+            const startX = (MOUNT_ANIM.on && MOUNT_ANIM.state === 'enter') ? MOUNT_ANIM.x : p0.x;
+            const startY = (MOUNT_ANIM.on && MOUNT_ANIM.state === 'enter') ? MOUNT_ANIM.y : p0.y;
+            const ex = pickNearestExit(startX, startY);
+            MOUNT_ANIM.on = true;
+            MOUNT_ANIM.state = 'depart';
+            MOUNT_ANIM.mount = prevM;
+            MOUNT_ANIM.x = startX;
+            MOUNT_ANIM.y = startY;
+            MOUNT_ANIM.sy = isFlyMount(prevM) ? startY + 200 : startY;
+            MOUNT_ANIM.tx = ex.x;
+            MOUNT_ANIM.ty = ex.y;
+            MOUNT_ANIM.t = 95;
+            MOUNT_ANIM.maxT = 95;
+            MOUNT_ANIM.walk = p0.walk || 0;
+            MOUNT_ANIM.moving = true;
+            const dx = ex.x - startX, dy = ex.y - startY;
+            MOUNT_ANIM.fx = dx < 0 ? -1 : 1;
+            MOUNT_ANIM.dir = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy < 0 ? 1 : 0) : 2;
+            SND.fx('mountJump');
+            playMountAmbient(prevM);
+            for (const p of P) if (p.on && !p.down) {
+                p.jumpOffT = 18;
+                p.jumpOffMax = 18;
+                p.jumpZ = 18;
+                const hopX = p.x + (p.lfx || 1) * 10, hopY = p.y + 4;
+                if (!feetSolid(hopX, hopY)) { p.x = hopX; p.y = hopY; }
+                burst(p.x, p.y - 4, 10, Z.dust, 1.4);
+            }
+        }
     }
-    function riding(p) { return !!S.mount && !Z.def.dark && !p.down && !(S.mount === 'wolf' && CH && CH.noWolf); }
+    function updMountAnim() {
+        if (!MOUNT_ANIM.on) return;
+        const p0 = P[0];
+        if (MOUNT_ANIM.state === 'whistle') {
+            if (MOUNT_ANIM.t % 10 === 8 && heroLv() !== 'low') {
+                part(p0.x + (Math.random() - 0.5) * 10, p0.y - 26, 6, (Math.random() - 0.5) * 0.5, -0.9, 0.2, 24, '#ffe680', 2.5, -0.02);
+            }
+            if (--MOUNT_ANIM.t <= 0) {
+                MOUNT_ANIM.state = 'enter';
+                MOUNT_ANIM.t = 90;
+                MOUNT_ANIM.maxT = 90;
+                burst(MOUNT_ANIM.x, MOUNT_ANIM.y - 4, 10, Z.dust, 1.5);
+            }
+        } else if (MOUNT_ANIM.state === 'enter') {
+            MOUNT_ANIM.tx = p0.x; MOUNT_ANIM.ty = p0.y;
+            const dx = p0.x - MOUNT_ANIM.x, dy = p0.y - MOUNT_ANIM.y, d = Math.hypot(dx, dy) || 1;
+            const spd = 4.6;
+            MOUNT_ANIM.fx = dx < 0 ? -1 : 1;
+            MOUNT_ANIM.dir = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy < 0 ? 1 : 0) : 2;
+            MOUNT_ANIM.walk += 0.38;
+            MOUNT_ANIM.moving = true;
+            playMountStep(MOUNT_ANIM.mount, tick);
+            if ((tick & 3) === 0) part(MOUNT_ANIM.x, MOUNT_ANIM.y, 1, -dx / d * 0.5, -dy / d * 0.3, 0.5, 18, Z.dust, 3.5, 0.02);
+            if (d <= 22 || --MOUNT_ANIM.t <= 0) {
+                MOUNT_ANIM.x = p0.x; MOUNT_ANIM.y = p0.y;
+                MOUNT_ANIM.state = 'jump_on';
+                MOUNT_ANIM.t = 16;
+                MOUNT_ANIM.maxT = 16;
+                MOUNT_ANIM.moving = false;
+                SND.fx('mountJump');
+            } else {
+                MOUNT_ANIM.x += (dx / d) * Math.min(spd, d);
+                MOUNT_ANIM.y += (dy / d) * Math.min(spd, d);
+            }
+            MOUNT_ANIM.sy = isFlyMount(MOUNT_ANIM.mount) ? MOUNT_ANIM.y + 200 : MOUNT_ANIM.y - 1;
+        } else if (MOUNT_ANIM.state === 'jump_on') {
+            MOUNT_ANIM.x = p0.x; MOUNT_ANIM.y = p0.y;
+            MOUNT_ANIM.sy = isFlyMount(MOUNT_ANIM.mount) ? p0.y + 200 : p0.y - 1;
+            const prog = 1 - (MOUNT_ANIM.t / (MOUNT_ANIM.maxT || 16));
+            const saddleH = isFlyMount(MOUNT_ANIM.mount) ? 28 : 22;
+            p0.jumpZ = Math.sin(prog * Math.PI) * 30 + prog * saddleH;
+            if (--MOUNT_ANIM.t <= 0) {
+                p0.jumpZ = 0;
+                MOUNT_ANIM.on = false;
+                MOUNT_ANIM.state = '';
+                for (const p of P) if (p.on) { burst(p.x, p.y - 4, 12, Z.dust, 1.5); ringFx(p.x, p.y, 30, '#ffffff'); }
+                playMountCry(S.mount);
+            }
+        } else if (MOUNT_ANIM.state === 'depart') {
+            const dx = MOUNT_ANIM.tx - MOUNT_ANIM.x, dy = MOUNT_ANIM.ty - MOUNT_ANIM.y, d = Math.hypot(dx, dy) || 1;
+            const spd = 4.8;
+            MOUNT_ANIM.fx = dx < 0 ? -1 : 1;
+            MOUNT_ANIM.dir = Math.abs(dy) > Math.abs(dx) * 1.3 ? (dy < 0 ? 1 : 0) : 2;
+            MOUNT_ANIM.walk += 0.38;
+            MOUNT_ANIM.moving = true;
+            playMountStep(MOUNT_ANIM.mount, tick);
+            if ((tick & 3) === 0) part(MOUNT_ANIM.x, MOUNT_ANIM.y, 1, -dx / d * 0.5, -dy / d * 0.3, 0.5, 18, Z.dust, 3.5, 0.02);
+            MOUNT_ANIM.x += (dx / d) * Math.min(spd, d);
+            MOUNT_ANIM.y += (dy / d) * Math.min(spd, d);
+            MOUNT_ANIM.sy = isFlyMount(MOUNT_ANIM.mount) ? MOUNT_ANIM.y + 200 : MOUNT_ANIM.y;
+            if (d <= 12 || --MOUNT_ANIM.t <= 0) {
+                burst(MOUNT_ANIM.x, MOUNT_ANIM.y - 6, 8, Z.dust, 1.2);
+                MOUNT_ANIM.on = false;
+                MOUNT_ANIM.state = '';
+            }
+        }
+    }
+    function riding(p) { return !!S.mount && !(MOUNT_ANIM.on && MOUNT_ANIM.state !== 'depart') && !Z.def.dark && !p.down; }
     function flying(p) { return !!S.mount && !!MOUNTS[S.mount].fly && riding(p); }
     function playerSpeed(p) { return (codeAt(p.x, p.y) === C_m ? 1.1 : 1.8) * (1 + p.st.spd) * (riding(p) ? 1 + (MOUNTS[S.mount].speed - 1) * TUNE.mountSpeed : 1); }
 
@@ -3297,8 +3563,7 @@
     }
     function toggleMount() {
         if (!S.mounts.length) return toast(T.ui.noMount);
-        let m = S.mounts.indexOf(S.lastMount) >= 0 ? S.lastMount : S.mounts[0];
-        if (m === 'wolf' && CH.noWolf) m = S.mounts.indexOf('horse') >= 0 ? 'horse' : 'wolf';
+        const m = S.mounts.indexOf(S.lastMount) >= 0 ? S.lastMount : S.mounts[0];
         setMount(S.mount ? '' : m);
     }
     // a gesture (tap, double, hold, run, cancel) from hero p: do what the player mapped to it
@@ -3388,7 +3653,7 @@
     }
     function killFoe(f) {
         f.on = false; S.kills++; S.seen[f.t] = (S.seen[f.t] || 0) + 1; SND.fx('die');
-        GT.ok = false; ST.ok = false; hudLast.obj = '';
+        GT.ok = false; hudLast.obj = '';
         const isBoss = (f.d.boss || f.boss || f === boss) && !f.minion;
         gainStamina(isBoss || f.elite ? STA_BIG : STA_KILL);
         if (CH.onKill) CH.onKill(f);
@@ -3467,48 +3732,155 @@
         if (!f.d.boss && !f.elite) { f.kx = dx * 2.5; f.ky = dy * 2.5; }
         if (f.hp <= 0) killFoe(f);
     }
+    function pickPetSpot(p, brave, preferStepAside) {
+        const pet = PET;
+        if (!brave) {
+            const bx = p.x - (p.lfx || 1) * 58, by = p.y + 14;
+            pet.wx = bx; pet.wy = by; pet.gx = bx - p.x; pet.gy = by - p.y;
+            pet.gt = 90; pet.pauseT = 30;
+            return;
+        }
+        // 1) Occasionally visit a nearby NPC or scenic object within comfortable range (54..128px of hero)
+        if (!preferStepAside && Z && Math.random() < 0.42) {
+            if (Z.npcs && Z.npcs.length) {
+                for (let k = 0; k < Z.npcs.length; k++) {
+                    const n = Z.npcs[(tick + k) % Z.npcs.length];
+                    if (!n || !npcVisible(n.id)) continue;
+                    const side = ((tick + k) & 1) ? 24 : -24;
+                    const cx = n.x + side, cy = n.y + 10;
+                    const dh = dist(cx, cy, p.x, p.y), dp = dist(cx, cy, pet.x, pet.y);
+                    if (dh >= 52 && dh <= 128 && dp >= 32 && (!Z.tiles || !feetSolid(cx, cy))) {
+                        pet.wx = cx; pet.wy = cy; pet.gx = cx - p.x; pet.gy = cy - p.y;
+                        pet.gt = 130 + ((Math.random() * 140) | 0);
+                        return;
+                    }
+                }
+            }
+        }
+        // 2) Pick a natural world-space spot in the 58..122px companion ring around the hero (not too close, not too far)
+        const moveAng = p.moving ? Math.atan2(p.fy || 0, p.fx || (p.lfx || 1)) : Math.random() * 6.2832;
+        for (let attempt = 0; attempt < 10; attempt++) {
+            const spread = p.moving && attempt < 5 ? (Math.random() - 0.5) * 2.6 : Math.random() * 6.2832;
+            const a = (p.moving && attempt < 5 ? moveAng + spread : spread);
+            const r = 60 + Math.random() * 60; // 60..120px radial distance
+            const cx = p.x + Math.cos(a) * r;
+            const cy = p.y + Math.sin(a) * r * 0.72 + 4;
+            const dp = dist(cx, cy, pet.x, pet.y);
+            if (dp < (preferStepAside ? 28 : 36) && attempt < 8) continue;
+            if (!Z || !Z.tiles || !feetSolid(cx, cy)) {
+                pet.wx = cx; pet.wy = cy; pet.gx = cx - p.x; pet.gy = cy - p.y;
+                pet.gt = 115 + ((Math.random() * 150) | 0);
+                return;
+            }
+        }
+        const fallbackA = Math.random() * 6.2832;
+        pet.gx = Math.cos(fallbackA) * 76;
+        pet.gy = Math.sin(fallbackA) * 50 + 6;
+        pet.wx = p.x + pet.gx;
+        pet.wy = p.y + pet.gy;
+        pet.gt = 110;
+    }
+
     function updPet() {
         const pet = PET, p = P[0];
         const was = pet.on;
         pet.on = !!S.pet && p.on && nPlayers() <= 2;                          // hero 1's pet stays with two heroes, not with three or four
         if (!pet.on) return;
-        if (!was) { pet.x = p.x - 18; pet.y = p.y + 6; pet.sy = pet.y; }
+        if (!was) placePetNearHero();
         pet.max = Math.max(4, Math.floor(maxHp(p) / 2)); if (pet.hp > pet.max) pet.hp = pet.max;
         if (pet.inv > 0) pet.inv--; if (pet.cd > 0) pet.cd--; if (pet.hurt > 0) pet.hurt--; if (pet.lunge > 0) pet.lunge--;
         if (pet.down > 0) { if (--pet.down === 0) pet.hp = pet.max; pet.sy = pet.y; return; }
         if (++pet.regen >= 180) { pet.regen = 0; if (pet.hp < pet.max) pet.hp++; }
-        // a foe near the hero comes first, then loot near the cat, else stay at the hero's heel
+        // Priority 1: nearby active foe; Priority 2: dropped loot; Priority 3: hidden treasure
         const brave = pet.hp > pet.max * 0.3;
-        let foe = null, loot = null, best = 110 * 110;
+        let foe = null, loot = null, best = 125 * 125;
         if (brave) for (const f of FOES) if (f.on && f.alpha > 0.5 && (f.active || !f.d.boss)) { const d2 = (f.x - p.x) * (f.x - p.x) + (f.y - p.y) * (f.y - p.y); if (d2 < best) { best = d2; foe = f; } }
-        if (!foe) { best = 150 * 150; for (const d of DROPS) if (d.on && d.k !== 4 && d.z <= 2 && dist(d.x, d.y, p.x, p.y) < 220) { const d2 = (d.x - pet.x) * (d.x - pet.x) + (d.y - pet.y) * (d.y - pet.y); if (d2 < best) { best = d2; loot = d; } } }
+        if (!foe) { best = 160 * 160; for (const d of DROPS) if (d.on && d.k !== 4 && d.z <= 2 && dist(d.x, d.y, p.x, p.y) < 220) { const d2 = (d.x - pet.x) * (d.x - pet.x) + (d.y - pet.y) * (d.y - pet.y); if (d2 < best) { best = d2; loot = d; } } }
         let tre = null; pet.sniff = false;
         if (!foe && !loot) for (const t of Z.tre) if (!t.found && dist(t.x, t.y, p.x, p.y) < 190) { tre = t; pet.sniff = true; if (!t.sniffed) { t.sniffed = true; toast(T.ui.catSniff); } break; }
-        // its own spot near the hero, changed now and then; when hurt it keeps behind the hero
-        if (--pet.gt <= 0) { pet.gt = 150 + ((Math.random() * 200) | 0); const a = Math.random() * 6.2832, r = 26 + Math.random() * 34; pet.gx = Math.cos(a) * r; pet.gy = Math.sin(a) * r * 0.6 + 6; }
-        if (!brave) { pet.gx = -(p.lfx || 1) * 24; pet.gy = 8; }
+
         const hd = dist(pet.x, pet.y, p.x, p.y);
+        if (hd > 440) { placePetNearHero(); return; }                         // left far behind: catch up to a nearby spot
         if (p.moving) pet.idle = 0; else pet.idle++;
-        pet.sit = !foe && !loot && !tre && pet.idle > 240 && hd < 80;
-        const tx = foe ? foe.x : loot ? loot.x : tre ? tre.x + 10 : p.x + pet.gx, ty = foe ? foe.y : loot ? loot.y : tre ? tre.y : p.y + pet.gy;
+
+        const pk = (S && (S.petKind || (typeof S.pet === 'string' && S.pet !== '1' ? S.pet : ''))) || 'cat';
+        const isFlyer = pk === 'babydragon';
+
+        if (!pet.wx && !pet.wy) { pet.wx = pet.x; pet.wy = pet.y; }
+        const wd = dist(pet.wx, pet.wy, p.x, p.y);
+
+        // Smart autonomous waypoint selection:
+        // - Don't stay glued to the hero: keep a world-space perch/roam spot (pet.wx, pet.wy) as long as it remains 46..148px from the hero
+        // - If the hero walks too close (< 44px), step/hover aside to give personal space
+        // - If the hero walks beyond the comfortable leash (> 148px), pick a new spot in the 60..120px ring
+        // - Periodically (--pet.gt <= 0), roam or hover to a new spot here and there on its own
+        if (!foe && !loot && !tre) {
+            if (hd < 44 && pet.pauseT > 0) {
+                pet.pauseT = 0;
+                pickPetSpot(p, brave, true);
+            } else if (wd > 148 || hd > 158) {
+                pet.pauseT = 0;
+                pickPetSpot(p, brave, false);
+            } else if (--pet.gt <= 0) {
+                // Alternate between stopping at a spot for a while and wandering to another spot nearby
+                if (pet.pauseT <= 0 && Math.random() < 0.35 && hd >= 48 && hd <= 132) {
+                    pet.wx = pet.x; pet.wy = pet.y;
+                    pet.pauseT = 80 + ((Math.random() * 110) | 0);
+                    pet.gt = pet.pauseT + 20;
+                } else {
+                    pet.pauseT = 0;
+                    pickPetSpot(p, brave, false);
+                }
+            }
+        }
+
+        pet.sit = !foe && !loot && !tre && !isFlyer && pet.idle > 280 && pet.pauseT > 20 && hd >= 46 && hd <= 135;
+
+        // Flyers gently hover in a figure-8 around their perch; ground pets walk to their perch and stop cleanly
+        const hoverX = (!foe && !loot && !tre && isFlyer) ? Math.cos(tick * 0.042) * 14 : 0;
+        const hoverY = (!foe && !loot && !tre && isFlyer) ? Math.sin(tick * 0.084) * 7 : 0;
+        const tx = foe ? foe.x : loot ? loot.x : tre ? tre.x + 10 : pet.wx + hoverX;
+        const ty = foe ? foe.y : loot ? loot.y : tre ? tre.y : pet.wy + hoverY;
         const dx = tx - pet.x, dy = ty - pet.y, dd = Math.sqrt(dx * dx + dy * dy) || 1;
-        const stop = foe ? foe.r + 8 : loot ? 2 : 6;
-        const lazy = !foe && !loot && !tre && hd < 70 && !p.moving;           // close enough and nothing to do: no need to move
-        if (hd > 420) { pet.x = p.x; pet.y = p.y + 6; }                        // left far behind: catch up at once
-        else if (dd > stop && !lazy && !pet.sit) {
-            const hurry = foe || loot ? 1 : Math.min(1, 0.45 + hd / 140);
+        const stop = foe ? foe.r + 8 : loot ? 2 : isFlyer ? 3 : 7;
+
+        if (!foe && !loot && !tre && pet.pauseT > 0) {
+            pet.pauseT--;
+            if (isFlyer && dd > 2.5) {
+                const drift = Math.min(0.65, dd * 0.08);
+                moveEnt(pet, dx / dd * drift, dy / dd * drift, 4, 3);
+                if (Math.abs(dx) > 3) pet.fx = dx < 0 ? -1 : 1;
+            } else {
+                pet.walk = 0;
+                // Occasionally glance toward the hero or surroundings while perched
+                if ((tick & 63) === 0 && Math.random() < 0.35) {
+                    pet.fx = Math.random() < 0.65 ? (p.x < pet.x ? -1 : 1) : -pet.fx;
+                }
+            }
+        } else if (dd > stop && !pet.sit) {
+            // Casual trot when roaming nearby; brisk catch-up when combat/loot or when hero runs far ahead
+            const hurry = (foe || loot || tre) ? 1.05 : hd > 145 ? Math.min(1.15, 0.65 + hd / 220) : 0.62;
             const s = Math.min(playerSpeed(p) * TUNE.petSpeed * hurry, dd - stop + 0.5), ox = pet.x, oy = pet.y;
             moveEnt(pet, dx / dd * s, dy / dd * s, 4, 3);
-            if (pet.x === ox && pet.y === oy) { pet.x += dx / dd * s; pet.y += dy / dd * s; }   // cats squeeze through anything
-            pet.walk += 0.4; pet.fx = dx < 0 ? -1 : 1;
-        } else pet.walk = 0;
-        if (foe && S.petKind === 'babydragon' && dd <= 135 && pet.cd <= 0) {
+            if (pet.x === ox && pet.y === oy) { pet.x += dx / dd * s; pet.y += dy / dd * s; }   // pets squeeze past obstacles if blocked
+            pet.walk += isFlyer ? 0.25 : 0.36 * Math.max(0.65, hurry);
+            if (Math.abs(dx) > 1.2) pet.fx = dx < 0 ? -1 : 1;
+            if (!foe && !loot && !tre && dd <= stop + 3.5) {
+                pet.pauseT = isFlyer ? (45 + ((Math.random() * 75) | 0)) : (75 + ((Math.random() * 130) | 0));
+            }
+        } else {
+            pet.walk = 0;
+            if (!foe && !loot && !tre && pet.pauseT <= 0) {
+                pet.pauseT = 70 + ((Math.random() * 110) | 0);
+            }
+        }
+        if (foe && pk === 'babydragon' && dd <= 135 && pet.cd <= 0) {
             pet.cd = 42; pet.lunge = 6; SND.fx('shoot');
             const s = shot(pet.x + (dx / dd) * 10, pet.y - 16, (dx / dd) * 4.8, (dy / dd) * 4.8, Math.max(2, Math.round(damage(p) * 0.65)), 6, 13, p.i + 1);
             if (s) { s.col = '#ff6a2a'; s.lg = true; }
-        } else if (foe && dd <= stop + (S.petKind === 'direwolf' ? 12 : 6) && pet.cd <= 0) {
-            pet.cd = S.petKind === 'direwolf' ? 28 : 34; pet.lunge = 8; SND.fx('swing');
-            petHit(foe, Math.max(1, S.petKind === 'direwolf' ? Math.round(damage(p) * 0.7) : (damage(p) >> 1)), dx / dd, dy / dd);
+        } else if (foe && dd <= stop + (pk === 'direwolf' ? 12 : 6) && pet.cd <= 0) {
+            pet.cd = pk === 'direwolf' ? 28 : 34; pet.lunge = 8; SND.fx('swing');
+            petHit(foe, Math.max(1, pk === 'direwolf' ? Math.round(damage(p) * 0.7) : (damage(p) >> 1)), dx / dd, dy / dd);
         }
         if (loot && dd < 12) collect(p, loot);
         pet.sy = pet.y;
@@ -3544,8 +3916,15 @@
             if (--p.downT <= 0 && other) { p.down = false; p.hp = Math.ceil(maxHp(p) / 2); p.inv = 120; p.x = other.x; p.y = other.y; toast(txt(T.ui.revived, { name: heroName(p.i) })); }
             return;
         }
-        const dx = (held(p, 'right') ? 1 : 0) - (held(p, 'left') ? 1 : 0);
-        const dy = (held(p, 'down') ? 1 : 0) - (held(p, 'up') ? 1 : 0);
+        if (p.jumpOffT > 0) {
+            p.jumpOffT--;
+            const prog = 1 - (p.jumpOffT / (p.jumpOffMax || 18));
+            p.jumpZ = Math.sin(prog * Math.PI) * 26 + (1 - prog) * 18;
+            if (p.jumpOffT === 0) { p.jumpZ = 0; burst(p.x, p.y - 2, 6, Z.dust, 1.1); }
+        }
+        const jumpingOn = MOUNT_ANIM.on && MOUNT_ANIM.state === 'jump_on' && p.i === 0;
+        const dx = jumpingOn ? 0 : (held(p, 'right') ? 1 : 0) - (held(p, 'left') ? 1 : 0);
+        const dy = jumpingOn ? 0 : (held(p, 'down') ? 1 : 0) - (held(p, 'up') ? 1 : 0);
         p.moving = !!(dx || dy);
         // long press OK (without moving): the quick menu with the default buttons
         if (held(p, 'jump') && !p.moving && !okBack) { if (++p.hold === 50) { p.hold = 0; gesture(p, 'hold'); if (mode !== 'play') return; } } else p.hold = 0;
@@ -3557,12 +3936,19 @@
             const ox = p.x, oy = p.y;
             flyMove = flying(p); moveEnt(p, dx * n * spd, dy * n * spd, 7, 4); flyMove = false;
             p.walk += 0.22 * (1 + p.st.spd);
-            if (riding(p) && (tick + p.i * 7) % (flying(p) ? 26 : 14) === 0) SND.fx(flying(p) ? 'wings' : 'hoof');
+            if (riding(p)) playMountStep(S.mount, tick + p.i * 7);
             if ((tick + p.i * 5) % (riding(p) ? 4 : 9) === 0) part(p.x - p.ax * 6, p.y, 1, -p.ax * 0.3, -p.ay * 0.2, 0.6, 22, Z.dust, riding(p) ? 4 : 3, 0.02);
             if (nPlayers() > 1) {                          // co-op: nobody walks out of the screen (the camera sits in the middle of all heroes)
                 for (const o of P) if (o !== p && o.on && !o.down && (Math.abs(p.x - o.x) > W - TETHER_X || Math.abs(p.y - o.y) > H - TETHER_Y)) { p.x = ox; p.y = oy; break; }
             }
         } else p.walk = 0;
+        if (riding(p) && p.i === 0) {
+            if (!p.mountAmbT) p.mountAmbT = 260 + ((Math.random() * 200) | 0);
+            if (--p.mountAmbT <= 0) {
+                p.mountAmbT = 280 + ((Math.random() * 240) | 0);
+                playMountAmbient(S.mount);
+            }
+        }
         if (p.kx || p.ky) { flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false; p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
         p.sy = flying(p) ? p.y + 200 : p.y;                // in the air: drawn over the roofs and trees it passes
         // riding the wolf / frostfang (bite) or shadowmane (armored warhorse trample)
@@ -3592,7 +3978,7 @@
             if (dd < 14) collect(p, d);
         }
         for (const e of Z.def.exits) {
-            if (p.x >= e.x * TS && p.x < (e.x + e.w) * TS && p.y >= e.y * TS && p.y < (e.y + e.h) * TS) { if (Z.def.rift) endRift(false); else changeZone(e.to, e.tx, e.ty); return; }
+            if (p.x >= e.x * TS && p.x < (e.x + e.w) * TS && p.y >= e.y * TS && p.y < (e.y + e.h) * TS) { if (Z.def.rift) endRift(false, S.rift.floor >= RIFT_MAX && riftClear); else changeZone(e.to, e.tx, e.ty); return; }
         }
         if (Z.stairs && riftClear && dist(p.x, p.y, Z.stairs.cx, Z.stairs.cy) < 30) { SND.fx('door'); if (S.rift.floor >= RIFT_MAX) endRift(false, true); else riftFloor(S.rift.floor + 1); }
     }
@@ -3996,6 +4382,7 @@
         else if (mode === 'scene') { updScene(); for (const n of Z.npcs) n.walk += 0.1; updHaz(); }
         else if (mode === 'play') {
             S.time += 1 / 60;
+            updMountAnim();
             for (const p of P) if (p.on) updPlayer(p);
             if (mode === 'play') updPet();
             if (mode === 'play') {
@@ -4007,7 +4394,17 @@
             for (const n of Z.npcs) { if (n.roam) roamNpc(n); n.sy = CH.npcY ? CH.npcY(n) : n.y; n.walk += 0.1; }
             if (Z.def.rift && !riftClear && (tick & 15) === 0) {
                 let left = 0; for (const f of FOES) if (f.on) left++;
-                if (!left) { riftClear = true; SND.fx('level'); toast(S.rift.floor >= RIFT_MAX ? T.ui.riftLast : T.ui.riftCleared); ringFx(Z.stairs.cx, Z.stairs.cy, 70, '#c77dff'); }
+                if (!left) {
+                    riftClear = true;
+                    if (S.rift.floor >= RIFT_MAX) {
+                        S.rift.best = Math.max(S.rift.best || 0, RIFT_MAX);
+                        S.rift.won = (S.rift.won || 0) + 1;
+                        save();
+                    }
+                    SND.fx('level');
+                    toast(S.rift.floor >= RIFT_MAX ? T.ui.riftLast : T.ui.riftCleared);
+                    ringFx(Z.stairs.cx, Z.stairs.cy, 70, '#c77dff');
+                }
             }
             hud();
         } else if (mode === 'overlay' && OV.kind === 'menu') { camX += 0.15; }
@@ -4049,6 +4446,7 @@
         drawQuake(cx, cy);
         drawHaz(cx, cy);
         if (CH.drawUnder) CH.drawUnder(ctx, cx, cy, tick);
+        if ((mode === 'play' || mode === 'dialog' || mode === 'fade') && !SC.steps) drawGuide(cx, cy);
         dlN = 0;
         const r0 = Math.max(0, Math.floor(cy / TS) - 1), r1 = Math.min(Z.rows - 1, Math.floor((cy + H) / TS) + 5);
         for (let r = r0; r <= r1; r++) {
@@ -4061,6 +4459,7 @@
         for (const f of FOES) if (f.on) { const m = f.d && f.d.boss ? 400 : 60 + f.r * 3; if (f.x > cx - m && f.x < cx + W + m && f.y > cy - m && f.y < cy + H + m + 60) DL[dlN++] = f; }
         for (const d of DROPS) if (d.on && d.x > cx - 40 && d.x < cx + W + 40 && d.y > cy - 40 && d.y < cy + H + 60) DL[dlN++] = d;
         if (PET.on) DL[dlN++] = PET;
+        if (MOUNT_ANIM.on && MOUNT_ANIM.state !== 'whistle') DL[dlN++] = MOUNT_ANIM;
         for (let i = 1; i < dlN; i++) { const v = DL[i], k = v.sy; let j = i - 1; while (j >= 0 && DL[j].sy > k) { DL[j + 1] = DL[j]; j--; } DL[j + 1] = v; }
         const mi = ART.misc();
         for (let i = 0; i < dlN; i++) {
@@ -4083,6 +4482,7 @@
             else if (o.kind === 4) drawFoe(o, cx, cy);
             else if (o.kind === 5) drawDrop(o, cx, cy);
             else if (o.kind === 7) drawPet(o, cx, cy);
+            else if (o.kind === 8) drawMountActor(o, cx, cy);
         }
         drawTreasures(cx, cy);
         drawShots(cx, cy);
@@ -4115,7 +4515,6 @@
         ctx.globalAlpha = 1;
         if (CH.drawOver) CH.drawOver(ctx, cx, cy, tick);
         drawAtmo();
-        if ((mode === 'play' || mode === 'dialog' || mode === 'fade') && !SC.steps) drawGuide(cx, cy);
         if (vignette && tier !== 'low') ctx.drawImage(vignette, 0, 0);
         if (flashT > 0) { ctx.globalAlpha = 0.18; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
         drawScene();
@@ -4463,6 +4862,37 @@
         }
         if (lv === 'high' && p.moving && (tick & 15) === 0) part(x + (Math.random() - 0.5) * 12, y - 2, 2, 0, 0, 0.8, 26, '#ffd23f', 2, -0.01);
     }
+    function drawMountSprite(mt, x, y, walk, mdir, mfx, moving, tMount, biteF) {
+        const horse = mt === 'horse', charger = mt === 'charger', bonecharger = mt === 'bonecharger',
+            shadow = mt === 'shadowmane', nightmare = mt === 'nightmare',
+            ffang = mt === 'frostfang', bfang = mt === 'bloodfang', yoshiM = mt === 'yoshi',
+            dragon = mt === 'dragon' && MOUNTART.hasDragon, nightt = mt === 'nightterror' && MOUNTART.hasDragon;
+        const isWingedHorse = charger || bonecharger, isDrake = dragon || nightt;
+        const fly = isDrake || isWingedHorse, z = fly ? (isWingedHorse ? 20 : 24) + Math.sin(tMount * 0.06) * 3 : 0;
+        if (charger) MOUNTART.charger(ctx, x, y, z, walk, mdir, mfx, 1.18, moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff'));
+        else if (bonecharger) MOUNTART.bonecharger(ctx, x, y, z, walk, mdir, mfx, 1.06, moving, tMount, heroLv() === 'low' ? null : glowSprite('#54e8a0'));
+        else if (dragon) MOUNTART.dragon(ctx, x, y, z, mdir, mfx < 0, tMount, 0.6, false);
+        else if (nightt) MOUNTART.nightterror(ctx, x, y, z, mdir, mfx < 0, tMount, 0.6, false);
+        else if (shadow) MOUNTART.shadowmane(ctx, x, y, walk, mdir, mfx, 1.36, moving, tMount);
+        else if (nightmare) MOUNTART.nightmare(ctx, x, y, walk, mdir, mfx, 1.38, moving, tMount);
+        else if (ffang) MOUNTART.frostfang(ctx, x, y, walk, mdir, mfx, 1.22, moving, tMount, biteF);
+        else if (bfang) MOUNTART.bloodfang(ctx, x, y, walk, mdir, mfx, 1.24, moving, tMount, biteF);
+        else if (yoshiM) MOUNTART.yoshi(ctx, x, y, walk, mdir, mfx, 1.25, moving, tMount, biteF);
+        else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, walk, mdir, 1.48, 'horse');
+        else if (horse) drawHorse(x, y, walk, mfx, 1.48);
+        else if (mt === 'wolf') drawWolfMount(x, y, walk, mfx, 1.15, mdir, moving, biteF);
+    }
+    function drawMountActor(o, cx, cy) {
+        if (!o.on || !o.mount) return;
+        const x = o.x - cx, y = o.y - cy;
+        let alpha = 1;
+        if (o.state === 'enter' && o.maxT - o.t < 8) alpha = (o.maxT - o.t) / 8;
+        else if (o.state === 'depart' && o.t < 16) alpha = Math.max(0, o.t / 16);
+        ctx.save();
+        if (alpha < 1) ctx.globalAlpha = alpha;
+        drawMountSprite(o.mount, x, y, o.walk, o.dir, o.fx, o.moving, tick, 0);
+        ctx.restore();
+    }
     function drawPlayer(p, cx, cy) {
         const x = p.x - cx, y = p.y - cy, look = heroLook(p.i);
         if (p.down) {
@@ -4482,20 +4912,28 @@
         const mdir = dir === 0 || dir === 1 ? dir : 2, mt = ride ? S.mount : '';
         const horse = mt === 'horse', charger = mt === 'charger', bonecharger = mt === 'bonecharger',
             shadow = mt === 'shadowmane', nightmare = mt === 'nightmare',
-            ffang = mt === 'frostfang', bfang = mt === 'bloodfang',
+            ffang = mt === 'frostfang', bfang = mt === 'bloodfang', yoshiM = mt === 'yoshi',
             dragon = mt === 'dragon' && MOUNTART.hasDragon, nightt = mt === 'nightterror' && MOUNTART.hasDragon;
         const isSteed = horse || shadow || nightmare, isWingedHorse = charger || bonecharger, isDrake = dragon || nightt;
         const fly = isDrake || isWingedHorse, z = fly ? (isWingedHorse ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
-        const hy = bonecharger ? y - z - (mdir === 2 ? 32 : mdir === 1 ? 36 : 38)
+        const jz = p.jumpZ || 0;
+        if (jz > 1 && !ride) {
+            ctx.save(); ctx.globalAlpha = 0.32; ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.ellipse(x, y - 1, Math.max(4, 10 - jz * 0.14), Math.max(2, 4.5 - jz * 0.06), 0, 0, 6.2832); ctx.fill();
+            ctx.restore();
+        }
+        const hy = (bonecharger ? y - z - (mdir === 2 ? 32 : mdir === 1 ? 36 : 38)
             : charger ? y - z - (mdir === 2 ? 30 : mdir === 1 ? 34 : 36)
             : isDrake ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
             : (shadow || nightmare) ? y - (mdir !== 2 ? 40 : 36)
             : horse && mdir !== 2 ? y - 36
-            : ride ? y - (horse ? (MOUNTART.ready ? 33 : 29) : 19) : y, lean = p.lean / 8;
+            : yoshiM ? y - 22
+            : ride ? y - (horse ? (MOUNTART.ready ? 33 : 29) : 19) : y) - jz, lean = p.lean / 8;
         // where the rider sits: on the dragon's back (behind its neck), in the horse's or direwolf's saddle
         const rx = bonecharger ? x + (mdir === 2 ? mfx * 4 : 0)
             : charger ? x - (mdir === 2 ? mfx * 3 : 0)
             : isDrake ? x + (mdir === 2 ? (flip ? 7 : -7) : 0)
+            : yoshiM && mdir === 2 ? x - mfx * 4
             : isSteed && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
         const tMount = tick + p.i * 5, biteF = p.bite > 38 ? 1 : 0;
         if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 1.18, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
@@ -4506,6 +4944,7 @@
         else if (nightmare) { MOUNTART.nightmare(ctx, x, y, p.walk, mdir, mfx, 1.38, p.moving, tMount); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 18, y - 4, 2, -p.ax * 0.4, -0.4, 0.4, 18, tick & 4 ? '#ff9a20' : '#ff2a18', 2, 0); }
         else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.22, p.moving, tMount, biteF);
         else if (bfang) MOUNTART.bloodfang(ctx, x, y, p.walk, mdir, mfx, 1.24, p.moving, tMount, biteF);
+        else if (yoshiM) MOUNTART.yoshi(ctx, x, y, p.walk, mdir, mfx, 1.25, p.moving, tMount, biteF);
         else if (horse && mdir !== 2) MOUNTART.horseFB(ctx, x, y, p.walk, mdir, 1.48, 'horse');
         else if (ride) { if (horse) drawHorse(x, y, p.walk, mfx, 1.48); else drawWolfMount(x, y, p.walk, mfx, 1.15, mdir, p.moving, biteF); }
         const mushMax = p.mushMax || 3600;
@@ -4526,11 +4965,18 @@
             const cId = p.gear.costume, co = cId && HEROART.COSTUME ? HEROART.COSTUME[cId] : null;
             ctx.fillStyle = co ? co.pants : look.pants; ctx.fillRect(rx + (-2 + side) * mushScale, hy - 10 * mushScale, 4 * mushScale, 9 * mushScale);
             ctx.fillStyle = co ? co.shoes : (ft ? ft.main : look.shoes); ctx.fillRect(rx + (-2.5 + side) * mushScale, hy - 2 * mushScale, 5 * mushScale, 4 * mushScale);
-        } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50 && mode === 'play', mushScale);
+        } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, jz > 2 ? 1.2 : p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50 && mode === 'play', mushScale);
         if (!back) drawWep();
         legendAura(p, rx, hy);
         ctx.globalAlpha = 1;
         const labelTop = hy - Math.round(48 * mushScale);
+        if (MOUNT_ANIM.on && MOUNT_ANIM.state === 'whistle' && p.i === 0) {
+            const wt = 30 - MOUNT_ANIM.t;
+            ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+            const nx = x + Math.sin(wt * 0.35) * 9, ny = labelTop - 4 - wt * 0.45;
+            ctx.fillStyle = '#000'; ctx.fillText(wt & 8 ? '♫' : '♪', nx + 1, ny + 1);
+            ctx.fillStyle = '#ffe680'; ctx.fillText(wt & 8 ? '♫' : '♪', nx, ny);
+        }
         if (p.mushT > 0) {
             ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
             const sec = Math.ceil(p.mushT / 60) + 's';
@@ -4568,17 +5014,39 @@
             drawHeld(st.kind, st.col, st.col2, x + Math.cos(to) * 6, y - 12 + Math.sin(to) * 6, to, p.wr);
             return;
         }
+        if (st.kind === 'axes') {
+            // Relaxed combat-ready stance: Both arms lowered and slightly spread outward from the hips,
+            // holding one axe in each hand beside the thighs with the axe heads pointing downward toward the ground.
+            const sw = (p.walk ? Math.sin(p.walk * 1.6) : 0) * 0.35;
+            if (dir === 2) {
+                const fSign = flip ? -1 : 1;
+                const nearX = x + fSign * 3.4, nearY = y - 13.8 + sw;
+                const farX = x - fSign * 2.8, farY = y - 14.2 - sw;
+                const nearA = flip ? (Math.PI - 1.15) : 1.15;
+                const farA  = flip ? (Math.PI - 1.32) : 1.32;
+                drawHeld('axes', st.col, st.col2, farX, farY, farA, p.wr, 0, p.flash);
+                drawHeld('axes', st.col, st.col2, nearX, nearY, nearA, p.wr, 0, p.flash);
+            } else {
+                const spread = (dir === 3 || dir === 4) ? 8.8 : 9.8;
+                const rx = x + spread, ry = y - 13.8 - sw;
+                const lx = x - spread, ly = y - 13.8 + sw;
+                // Point downward toward the ground beside the thighs (~72° down-outward on right, ~108° down-outward on left)
+                drawHeld('axes', st.col, st.col2, lx, ly, Math.PI - 1.24, p.wr, 0, p.flash);
+                drawHeld('axes', st.col, st.col2, rx, ry, 1.24, p.wr, 0, p.flash);
+            }
+            return;
+        }
         // the weapon hand: three-quarter views hold it on the side the hero turns to
-        const hx = x + (dir === 2 ? (flip ? -3 : 3) : dir === 1 ? -9 : dir === 3 ? (flip ? -7 : 7) : dir === 4 ? (flip ? 7 : -7) : 9), hy = y - 14;
+        const hx = x + (dir === 2 ? (flip ? -3 : 3) : dir === 1 ? -9 : dir === 3 ? (flip ? -7 : 7) : dir === 4 ? (flip ? 7 : -7) : 9), hy = y - 15.5;
         const d = dir === 3 ? 0 : dir === 4 ? 1 : dir, m = flip && dir >= 3 ? -1 : 1;
         let a;
         if (p.swing > 0 || st.kind === 'gun' || st.kind === 'pistols') a = Math.atan2(p.ay, p.ax);
-        else if (st.kind === 'sword' || st.kind === 'axes' || st.kind === 'hammer') a = d === 2 ? (flip ? -2.25 : -0.9) : d === 1 ? (m < 0 ? -1.25 : -1.9) : (m < 0 ? -1.95 : -1.2);
+        else if (st.kind === 'sword' || st.kind === 'hammer') a = d === 2 ? (flip ? -2.25 : -0.9) : d === 1 ? (m < 0 ? -1.25 : -1.9) : (m < 0 ? -1.95 : -1.2);
         else if (st.kind === 'bow') a = d === 2 ? (flip ? Math.PI : 0) : d === 1 ? -1.57 : (m < 0 ? 2.9 : 0.25);
         else a = d === 2 ? (flip ? -1.85 : -1.3) : (m < 0 ? -1.7 : -1.45);
-        if (st.kind === 'axes' || st.kind === 'pistols') {   // two-handed dual weapons: draw off-hand weapon too
+        if (st.kind === 'pistols') {                         // two-handed dual pistols: draw off-hand weapon too
             const ox = x - (hx - x), oy = hy + 1;
-            drawHeld(st.kind, st.col, st.col2, ox, oy, st.kind === 'pistols' ? a + 0.08 : -Math.PI - a, p.wr, p.swing, p.flash);
+            drawHeld(st.kind, st.col, st.col2, ox, oy, a + 0.08, p.wr, p.swing, p.flash);
         }
         drawHeld(st.kind, st.col, st.col2, hx, hy, a, p.wr, p.swing, p.flash);
     }
@@ -4955,7 +5423,7 @@
         GT.px = x * TS + 16; GT.py = y * TS + 16;
     }
 
-    // Draw a crisp, unmistakable directional arrow (with shaft, notched barbs, dark outline, and bright tip chevron).
+    // Draw a short, crisp directional ground arrow (drawn on the ground layer under the character's feet).
     // Yellow (#ffd23f) for Main Quests, Green (#2ee86c) for Side Quests.
     function drawArrowShape(px, py, angle, isSide, scale) {
         const mainCol = isSide ? '#2ee86c' : '#ffd23f';
@@ -4964,71 +5432,78 @@
         ctx.translate(px, py);
         ctx.rotate(angle);
         if (scale && scale !== 1) ctx.scale(scale, scale);
-        // Outer dark border for contrast over snow, grass, stone, and water
+        // Compact outer dark border for contrast over snow, grass, stone, and water (16px total length)
         ctx.fillStyle = '#0c0a08';
         ctx.beginPath();
-        ctx.moveTo(16.5, 0);
-        ctx.lineTo(1.5, -10.5);
-        ctx.lineTo(4.2, -4.6);
-        ctx.lineTo(-13.5, -4.6);
-        ctx.lineTo(-10.2, 0);
-        ctx.lineTo(-13.5, 4.6);
-        ctx.lineTo(4.2, 4.6);
-        ctx.lineTo(1.5, 10.5);
+        ctx.moveTo(9.5, 0);
+        ctx.lineTo(0.5, -6.5);
+        ctx.lineTo(2.4, -2.8);
+        ctx.lineTo(-6.5, -2.8);
+        ctx.lineTo(-4.4, 0);
+        ctx.lineTo(-6.5, 2.8);
+        ctx.lineTo(2.4, 2.8);
+        ctx.lineTo(0.5, 6.5);
         ctx.closePath();
         ctx.fill();
-        // Main colored arrow body (shaft + swept arrowhead)
+        // Main colored arrow body (short shaft + swept arrowhead)
         ctx.fillStyle = mainCol;
         ctx.beginPath();
-        ctx.moveTo(14, 0);
-        ctx.lineTo(3, -8);
-        ctx.lineTo(5.2, -3);
-        ctx.lineTo(-11.2, -3);
-        ctx.lineTo(-8.5, 0);
-        ctx.lineTo(-11.2, 3);
-        ctx.lineTo(5.2, 3);
-        ctx.lineTo(3, 8);
+        ctx.moveTo(7.8, 0);
+        ctx.lineTo(1.4, -4.8);
+        ctx.lineTo(3.0, -1.8);
+        ctx.lineTo(-5.0, -1.8);
+        ctx.lineTo(-3.2, 0);
+        ctx.lineTo(-5.0, 1.8);
+        ctx.lineTo(3.0, 1.8);
+        ctx.lineTo(1.4, 4.8);
         ctx.closePath();
         ctx.fill();
-        // Bright center spine & front tip chevron so the pointing direction is instant to read
+        // Bright center spine & front tip chevron
         ctx.fillStyle = hiCol;
         ctx.beginPath();
-        ctx.moveTo(12.5, 0);
-        ctx.lineTo(4.8, -5.2);
-        ctx.lineTo(6.2, -1.3);
-        ctx.lineTo(-6.5, -1.3);
-        ctx.lineTo(-6.5, 1.3);
-        ctx.lineTo(6.2, 1.3);
-        ctx.lineTo(4.8, 5.2);
+        ctx.moveTo(6.4, 0);
+        ctx.lineTo(2.4, -3.0);
+        ctx.lineTo(3.4, -0.8);
+        ctx.lineTo(-2.5, -0.8);
+        ctx.lineTo(-2.5, 0.8);
+        ctx.lineTo(3.4, 0.8);
+        ctx.lineTo(2.4, 3.0);
         ctx.closePath();
         ctx.fill();
         ctx.restore();
     }
 
     function renderQuestArrow(cx, cy, tx, ty, px, py, isSide, avoidAngle) {
-        const x = tx - cx, y = ty - cy - 38, m = 26;
+        const x = tx - cx, y = ty - cy - 1, m = 26;
         const onScreen = x > m && x < W - m && y > m && y < H - m;
         const col = isSide ? '#2ee86c' : '#ffd23f';
         if (onScreen) {
-            const b = Math.sin(tick * 0.15) * 4;
-            // Pulsing target ring at the destination
-            ctx.globalAlpha = 0.45 + Math.sin(tick * 0.15) * 0.15;
+            const b = Math.sin(tick * 0.15) * 2.5;
+            // Pulsing target ring on the ground at the destination's feet
+            ctx.globalAlpha = 0.5 + Math.sin(tick * 0.15) * 0.15;
             ctx.strokeStyle = col; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.ellipse(x, ty - cy - 2, 12, 5, 0, 0, 6.2832); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(x, y, 12, 5, 0, 0, 6.2832); ctx.stroke();
             ctx.globalAlpha = 1;
-            // Downward-pointing shafted arrow above the target
-            drawArrowShape(x, y - 6 + b, Math.PI * 0.5, isSide, 0.95);
+            // Compact ground-level pointer right at the destination ring
+            drawArrowShape(x, y - 12 + b, Math.PI * 0.5, isSide, 0.85);
         }
-        // Always show the directional arrow orbiting the hero unless we are already right next to the on-screen target
-        if (!onScreen || dist(P[0].x, P[0].y, tx, ty) > 85) {
-            const hx = P[0].x - cx, hy = P[0].y - cy - 14;
+        // Smart ground-level directional arrow under the hero's feet (never on top of or hidden behind the character)
+        if (!onScreen || dist(P[0].x, P[0].y, tx, ty) > 75) {
+            const hx = P[0].x - cx, hy = P[0].y - cy - 1;
             let a = Math.atan2(py - P[0].y, px - P[0].x);
             if (avoidAngle !== null && Math.abs(Math.atan2(Math.sin(a - avoidAngle), Math.cos(a - avoidAngle))) < 0.35) {
                 a += 0.38;
             }
-            const thrust = Math.sin(tick * 0.18) * 3;
-            const ax = hx + Math.cos(a) * (36 + thrust), ay = hy + Math.sin(a) * (26 + thrust * 0.75);
-            const pulse = 1 + Math.sin(tick * 0.15) * 0.08;
+            // Subtle compass ring under the hero's boots
+            ctx.globalAlpha = 0.28;
+            ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.ellipse(hx, hy + 1, 11.5, 4.8, 0, 0, 6.2832); ctx.stroke();
+            ctx.globalAlpha = 1;
+            const thrust = Math.sin(tick * 0.18) * 1.8;
+            const footBandY = P[0].y - cy + 11.5;
+            const ax = hx + Math.cos(a) * (12.5 + thrust * 0.75);
+            const ay = footBandY + Math.sin(a) * (3.8 + thrust * 0.35);
+            const pulse = 0.92 + Math.sin(tick * 0.15) * 0.06;
             drawArrowShape(ax, ay, a, isSide, pulse);
             return a;
         }
@@ -5139,9 +5614,8 @@
         }
     };
 
-    // test hook for development only: open index.html?debug
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, playChapter6, prepareChapter6Save, useMushroom, dropMushroom, costumeShopScreen, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, toggleMount, MOUNT_ANIM, playMountCry, playMountAmbient, playMountStep, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, playChapter6, prepareChapter6Save, useMushroom, dropMushroom, costumeShopScreen, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT };
 
     /* ------------------------------------------------------------------ lifecycle */
 

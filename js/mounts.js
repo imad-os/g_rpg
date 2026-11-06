@@ -17,7 +17,7 @@ window.HM_MOUNTART = (function () {
     const SHEETS = [
         'horse_walk', 'horse_run', 'horse_idle', 'horse_ns',
         'dragon', 'shadowmane', 'frostfang', 'nightmare',
-        'bloodfang', 'bonecharger', 'nightterror', 'wolf'
+        'bloodfang', 'bonecharger', 'nightterror', 'wolf', 'yoshi'
     ];
 
     function notify() {
@@ -389,12 +389,25 @@ window.HM_MOUNTART = (function () {
         return true;
     }
 
+    // Chapter 6 Yoshi: Friendly Green Dino Steed with red shell-saddle, orange boots & tongue snap (6 cols x 4 rows of 64x64 NESW)
+    function yoshi(ctx, x, y, walk, dir, fx, s, moving, t, bite) {
+        const sheet = IMG.yoshi;
+        ctx.fillStyle = 'rgba(10,35,15,0.32)';
+        ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 22 : 14) * s, 5.5 * s, 0, 0, 6.2832); ctx.fill();
+        if (!sheet) return false;
+        const row = neswRow(dir, fx);
+        const col = bite > 0 ? 5 : moving ? 1 + (((walk * 1.6) | 0) & 3) : 0;
+        const ps = s * 0.96;
+        ctx.drawImage(sheet, col * WW, row * WH, WW, WH, x - (WW / 2) * ps, y - 58 * ps, WW * ps, WH * ps);
+        return true;
+    }
+
     return {
         load, onLoad, has,
         horse, horseFB, wolf,
         dragon, charger,
         shadowmane, frostfang,
-        nightmare, bloodfang, bonecharger, nightterror,
+        nightmare, bloodfang, bonecharger, nightterror, yoshi,
         get ready() { return !!(IMG.horse_run && IMG.dragon); },
         get hasDragon() { return !!(IMG.dragon || IMG.nightterror); }
     };

@@ -21,7 +21,10 @@ en: {
         c6store: 'Toad\'s 1-Up Elixir & Mushroom Shop',
         c6costumeBtn: 'Browse Cosmetic Costumes (Mario, Luigi, Peach)',
         c6travelBack: 'Return to Mushroom Kingdom Hub Village',
-        c6sailCh5: 'Travel back to Blackthorn Village (Chapter 5)'
+        c6sailCh5: 'Travel back to Blackthorn Village (Chapter 5)',
+        yoshi: 'Yoshi',
+        yoshiSub: 'A swift green dino steed whose snapping tongue strikes nearby foes',
+        yoshiHow: 'Unlocked in Chapter 6: Kingdoms of Wonder or at Toad\'s Shop'
     },
     zone: {
         c6_village: 'Mushroom Kingdom Hub Village',
@@ -188,7 +191,10 @@ fr: {
         c6store: 'Boutique d\'Élixirs et Champignons de Toad',
         c6costumeBtn: 'Voir les Costumes Cosmétiques (Mario, Luigi, Peach)',
         c6travelBack: 'Retourner au Village du Royaume Champignon',
-        c6sailCh5: 'Retourner au village de Blackthorn (Chapitre 5)'
+        c6sailCh5: 'Retourner au village de Blackthorn (Chapitre 5)',
+        yoshi: 'Yoshi',
+        yoshiSub: 'Un rapide destrier dino vert dont la langue frappe les ennemis proches',
+        yoshiHow: 'Débloqué au Chapitre 6 : Royaumes des Merveilles ou chez Toad'
     },
     zone: {
         c6_village: 'Village du Royaume Champignon',
@@ -334,7 +340,10 @@ es: {
         c6store: 'Tienda de Elixires y Champiñones de Toad',
         c6costumeBtn: 'Ver Trajes Cosméticos (Mario, Luigi, Peach)',
         c6travelBack: 'Volver a la Aldea del Reino Champiñón',
-        c6sailCh5: 'Viajar a la aldea de Espinanegra (Capítulo 5)'
+        c6sailCh5: 'Viajar a la aldea de Espinanegra (Capítulo 5)',
+        yoshi: 'Yoshi',
+        yoshiSub: 'Un veloz corcel dinosaurio verde cuya lengua golpea a los enemigos cercanos',
+        yoshiHow: 'Desbloqueado en el Capítulo 6: Reinos de la Maravilla o en la tienda de Toad'
     },
     zone: {
         c6_village: 'Aldea del Reino Champiñón',
@@ -480,7 +489,10 @@ ar: {
         c6store: 'متجر الإكسير والفطر الخارق لتود',
         c6costumeBtn: 'تصفح الأزياء التجميلية (ماريو، لويجي، بيتش)',
         c6travelBack: 'العودة إلى قرية مملكة الفطر',
-        c6sailCh5: 'السفر إلى قرية بلاكثورن (الفصل الخامس)'
+        c6sailCh5: 'السفر إلى قرية بلاكثورن (الفصل الخامس)',
+        yoshi: 'يوشي (Yoshi)',
+        yoshiSub: 'مطية ديناصور أخضر سريع يهاجم الأعداء القريبين بلسانه',
+        yoshiHow: 'يُفتح في الفصل السادس: ممالك العجائب أو لدى متجر تود'
     },
     zone: {
         c6_village: 'قرية مملكة الفطر (المركز)',

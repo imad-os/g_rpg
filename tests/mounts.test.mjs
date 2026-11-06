@@ -223,14 +223,82 @@ test('Nightmare Steed pre-bakes 4 low-cost fire frames at load and cycles them a
     assert.equal(uniqueFrames.size, 4, 'Nightmare render must cycle through 4 distinct pre-baked fire canvases');
 });
 
-test('game.js dispatches each Chapter 4 and Chapter 5 mount and exposes Companion Pets menu and pet renaming', () => {
+test('game.js dispatches each Chapter 4, Chapter 5, and Chapter 6 (Yoshi) mount and exposes Companion Pets menu and pet renaming', () => {
     const gameCode = fs.readFileSync('js/game.js', 'utf8');
-    for (const m of ['shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror']) {
+    for (const m of ['shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi']) {
         assert.ok(gameCode.includes(`MOUNTART.${m}(`), `js/game.js must explicitly call MOUNTART.${m}(...)`);
     }
+    const itemsCode = fs.readFileSync('js/items.js', 'utf8');
+    assert.ok(itemsCode.includes('yoshi:'), 'js/items.js HM_MOUNTS must define yoshi');
+    const yoshiPng = fs.readFileSync('assets/mounts/yoshi.png');
+    assert.ok(yoshiPng.length > 1000, 'assets/mounts/yoshi.png must exist and be non-empty');
     assert.ok(gameCode.includes('function petScreen('), 'js/game.js must define petScreen()');
     assert.ok(gameCode.includes('function renamePetScreen('), 'js/game.js must define renamePetScreen()');
     assert.ok(gameCode.includes('function setPetName('), 'js/game.js must define setPetName()');
     assert.ok(gameCode.includes('function petName('), 'js/game.js must define petName()');
 });
+
+test('audio.js uses real open-source .ogg audio files in audio/mounts/ (not MIDI/oscillator tones) for all mounts including Yoshi', () => {
+    const audioCode = fs.readFileSync('js/audio.js', 'utf8');
+    const requiredFx = [
+        'whistle',
+        'wolfHowl',
+        'wolfGrowl',
+        'pawStep',
+        'horseNeigh',
+        'horseSnort',
+        'spectralNeigh',
+        'boneRattle',
+        'boneHoof',
+        'dragonRoar',
+        'dragonGrowl',
+        'mountJump',
+        'yoshiMount',
+        'yoshiStep'
+    ];
+    for (const fx of requiredFx) {
+        assert.ok(audioCode.includes(`${fx}: () => playMountFile('${fx}'`), `js/audio.js FX.${fx} must play real audio file via playMountFile`);
+    }
+    const oggFiles = [
+        'whistle.ogg', 'wolf_howl.ogg', 'wolf_growl.ogg', 'paw_step.ogg',
+        'horse_neigh.ogg', 'horse_snort.ogg', 'spectral_neigh.ogg', 'horse_hoof.ogg',
+        'bone_rattle.ogg', 'bone_hoof.ogg', 'dragon_roar.ogg', 'dragon_growl.ogg',
+        'wing_flap.ogg', 'mount_jump.ogg', 'yoshi_mount.ogg', 'yoshi_step.ogg'
+    ];
+    for (const f of oggFiles) {
+        const p = `audio/mounts/${f}`;
+        assert.ok(fs.existsSync(p), `${p} must exist on disk`);
+        const st = fs.statSync(p);
+        assert.ok(st.size > 1000, `${p} must be a valid non-empty Ogg Vorbis audio file`);
+        const head = fs.readFileSync(p).subarray(0, 4).toString('ascii');
+        assert.equal(head, 'OggS', `${p} must have valid OggS header`);
+    }
+});
+
+test('game.js implements whistle -> 0.5s entrance -> jump-on mount animation and jump-off to nearest exit', () => {
+    const gameCode = fs.readFileSync('js/game.js', 'utf8');
+    assert.ok(gameCode.includes('const MOUNT_ANIM ='), 'js/game.js must define MOUNT_ANIM state machine');
+    assert.ok(gameCode.includes("MOUNT_ANIM.state = 'whistle'"), 'setMount must start in whistle state');
+    assert.ok(gameCode.includes('MOUNT_ANIM.t = 30'), 'whistle state must wait 30 frames (0.5s) before mount entrance');
+    assert.ok(gameCode.includes("MOUNT_ANIM.state = 'enter'"), 'updMountAnim must transition from whistle to enter');
+    assert.ok(gameCode.includes("MOUNT_ANIM.state = 'jump_on'"), 'updMountAnim must transition from enter to jump_on when mount approaches player');
+    assert.ok(gameCode.includes("MOUNT_ANIM.state = 'depart'"), 'dismounting must transition mount to depart toward nearest exit');
+    assert.ok(gameCode.includes('function playMountCry('), 'js/game.js must define playMountCry');
+    assert.ok(gameCode.includes('function playMountAmbient('), 'js/game.js must define playMountAmbient');
+    assert.ok(gameCode.includes('function playMountStep('), 'js/game.js must define playMountStep');
+    assert.ok(gameCode.includes('function pickMountEntrance('), 'js/game.js must define pickMountEntrance');
+    assert.ok(gameCode.includes('function pickNearestExit('), 'js/game.js must define pickNearestExit');
+});
+
+test('game.js implements smart autonomous companion pet AI with world-space waypoints, comfortable distance ring (60-120px), pausing/perching, and hovering', () => {
+    const gameCode = fs.readFileSync('js/game.js', 'utf8');
+    assert.ok(gameCode.includes('function placePetNearHero('), 'js/game.js must define placePetNearHero()');
+    assert.ok(gameCode.includes('function pickPetSpot('), 'js/game.js must define pickPetSpot()');
+    assert.ok(gameCode.includes('pet.wx') && gameCode.includes('pet.wy'), 'PET must track independent world-space target coordinates (wx, wy)');
+    assert.ok(gameCode.includes('pet.pauseT'), 'PET must support autonomous perching/stopping pauses (pauseT)');
+    assert.ok(gameCode.includes('const r = 60 + Math.random() * 60;'), 'pickPetSpot must choose a comfortable short distance (60..120px) that is not glued to the hero');
+    assert.ok(gameCode.includes('hoverX') && gameCode.includes('hoverY'), 'Flying pets must gently hover around their perch');
+});
+
+
 

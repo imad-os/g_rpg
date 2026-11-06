@@ -28,6 +28,7 @@ window.HM_AUDIO = (function () {
         sfx = ac.createGain(); sfx.connect(master);
         voice = ac.createGain(); voice.connect(master);       // spoken dialogue follows the sound-effects volume
         setVolume(vol);
+        loadSamples(MOUNT_SAMPLES, '1');
         bakeAll();
     }
     let trackEl = null;
@@ -208,7 +209,7 @@ window.HM_AUDIO = (function () {
         // the heroes' voices when hit: a short "uh!" (two voices)
         ouch: () => voiceHit(240, 160, 850),
         ouch2: () => voiceHit(380, 270, 1250),
-        hoof: () => { hoofStep = !hoofStep; tone(hoofStep ? 190 : 150, 70, 0.07, 'sine', 0.22); hiss(0.04, 0.12, hoofStep ? 1400 : 1000); },
+        hoof: () => playMountFile('hoof', true),
         magic: () => { tone(700, 1500, 0.18, 'sine', 0.14); tone(1400, 2200, 0.25, 'triangle', 0.05, 0.05); },
         zap: () => { tone(300, 900, 0.14, 'square', 0.07); tone(900, 300, 0.2, 'sine', 0.08, 0.08); },
         bomb: () => { tone(90, 30, 0.6, 'sine', 0.45); hiss(0.5, 0.4, 500); },
@@ -216,7 +217,7 @@ window.HM_AUDIO = (function () {
         beam: () => { tone(110, 90, 0.9, 'sawtooth', 0.12); hiss(0.8, 0.12, 2400); },
         bell: () => { [1, 2.76, 5.4].forEach((k, i) => tone(392 * k, 0, 2.2 - i * 0.6, 'sine', 0.2 / (i + 1))); },
         wave: () => { hiss(1.2, 0.3, 400); tone(80, 50, 1.2, 'sine', 0.2); },
-        wings: () => { hiss(0.22, 0.18, 380); tone(70, 50, 0.2, 'sine', 0.15); },
+        wings: () => playMountFile('wings', true),
         // the special attacks until their baked sounds are ready
         throw: () => { hiss(0.4, 0.35, 1800); tone(1800, 1200, 0.3, 'sine', 0.06); },
         fireArrow: () => { tone(900, 300, 0.12, 'triangle', 0.18); hiss(0.5, 0.35, 700); },
@@ -224,6 +225,21 @@ window.HM_AUDIO = (function () {
         arcane: () => { tone(300, 1200, 0.5, 'sawtooth', 0.08); tone(1400, 2600, 0.4, 'sine', 0.06, 0.1); },
         boom: () => { tone(90, 30, 0.5, 'sine', 0.4); hiss(0.4, 0.4, 500); },
         burn: () => hiss(0.4, 0.3, 700),
+        // Real open-source recorded mount audio (audio/mounts/*.ogg — no MIDI/oscillator tones)
+        whistle: () => playMountFile('whistle', false),
+        wolfHowl: () => playMountFile('wolfHowl', false),
+        wolfGrowl: () => playMountFile('wolfGrowl', false),
+        pawStep: () => playMountFile('pawStep', true),
+        horseNeigh: () => playMountFile('horseNeigh', false),
+        horseSnort: () => playMountFile('horseSnort', false),
+        spectralNeigh: () => playMountFile('spectralNeigh', false),
+        boneRattle: () => playMountFile('boneRattle', false),
+        boneHoof: () => playMountFile('boneHoof', true),
+        dragonRoar: () => playMountFile('dragonRoar', false),
+        dragonGrowl: () => playMountFile('dragonGrowl', false),
+        mountJump: () => playMountFile('mountJump', false),
+        yoshiMount: () => playMountFile('yoshiMount', false),
+        yoshiStep: () => playMountFile('yoshiStep', true),
         // Chapter 6 (Super Mario: Kingdoms of Wonder) synthesized SFX
         jump: () => { tone(260, 620, 0.16, 'square', 0.12); },
         mushroom: () => { [262, 330, 392, 523, 392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0, 0.11, 'square', 0.12, i * 0.052)); },
@@ -237,6 +253,36 @@ window.HM_AUDIO = (function () {
         qblock: () => { tone(180, 280, 0.09, 'triangle', 0.22); tone(784, 1175, 0.14, 'square', 0.12, 0.06); }
     };
     let hoofStep = false;
+    const MOUNT_SAMPLES = {
+        whistle:       ['audio/mounts/whistle.ogg', 0.85],
+        wolfHowl:      ['audio/mounts/wolf_howl.ogg', 0.90],
+        wolfGrowl:     ['audio/mounts/wolf_growl.ogg', 0.78],
+        pawStep:       ['audio/mounts/paw_step.ogg', 0.62],
+        horseNeigh:    ['audio/mounts/horse_neigh.ogg', 0.88],
+        horseSnort:    ['audio/mounts/horse_snort.ogg', 0.78],
+        spectralNeigh: ['audio/mounts/spectral_neigh.ogg', 0.86],
+        hoof:          ['audio/mounts/horse_hoof.ogg', 0.68],
+        boneRattle:    ['audio/mounts/bone_rattle.ogg', 0.82],
+        boneHoof:      ['audio/mounts/bone_hoof.ogg', 0.70],
+        dragonRoar:    ['audio/mounts/dragon_roar.ogg', 0.92],
+        dragonGrowl:   ['audio/mounts/dragon_growl.ogg', 0.80],
+        wings:         ['audio/mounts/wing_flap.ogg', 0.74],
+        mountJump:     ['audio/mounts/mount_jump.ogg', 0.80],
+        yoshiMount:    ['audio/mounts/yoshi_mount.ogg', 0.88],
+        yoshiStep:     ['audio/mounts/yoshi_step.ogg', 0.66]
+    };
+    const STEP_RATES = { hoof: 1, pawStep: 1, boneHoof: 1, wings: 1, yoshiStep: 1 };
+    function playMountFile(name, varyRate) {
+        if (sample(name, varyRate)) return;
+        const m = MOUNT_SAMPLES[name];
+        if (!m || typeof Audio === 'undefined') return;
+        try {
+            const a = new Audio(m[0]);
+            a.volume = Math.max(0, Math.min(1, (m[1] || 0.8) * 0.55 * (vol.sfx || 0.8)));
+            if (varyRate) { hoofStep = !hoofStep; a.playbackRate = hoofStep ? 1.04 : 0.96; }
+            a.play().catch(() => {});
+        } catch (e) {}
+    }
     function voiceHit(f1, f2, formant) {
         if (!ac || ac.state !== 'running') return;
         const t = ac.currentTime, os = ac.createOscillator(), fl = ac.createBiquadFilter(), g = ac.createGain();
@@ -246,7 +292,7 @@ window.HM_AUDIO = (function () {
         os.connect(fl); fl.connect(g); g.connect(sfx); os.start(t); os.stop(t + 0.22);
         hiss(0.08, 0.08, formant * 2);
     }
-    // recorded sounds (Kenney's RPG Audio, CC0, audio/sfx/): once decoded they replace or join the synthesized ones
+    // recorded sounds (Kenney's RPG Audio & Wikimedia Commons open-source audio): once decoded they play directly
     const SAMPLES = {}, SAMPLE_VOL = {};
     function loadSamples(map, version) {
         if (!ac) return;
@@ -257,9 +303,10 @@ window.HM_AUDIO = (function () {
                 .then(buf => { if (buf) { SAMPLES[name] = buf; SAMPLE_VOL[name] = map[name][1]; } }).catch(() => {});
         }
     }
-    function sample(name) {
-        const b = SAMPLES[name]; if (!b || ac.state !== 'running') return false;
+    function sample(name, varyRate) {
+        const b = SAMPLES[name]; if (!b || !ac || ac.state !== 'running') return false;
         const s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; g.gain.value = SAMPLE_VOL[name] || 0.8;
+        if (varyRate || STEP_RATES[name]) { hoofStep = !hoofStep; s.playbackRate.value = hoofStep ? 1.04 : 0.96; }
         s.connect(g); g.connect(sfx); s.start();
         return true;
     }

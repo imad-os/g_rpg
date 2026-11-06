@@ -35,14 +35,16 @@ HM_CHAPTERS.def.ch1 = function (api) {
     // after chapter 2, Sela can also sail straight north to chapter 3 (until the heroes have been there once)
     const ch3Open = () => { const s = S(); return !!(s.c2 && s.c2.lit) && HM_CHAPTERS.enabled('ch3') && !s.c3; };
     const ch4Open = () => { const s = S(); return !!(s.c3 && (s.c3.great || s.c3.lit)) && HM_CHAPTERS.enabled('ch4') && !s.c4; };
+    const riftDone = () => { const s = S(); return !!(s && s.rift && (s.rift.won || s.rift.best >= 10)); };
 
     function objective(lang) {
         const t = api.TEXT[lang] || api.TEXT.en, s = S(), st = s.stage;
         if (st === 2 && s.ore >= 3) return t.obj[3];
         if (st === 7 && s.caps >= 3) return t.ui.bringCaps;
-        if (st >= 17 && ch2Open() && !s.c2) return t.ui.ch2Go;
+        if (st >= 17 && ch2Open() && (!s.c2 || !s.c2.lit)) return t.ui.ch2Go;
         if (ch3Open()) return t.ui.ch3GoHome;
         if (ch4Open()) return t.ui.ch4Go;
+        if (st >= 17 && riftDone()) return ch2Open() ? t.ui.ch2Go : t.ui.freeRoam;
         return api.txt(t.obj[st] || '', { n: st === 2 ? Math.min(3, s.ore) : Math.min(3, s.caps) });
     }
 
@@ -207,7 +209,8 @@ HM_CHAPTERS.def.ch1 = function (api) {
     function target() {
         const s = S(), st = s.stage, Z = api.Z;
         if (st >= 17) {
-            if ((ch2Open() && !s.c2) || ch3Open()) { if (Z.id !== 'mireshore') return api.hop('mireshore'); GT.x = 23.5 * TS; GT.y = 15.2 * TS; return true; }
+            if ((ch2Open() && (!s.c2 || !s.c2.lit)) || ch3Open() || ch4Open() || (riftDone() && ch2Open())) { if (Z.id !== 'mireshore') return api.hop('mireshore'); GT.x = 23.5 * TS; GT.y = 15.2 * TS; return true; }
+            if (riftDone()) return false;
             if (Z.id !== 'village') return api.hop('village'); GT.x = 12.5 * TS; GT.y = 4.6 * TS; return true;
         }
         let z = '', x = 0, y = 0;

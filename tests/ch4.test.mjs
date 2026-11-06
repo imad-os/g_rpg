@@ -494,4 +494,38 @@ test('js/game.js shows only one quest arrow: yellow when Main Quest is followed,
   assert.equal(arrowCalls.length, 1, 'drawGuide must call renderQuestArrow only once (single arrow)');
 });
 
+test('killFoe has no broken ST reference, dev_mod defaults to false, Ch1 10/10 dungeon quests complete, arrow renders under hero feet, and hero has articulated legs + relaxed Dual Axes stance', () => {
+  const appJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'mypc-app.json'), 'utf8'));
+  assert.equal(appJson.config.dev_mod, false, 'mypc-app.json config.dev_mod must default to false so chapter jump buttons are hidden when dev mode is off');
+
+  const gameCode = fs.readFileSync(path.join(ROOT, 'js/game.js'), 'utf8');
+  assert.ok(!/\bST\./.test(gameCode), 'js/game.js must not contain any leftover ST. property references that would throw ReferenceError in killFoe');
+  assert.ok(gameCode.includes("if (isDevMod() && CHAPTERS.enabled('ch5'))"), 'playCh5 must be gated behind isDevMod()');
+  assert.ok(gameCode.includes("if (isDevMod() && CHAPTERS.enabled('ch6'))"), 'playCh6 must be gated behind isDevMod()');
+
+  // Verify drawGuide is called before DL entity rendering so the arrow renders underneath the character's feet
+  const drawIdx = gameCode.indexOf('drawGuide(cx, cy);');
+  const dlPlayerIdx = gameCode.indexOf('else if (o.kind === 3) drawPlayer(o, cx, cy);');
+  assert.ok(drawIdx > 0 && dlPlayerIdx > drawIdx, 'drawGuide(cx, cy) must run before drawPlayer so the arrow is under the hero feet');
+
+  // Verify shortened arrow shape and feet-level anchor
+  assert.ok(gameCode.includes('ctx.moveTo(9.5, 0);'), 'drawArrowShape must use shortened tip (9.5px)');
+  assert.ok(gameCode.includes('hy = P[0].y - cy - 1'), 'renderQuestArrow must anchor at hero feet (P[0].y - cy - 1), not above head');
+
+  // Verify relaxed Dual Axes weapon stance beside thighs pointing downward
+  assert.ok(gameCode.includes("if (st.kind === 'axes')"), 'drawHeroWeapon must handle axes specifically');
+  assert.ok(gameCode.includes('Math.PI - 1.24') && gameCode.includes('rx, ry, 1.24'), 'Dual axes at rest must hang beside the thighs with axe heads pointing downward');
+
+  // Verify Chapter 1 10/10 dungeon completion in chapters/ch1/story.js
+  const ch1Code = fs.readFileSync(path.join(ROOT, 'chapters/ch1/story.js'), 'utf8');
+  assert.ok(ch1Code.includes('const riftDone = () =>'), 'chapters/ch1/story.js must define riftDone()');
+  assert.ok(ch1Code.includes('s.rift.best >= 10'), 'riftDone() must complete when 10/10 Rift floors are cleared');
+
+  // Verify hero.js leg articulation and relaxed Dual Axes arm pose
+  const heroCode = fs.readFileSync(path.join(ROOT, 'js/hero.js'), 'utf8');
+  assert.ok(heroCode.includes('const isAxes = !!(gear.axes'), 'js/hero.js must detect Dual Axes for relaxed arm pose');
+  assert.ok(heroCode.includes('Lower shin (knee to ankle)'), 'js/hero.js leg() must render articulated knee and lower shin during running animation');
+});
+
+
 

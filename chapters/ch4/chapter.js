@@ -144,6 +144,9 @@ HM_CHAPTERS.def.ch4 = function (api) {
     function wakeBoss() {
         const b = bossDef(); if (!b) return;
         if (api.boss && api.boss.on && api.boss.t === b.t) return;
+        for (const f of api.FOES) if (f.on && f.t === b.t && !f.minion) {
+            api.boss = f; f.boss = true; return;
+        }
         const pos = findSpawnPos(b.x * TS, b.y * TS);
         api.boss = api.spawnFoe(b.t, pos[0], pos[1], false);
         if (api.boss) {
@@ -858,6 +861,11 @@ HM_CHAPTERS.def.ch4 = function (api) {
             wave = null;
         }
         if (api.boss && api.boss.on && api.boss.t !== 'valyrianlord' && !(s && s.type === 'boss' && s.boss === api.boss.t)) { api.boss.on = false; api.boss = null; }
+        if (s && s.type === 'boss' && s.zone === id && s.boss === 'viserion' && (S().c4_viserion || (S().seen && S().seen.viserion > 0))) {
+            S().c4_viserion = true;
+            complete(null, () => nkScene());
+            return;
+        }
         if (s && s.type === 'collect' && s.zone === id) spawnPicks();
         if (s && s.type === 'boss' && s.zone === id) wakeBoss();
         ensureQuestFoes();

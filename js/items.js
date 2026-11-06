@@ -170,7 +170,8 @@ window.HM_MOUNTS = {
     nightmare: { speed: 2.35, price: 2000, trample: true },
     bloodfang: { speed: 2.25, price: 1900, bite: true },
     bonecharger: { speed: 2.4, price: 2200, fly: true },
-    nightterror: { speed: 2.5, price: 0, fly: true }
+    nightterror: { speed: 2.5, price: 0, fly: true },
+    yoshi: { speed: 2.35, price: 1200, bite: true }
 };
 
 // what the chests hold (by zone:x,y); anything not listed holds coins

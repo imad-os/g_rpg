@@ -261,12 +261,15 @@ window.HM_C6_MAPS = (function () {
         rect(g, 21, 25, 23, 33, '=');
         unblock(g, [[22.5, 8.5, 'x'], [22.5, 13.5, 'x'], [22.5, 31.5, '=']]);
         put(g, [10, 7, 35, 7], 'C');
-        const foes = unblockFoes(g, opts.foes, 'x');
+        const rawFoes = opts.foes || [];
+        const bFoe = rawFoes.find(f => f.boss);
+        const foes = unblockFoes(g, rawFoes.filter(f => !f.boss), 'x');
+        const boss = bFoe ? { t: bFoe.t, x: bFoe.x, y: bFoe.y, flag: 'c6_' + bFoe.t } : undefined;
         return {
             ground: opts.ground, art: 1, music: opts.music, atmo: opts.atmo,
             spawn: [22.5, 31.5], tier: 8, rows: rows(g), props,
             npcs: [{ id: opts.princess, x: 22.5, y: 8.5 }],
-            foes,
+            foes, boss,
             exits: [
                 { x: 21, y: 33, w: 3, h: 1, to: opts.prev, tx: 22.5, ty: 2.5 },
                 { x: 38, y: 6, w: 3, h: 2, to: 'c6_village', tx: 22.5, ty: 18.5 }

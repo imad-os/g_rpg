@@ -179,6 +179,13 @@ HM_CHAPTERS.def.ch6 = function (api) {
     function wakeBoss() {
         const b = bossDef(); if (!b || !api.spawnFoe) return;
         if (api.boss && api.boss.on && api.boss.t === b.t) return;
+        if (api.FOES) {
+            for (const f of api.FOES) if (f.on && f.t === b.t && !f.minion) {
+                api.boss = f; f.boss = true;
+                if (b.t === 'bowser' && !f.phase) f.phase = 1;
+                return;
+            }
+        }
         if (S() && b.flag) S()[b.flag] = false;
         const pos = findSpawnPos(b.x * TS, b.y * TS);
         api.boss = api.spawnFoe(b.t, pos[0], pos[1], false);
