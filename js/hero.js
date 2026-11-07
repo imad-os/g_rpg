@@ -30,7 +30,10 @@ window.HM_HERO = (function () {
         sanctified_vestment: { main: '#f4ecd8', dark: '#b8a882', light: '#ffffff', kind: 'robe',  trim: '#ffd700' },
         royal_star_plate:    { main: '#ffd700', dark: '#b8860b', light: '#fff8c0', kind: 'plate', trim: '#3a78ff' },
         mushroom_tunic:      { main: '#e62222', dark: '#9e1010', light: '#ff6a6a', kind: 'leather', trim: '#2058d8' },
-        starlight_robe:      { main: '#5ad8ff', dark: '#2478a8', light: '#c8f4ff', kind: 'robe',  trim: '#ffd700' }
+        starlight_robe:      { main: '#5ad8ff', dark: '#2478a8', light: '#c8f4ff', kind: 'robe',  trim: '#ffd700' },
+        kokiri_tunic:        { main: '#249838', dark: '#145820', light: '#58d868', kind: 'leather', trim: '#8a5a2e' },
+        goron_tunic:         { main: '#c82424', dark: '#781010', light: '#ff6858', kind: 'plate', trim: '#ffd23f' },
+        zora_tunic:          { main: '#2068d8', dark: '#103880', light: '#68b8ff', kind: 'scale', trim: '#c8f4ff' }
     };
     const HEAD = {
         leather_cap:    { main: '#7a5230', dark: '#4e331c', kind: 'cap' },
@@ -44,7 +47,9 @@ window.HM_HERO = (function () {
         stark_wolfhelm: { main: '#8a96a6', dark: '#4a5260', kind: 'knight', plume: '#e8eef6' },
         shadow_ring:    { main: '#2a1a44', dark: '#160c28', kind: 'hood' },
         crimson_amulet: { main: '#e82038', dark: '#7a0c18', kind: 'cap' },
-        wing_cap_helm:  { main: '#e62222', dark: '#9e1010', kind: 'cap', wing: true }
+        wing_cap_helm:  { main: '#e62222', dark: '#9e1010', kind: 'cap', wing: true },
+        hylian_helm:    { main: '#249838', dark: '#145820', kind: 'cap' },
+        mirror_helm:    { main: '#e82828', dark: '#901414', kind: 'knight', plume: '#ffd700' }
     };
     const FEET = {
         leather_boots:    { main: '#6b4a2e', top: '#8a5f3a' },
@@ -57,12 +62,17 @@ window.HM_HERO = (function () {
         dornish_boots:    { main: '#a84424', top: '#ffb040', wing: true },
         valyrian_greaves: { main: '#4a5260', top: '#c83030', wing: true },
         dread_greaves:    { main: '#281822', top: '#b81828' },
-        plumber_boots:    { main: '#6b3e1e', top: '#8c542b', wing: true }
+        plumber_boots:    { main: '#6b3e1e', top: '#8c542b', wing: true },
+        iron_boots:       { main: '#687488', top: '#b8c4d8' },
+        hover_boots:      { main: '#d8a838', top: '#fff2b0', wing: true }
     };
     const COSTUME = {
-        mario_costume: { kind: 'plumber', cap: '#e62222', capDark: '#a01010', shirt: '#e62222', overalls: '#2058d8', overallsDark: '#143890', shoes: '#6b3e1e', emblem: '#e62222' },
-        luigi_costume: { kind: 'plumber', cap: '#22b838', capDark: '#127822', shirt: '#22b838', overalls: '#1a44b8', overallsDark: '#102b7a', shoes: '#5c3618', emblem: '#22b838' },
-        peach_costume: { kind: 'princess', dress: '#ff85c2', dressDark: '#e04088', dressLight: '#ffc2e2', crown: '#ffd700', jewel: '#2890ff', ruby: '#ff2244', hair: '#ffe048' }
+        mario_costume: { kind: 'plumber', cap: '#e62222', capDark: '#a01010', shirt: '#e62222', overalls: '#2058d8', overallsDark: '#143890', pants: '#2058d8', shoes: '#6b3e1e', emblem: '#e62222' },
+        luigi_costume: { kind: 'plumber', cap: '#22b838', capDark: '#127822', shirt: '#22b838', overalls: '#1a44b8', overallsDark: '#102b7a', pants: '#1a44b8', shoes: '#5c3618', emblem: '#22b838' },
+        peach_costume: { kind: 'princess', dress: '#ff85c2', dressDark: '#e04088', dressLight: '#ffc2e2', pants: '#e04088', shoes: '#e04088', crown: '#ffd700', jewel: '#2890ff', ruby: '#ff2244', hair: '#ffe048' },
+        link_costume:  { kind: 'hylian', cap: '#249838', capDark: '#145c20', tunic: '#249838', tunicDark: '#145c20', sleeves: '#e8dfc4', pants: '#e8dfc4', shoes: '#6b4224', hair: '#f4d046', belt: '#5a381e', buckle: '#ffd700' },
+        sheik_costume: { kind: 'sheikah', wrap: '#f0ead8', wrapDark: '#c8be9c', suit: '#1e3264', suitDark: '#121e42', pants: '#1e3264', shoes: '#d8d0be', hair: '#f4d046', emblem: '#d82828' },
+        zelda_costume: { kind: 'princess', dress: '#e888c4', dressDark: '#984898', dressLight: '#f8e8f8', pants: '#984898', shoes: '#984898', crown: '#ffd700', jewel: '#3898ff', ruby: '#ffd700', hair: '#ffe058' }
     };
 
     /* dir: 0 front (facing down), 1 back (facing up), 2 side; flip = facing left
@@ -80,9 +90,9 @@ window.HM_HERO = (function () {
         const sw = walk ? Math.sin(walk) : 0, bob = walk ? -Math.abs(Math.cos(walk)) * 1.3 : 0;
         const cos = COSTUME[gear.costume || look.costume];
         const bd = cos ? null : BODY[gear.body], hd = cos ? null : HEAD[gear.head], ft = cos ? null : FEET[gear.feet];
-        const tunic = cos ? (cos.kind === 'plumber' ? cos.shirt : cos.dress) : (bd ? bd.main : look.tunic);
-        const tdark = cos ? (cos.kind === 'plumber' ? cos.overallsDark : cos.dressDark) : (bd ? bd.dark : shade(look.tunic));
-        const tlight = cos ? (cos.kind === 'plumber' ? '#ffd23f' : cos.dressLight) : (bd ? bd.light : look.trim);
+        const tunic = cos ? (cos.kind === 'plumber' ? cos.shirt : cos.kind === 'hylian' ? cos.sleeves : cos.kind === 'sheikah' ? cos.suit : cos.dress) : (bd ? bd.main : look.tunic);
+        const tdark = cos ? (cos.kind === 'plumber' ? cos.overallsDark : cos.kind === 'hylian' ? cos.tunicDark : cos.kind === 'sheikah' ? cos.suitDark : cos.dressDark) : (bd ? bd.dark : shade(look.tunic));
+        const tlight = cos ? (cos.kind === 'plumber' ? '#ffd23f' : cos.kind === 'hylian' ? cos.buckle : cos.kind === 'sheikah' ? cos.emblem : cos.dressLight) : (bd ? bd.light : look.trim);
         const side = dir === 2, back = dir === 1;
         const wId = gear.weapon || '';
         const isAxes = !!(gear.axes || (wId && window.HM_ITEMS && window.HM_ITEMS[wId] && window.HM_ITEMS[wId].kind === 'axes') || /axes/i.test(wId));
@@ -92,8 +102,8 @@ window.HM_HERO = (function () {
         // cape behind the body (in front when seen from the back)
         if (look.cape && !back && !cos) poly4(x, -7, -26.5, 7, -26.5, side ? 3 : 9, -7, side ? -11 - sw * 2 : -9, -7, shade(look.cape));
         // legs (full 14.5px length from hip y=-14.5 to ground y=0 so running stride is clearly visible)
-        const pants = cos ? (cos.kind === 'plumber' ? cos.overalls : cos.dressDark) : look.pants;
-        const shoe = cos ? (cos.kind === 'plumber' ? cos.shoes : '#e04088') : (ft ? ft.main : look.shoes);
+        const pants = cos ? (cos.kind === 'plumber' ? cos.overalls : cos.pants || cos.dressDark) : look.pants;
+        const shoe = cos ? (cos.shoes || '#e04088') : (ft ? ft.main : look.shoes);
         const shoeTop = cos ? shoe : (ft ? ft.top : look.shoes);
         if (side) {
             leg(x, -0.8, -14.5, shade(pants), shade(shoe), shoeTop, ft, 1, -sw);
@@ -103,10 +113,29 @@ window.HM_HERO = (function () {
             leg(x, 0.7, -14.5, pants, shoe, shoeTop, ft, 0, -sw);
         }
         // the far arm (side view) goes behind the body
-        if (side) arm(x, -1 - sw * 2.2, tunic, tdark, cos ? '#ffffff' : look.skin, bd, 1, -sw, isAxes);
+        if (side) arm(x, -1 - sw * 2.2, tunic, tdark, cos && cos.kind === 'plumber' ? '#ffffff' : cos && cos.kind === 'hylian' ? '#7a4e28' : cos && cos.kind === 'sheikah' ? cos.wrap : look.skin, bd, 1, -sw, isAxes);
         // torso: balanced 13.5px upper body (from y=-27.5 to y=-14) so legs have full room below
         const tw = side ? 5.8 : 7.2;
-        if (cos && cos.kind === 'plumber') {
+        if (cos && cos.kind === 'hylian') {
+            // Iconic green Hylian Tunic with cream collar, cross-chest baldric strap, and golden buckle belt
+            poly4(x, -tw, -27.5, tw, -27.5, tw + 1.2, -13.0, -tw - 1.2, -13.0, cos.tunic);
+            rect(x, -tw - 1.2, -14.6, tw * 2 + 2.4, 1.6, cos.tunicDark);
+            if (!back) {
+                poly4(x, -2.6, -27.5, 2.6, -27.5, 0, -23.2, 0, -23.2, cos.sleeves);
+                poly4(x, -tw + 1.2, -26.8, -tw + 3.0, -26.8, tw - 0.8, -16.5, tw - 2.6, -16.5, cos.belt);
+            }
+            rect(x, -tw - 0.8, -17.2, tw * 2 + 1.6, 2.0, cos.belt);
+            rect(x, side ? 1.0 : -1.4, -17.6, 2.8, 2.8, cos.buckle);
+        } else if (cos && cos.kind === 'sheikah') {
+            // Sheikah shinobi suit with crimson Eye of Truth emblem and white waist sash
+            poly4(x, -tw, -27.5, tw, -27.5, tw + 0.8, -13.5, -tw - 0.8, -13.5, cos.suit);
+            rect(x, -tw - 0.8, -15, tw * 2 + 1.6, 1.6, cos.suitDark);
+            rect(x, -tw - 0.6, -17.0, tw * 2 + 1.2, 2.0, cos.wrap);
+            if (!back) {
+                oval(x, side ? 1.5 : 0, -22.5, 2.4, 1.6, cos.emblem);
+                oval(x, side ? 1.5 : 0, -22.5, 1.0, 1.0, cos.wrap);
+            }
+        } else if (cos && cos.kind === 'plumber') {
             // Shirt + blue overalls with straps and yellow buttons
             poly4(x, -tw, -27.5, tw, -27.5, tw + 0.8, -13.5, -tw - 0.8, -13.5, cos.shirt);
             poly4(x, -tw + 0.5, -21.5, tw - 0.5, -21.5, tw + 0.8, -13.5, -tw - 0.8, -13.5, cos.overalls);
@@ -160,7 +189,7 @@ window.HM_HERO = (function () {
             rect(x, side ? 1 : -1, -17.2, 2.2, 2.6, '#d8b04a');
         }
         // the near arm(s)
-        const handCol = cos ? '#ffffff' : look.skin;
+        const handCol = cos ? (cos.kind === 'plumber' ? '#ffffff' : cos.kind === 'hylian' ? '#7a4e28' : cos.kind === 'sheikah' ? cos.wrap : look.skin) : look.skin;
         if (side) arm(x, 1 + sw * 2.2, tunic, tdark, handCol, bd, 0, sw, isAxes);
         else { arm(x, -tw - 1.4, tunic, tdark, handCol, bd, 0, sw, isAxes); arm(x, tw + 1.4, tunic, tdark, handCol, bd, 0, -sw, isAxes); }
         // head
@@ -243,7 +272,7 @@ window.HM_HERO = (function () {
         if (look.style === 2 && !hd && !cos) oval(x, -2, hy - 4, 2.5, 1.4, '#ffffff');  // shine on a bald head
         // hair (not under a full helmet)
         const full = hd && (hd.kind === 'knight' || hd.kind === 'hood');
-        const hr = (cos && cos.kind === 'princess') ? cos.hair : (cos && cos.kind === 'plumber' ? '#5a3214' : look.hair);
+        const hr = (cos && (cos.kind === 'princess' || cos.kind === 'hylian' || cos.kind === 'sheikah')) ? cos.hair : (cos && cos.kind === 'plumber' ? '#5a3214' : look.hair);
         if (!full && (look.style !== 2 || cos)) {
             if (back) { oval(x, -Q, hy - 0.5, 7.4, 7, hr); if (look.style === 1 || (cos && cos.kind === 'princess')) rect(x, -4 - Q * 1.5, hy + 2, 8, 9, hr); if (Q) oval(x, 5.4, hy + 1.5, 1.6, 2.2, look.skin); }
             else if (side) {
@@ -253,7 +282,7 @@ window.HM_HERO = (function () {
             } else {
                 oval(x, 0, hy - 3.2, 7.6, 4.6, hr);
                 rect(x, -7.4, hy - 3, 2.4, 6, hr); rect(x, 5, hy - 3, 2.4, 6, hr);
-                if (look.style === 0 && !cos) { poly4(x, -4, hy - 4, 0, hy - 4, -1, hy - 1, -5, hy - 1.5, hr); poly4(x, 0, hy - 4, 4, hy - 4, 3.5, hy - 1.5, 1, hy - 1, hr); }
+                if (look.style === 0 || (cos && cos.kind === 'hylian')) { poly4(x, -4.5, hy - 4, 0, hy - 4, -1.2, hy - 0.5, -5.5, hy - 1, hr); poly4(x, 0, hy - 4, 4.5, hy - 4, 5.5, hy - 1, 1.2, hy - 0.5, hr); }
                 if (look.style === 4) for (let k = -2; k <= 2; k++) oval(x, k * 2.6, hy - 6, 2, 2, hr);
                 if (look.style === 1 || (cos && cos.kind === 'princess')) { rect(x, -8.4, hy - 1, 2.6, 9, hr); rect(x, 5.8, hy - 1, 2.6, 9, hr); }
             }
@@ -261,9 +290,10 @@ window.HM_HERO = (function () {
         // face
         if (!back) {
             const ey = hy + 0.5;
-            if (side) { rect(x, 3.4, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 6.4, ey + 1.5, 1.2, 1.2, shade(look.skin)); }
-            else if (Q) { rect(x, -1.2, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 3.8, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 6.6, ey + 1, 1.2, 1.4, shade(look.skin)); if (!F) { x.fillStyle = 'rgba(255,120,120,0.35)'; x.fillRect(-3, ey + 2, 2, 1.2); x.fillRect(5, ey + 2, 1.6, 1.2); } }
-            else { rect(x, -3.4, ey - 1, 1.6, 2.2, '#20182a'); rect(x, 1.8, ey - 1, 1.6, 2.2, '#20182a'); if (!F) { x.fillStyle = 'rgba(255,120,120,0.35)'; x.fillRect(-5.5, ey + 2, 2, 1.2); x.fillRect(3.5, ey + 2, 2, 1.2); } }
+            const eyeCol = (cos && cos.kind === 'sheikah') ? '#d82828' : (cos && cos.kind === 'hylian') ? '#1e4898' : '#20182a';
+            if (side) { rect(x, 3.4, ey - 1, 1.6, 2.2, eyeCol); rect(x, 6.4, ey + 1.5, 1.2, 1.2, shade(look.skin)); }
+            else if (Q) { rect(x, -1.2, ey - 1, 1.6, 2.2, eyeCol); rect(x, 3.8, ey - 1, 1.6, 2.2, eyeCol); rect(x, 6.6, ey + 1, 1.2, 1.4, shade(look.skin)); if (!F) { x.fillStyle = 'rgba(255,120,120,0.35)'; x.fillRect(-3, ey + 2, 2, 1.2); x.fillRect(5, ey + 2, 1.6, 1.2); } }
+            else { rect(x, -3.4, ey - 1, 1.6, 2.2, eyeCol); rect(x, 1.8, ey - 1, 1.6, 2.2, eyeCol); if (!F) { x.fillStyle = 'rgba(255,120,120,0.35)'; x.fillRect(-5.5, ey + 2, 2, 1.2); x.fillRect(3.5, ey + 2, 2, 1.2); } }
             if (cos && cos.kind === 'plumber') {
                 // Iconic plumber nose & mustache
                 oval(x, side ? 6.2 : 0, ey + 1.4, 2.2, 1.6, look.skin);
@@ -273,7 +303,29 @@ window.HM_HERO = (function () {
             }
         }
         if (cos) {
-            if (cos.kind === 'plumber') {
+            if (cos.kind === 'hylian') {
+                // Pointed Hylian elf ears + long Phrygian Kokiri cap trailing behind
+                if (!side) {
+                    poly4(x, -7, hy - 0.5, -11.5, hy - 2.2, -10.5, hy + 1.2, -7, hy + 1.8, look.skin);
+                    poly4(x, 7, hy - 0.5, 11.5, hy - 2.2, 10.5, hy + 1.2, 7, hy + 1.8, look.skin);
+                } else {
+                    poly4(x, -1, hy - 0.5, -5.5, hy - 2.4, -4.5, hy + 1.0, -1, hy + 1.8, look.skin);
+                }
+                oval(x, 0, hy - 4.2, 7.8, 4.4, cos.cap);
+                rect(x, -7.8, hy - 2.4, 15.6, 1.8, cos.capDark);
+                if (side) {
+                    poly4(x, -6, hy - 6.5, 4, hy - 6.5, -14.5, hy + 3.5, -11.5, hy + 5.5, cos.cap);
+                } else {
+                    poly4(x, -5.5, hy - 6.5, 5.5, hy - 6.5, 11.5, hy + 3.5, 7.0, hy + 5.0, back ? cos.cap : cos.capDark);
+                }
+            } else if (cos.kind === 'sheikah') {
+                // White Sheikah head-wrap & lower face veil
+                oval(x, 0, hy - 4.0, 8.0, 4.6, cos.wrap);
+                rect(x, -7.8, hy - 2.2, 15.6, 2.0, cos.wrapDark);
+                if (!back) {
+                    poly4(x, side ? 0 : -6.5, hy + 1.2, side ? 7.2 : 6.5, hy + 1.2, side ? 6.2 : 5.2, hy + 6.5, side ? -1 : -5.2, hy + 6.5, cos.wrap);
+                }
+            } else if (cos.kind === 'plumber') {
                 oval(x, 0, hy - 4.2, 8.2, 4.8, cos.cap);
                 rect(x, side ? -1 : -8.2, hy - 2.2, side ? 10.5 : 16.4, 2.2, cos.capDark);
                 if (!back) {

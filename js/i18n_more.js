@@ -24,7 +24,11 @@ en: {
         star_rod: 'Star Rod Blade', super_hammer: 'Ultra Star Hammer', fire_flower_staff: 'Fire Flower Staff',
         koopa_bow: 'Koopa Shell Bow', bullet_blaster: 'Bullet Bill Blasters', wing_cap_helm: 'Wing Cap Helm',
         royal_star_plate: 'Royal Star Plate', mushroom_tunic: 'Super Star Tunic', starlight_robe: 'Rosalina\'s Starlight Robe',
-        plumber_boots: 'Super Jump Boots', mario_costume: 'Mario Costume', luigi_costume: 'Luigi Costume', peach_costume: 'Princess Peach Costume'
+        plumber_boots: 'Super Jump Boots', mario_costume: 'Mario Costume', luigi_costume: 'Luigi Costume', peach_costume: 'Princess Peach Costume',
+        kokiri_sword: 'Kokiri Sword', master_sword: 'Master Sword', biggoron_sword: 'Biggoron\'s Sword', megaton_hammer: 'Megaton Hammer',
+        fairy_bow: 'Fairy Bow', sages_staff: 'Sages\' Triforce Staff', hylian_helm: 'Hero\'s Cap & Hylian Crest', mirror_helm: 'Mirror Shield Crest',
+        kokiri_tunic: 'Kokiri Tunic', goron_tunic: 'Goron Tunic', zora_tunic: 'Zora Tunic', iron_boots: 'Iron Boots', hover_boots: 'Hover Boots',
+        link_costume: 'Hero of Time Tunic', sheik_costume: 'Sheikah Garb', zelda_costume: 'Princess Zelda Gown'
     },
     zone: { barrow: 'The Barrow Crypt', mine: 'The Deep Mine' },
     boss: { knight: 'The Crypt Knight' },
@@ -83,7 +87,11 @@ fr: {
         star_rod: 'Lame Bâton Étoile', super_hammer: 'Ultra Marteau Étoile', fire_flower_staff: 'Sceptre Fleur de Feu',
         koopa_bow: 'Arc Carapace Koopa', bullet_blaster: 'Pistolets Bill Balle', wing_cap_helm: 'Casquette Ailée',
         royal_star_plate: 'Armure Étoile Royale', mushroom_tunic: 'Tunique Super Étoile', starlight_robe: 'Robe Stellaire d\'Harmonie',
-        plumber_boots: 'Bottes de Super Saut', mario_costume: 'Costume de Mario', luigi_costume: 'Costume de Luigi', peach_costume: 'Costume de Princesse Peach'
+        plumber_boots: 'Bottes de Super Saut', mario_costume: 'Costume de Mario', luigi_costume: 'Costume de Luigi', peach_costume: 'Costume de Princesse Peach',
+        kokiri_sword: 'Épée Kokiri', master_sword: 'Épée de Légende (Master Sword)', biggoron_sword: 'Épée de Biggoron', megaton_hammer: 'Masse des Titans',
+        fairy_bow: 'Arc des Fées', sages_staff: 'Sceptre de la Triforce', hylian_helm: 'Bonnet du Héros Hylien', mirror_helm: 'Blason du Bouclier Miroir',
+        kokiri_tunic: 'Tunique Kokiri', goron_tunic: 'Tunique Goron', zora_tunic: 'Tunique Zora', iron_boots: 'Bottes de Plomb', hover_boots: 'Bottes des Airs',
+        link_costume: 'Costume du Héros du Temps', sheik_costume: 'Tenue de Sheik', zelda_costume: 'Robe de la Princesse Zelda'
     },
     zone: { barrow: 'La Crypte du Tertre', mine: 'La Mine Profonde' },
     boss: { knight: 'Le Chevalier de la Crypte' },
@@ -142,7 +150,11 @@ es: {
         star_rod: 'Espada Cetro Estelar', super_hammer: 'Ultra Martillo Estelar', fire_flower_staff: 'Báculo Flor de Fuego',
         koopa_bow: 'Arco Caparazón Koopa', bullet_blaster: 'Pistolas Bill Bala', wing_cap_helm: 'Gorra Alada',
         royal_star_plate: 'Coraza Estrella Real', mushroom_tunic: 'Túnica Superestrella', starlight_robe: 'Túnica Estelar de Estela',
-        plumber_boots: 'Botas de Supersalto', mario_costume: 'Disfraz de Mario', luigi_costume: 'Disfraz de Luigi', peach_costume: 'Disfraz de Princesa Peach'
+        plumber_boots: 'Botas de Supersalto', mario_costume: 'Disfraz de Mario', luigi_costume: 'Disfraz de Luigi', peach_costume: 'Disfraz de Princesa Peach',
+        kokiri_sword: 'Espada Kokiri', master_sword: 'Espada Maestra', biggoron_sword: 'Espada de Biggoron', megaton_hammer: 'Martillo Megatón',
+        fairy_bow: 'Arco de las Hadas', sages_staff: 'Báculo de la Trifuerza', hylian_helm: 'Gorro del Héroe Hyliano', mirror_helm: 'Emblema del Escudo Espejo',
+        kokiri_tunic: 'Túnica Kokiri', goron_tunic: 'Túnica Goron', zora_tunic: 'Túnica Zora', iron_boots: 'Botas de Hierro', hover_boots: 'Botas Voladoras',
+        link_costume: 'Disfraz del Héroe del Tiempo', sheik_costume: 'Atuendo de Sheik', zelda_costume: 'Vestido de la Princesa Zelda'
     },
     zone: { barrow: 'La Cripta del Túmulo', mine: 'La Mina Profunda' },
     boss: { knight: 'El Caballero de la Cripta' },
@@ -201,7 +213,11 @@ ar: {
         star_rod: 'سيف عصا النجمة', super_hammer: 'مطرقة النجمة الخارقة', fire_flower_staff: 'عصا زهرة النار',
         koopa_bow: 'قوس صدفة كوبا', bullet_blaster: 'مسدسات بيل الرصاصة', wing_cap_helm: 'القبعة المجنحة',
         royal_star_plate: 'درع النجمة الملكية', mushroom_tunic: 'سترة النجمة الخارقة', starlight_robe: 'رداء روزالينا النجمي',
-        plumber_boots: 'حذاء القفز الخارق', mario_costume: 'زي ماريو', luigi_costume: 'زي لويجي', peach_costume: 'زي الأميرة بيتش'
+        plumber_boots: 'حذاء القفز الخارق', mario_costume: 'زي ماريو', luigi_costume: 'زي لويجي', peach_costume: 'زي الأميرة بيتش',
+        kokiri_sword: 'سيف كوكيري', master_sword: 'السيف الأسطوري (ماستر سورد)', biggoron_sword: 'سيف بيغورون العملاق', megaton_hammer: 'مطرقة الميغاتون',
+        fairy_bow: 'قوس الجنيات', sages_staff: 'عصا الترايفورس للحكماء', hylian_helm: 'قبعة بطل هيرول', mirror_helm: 'شعار درع المرآة',
+        kokiri_tunic: 'سترة كوكيري الخضراء', goron_tunic: 'سترة غورون النارية', zora_tunic: 'سترة زورا المائية', iron_boots: 'الحذاء الحديدي', hover_boots: 'الحذاء الطائر',
+        link_costume: 'زي بطل الزمن (لينك)', sheik_costume: 'زي شيك الخفي', zelda_costume: 'ثوب الأميرة زيلدا الملكي'
     },
     zone: { barrow: 'سرداب التلّ', mine: 'المنجم العميق' },
     boss: { knight: 'فارس السرداب' },

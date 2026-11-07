@@ -163,7 +163,8 @@
                  pq: {}, pqDone: [], pqOffer: {}, pet: '', petNames: {}, mounts: [], mount: '', gender: [0, 1, 0, 1],
                  seen: {}, tre: {}, rift: { best: 0, floor: 0, seed: 1, k0: 0 },
                  c5: { st: 0, c: 0, m: 0, beacons: 0, open: {}, rep: {}, gift: {}, seen: {} },
-                 c6: { st: 0, c: 0, m: 0, stars: 0, open: {}, rescued: {}, blocks: {}, switches: {}, seen: {} } };
+                 c6: { st: 0, c: 0, m: 0, stars: 0, open: {}, rescued: {}, blocks: {}, switches: {}, seen: {} },
+                 c7: { st: 0, c: 0, m: 0, stones: 0, medallions: 0, songs: {}, open: {}, rescued: {}, waterLvl: 0, seen: {} } };
     }
     // older saves: their gear (a list of names) becomes items in the bag, and Tobin's sword is never lost
     function migrate(s) {
@@ -216,6 +217,8 @@
                m === 'bonecharger' ? (T.ui.bonecharger || 'Bone Charger') :
                m === 'nightterror' ? (T.ui.nightterror || 'Night Terror') :
                m === 'yoshi' ? (T.ui.yoshi || 'Yoshi') :
+               m === 'epona' ? (T.ui.epona || 'Epona') :
+               m === 'loftwing' ? (T.ui.loftwing || 'Crimson Loftwing') :
                T.ui.wolfMount;
     }
     // hero 1 is called by the My PC profile name; hero 2 by the other player's profile name when a phone joined (cleaned: it comes from another device)
@@ -1292,6 +1295,7 @@
         const hasSave = !!MyPC.load('save', null);
         OV.items = [];
         if (hasSave) OV.items.push({ label: T.ui.cont, fn: continueGame });
+        if (isDevMod() && CHAPTERS.enabled('ch7')) OV.items.push({ label: T.ui.playCh7 || '🪈 Chapter 7: Ocarina of Time', fn: () => playChapter7() });
         if (isDevMod() && CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.playCh6 || '🍄 Chapter 6: Kingdoms of Wonder', fn: () => playChapter6() });
         if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.playCh5 || '🩸 Chapter 5: The Blood Kingdoms', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.playCh4 || '⚔ Chapter 4: A Song of Ice & Fire', fn: () => playChapter4() });
@@ -1303,6 +1307,7 @@
     }
     function confirmNew() {
         OV.items = [{ label: T.ui.no, fn: showTitle }];
+        if (isDevMod() && CHAPTERS.enabled('ch7')) OV.items.push({ label: T.ui.devJumpCh7 || '▶ Play Chapter 7 (Keep Save)', fn: () => playChapter7() });
         if (isDevMod() && CHAPTERS.enabled('ch6')) OV.items.push({ label: T.ui.devJumpCh6 || '▶ Play Chapter 6 (Keep Save)', fn: () => playChapter6() });
         if (isDevMod() && CHAPTERS.enabled('ch5')) OV.items.push({ label: T.ui.devJumpCh5 || '▶ Play Chapter 5 (Keep Save)', fn: () => playChapter5() });
         if (isDevMod() && CHAPTERS.enabled('ch4')) OV.items.push({ label: T.ui.devJumpCh4 || '▶ Play Chapter 4 (Keep Save)', fn: () => playChapter4() });
@@ -1586,8 +1591,8 @@
                     S.coins -= 65; S.mushrooms = (S.mushrooms || 0) + 1;
                     SND.fx('buy'); save(); renderList();
                 }
-            }] : []).concat((CHID === 'ch6' ? ['horse', 'wolf', 'yoshi'] : CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0).map(m => ({
-                label: mountName(m), sub: m === 'yoshi' ? (T.ui.yoshiSub || 'Friendly green dino steed whose tongue snaps at nearby foes') : m === 'horse' ? T.ui.horseSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
+            }] : []).concat((CHID === 'ch7' ? ['horse', 'wolf', 'epona', 'loftwing'] : CHID === 'ch6' ? ['horse', 'wolf', 'yoshi'] : CHID === 'ch4' ? ['horse', 'wolf', 'shadowmane', 'frostfang'] : ['horse', 'wolf']).filter(m => S.mounts.indexOf(m) < 0).map(m => ({
+                label: mountName(m), sub: m === 'epona' ? (T.ui.eponaSub || 'Legendary Hylian Mare from Lon Lon Ranch that tramples foes') : m === 'loftwing' ? (T.ui.loftwingSub || 'Sacred Crimson Loftwing skybird that soars over rivers and cliffs') : m === 'yoshi' ? (T.ui.yoshiSub || 'Friendly green dino steed whose tongue snaps at nearby foes') : m === 'horse' ? T.ui.horseSub : m === 'shadowmane' ? T.ui.shadowmaneSub : m === 'frostfang' ? T.ui.frostfangSub : T.ui.wolfSub, right: txt(T.ui.nCoins, { n: MOUNTS[m].price }), dim: S.coins < MOUNTS[m].price,
                 fn: () => {
                     if (S.coins < MOUNTS[m].price) return toast(T.ui.poor);
                     S.coins -= MOUNTS[m].price; S.mounts.push(m); S.mount = m; refreshMenu();
@@ -1631,6 +1636,9 @@
                     const isEq = curEq === cid;
                     const desc = cid === 'mario_costume' ? 'Iconic Red Cap with M emblem, Blue Overalls & White Gloves'
                         : cid === 'luigi_costume' ? 'Iconic Green Cap with L emblem, Navy Overalls & White Gloves'
+                        : cid === 'link_costume' ? 'Hero of Time Emerald Tunic, Phrygian Cap & White Tights'
+                        : cid === 'sheik_costume' ? 'Sheikah Ninja Mask, Navy Garb & Crimson Eye Emblem'
+                        : cid === 'zelda_costume' ? 'Princess of Hyrule Royal Gown, Golden Tiara & Triforce Tabard'
                         : 'Royal Pink Princess Gown, Golden Crown & Sapphire Brooch';
                     rows.push({
                         label: itemName(cid),
@@ -1704,9 +1712,9 @@
         }
         x.fillStyle = base.col; x.strokeStyle = base.col; x.lineWidth = 3;
         if (base.slot === 'costume') {
-            if (id === 'peach_costume') {
+            if (id === 'peach_costume' || id === 'zelda_costume') {
                 x.fillStyle = '#ffd23f'; x.fillRect(10, 3, 12, 4); x.fillRect(10, 1, 2, 3); x.fillRect(15, 0, 2, 4); x.fillRect(20, 1, 2, 3);
-                x.fillStyle = '#ff85c0'; x.beginPath(); x.moveTo(10, 10); x.lineTo(22, 10); x.lineTo(27, 29); x.lineTo(5, 29); x.closePath(); x.fill();
+                x.fillStyle = id === 'zelda_costume' ? '#e888c8' : '#ff85c0'; x.beginPath(); x.moveTo(10, 10); x.lineTo(22, 10); x.lineTo(27, 29); x.lineTo(5, 29); x.closePath(); x.fill();
                 x.fillStyle = '#2fa8ff'; x.fillRect(14, 12, 4, 4);
             } else {
                 x.fillStyle = base.col; x.beginPath(); x.arc(16, 11, 8, Math.PI, 0); x.fill(); x.fillRect(7, 10, 20, 3);
@@ -1979,6 +1987,8 @@
             else if (m === 'frostfang') MOUNTART.frostfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else if (m === 'bloodfang') MOUNTART.bloodfang(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
             else if (m === 'yoshi') MOUNTART.yoshi(ctx, 48, 82, 0, 2, 1, 1.42, false, 0, 0);
+            else if (m === 'epona') MOUNTART.epona(ctx, 48, 86, 0, 2, 1, 1.0, false, 0);
+            else if (m === 'loftwing') MOUNTART.loftwing(ctx, 48, 92, 6, 0, false, 7, 0.55, false);
             else HEROART.draw(ctx, 48, 88, heroLook(0), P[0].gear, 0, false, 0, 0, false, 2);
             c.ok = MOUNTART.has ? MOUNTART.has(m) : true;
         } catch (e) {}
@@ -1998,11 +2008,11 @@
         listScreen({
             title: () => T.ui.mounts, info: () => S.mount ? T.ui.riding + ': ' + mountName(S.mount) : T.ui.onFoot,
             rows: () => [{ label: T.ui.onFoot, sub: T.ui.onFootSub, img: mountIcon(''), mark: !S.mount, right: S.mount ? '' : '✓', fn: () => { if (S.mount) setMount(''); renderList(); } }]
-                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi'].map(m => {
+                .concat(['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi', 'epona', 'loftwing'].map(m => {
                     const own = S.mounts.indexOf(m) >= 0, sp = Math.round((1 + (MOUNTS[m].speed - 1) * TUNE.mountSpeed) * 100) / 100;
-                    const defaultSub = m === 'yoshi' ? 'Friendly green dino steed whose tongue snaps at nearby foes' : mountName(m);
+                    const defaultSub = m === 'epona' ? 'Legendary Hylian Mare from Lon Lon Ranch that tramples foes' : m === 'loftwing' ? 'Sacred Crimson Loftwing skybird that soars over rivers and cliffs' : m === 'yoshi' ? 'Friendly green dino steed whose tongue snaps at nearby foes' : mountName(m);
                     const sub = (T.ui[m + 'Sub'] || defaultSub) + ' · ' + T.ui.spd + ' ×' + sp;
-                    const how = T.ui[m + 'How'] || (m === 'yoshi' ? 'Unlocked in Chapter 6: Kingdoms of Wonder' : T.ui.notOwnedLong);
+                    const how = T.ui[m + 'How'] || (m === 'epona' || m === 'loftwing' ? 'Unlocked in Chapter 7: Ocarina of Time' : m === 'yoshi' ? 'Unlocked in Chapter 6: Kingdoms of Wonder' : T.ui.notOwnedLong);
                     return { label: mountName(m), sub, img: mountIcon(m), dim: !own, mark: S.mount === m,
                         right: !own ? T.ui.notOwned : S.mount === m ? '✓' : '', fn: () => { if (!own) return toast(how); if (S.mount !== m) setMount(m); renderList(); } };
                 }))
@@ -2444,11 +2454,12 @@
     function devGrantMaxGear() {
         S = prepareChapter5Save(S);
         S.lvl = 30; S.xp = 0; S.coins += 5000; S.iron += 100; S.potions = Math.max(S.potions, 15); S.big = Math.max(S.big, 10);
-        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi']) {
+        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi', 'epona', 'loftwing']) {
             if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
         }
-        if (!S.mount) S.mount = 'nightterror';
+        if (!S.mount) S.mount = 'epona';
         const maxGear = [
+            'master_sword', 'biggoron_sword', 'megaton_hammer', 'fairy_bow', 'sages_staff', 'hylian_helm', 'mirror_helm', 'kokiri_tunic', 'goron_tunic', 'zora_tunic', 'iron_boots', 'hover_boots',
             'blood_sword', 'bone_reaper', 'holy_relic', 'vampire_armor', 'nightstalker_garb', 'sanctified_vestment',
             'crimson_amulet', 'shadow_ring', 'dread_greaves',
             'winters_fang', 'stormbreaker', 'valyrian_axes', 'golden_pistols', 'valyrian_blade',
@@ -2461,14 +2472,14 @@
                 it = { u: ++S.uid, id: gid, r: 3, up: 8, b: rollBonuses(gid, 3) };
                 S.bag.push(it);
             } else if (it) { it.r = 3; it.up = 8; }
-            if (it && (gid === 'blood_sword' || gid === 'crimson_amulet' || gid === 'vampire_armor' || gid === 'dread_greaves')) {
+            if (it && (gid === 'master_sword' || gid === 'hylian_helm' || gid === 'kokiri_tunic' || gid === 'hover_boots')) {
                 S.eq[0][ITEMS[gid].slot] = it.u;
             }
         }
         recalcAll();
         for (const q of P) { q.hp = maxHp(q); q.down = false; }
         save(); refreshMenu(); SND.fx('level');
-        toast(T.ui.devMaxGear || 'Granted Lv 30, +8 Tier 7 Arsenal & All 10 Mounts!');
+        toast(T.ui.devMaxGear || 'Granted Lv 30, +8 Tier 9 Arsenal & All 13 Mounts!');
     }
 
     function prepareChapter5Save(s) {
@@ -2561,8 +2572,92 @@
         })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
     }
 
+    function prepareChapter7Save(s) {
+        s = prepareChapter6Save(s);
+        if (s.c6) { s.c6.st = 24; s.c6.stars = 6; }
+        if (!s.c7) s.c7 = { st: 0, c: 0, m: 0, stones: 0, medallions: 0, songs: { lullaby: 1, saria: 1 }, open: {}, rescued: {}, waterLvl: 0, seen: {} };
+        if (!Array.isArray(s.mounts)) s.mounts = ['horse', 'wolf'];
+        for (const m of ['epona', 'loftwing']) if (s.mounts.indexOf(m) < 0) s.mounts.push(m);
+        if (!s.mount || s.mount === 'nightmare') s.mount = 'epona';
+        if (!Array.isArray(s.costumes)) s.costumes = [[], [], [], []];
+        if (!Array.isArray(s.costumeEq)) s.costumeEq = ['', '', '', ''];
+        for (const cid of ['link_costume', 'sheik_costume', 'zelda_costume']) {
+            if (s.costumes[0].indexOf(cid) < 0) s.costumes[0].push(cid);
+        }
+        if (!s.costumeEq[0] || s.costumeEq[0] === 'mario_costume' || s.costumeEq[0] === 'luigi_costume') {
+            s.costumeEq[0] = 'link_costume';
+        }
+        if (s.lvl < 30) {
+            s.lvl = 30; s.xp = 0;
+            s.coins = Math.max(s.coins || 0, 4200);
+            s.iron = Math.max(s.iron || 0, 65);
+            s.potions = Math.max(s.potions || 0, 12);
+            s.big = Math.max(s.big || 0, 6);
+        }
+        if (!s.bag.some(it => it && (it.id === 'kokiri_sword' || it.id === 'master_sword'))) {
+            const it = { u: ++s.uid, id: 'kokiri_sword', r: 3, up: 5, b: rollBonuses('kokiri_sword', 3) };
+            s.bag.push(it);
+            s.eq[0].weapon = it.u;
+        }
+        if (!s.bag.some(it => it && it.id === 'hylian_helm')) {
+            const it = { u: ++s.uid, id: 'hylian_helm', r: 3, up: 5, b: rollBonuses('hylian_helm', 3) };
+            s.bag.push(it);
+            s.eq[0].head = it.u;
+        }
+        if (!s.bag.some(it => it && it.id === 'kokiri_tunic')) {
+            const it = { u: ++s.uid, id: 'kokiri_tunic', r: 3, up: 5, b: rollBonuses('kokiri_tunic', 3) };
+            s.bag.push(it);
+            s.eq[0].body = it.u;
+        }
+        return s;
+    }
+
+    function playChapter7(toZone, tx, ty) {
+        S = prepareChapter7Save(S);
+        const inCh7 = CHAPTERS.of(S.zone) === 'ch7';
+        const z = toZone || (inCh7 ? S.zone : 'c7_kokiri');
+        const x = tx !== undefined ? tx : (inCh7 && !toZone ? S.x : 22.5);
+        const y = ty !== undefined ? ty : (inCh7 && !toZone ? S.y : 26.5);
+        S.zone = z; S.x = x; S.y = y;
+        recalcAll(); save();
+        for (const q of P) { q.hp = maxHp(q); q.down = false; }
+        ovHide(); mode = 'fade'; fadeT = 20; fadeHold = true;
+        return enterChapter('ch7').then(() => new Promise(resolve => {
+            fadeHold = false;
+            loading(() => {
+                loadZone(z); placePlayers(x, y); toPlay(); mode = 'fade';
+                banner((T.zone && T.zone[z]) || 'Kokiri Forest');
+                if (CH.arrive) CH.arrive(z);
+                resolve();
+            });
+        })).catch(() => { fadeHold = false; toast(T.ui.loadFail); });
+    }
+
     function devTeleportScreen() {
         const allZones = [
+            // Chapter 7: The Legend of Zelda — Ocarina of Time (22 Playable Maps)
+            ['ch7', 'c7_kokiri',    22.5, 26.5, 'Ch 7 · Kokiri Forest (Home Hub)'],
+            ['ch7', 'c7_d1_deku',   22.5, 31.5, 'Ch 7 · Inside the Great Deku Tree (Queen Gohma)'],
+            ['ch7', 'c7_field',     22.5, 22.5, 'Ch 7 · Hyrule Field (Central Hub)'],
+            ['ch7', 'c7_ranch',     22.5, 28.5, 'Ch 7 · Lon Lon Ranch (Epona)'],
+            ['ch7', 'c7_castle',    22.5, 28.5, 'Ch 7 · Hyrule Castle Town & Temple of Time'],
+            ['ch7', 'c7_kakariko',  22.5, 28.5, 'Ch 7 · Kakariko Village & Graveyard'],
+            ['ch7', 'c7_trail',     22.5, 30.5, 'Ch 7 · Death Mountain Trail'],
+            ['ch7', 'c7_goron',     22.5, 28.5, 'Ch 7 · Goron City & Crater'],
+            ['ch7', 'c7_d2_dodongo',22.5, 31.5, 'Ch 7 · Dodongo\'s Cavern (King Dodongo)'],
+            ['ch7', 'c7_river',     22.5, 29.5, 'Ch 7 · Zora\'s River'],
+            ['ch7', 'c7_zora',      22.5, 28.5, 'Ch 7 · Zora\'s Domain & Fountain'],
+            ['ch7', 'c7_d3_jabu',   22.5, 31.5, 'Ch 7 · Inside Jabu-Jabu\'s Belly (Barinade)'],
+            ['ch7', 'c7_lake',      22.5, 28.5, 'Ch 7 · Lake Hylia'],
+            ['ch7', 'c7_gerudo',    22.5, 28.5, 'Ch 7 · Gerudo Valley & Fortress'],
+            ['ch7', 'c7_desert',    22.5, 28.5, 'Ch 7 · Haunted Wasteland & Desert Colossus'],
+            ['ch7', 'c7_t1_forest', 22.5, 31.5, 'Ch 7 · Forest Temple (Phantom Ganon)'],
+            ['ch7', 'c7_t2_fire',   22.5, 31.5, 'Ch 7 · Fire Temple (Volvagia)'],
+            ['ch7', 'c7_t3_water',  22.5, 31.5, 'Ch 7 · Water Temple (Morpha)'],
+            ['ch7', 'c7_t4_shadow', 22.5, 31.5, 'Ch 7 · Shadow Temple (Bongo Bongo)'],
+            ['ch7', 'c7_t5_spirit', 22.5, 31.5, 'Ch 7 · Spirit Temple (Twinrova)'],
+            ['ch7', 'c7_t6_castle', 22.5, 31.5, 'Ch 7 · Ganon\'s Castle (6 Barrier Seals)'],
+            ['ch7', 'c7_t7_tower',  22.5, 31.5, 'Ch 7 · Ganon\'s Tower Sanctum (Ganondorf / Ganon)'],
             // Chapter 6: Super Mario — Kingdoms of Wonder (19 Playable Maps)
             ['ch6', 'c6_village',      22.5, 26.5, 'Ch 6 · Mushroom Kingdom Hub Village'],
             ['ch6', 'c6_m1_fields',    22.5, 31.5, 'Ch 6 · K1-1: Mushroom Fields'],
@@ -2618,7 +2713,11 @@
                 right: (Z && Z.id === zid) ? '✓' : '▸',
                 mark: !!(Z && Z.id === zid),
                 fn: () => {
-                    if (ch === 'ch6') {
+                    if (ch === 'ch7') {
+                        S = prepareChapter7Save(S);
+                        if (S.c7) S.c7.open = { deku: true, dodongo: true, jabu: true, forest: true, fire: true, water: true, shadow: true, spirit: true, castle: true, tower: true };
+                        playChapter7(zid, zx, zy);
+                    } else if (ch === 'ch6') {
                         S = prepareChapter6Save(S);
                         if (S.c6) S.c6.open = { m: true, j: true, b: true, f: true, s: true, d: true };
                         playChapter6(zid, zx, zy);
@@ -2709,16 +2808,16 @@
     }
 
     function devMountPetScreen() {
-        const allMounts = ['yoshi', 'nightterror', 'bonecharger', 'nightmare', 'bloodfang', 'frostfang', 'shadowmane', 'charger', 'dragon', 'wolf', 'horse'];
+        const allMounts = ['epona', 'loftwing', 'yoshi', 'nightterror', 'bonecharger', 'nightmare', 'bloodfang', 'frostfang', 'shadowmane', 'charger', 'dragon', 'wolf', 'horse'];
         listScreen({
             title: () => '🐎 Mounts & Pets Switcher',
             info: () => 'Mount: ' + (S.mount ? mountName(S.mount) : 'On Foot') + ' · Pet: ' + (S.pet ? petName(S.petKind || 'cat') : 'None'),
             rows: () => [
                 { label: '🐾 Open Companion Pets & Rename Menu ▸', sub: 'Pick which pet to spawn, dismiss, or give a custom name', right: '▸', fn: petScreen },
-                { label: '🔓 Unlock All 11 Mounts & All 3 Pets', fn: () => {
+                { label: '🔓 Unlock All 13 Mounts & All 3 Pets', fn: () => {
                     for (const m of allMounts) if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
                     S.pet = '1'; if (!S.petKind) S.petKind = 'babydragon';
-                    save(); SND.fx('level'); toast('All 11 Mounts & Pets unlocked!'); renderList();
+                    save(); SND.fx('level'); toast('All 13 Mounts & Pets unlocked!'); renderList();
                 } },
                 { label: '🐾 Pet: ' + petName('cat') + ' (Cat)', mark: S.pet && S.petKind === 'cat', right: S.pet && S.petKind === 'cat' ? '✓' : '', fn: () => { setPetKind('cat'); renderList(); } },
                 { label: '🐺 Pet: ' + petName('direwolf') + ' (Direwolf)', mark: S.pet && S.petKind === 'direwolf', right: S.pet && S.petKind === 'direwolf' ? '✓' : '', fn: () => { setPetKind('direwolf'); renderList(); } },
@@ -2767,18 +2866,19 @@
             info: () => (T.ui.level || 'Lv') + ' ' + S.lvl + '  ·  ● ' + S.coins + '  ·  🍄 ' + (S.mushrooms || 0) + '  ·  ' + (CHID || 'ch1').toUpperCase(),
             rows: () => {
                 const rows = [
+                    { label: '🪈 Play Chapter 7 Now (Zelda: Ocarina of Time)', sub: 'Teleport to Kokiri Forest Hub (Keep Save & Unlock Epona + Loftwing)', fn: () => playChapter7('c7_kokiri', 22.5, 26.5) },
                     { label: '🍄 Play Chapter 6 Now (Super Mario: Kingdoms of Wonder)', sub: 'Teleport to Mushroom Kingdom Hub Village (Keep Save)', fn: () => playChapter6('c6_village', 22.5, 26.5) },
                     { label: '🍄 Activate Super Mushroom (1.5× Giant Mode) Now', sub: 'Grows active heroes to 1.5× size for 60s + grants +5 Super Mushrooms', fn: () => {
                         S.mushrooms = (S.mushrooms || 0) + 5;
                         for (const q of P) if (q.on) useMushroom(q, true);
                         closeList();
                     } },
-                    { label: '👑 Open Royal Costume Boutique (Mario, Luigi, Peach)', sub: 'Preview, buy, or equip Cosmetic Costume Overlays', right: '▸', fn: () => costumeShopScreen(0) },
+                    { label: '👑 Open Royal Costume Boutique (Link, Sheik, Zelda, Mario, Luigi, Peach)', sub: 'Preview, buy, or equip Cosmetic Costume Overlays', right: '▸', fn: () => costumeShopScreen(0) },
                     { label: '🩸 Play Chapter 5 Now (Keep Save & Complete Ch 1–4)', sub: 'Teleport to Blackthorn Village in The Blood Kingdoms', fn: () => playChapter5('c5_village', 22.5, 25.5) },
                     { label: '⚔ Play Chapter 4 Now (Keep Save & Complete Ch 1–3)', sub: 'Teleport to Riverrun in Westeros', fn: () => playChapter4('c4_river', 22.5, 25.5) },
-                    { label: '🗺 Teleport: Any Chapter (Ch 1–6) & Any Zone ▸', sub: 'Jump directly to any hub, kingdom, or boss arena', right: '▸', fn: devTeleportScreen },
-                    { label: '⚔ Gear, Costumes & Weapons Spawner (Tier 1–8 +8) ▸', sub: 'Spawn & equip Star Rod, Super Hammer, Costumes, Vampire Armor, etc.', right: '▸', fn: devGearScreen },
-                    { label: '🐎 Mounts & Pets Switcher (All 10 Mounts & 3 Pets) ▸', sub: 'Ride Night Terror, Bone Charger, Nightmare, Bloodfang, or switch Pets', right: '▸', fn: devMountPetScreen },
+                    { label: '🗺 Teleport: Any Chapter (Ch 1–7) & Any Zone ▸', sub: 'Jump directly to any hub, temple, kingdom, or boss arena', right: '▸', fn: devTeleportScreen },
+                    { label: '⚔ Gear, Costumes & Weapons Spawner (Tier 1–9 +8) ▸', sub: 'Spawn & equip Master Sword, Biggoron Sword, Megaton Hammer, Fairy Bow, etc.', right: '▸', fn: devGearScreen },
+                    { label: '🐎 Mounts & Pets Switcher (All 13 Mounts & 3 Pets) ▸', sub: 'Ride Epona, Crimson Loftwing, Yoshi, Night Terror, or switch Pets', right: '▸', fn: devMountPetScreen },
                     { label: T.ui.devMaxGear || '★ Instant Max Loadout (Lv 30, +8 Gear, All Mounts)', fn: () => { devGrantMaxGear(); renderList(); } },
                     { label: '💰 +5,000 Coins, +100 Iron, +10 Potions & +5 Mushrooms', fn: () => {
                         S.coins += 5000; S.iron += 100; S.potions += 10; S.big += 5; S.mushrooms = (S.mushrooms || 0) + 5;
@@ -2916,7 +3016,7 @@
         hurt, hitFoe, petHurt, dist, moveEnt, chase, leash, wander, nearest, activate, showBoss, hideBoss, music, minions, maxHp,
         loadZone, placePlayers, changeZone, travel, startFade, addStatic, solidAt, codeAt, openTiles, ahead, frontX, frontY,
         forgeScreen, potionScreen, costumeShopScreen, listScreen, closeList, qState, qDef, hop, exitTo, nearestPick, npcName, heroName, setGender, setCloth, setPetKind, shareStory, itemName,
-        scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, playChapter6, prepareChapter6Save, potion: () => drink(false),
+        scene, setMount, riding, objective, score: () => score(), zoneTier, aimAt, atmoStart, bomb, drawHeld, feetSolid, glow: glowSprite, enterChapter, playChapter6, prepareChapter6Save, playChapter7, prepareChapter7Save, potion: () => drink(false),
         makeItem, itemLabel, drawFoeBody, coopMul, get tier() { return fxLevel(); }
     };
 
@@ -2985,11 +3085,13 @@
     }
     const MOUNT_ANIM = { on: false, kind: 8, state: '', mount: '', x: 0, y: 0, sy: 0, tx: 0, ty: 0, t: 0, maxT: 0, walk: 0, dir: 2, fx: 1, moving: false };
     function isWolfMount(m) { return m === 'wolf' || m === 'frostfang' || m === 'bloodfang'; }
-    function isDrakeMount(m) { return m === 'dragon' || m === 'nightterror'; }
+    function isDrakeMount(m) { return m === 'dragon' || m === 'nightterror' || m === 'loftwing'; }
     function isFlyMount(m) { return !!(m && MOUNTS[m] && MOUNTS[m].fly); }
     function playMountCry(m) {
         if (!m) return;
         if (m === 'yoshi') SND.fx('yoshiMount');
+        else if (m === 'epona') SND.fx('eponaNeigh');
+        else if (m === 'loftwing') SND.fx('loftwingCry');
         else if (isWolfMount(m)) SND.fx('wolfHowl');
         else if (isDrakeMount(m)) SND.fx('dragonRoar');
         else if (m === 'bonecharger') { SND.fx('spectralNeigh'); SND.fx('boneRattle'); }
@@ -3000,6 +3102,8 @@
     function playMountAmbient(m) {
         if (!m) return;
         if (m === 'yoshi') SND.fx('yoshiMount');
+        else if (m === 'epona') SND.fx(Math.random() < 0.45 ? 'eponaNeigh' : 'horseSnort');
+        else if (m === 'loftwing') SND.fx('loftwingCry');
         else if (isWolfMount(m)) SND.fx(Math.random() < 0.35 ? 'wolfHowl' : 'wolfGrowl');
         else if (isDrakeMount(m)) SND.fx('dragonGrowl');
         else if (m === 'bonecharger') SND.fx('boneRattle');
@@ -4920,15 +5024,18 @@
     }
     function drawMountSprite(mt, x, y, walk, mdir, mfx, moving, tMount, biteF) {
         const horse = mt === 'horse', charger = mt === 'charger', bonecharger = mt === 'bonecharger',
-            shadow = mt === 'shadowmane', nightmare = mt === 'nightmare',
+            shadow = mt === 'shadowmane', nightmare = mt === 'nightmare', eponaM = mt === 'epona',
             ffang = mt === 'frostfang', bfang = mt === 'bloodfang', yoshiM = mt === 'yoshi',
+            loftM = mt === 'loftwing',
             dragon = mt === 'dragon' && MOUNTART.hasDragon, nightt = mt === 'nightterror' && MOUNTART.hasDragon;
-        const isWingedHorse = charger || bonecharger, isDrake = dragon || nightt;
+        const isWingedHorse = charger || bonecharger, isDrake = dragon || nightt || loftM;
         const fly = isDrake || isWingedHorse, z = fly ? (isWingedHorse ? 20 : 24) + Math.sin(tMount * 0.06) * 3 : 0;
         if (charger) MOUNTART.charger(ctx, x, y, z, walk, mdir, mfx, 1.18, moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff'));
         else if (bonecharger) MOUNTART.bonecharger(ctx, x, y, z, walk, mdir, mfx, 1.06, moving, tMount, heroLv() === 'low' ? null : glowSprite('#54e8a0'));
+        else if (loftM) MOUNTART.loftwing(ctx, x, y, z, mdir, mfx < 0, tMount, 0.58, false);
         else if (dragon) MOUNTART.dragon(ctx, x, y, z, mdir, mfx < 0, tMount, 0.6, false);
         else if (nightt) MOUNTART.nightterror(ctx, x, y, z, mdir, mfx < 0, tMount, 0.6, false);
+        else if (eponaM) MOUNTART.epona(ctx, x, y, walk, mdir, mfx, 1.36, moving, tMount);
         else if (shadow) MOUNTART.shadowmane(ctx, x, y, walk, mdir, mfx, 1.36, moving, tMount);
         else if (nightmare) MOUNTART.nightmare(ctx, x, y, walk, mdir, mfx, 1.38, moving, tMount);
         else if (ffang) MOUNTART.frostfang(ctx, x, y, walk, mdir, mfx, 1.22, moving, tMount, biteF);
@@ -4967,10 +5074,11 @@
         // mounts are seen from the front or the back when going straight down or up, from the side otherwise
         const mdir = dir === 0 || dir === 1 ? dir : 2, mt = ride ? S.mount : '';
         const horse = mt === 'horse', charger = mt === 'charger', bonecharger = mt === 'bonecharger',
-            shadow = mt === 'shadowmane', nightmare = mt === 'nightmare',
+            shadow = mt === 'shadowmane', nightmare = mt === 'nightmare', eponaM = mt === 'epona',
             ffang = mt === 'frostfang', bfang = mt === 'bloodfang', yoshiM = mt === 'yoshi',
+            loftM = mt === 'loftwing',
             dragon = mt === 'dragon' && MOUNTART.hasDragon, nightt = mt === 'nightterror' && MOUNTART.hasDragon;
-        const isSteed = horse || shadow || nightmare, isWingedHorse = charger || bonecharger, isDrake = dragon || nightt;
+        const isSteed = horse || shadow || nightmare || eponaM, isWingedHorse = charger || bonecharger, isDrake = dragon || nightt || loftM;
         const fly = isDrake || isWingedHorse, z = fly ? (isWingedHorse ? 20 : 24) + Math.sin(tick * 0.06 + p.i) * 3 : 0;
         const jz = p.jumpZ || 0;
         if (jz > 1 && !ride) {
@@ -4982,7 +5090,7 @@
         const hy = (bonecharger ? y - z - (mdir === 2 ? 32 : mdir === 1 ? 36 : 38)
             : charger ? y - z - (mdir === 2 ? 30 : mdir === 1 ? 34 : 36)
             : isDrake ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
-            : (shadow || nightmare) ? y - (mdir !== 2 ? 40 : 36)
+            : (shadow || nightmare || eponaM) ? y - (mdir !== 2 ? 40 : 36)
             : horse && mdir !== 2 ? y - 36
             : yoshiM ? y - (mdir === 2 ? 14 : mdir === 1 ? 16 : 15) - rideBob
             : ride ? y - (horse ? (MOUNTART.ready ? 33 : 29) : 19) - rideBob : y) - jz, lean = p.lean / 8;
@@ -4995,8 +5103,10 @@
         const tMount = tick + p.i * 5, biteF = p.bite > 38 ? 1 : 0;
         if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 1.18, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
         else if (bonecharger) { MOUNTART.bonecharger(ctx, x, y, z, p.walk, mdir, mfx, 1.06, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#54e8a0')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#7affb8' : '#329678', 2, 0); }
+        else if (loftM) { MOUNTART.loftwing(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.58, false); if (p.moving && (tick & 5) === 0 && heroLv() !== 'low') part(x - p.ax * 38, y - z - 24, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 20, tick & 4 ? '#ffd700' : '#ff4838', 2.2, 0); }
         else if (dragon) { MOUNTART.dragon(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.6, false); if (p.moving && (tick & 7) === 0) part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 18, '#ffffff', 2, 0); }
         else if (nightt) { MOUNTART.nightterror(ctx, x, y, z, mdir, (p.lfx || 1) < 0, tMount, 0.6, false); if (p.moving && (tick & 5) === 0 && heroLv() !== 'low') part(x - p.ax * 40, y - z - 26, 4, -p.ax * 0.6, -p.ay * 0.4, 0, 20, tick & 4 ? '#e81e4a' : '#4e247a', 2.2, 0); }
+        else if (eponaM) MOUNTART.epona(ctx, x, y, p.walk, mdir, mfx, 1.36, p.moving, tMount);
         else if (shadow) MOUNTART.shadowmane(ctx, x, y, p.walk, mdir, mfx, 1.36, p.moving, tMount);
         else if (nightmare) { MOUNTART.nightmare(ctx, x, y, p.walk, mdir, mfx, 1.38, p.moving, tMount); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 18, y - 4, 2, -p.ax * 0.4, -0.4, 0.4, 18, tick & 4 ? '#ff9a20' : '#ff2a18', 2, 0); }
         else if (ffang) MOUNTART.frostfang(ctx, x, y, p.walk, mdir, mfx, 1.22, p.moving, tMount, biteF);
@@ -5697,7 +5807,7 @@
     };
 
     if (/[?&]debug\b/.test(location.search)) window.__HM = { get S() { return S; }, P, Z, FOES, get mode() { return mode; }, get boss() { return boss; },
-        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, toggleMount, MOUNT_ANIM, playMountCry, playMountAmbient, playMountStep, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, playChapter6, prepareChapter6Save, useMushroom, dropMushroom, costumeShopScreen, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT };
+        talk, act, gesture, ability, SET, TUNE, solidAt, interact, spawnFoe, setMount, toggleMount, MOUNT_ANIM, playMountCry, playMountAmbient, playMountStep, setPetKind, setPetName, petName, petScreen, renamePetScreen, setCloth, ovHide, toPlay, showTitle, hud, closeDlg, mountScreen, settingsScreen, equipScreen, showJournal, devScreen, isDevMod, playChapter4, prepareChapter4Save, playChapter5, prepareChapter5Save, playChapter6, prepareChapter6Save, playChapter7, prepareChapter7Save, useMushroom, dropMushroom, costumeShopScreen, devGrantMaxGear, attack, shot, get CH() { return CH; }, changeZone, loadZone, placePlayers, update, draw, stopLoop, startLoop, recalcAll, giveItem, DROPS, PET, riftFloor, get riftClear() { return riftClear; }, objective: () => objective(L), target: () => target() && GT, GT };
 
     /* ------------------------------------------------------------------ lifecycle */
 

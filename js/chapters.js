@@ -18,7 +18,9 @@ window.HM_CHAPTERS = (function () {
         ch5: { data: { HM_C5_QUESTS: 'chapters/ch5/quests.json' }, files: ['chapters/ch5/text.js', 'chapters/ch5/maps.js', 'chapters/ch5/art.js', 'chapters/ch5/chapter.js'], home: 'c5_village',
                globals: ['HM_C5_QUESTS', 'HM_C5_MAPS', 'HM_C5_ART', 'HM_C5_POOL', 'HM_C5_TEXT'] },
         ch6: { data: { HM_C6_QUESTS: 'chapters/ch6/quests.json' }, files: ['chapters/ch6/text.js', 'chapters/ch6/maps.js', 'chapters/ch6/art.js', 'chapters/ch6/chapter.js'], home: 'c6_village',
-               globals: ['HM_C6_QUESTS', 'HM_C6_MAPS', 'HM_C6_ART', 'HM_C6_POOL', 'HM_C6_TEXT'] }
+               globals: ['HM_C6_QUESTS', 'HM_C6_MAPS', 'HM_C6_ART', 'HM_C6_POOL', 'HM_C6_TEXT'] },
+        ch7: { data: { HM_C7_QUESTS: 'chapters/ch7/quests.json' }, files: ['chapters/ch7/text.js', 'chapters/ch7/maps.js', 'chapters/ch7/art.js', 'chapters/ch7/chapter.js'], home: 'c7_kokiri',
+               globals: ['HM_C7_QUESTS', 'HM_C7_MAPS', 'HM_C7_ART', 'HM_C7_POOL', 'HM_C7_TEXT'] }
     };
     const def = {}, loaded = {}, tags = {};
 

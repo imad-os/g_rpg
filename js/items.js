@@ -100,13 +100,30 @@ window.HM_ITEMS = {
     mushroom_tunic:      { slot: 'body', role: 'light',  tier: 8, def: 10, atk: 9, crit: 12, spd: 0.14, atkSpd: 0.20, price: 3300, col: '#e62222', col2: '#2058d8' },
     starlight_robe:      { slot: 'body', role: 'mystic', tier: 8, def: 9,  hp: 16, mag: 0.40, spd: 0.10, price: 3250, col: '#5ad8ff', col2: '#ffd700' },
     plumber_boots:       { slot: 'feet', role: 'light',  tier: 8, def: 5,  atk: 5, crit: 6,  spd: 0.28, atkSpd: 0.12, price: 2100, col: '#6b3e1e', col2: '#ffd23f' },
-    // Cosmetic Costumes (Chapter 6 Costume Overlay slot: visual-only, zero combat stats)
+    // Cosmetic Costumes (Chapter 6 & 7 Costume Overlay slot: visual-only, zero combat stats)
     mario_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 800, cosmetic: true, col: '#e62222', col2: '#2058d8' },
     luigi_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 800, cosmetic: true, col: '#22b838', col2: '#1a44b8' },
-    peach_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 950, cosmetic: true, col: '#ff85c2', col2: '#ffd700' }
+    peach_costume:       { slot: 'costume', tier: 8, def: 0, atk: 0, spd: 0, price: 950, cosmetic: true, col: '#ff85c2', col2: '#ffd700' },
+    // chapter 7 (The Legend of Zelda: Ocarina of Time): Tier 9 Hylian weapons, Tunics, Boots & Costumes
+    kokiri_sword:        { slot: 'weapon', tier: 9, kind: 'sword',   atk: 38, cd: 16, price: 3400, col: '#d8e8f8', col2: '#288a38' },
+    master_sword:        { slot: 'weapon', tier: 9, kind: 'sword',   atk: 46, cd: 15, price: 4200, super: 1, fx: 'wave',     col: '#b8e8ff', col2: '#3858c8' },
+    biggoron_sword:      { slot: 'weapon', tier: 9, kind: 'sword',   atk: 54, cd: 18, price: 4800, super: 1, fx: 'whirl',    col: '#f0f6ff', col2: '#c89828' },
+    megaton_hammer:      { slot: 'weapon', tier: 9, kind: 'hammer',  atk: 56, cd: 23, price: 4500, super: 1, fx: 'thunder',  col: '#b87838', col2: '#5c3818' },
+    fairy_bow:           { slot: 'weapon', tier: 9, kind: 'bow',     atk: 34, cd: 17, price: 3900, super: 1, fx: 'leaf',     col: '#d8a848', col2: '#e8ffe0' },
+    sages_staff:         { slot: 'weapon', tier: 9, kind: 'staff',   atk: 42, cd: 17, price: 4100, super: 1, fx: 'holyburn', col: '#ffd700', col2: '#3868d8' },
+    hylian_helm:         { slot: 'head', role: 'light',  tier: 9, def: 9,  atk: 8, crit: 12, spd: 0.14, atkSpd: 0.14, price: 2800, col: '#249838', col2: '#ffd700' },
+    mirror_helm:         { slot: 'head', role: 'heavy',  tier: 9, def: 13, hp: 24, spd: -0.02, atkSpd: -0.04, price: 3100, col: '#e82828', col2: '#f0f6ff' },
+    kokiri_tunic:        { slot: 'body', role: 'light',  tier: 9, def: 13, atk: 11, crit: 14, spd: 0.16, atkSpd: 0.22, price: 3800, col: '#249838', col2: '#8a5a2e' },
+    goron_tunic:         { slot: 'body', role: 'heavy',  tier: 9, def: 24, hp: 42, spd: -0.03, atkSpd: -0.10, price: 4200, col: '#c82424', col2: '#ffd23f' },
+    zora_tunic:          { slot: 'body', role: 'mystic', tier: 9, def: 12, hp: 22, mag: 0.48, spd: 0.12, price: 4000, col: '#2068d8', col2: '#7ae8ff' },
+    iron_boots:          { slot: 'feet', role: 'heavy',  tier: 9, def: 11, hp: 20, spd: -0.02, atkSpd: -0.04, price: 2700, col: '#687488', col2: '#b8c4d8' },
+    hover_boots:         { slot: 'feet', role: 'light',  tier: 9, def: 7,  atk: 7, crit: 8,  spd: 0.32, atkSpd: 0.14, price: 2900, col: '#d8a838', col2: '#ffffff' },
+    link_costume:        { slot: 'costume', tier: 9, def: 0, atk: 0, spd: 0, price: 950,  cosmetic: true, col: '#249838', col2: '#e8d8a8' },
+    sheik_costume:       { slot: 'costume', tier: 9, def: 0, atk: 0, spd: 0, price: 950,  cosmetic: true, col: '#243c78', col2: '#f0e8d8' },
+    zelda_costume:       { slot: 'costume', tier: 9, def: 0, atk: 0, spd: 0, price: 1100, cosmetic: true, col: '#e878b8', col2: '#ffd700' }
 };
 window.HM_SLOTS = ['weapon', 'head', 'body', 'feet', 'costume'];
-window.HM_COSTUMES = ['mario_costume', 'luigi_costume', 'peach_costume'];
+window.HM_COSTUMES = ['mario_costume', 'luigi_costume', 'peach_costume', 'link_costume', 'sheik_costume', 'zelda_costume'];
 
 /* Loot. Every piece of gear you own is its own item: { u: id, id: base item, r: rarity, up: +0..+8, b: [[bonus, value]] }
  * Rarity 0 common, 1 rare (1 bonus), 2 epic (2 bonuses), 3 legendary (3 bonuses).
@@ -122,7 +139,9 @@ window.HM_LOOT = {
     oreDrop: { mite: 0.15, bones: 0.1, sentinel: 1, knight: 1, stonebrute: 0.4, yeti: 0.3, riftborn: 1, hollowsoldier: 0.12, cryptbones: 0.12,
                wight: 0.15, whitewalker: 0.45, giant: 0.5, firewyrm: 0.45, icespider: 0.2, shadow: 0.25, kraken: 1, viserion: 1, nightking: 1,
                blood_bat: 0.15, vampire_thrall: 0.2, vampire_knight: 0.5, flesh_golem: 0.6, dracula: 1, carmilla: 1, orlok: 1, undying_king: 1,
-               goomba: 0.15, koopa: 0.2, bobomb: 0.3, dry_bones: 0.25, hammer_bro: 0.4, chain_chomp: 0.5, king_bobomb: 1, petey_piranha: 1, king_boo: 1, kamek: 1, bowser_jr: 1, bowser: 1 },
+               goomba: 0.15, koopa: 0.2, bobomb: 0.3, dry_bones: 0.25, hammer_bro: 0.4, chain_chomp: 0.5, king_bobomb: 1, petey_piranha: 1, king_boo: 1, kamek: 1, bowser_jr: 1, bowser: 1,
+               deku_baba: 0.15, skulltula: 0.2, lizalfos: 0.35, dodongo: 0.4, stalfos: 0.45, redead: 0.35, dark_link: 1, iron_knuckle: 0.75,
+               gohma: 1, king_dodongo: 1, barinade: 1, phantom_ganon: 1, volvagia: 1, morpha: 1, bongo_bongo: 1, twinrova: 1, ganondorf: 1 },
     bagSize: 48,
     maxUp: 8
 };
@@ -132,9 +151,10 @@ window.HM_SHOPS = {
     forge: ['steel_sword', 'knight_blade', 'hunter_bow', 'long_bow', 'flintlock', 'musket', 'oak_staff', 'ember_staff', 'star_staff', 'mage_robe',
             'leather_cap', 'mystic_hood', 'iron_helm', 'knight_helm', 'padded_vest', 'chainmail', 'plate_armor',
             'leather_boots', 'swift_boots', 'silk_shoes', 'iron_greaves', 'blood_sword', 'vampire_armor', 'nightstalker_garb', 'sanctified_vestment', 'dread_greaves',
-            'star_rod', 'super_hammer', 'fire_flower_staff', 'koopa_bow', 'bullet_blaster', 'wing_cap_helm', 'royal_star_plate', 'mushroom_tunic', 'starlight_robe', 'plumber_boots'],
+            'star_rod', 'super_hammer', 'fire_flower_staff', 'koopa_bow', 'bullet_blaster', 'wing_cap_helm', 'royal_star_plate', 'mushroom_tunic', 'starlight_robe', 'plumber_boots',
+            'kokiri_sword', 'master_sword', 'biggoron_sword', 'megaton_hammer', 'fairy_bow', 'sages_staff', 'hylian_helm', 'mirror_helm', 'kokiri_tunic', 'goron_tunic', 'zora_tunic', 'iron_boots', 'hover_boots'],
     potions: [{ id: 'small', price: 8, heal: 8 }, { id: 'big', price: 20, heal: 99 }],
-    costumes: ['mario_costume', 'luigi_costume', 'peach_costume']
+    costumes: ['mario_costume', 'luigi_costume', 'peach_costume', 'link_costume', 'sheik_costume', 'zelda_costume']
 };
 
 /* Side quests. All optional, all repeatable to finish (foes come back when you re-enter an area).
@@ -160,6 +180,7 @@ window.HM_QUESTS = [
 // the Hollow Charger (chapter 3, from the Hollow King): a ghostly winged steed of the Veil, the fastest of all, and it flies
 // Shadowmane & Frostfang (chapter 4)
 // Nightmare Steed, Bloodfang, Bone Charger, Night Terror (chapter 5)
+// Yoshi (chapter 6), Epona & Crimson Loftwing (chapter 7)
 window.HM_MOUNTS = {
     horse: { speed: 1.75, price: 700 },
     wolf: { speed: 1.5, price: 900, bite: true },
@@ -171,7 +192,9 @@ window.HM_MOUNTS = {
     bloodfang: { speed: 2.25, price: 1900, bite: true },
     bonecharger: { speed: 2.4, price: 2200, fly: true },
     nightterror: { speed: 2.5, price: 0, fly: true },
-    yoshi: { speed: 2.35, price: 1200, bite: true }
+    yoshi: { speed: 2.35, price: 1200, bite: true },
+    epona: { speed: 2.38, price: 1600, trample: true },
+    loftwing: { speed: 2.48, price: 2000, fly: true }
 };
 
 // what the chests hold (by zone:x,y); anything not listed holds coins

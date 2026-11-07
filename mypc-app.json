@@ -2,11 +2,11 @@
   "mypc": 1,
   "id": "hollowmere-lantern-road",
   "name": "Hollowmere",
-  "description": "A 2.5D co-op RPG in chapters: The Lantern Road, The Sunken Lantern, The Veilscar Frontier, A Song of Ice & Fire, The Blood Kingdoms, and Super Mario: Kingdoms of Wonder.",
+  "description": "A 2.5D co-op RPG in chapters: The Lantern Road, The Sunken Lantern, The Veilscar Frontier, A Song of Ice & Fire, The Blood Kingdoms, Super Mario: Kingdoms of Wonder, and The Legend of Zelda: Ocarina of Time.",
   "type": "game",
   "entry": "index.html",
   "icon": "icon.svg",
-  "version": "6.0.6",
+  "version": "7.0.0",
   "scores": true,
   "config": {
     "tts": true,
@@ -21,7 +21,8 @@
       "ch3",
       "ch4",
       "ch5",
-      "ch6"
+      "ch6",
+      "ch7"
     ]
   }
 }

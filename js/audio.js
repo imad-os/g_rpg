@@ -148,8 +148,10 @@ window.HM_AUDIO = (function () {
         } catch (e) {}
     }
     function play(i, force) {
-        if (typeof i === 'string' && (i.indexOf('c5_') === 0 || i.indexOf('audio/') === 0)) {
-            const url = i === 'c5_battle' ? 'audio/soundtracks/battle.mp3' : i === 'c5_dungeon' ? 'audio/soundtracks/dangeon.mp3' : (i.indexOf('audio/') === 0 ? i : 'audio/soundtracks/theme.mp3');
+        if (typeof i === 'string' && (i.indexOf('c5_') === 0 || i.indexOf('c7_') === 0 || i.indexOf('audio/') === 0)) {
+            const isBattle = i === 'c5_battle' || i === 'c7_battle' || i.indexOf('c7_ganon') === 0;
+            const isDungeon = i === 'c5_dungeon' || i === 'c7_dungeon';
+            const url = isBattle ? 'audio/soundtracks/battle.mp3' : isDungeon ? 'audio/soundtracks/dangeon.mp3' : (i.indexOf('audio/') === 0 ? i : 'audio/soundtracks/theme.mp3');
             cur = i;
             return playTrack(url);
         }
@@ -240,6 +242,9 @@ window.HM_AUDIO = (function () {
         mountJump: () => playMountFile('mountJump', false),
         yoshiMount: () => playMountFile('yoshiMount', false),
         yoshiStep: () => playMountFile('yoshiStep', true),
+        eponaNeigh: () => playMountFile('eponaNeigh', false),
+        loftwingCry: () => playMountFile('loftwingCry', false),
+        ocarina: () => playMountFile('ocarina', false),
         // Chapter 6 (Super Mario: Kingdoms of Wonder) synthesized SFX
         jump: () => { tone(260, 620, 0.16, 'square', 0.12); },
         mushroom: () => { [262, 330, 392, 523, 392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0, 0.11, 'square', 0.12, i * 0.052)); },
@@ -269,7 +274,10 @@ window.HM_AUDIO = (function () {
         wings:         ['audio/mounts/wing_flap.ogg', 0.74],
         mountJump:     ['audio/mounts/mount_jump.ogg', 0.80],
         yoshiMount:    ['audio/mounts/yoshi_mount.ogg', 0.88],
-        yoshiStep:     ['audio/mounts/yoshi_step.ogg', 0.66]
+        yoshiStep:     ['audio/mounts/yoshi_step.ogg', 0.66],
+        eponaNeigh:    ['audio/mounts/epona_neigh.ogg', 0.88],
+        loftwingCry:   ['audio/mounts/loftwing_cry.ogg', 0.88],
+        ocarina:       ['audio/mounts/ocarina_song.ogg', 0.85]
     };
     const STEP_RATES = { hoof: 1, pawStep: 1, boneHoof: 1, wings: 1, yoshiStep: 1 };
     function playMountFile(name, varyRate) {

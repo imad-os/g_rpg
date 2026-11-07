@@ -17,7 +17,7 @@ window.HM_MOUNTART = (function () {
     const SHEETS = [
         'horse_walk', 'horse_run', 'horse_idle', 'horse_ns',
         'dragon', 'shadowmane', 'frostfang', 'nightmare',
-        'bloodfang', 'bonecharger', 'nightterror', 'wolf', 'yoshi'
+        'bloodfang', 'bonecharger', 'nightterror', 'wolf', 'yoshi', 'epona', 'loftwing'
     ];
 
     function notify() {
@@ -402,13 +402,39 @@ window.HM_MOUNTART = (function () {
         return true;
     }
 
+    // Chapter 7 Epona: Legendary Hylian Mare of Lon Lon Ranch (7 cols x 4 rows of 96x96 NESW)
+    function epona(ctx, x, y, walk, dir, fx, s, moving, t) {
+        const sheet = IMG.epona || IMG.shadowmane;
+        ctx.fillStyle = 'rgba(25,15,8,0.34)';
+        ctx.beginPath(); ctx.ellipse(x, y, (dir === 2 ? 32 : 17) * s, 6.5 * s, 0, 0, 6.2832); ctx.fill();
+        if (!sheet) return false;
+        const row = neswRow(dir, fx);
+        const col = moving ? 1 + (((walk * 1.5) | 0) % 6) : 0;
+        const ps = s * 1.02;
+        ctx.drawImage(sheet, col * LW, row * LH, LW, LH, x - (LW / 2) * ps, y - 88 * ps, LW * ps, LH * ps);
+        return true;
+    }
+
+    // Chapter 7 Crimson Loftwing: Sacred Skyloft Skybird (3 cols x 4 rows of 191x161 NESW)
+    function loftwing(ctx, x, y, z, dir, flip, t, s, flash) {
+        const sheet = IMG.loftwing || IMG.dragon;
+        if (!sheet) return false;
+        const row = dir === 1 ? 0 : dir === 0 ? 2 : flip ? 3 : 1, k = (((t || 0) / 7) | 0) % 4, col = k === 3 ? 1 : k;
+        const sh = 26 + Math.sin((t || 0) * 0.05) * 3;
+        ctx.fillStyle = 'rgba(35,12,10,0.28)'; ctx.beginPath(); ctx.ellipse(x, y, sh * s * 1.55, sh * s * 0.44, 0, 0, 6.2832); ctx.fill();
+        if (flash) ctx.globalAlpha = 0.55;
+        ctx.drawImage(sheet, col * DW, row * DH, DW, DH, x - DW / 2 * s, y - z - DH * 0.78 * s, DW * s, DH * s);
+        ctx.globalAlpha = 1;
+        return true;
+    }
+
     return {
         load, onLoad, has,
         horse, horseFB, wolf,
         dragon, charger,
         shadowmane, frostfang,
-        nightmare, bloodfang, bonecharger, nightterror, yoshi,
+        nightmare, bloodfang, bonecharger, nightterror, yoshi, epona, loftwing,
         get ready() { return !!(IMG.horse_run && IMG.dragon); },
-        get hasDragon() { return !!(IMG.dragon || IMG.nightterror); }
+        get hasDragon() { return !!(IMG.dragon || IMG.nightterror || IMG.loftwing); }
     };
 })();

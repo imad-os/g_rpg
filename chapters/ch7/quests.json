@@ -1,0 +1,4406 @@
+{
+  "about": "Hollowmere, Chapter 7: The Legend of Zelda — Ocarina of Time. 10 Acts, 120 Main Quest Steps, 22 Playable Zones, 12 Ocarina Songs, 3 Spiritual Stones, 6 Medallions, and 3-Phase Ganondorf/Ganon Final Boss.",
+  "quests": [
+    {
+      "id": "c7_q1",
+      "act": 1,
+      "title": {
+        "en": "Act I — The Boy Without a Fairy & The Great Deku Tree",
+        "fr": "Acte I — L'Enfant sans Fée & L'Arbre Mojo",
+        "es": "Acto I — El Niño sin Hada y el Gran Árbol Deku",
+        "ar": "الفصل الأول — الفتى بلا جنية وشجرة ديكو العظيمة"
+      },
+      "story": {
+        "en": "Awaken with Navi in Kokiri Forest, claim the Kokiri Sword, lift the curse inside the Great Deku Tree, and earn the Kokiri's Emerald.",
+        "fr": "Éveillez-vous avec Navi dans la Forêt Kokiri, trouvez l'Épée Kokiri et purifiez l'Arbre Mojo.",
+        "es": "Despierta con Navi en el Bosque Kokiri, obtén la Espada Kokiri y purifica el Gran Árbol Deku.",
+        "ar": "استيقظ مع الجنية نافي في غابة كوكيري واحصل على سيف كوكيري وطهّر شجرة ديكو العظيمة."
+      },
+      "steps": [
+        {
+          "id": "c7_s1_talk_kokiri",
+          "type": "talk",
+          "zone": "c7_kokiri",
+          "npc": "saria",
+          "n": 1,
+          "at": [
+            22.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Speak with Saria in Kokiri Forest to receive Navi's blessing",
+            "fr": "Parler à Saria dans la Forêt Kokiri",
+            "es": "Habla con Saria en el Bosque Kokiri",
+            "ar": "تحدث مع ساريا في غابة كوكيري"
+          },
+          "say": {
+            "who": "saria",
+            "en": [
+              "Speak with Saria in Kokiri Forest to receive Navi's blessing — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Saria dans la Forêt Kokiri — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Saria en el Bosque Kokiri — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع ساريا في غابة كوكيري — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s2_spot_kokiri",
+          "type": "interact",
+          "zone": "c7_kokiri",
+          "spots": [
+            [
+              10.5,
+              27.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            10.5,
+            27.5
+          ],
+          "goal": {
+            "en": "Commune with the Kokiri Fairy Spring in the northwest glade",
+            "fr": "Communier à la Source des Fées Kokiri",
+            "es": "Comulga en la Fuente de las Hadas Kokiri",
+            "ar": "تأمل عند نبع جنيات كوكيري"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Commune with the Kokiri Fairy Spring in the northwest glade — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Communier à la Source des Fées Kokiri — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Comulga en la Fuente de las Hadas Kokiri — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تأمل عند نبع جنيات كوكيري — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s3_spot_kokiri",
+          "type": "interact",
+          "zone": "c7_kokiri",
+          "spots": [
+            [
+              35.5,
+              16.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            35.5,
+            16.5
+          ],
+          "set": {
+            "item": "kokiri_sword"
+          },
+          "goal": {
+            "en": "Open the hidden chest in south Kokiri Forest to claim the Kokiri Sword",
+            "fr": "Ouvrir le coffre de l'Épée Kokiri",
+            "es": "Abre el cofre de la Espada Kokiri",
+            "ar": "افتح صندوق سيف كوكيري المخفي"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Open the hidden chest in south Kokiri Forest to claim the Kokiri Sword — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre de l'Épée Kokiri — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Abre el cofre de la Espada Kokiri — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "افتح صندوق سيف كوكيري المخفي — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s4_kill_kokiri",
+          "type": "kill",
+          "zone": "c7_kokiri",
+          "foes": [
+            "deku_baba"
+          ],
+          "n": 2,
+          "at": [
+            8.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Cut down 2 Deku Babas in Kokiri Forest to gather Deku Shield bark ({n}/{m})",
+            "fr": "Vaincre 2 Mojo Babas dans la Forêt Kokiri ({n}/{m})",
+            "es": "Derrota a 2 Deku Babas en el Bosque Kokiri ({n}/{m})",
+            "ar": "اقضِ على نبتتين من ديكو بابا في الغابة ({n}/{m})"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Cut down 2 Deku Babas in Kokiri Forest to gather Deku Shield bark — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre 2 Mojo Babas dans la Forêt Kokiri — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a 2 Deku Babas en el Bosque Kokiri — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اقضِ على نبتتين من ديكو بابا في الغابة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s5_talk_kokiri",
+          "type": "talk",
+          "zone": "c7_kokiri",
+          "npc": "mido",
+          "n": 1,
+          "at": [
+            33.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Show your sword and shield to Mido blocking the Great Deku Tree path",
+            "fr": "Montrer votre équipement à Mido",
+            "es": "Muestra tu espada y escudo a Mido",
+            "ar": "أظهر سيفك ودرعك لميدو لفتح الطريق"
+          },
+          "say": {
+            "who": "mido",
+            "en": [
+              "Show your sword and shield to Mido blocking the Great Deku Tree path — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Montrer votre équipement à Mido — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Muestra tu espada y escudo a Mido — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أظهر سيفك ودرعك لميدو لفتح الطريق — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s6_spot_kokiri",
+          "type": "interact",
+          "zone": "c7_kokiri",
+          "spots": [
+            [
+              10.5,
+              27.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            10.5,
+            27.5
+          ],
+          "goal": {
+            "en": "Approach the Great Deku Tree Hollow to hear the ancient spirit's summons",
+            "fr": "Approcher du creux de l'Arbre Mojo",
+            "es": "Acércate al hueco del Gran Árbol Deku",
+            "ar": "اقترب من تجويف شجرة ديكو العظيمة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Approach the Great Deku Tree Hollow to hear the ancient spirit's summons — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Approcher du creux de l'Arbre Mojo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Acércate al hueco del Gran Árbol Deku — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اقترب من تجويف شجرة ديكو العظيمة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s7_reach_d1_deku",
+          "type": "reach",
+          "zone": "c7_d1_deku",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter Inside the Great Deku Tree dungeon",
+            "fr": "Entrer dans l'Arbre Mojo",
+            "es": "Entra al interior del Gran Árbol Deku",
+            "ar": "ادخل إلى داخل شجرة ديكو العظيمة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter Inside the Great Deku Tree dungeon — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans l'Arbre Mojo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra al interior del Gran Árbol Deku — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل إلى داخل شجرة ديكو العظيمة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s8_spot_d1_deku",
+          "type": "interact",
+          "zone": "c7_d1_deku",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "goal": {
+            "en": "Open the Fairy Slingshot chest in the west chamber",
+            "fr": "Ouvrir le coffre du Lance-Pierre des Fées",
+            "es": "Abre el cofre del Tirachinas de las Hadas",
+            "ar": "افتح صندوق مقلاع الجنيات في الغرفة الغربية"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Open the Fairy Slingshot chest in the west chamber — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre du Lance-Pierre des Fées — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Abre el cofre del Tirachinas de las Hadas — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "افتح صندوق مقلاع الجنيات في الغرفة الغربية — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s9_spot_d1_deku",
+          "type": "interact",
+          "zone": "c7_d1_deku",
+          "spots": [
+            [
+              11.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            11.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Burn through the central floor cobweb with a Deku Stick torch",
+            "fr": "Brûler la toile d'araignée centrale",
+            "es": "Quema la telaraña central del suelo",
+            "ar": "احرق شبكة العنكبوت في وسط القاعة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Burn through the central floor cobweb with a Deku Stick torch — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Brûler la toile d'araignée centrale — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Quema la telaraña central del suelo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احرق شبكة العنكبوت في وسط القاعة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s10_spot_d1_deku",
+          "type": "interact",
+          "zone": "c7_d1_deku",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Solve the 2-3-1 Deku Scrub cipher door to unlock the sanctum",
+            "fr": "Résoudre l'énigme 2-3-1 des Pestes Mojo",
+            "es": "Resuelve el acertijo 2-3-1 de los Deku Scrubs",
+            "ar": "حل لغز أرقام ديكو (2-3-1) لفتح البوابة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Solve the 2-3-1 Deku Scrub cipher door to unlock the sanctum — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Résoudre l'énigme 2-3-1 des Pestes Mojo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Resuelve el acertijo 2-3-1 de los Deku Scrubs — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "حل لغز أرقام ديكو (2-3-1) لفتح البوابة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s11_boss_d1_deku",
+          "type": "boss",
+          "zone": "c7_d1_deku",
+          "boss": "gohma",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Parasitic Armored Arachnid: Queen Gohma",
+            "fr": "Vaincre la Reine Gohma",
+            "es": "Derrota a la Reina Gohma",
+            "ar": "اهزم الملكة غوما العنكبوت المدرع"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Parasitic Armored Arachnid: Queen Gohma — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre la Reine Gohma — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a la Reina Gohma — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم الملكة غوما العنكبوت المدرع — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s12_spot_d1_deku",
+          "type": "interact",
+          "zone": "c7_d1_deku",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "stones": 1,
+            "item": "kokiri_sword"
+          },
+          "goal": {
+            "en": "Claim the Kokiri's Emerald (Spiritual Stone of the Forest)",
+            "fr": "Récupérer l'Émeraude Kokiri",
+            "es": "Reclama la Esmeralda Kokiri",
+            "ar": "استلم زمردة كوكيري (حجر الغابة الروحي)"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Claim the Kokiri's Emerald (Spiritual Stone of the Forest) — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Récupérer l'Émeraude Kokiri — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reclama la Esmeralda Kokiri — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استلم زمردة كوكيري (حجر الغابة الروحي) — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q2",
+      "act": 2,
+      "title": {
+        "en": "Act II — Princess of Destiny & Melody of the Royal Family",
+        "fr": "Acte II — Princesse du Destin & Berceuse Royale",
+        "es": "Acto II — Princesa del Destino y Nana Real",
+        "ar": "الفصل الثاني — أميرة القدر وتهويدة العائلة المالكة"
+      },
+      "story": {
+        "en": "Cross Hyrule Field, visit Lon Lon Ranch to learn Epona's Song, sneak into Hyrule Castle Courtyard to meet Princess Zelda, and learn Saria's Song.",
+        "fr": "Traversez la Plaine d'Hyrule, visitez le Ranch Lon Lon et rencontrez la Princesse Zelda au Château.",
+        "es": "Cruza la Llanura de Hyrule, visita el Rancho Lon Lon y conoce a la Princesa Zelda en el Castillo.",
+        "ar": "اعبر حقل هيرول، وزر مزرعة لون لون، وقابل الأميرة زيلدا في حديقة القلعة."
+      },
+      "steps": [
+        {
+          "id": "c7_s13_talk_kokiri",
+          "type": "talk",
+          "zone": "c7_kokiri",
+          "npc": "saria",
+          "n": 1,
+          "at": [
+            22.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Bid farewell to Saria at the Kokiri Forest bridge",
+            "fr": "Faire ses adieux à Saria",
+            "es": "Despídete de Saria en el Bosque Kokiri",
+            "ar": "ودّع ساريا عند جسر غابة كوكيري"
+          },
+          "say": {
+            "who": "saria",
+            "en": [
+              "Bid farewell to Saria at the Kokiri Forest bridge — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Faire ses adieux à Saria — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despídete de Saria en el Bosque Kokiri — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ودّع ساريا عند جسر غابة كوكيري — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s14_reach_field",
+          "type": "reach",
+          "zone": "c7_field",
+          "n": 1,
+          "at": [
+            41.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Step out onto the vast plains of Hyrule Field",
+            "fr": "Entrer dans la Plaine d'Hyrule",
+            "es": "Sal a la Llanura de Hyrule",
+            "ar": "اخرج إلى سهول حقل هيرول الواسعة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Step out onto the vast plains of Hyrule Field — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans la Plaine d'Hyrule — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Sal a la Llanura de Hyrule — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اخرج إلى سهول حقل هيرول الواسعة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s15_talk_field",
+          "type": "talk",
+          "zone": "c7_field",
+          "npc": "kaepora",
+          "n": 1,
+          "at": [
+            34.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Listen to Kaepora Gaebora the Wise Owl's counsel in Hyrule Field",
+            "fr": "Écouter les conseils du hibou Kaepora Gaebora",
+            "es": "Escucha al búho sabio Kaepora Gaebora",
+            "ar": "استمع لنصيحة البومة الحكيمة كايبورا غايبورا"
+          },
+          "say": {
+            "who": "kaepora",
+            "en": [
+              "Listen to Kaepora Gaebora the Wise Owl's counsel in Hyrule Field — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Écouter les conseils du hibou Kaepora Gaebora — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Escucha al búho sabio Kaepora Gaebora — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استمع لنصيحة البومة الحكيمة كايبورا غايبورا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s16_reach_ranch",
+          "type": "reach",
+          "zone": "c7_ranch",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter Lon Lon Ranch in central Hyrule Field",
+            "fr": "Entrer au Ranch Lon Lon",
+            "es": "Entra al Rancho Lon Lon",
+            "ar": "ادخل مزرعة لون لون في وسط هيرول"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter Lon Lon Ranch in central Hyrule Field — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer au Ranch Lon Lon — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra al Rancho Lon Lon — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل مزرعة لون لون في وسط هيرول — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s17_talk_ranch",
+          "type": "talk",
+          "zone": "c7_ranch",
+          "npc": "talon",
+          "n": 1,
+          "at": [
+            11.5,
+            25.8
+          ],
+          "goal": {
+            "en": "Wake Talon in the Lon Lon Ranch Milk House",
+            "fr": "Réveiller Talon au Ranch Lon Lon",
+            "es": "Despierta a Talon en el Rancho Lon Lon",
+            "ar": "أيقظ تالون في استراحة مزرعة لون لون"
+          },
+          "say": {
+            "who": "talon",
+            "en": [
+              "Wake Talon in the Lon Lon Ranch Milk House — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Réveiller Talon au Ranch Lon Lon — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despierta a Talon en el Rancho Lon Lon — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أيقظ تالون في استراحة مزرعة لون لون — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s18_talk_ranch",
+          "type": "talk",
+          "zone": "c7_ranch",
+          "npc": "malon",
+          "n": 1,
+          "at": [
+            22.5,
+            15.5
+          ],
+          "goal": {
+            "en": "Speak with Malon in the corral by young Epona",
+            "fr": "Parler à Malon près d'Épona",
+            "es": "Habla con Malon junto a Epona",
+            "ar": "تحدث مع مالون بجانب المهرة إبونا"
+          },
+          "say": {
+            "who": "malon",
+            "en": [
+              "Speak with Malon in the corral by young Epona — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Malon près d'Épona — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Malon junto a Epona — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع مالون بجانب المهرة إبونا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s19_song_ranch",
+          "type": "interact",
+          "zone": "c7_ranch",
+          "spots": [
+            [
+              22.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            17.5
+          ],
+          "song": "epona_song",
+          "set": {
+            "song": "epona_song",
+            "mount": "epona"
+          },
+          "goal": {
+            "en": "Play Epona's Song at the Lon Lon paddock circle to bond with Epona",
+            "fr": "Jouer le Chant d'Épona dans l'enclos",
+            "es": "Toca la Canción de Epona en el corral",
+            "ar": "اعزف أغنية إبونا في الحلبة لترويض إبونا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play Epona's Song at the Lon Lon paddock circle to bond with Epona — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Chant d'Épona dans l'enclos — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Canción de Epona en el corral — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف أغنية إبونا في الحلبة لترويض إبونا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s20_reach_castle",
+          "type": "reach",
+          "zone": "c7_castle",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Journey north to Hyrule Castle Town & Courtyard",
+            "fr": "Rejoindre le Bourg d'Hyrule",
+            "es": "Viaja a la Ciudadela de Hyrule",
+            "ar": "سافر شمالاً إلى مدينة قلعة هيرول"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Journey north to Hyrule Castle Town & Courtyard — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Rejoindre le Bourg d'Hyrule — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Viaja a la Ciudadela de Hyrule — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "سافر شمالاً إلى مدينة قلعة هيرول — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s21_talk_castle",
+          "type": "talk",
+          "zone": "c7_castle",
+          "npc": "zelda",
+          "n": 1,
+          "at": [
+            11.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Speak with Princess Zelda in the Royal Courtyard garden",
+            "fr": "Parler à la Princesse Zelda dans la cour royale",
+            "es": "Habla con la Princesa Zelda en el jardín real",
+            "ar": "تحدث مع الأميرة زيلدا في حديقة القلعة الملكية"
+          },
+          "say": {
+            "who": "zelda",
+            "en": [
+              "Speak with Princess Zelda in the Royal Courtyard garden — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à la Princesse Zelda dans la cour royale — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con la Princesa Zelda en el jardín real — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع الأميرة زيلدا في حديقة القلعة الملكية — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s22_song_castle",
+          "type": "interact",
+          "zone": "c7_castle",
+          "spots": [
+            [
+              22.5,
+              11.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            11.5
+          ],
+          "song": "zelda_lullaby",
+          "set": {
+            "song": "zelda_lullaby"
+          },
+          "goal": {
+            "en": "Play Zelda's Lullaby on the Royal Courtyard Triforce Crest with Impa",
+            "fr": "Jouer la Berceuse de Zelda sur le blason royal",
+            "es": "Toca la Nana de Zelda en el emblema de la Trifuerza",
+            "ar": "اعزف تهويدة زيلدا على شعار الترايفورس الملكي"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play Zelda's Lullaby on the Royal Courtyard Triforce Crest with Impa — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer la Berceuse de Zelda sur le blason royal — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Nana de Zelda en el emblema de la Trifuerza — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف تهويدة زيلدا على شعار الترايفورس الملكي — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s23_talk_castle",
+          "type": "talk",
+          "zone": "c7_castle",
+          "npc": "impa",
+          "n": 1,
+          "at": [
+            14.5,
+            11.5
+          ],
+          "goal": {
+            "en": "Receive the Royal Letter from Impa to open Death Mountain Gate",
+            "fr": "Recevoir la Lettre Royale d'Impa",
+            "es": "Recibe la Carta Real de Impa",
+            "ar": "استلم الرسالة الملكية من إمبا"
+          },
+          "say": {
+            "who": "impa",
+            "en": [
+              "Receive the Royal Letter from Impa to open Death Mountain Gate — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Recevoir la Lettre Royale d'Impa — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Recibe la Carta Real de Impa — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استلم الرسالة الملكية من إمبا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s24_song_kokiri",
+          "type": "interact",
+          "zone": "c7_kokiri",
+          "spots": [
+            [
+              22.5,
+              6.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            6.5
+          ],
+          "song": "saria_song",
+          "set": {
+            "song": "saria_song",
+            "mount": "epona"
+          },
+          "goal": {
+            "en": "Return to Kokiri Sacred Meadow pad to learn Saria's Song",
+            "fr": "Apprendre le Chant de Saria au Bosquet Sacré",
+            "es": "Aprende la Canción de Saria en el Prado Sagrado",
+            "ar": "عد إلى مرج الغابة المقدس لتعلم أغنية ساريا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Return to Kokiri Sacred Meadow pad to learn Saria's Song — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Apprendre le Chant de Saria au Bosquet Sacré — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Aprende la Canción de Saria en el Prado Sagrado — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "عد إلى مرج الغابة المقدس لتعلم أغنية ساريا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q3",
+      "act": 3,
+      "title": {
+        "en": "Act III — The Sworn Brothers of Death Mountain",
+        "fr": "Acte III — Les Frères Jurés du Mont du Péril",
+        "es": "Acto III — Los Hermanos Jurados de la Montaña de la Muerte",
+        "ar": "الفصل الثالث — إخوة العهد في جبل الموت"
+      },
+      "story": {
+        "en": "Climb Death Mountain via Kakariko Village, cheer up Chief Darunia with Saria's Song, conquer Dodongo's Cavern, and win the Goron's Ruby.",
+        "fr": "Grimpez le Mont du Péril via Cocorico, jouez le Chant de Saria pour Darunia et triomphez de la Caverne Dodongo.",
+        "es": "Sube a la Montaña de la Muerte por Kakariko, anima a Darunia y conquista la Cueva de los Dodongos.",
+        "ar": "اصعد جبل الموت عبر قرية كاكاريكو، وافتح كهف دودونغو، واحصل على ياقوتة غورون."
+      },
+      "steps": [
+        {
+          "id": "c7_s25_reach_kakariko",
+          "type": "reach",
+          "zone": "c7_kakariko",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Travel northeast to Kakariko Village at the foot of Death Mountain",
+            "fr": "Rejoindre le Village Cocorico",
+            "es": "Viaja al pueblo de Kakariko",
+            "ar": "سافر إلى قرية كاكاريكو عند سفح جبل الموت"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Travel northeast to Kakariko Village at the foot of Death Mountain — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Rejoindre le Village Cocorico — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Viaja al pueblo de Kakariko — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "سافر إلى قرية كاكاريكو عند سفح جبل الموت — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s26_talk_kakariko",
+          "type": "talk",
+          "zone": "c7_kakariko",
+          "npc": "impa",
+          "n": 1,
+          "at": [
+            20.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Present Zelda's Royal Letter at Kakariko Village plaza",
+            "fr": "Présenter la Lettre Royale à Cocorico",
+            "es": "Presenta la Carta Real en Kakariko",
+            "ar": "قدم رسالة الأميرة زيلدا في ساحة كاكاريكو"
+          },
+          "say": {
+            "who": "impa",
+            "en": [
+              "Present Zelda's Royal Letter at Kakariko Village plaza — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Présenter la Lettre Royale à Cocorico — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Presenta la Carta Real en Kakariko — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "قدم رسالة الأميرة زيلدا في ساحة كاكاريكو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s27_song_kakariko",
+          "type": "interact",
+          "zone": "c7_kakariko",
+          "spots": [
+            [
+              22.5,
+              22.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            22.5
+          ],
+          "song": "sun_song",
+          "set": {
+            "song": "sun_song"
+          },
+          "goal": {
+            "en": "Inspect the Royal Family Tomb in Kakariko Graveyard to learn the Sun's Song",
+            "fr": "Apprendre le Chant du Soleil au Tombeau Royal",
+            "es": "Aprende la Canción del Sol en la Tumba Real",
+            "ar": "تعلم أغنية الشمس في الضريح الملكي بمقبرة كاكاريكو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Inspect the Royal Family Tomb in Kakariko Graveyard to learn the Sun's Song — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Apprendre le Chant du Soleil au Tombeau Royal — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Aprende la Canción del Sol en la Tumba Real — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تعلم أغنية الشمس في الضريح الملكي بمقبرة كاكاريكو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s28_reach_trail",
+          "type": "reach",
+          "zone": "c7_trail",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Ascend Death Mountain Trail toward Goron City",
+            "fr": "Gravir le Chemin du Péril",
+            "es": "Sube por el Sendero de la Montaña de la Muerte",
+            "ar": "اصعد ممر جبل الموت نحو مدينة غورون"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Ascend Death Mountain Trail toward Goron City — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Gravir le Chemin du Péril — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Sube por el Sendero de la Montaña de la Muerte — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اصعد ممر جبل الموت نحو مدينة غورون — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s29_reach_goron",
+          "type": "reach",
+          "zone": "c7_goron",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter Goron City carved inside the volcano",
+            "fr": "Entrer dans le Village Goron",
+            "es": "Entra en Ciudad Goron",
+            "ar": "ادخل مدينة غورون داخل البركان"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter Goron City carved inside the volcano — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Village Goron — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en Ciudad Goron — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل مدينة غورون داخل البركان — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s30_song_goron",
+          "type": "interact",
+          "zone": "c7_goron",
+          "spots": [
+            [
+              22.5,
+              7.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            7.5
+          ],
+          "goal": {
+            "en": "Play Saria's Song on Darunia's Chamber Rug to cheer up the Goron Chief",
+            "fr": "Jouer le Chant de Saria pour Darunia",
+            "es": "Toca la Canción de Saria para Darunia",
+            "ar": "اعزف أغنية ساريا لإدخال السرور على الزعيم دارونيا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play Saria's Song on Darunia's Chamber Rug to cheer up the Goron Chief — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Chant de Saria pour Darunia — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Canción de Saria para Darunia — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف أغنية ساريا لإدخال السرور على الزعيم دارونيا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s31_spot_goron",
+          "type": "interact",
+          "zone": "c7_goron",
+          "spots": [
+            [
+              22.5,
+              19.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            19.5
+          ],
+          "goal": {
+            "en": "Claim the Goron's Bracelet from the Spinning Goron Urn",
+            "fr": "Obtenir le Bracelet Goron",
+            "es": "Reclama el Brazalete Goron",
+            "ar": "احصل على سوار غورون من الجرة الدوارة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Claim the Goron's Bracelet from the Spinning Goron Urn — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Obtenir le Bracelet Goron — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reclama el Brazalete Goron — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على سوار غورون من الجرة الدوارة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s32_spot_trail",
+          "type": "interact",
+          "zone": "c7_trail",
+          "spots": [
+            [
+              33.5,
+              10.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            33.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Hurl a Bomb Flower on Death Mountain Trail to blast open Dodongo's Cavern",
+            "fr": "Faire exploser le rocher de la Caverne Dodongo",
+            "es": "Usa una Flor Bomba para abrir la Cueva de los Dodongos",
+            "ar": "فجّر صخرة كهف دودونغو بزهرة القنبلة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Hurl a Bomb Flower on Death Mountain Trail to blast open Dodongo's Cavern — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Faire exploser le rocher de la Caverne Dodongo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Usa una Flor Bomba para abrir la Cueva de los Dodongos — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "فجّر صخرة كهف دودونغو بزهرة القنبلة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s33_reach_d2_dodongo",
+          "type": "reach",
+          "zone": "c7_d2_dodongo",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter Dodongo's Cavern",
+            "fr": "Entrer dans la Caverne Dodongo",
+            "es": "Entra en la Cueva de los Dodongos",
+            "ar": "ادخل كهف دودونغو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter Dodongo's Cavern — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans la Caverne Dodongo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en la Cueva de los Dodongos — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل كهف دودونغو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s34_spot_d2_dodongo",
+          "type": "interact",
+          "zone": "c7_d2_dodongo",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Open the Goron Bomb Bag chest and light the Giant Dodongo Skull eyes",
+            "fr": "Ouvrir le coffre du Sac de Bombes",
+            "es": "Abre el cofre del Saco de Bombas",
+            "ar": "افتح صندوق حقيبة القنابل في كهف دودونغو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Open the Goron Bomb Bag chest and light the Giant Dodongo Skull eyes — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre du Sac de Bombes — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Abre el cofre del Saco de Bombas — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "افتح صندوق حقيبة القنابل في كهف دودونغو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s35_boss_d2_dodongo",
+          "type": "boss",
+          "zone": "c7_d2_dodongo",
+          "boss": "king_dodongo",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Infernal Dinosaur: King Dodongo",
+            "fr": "Vaincre le Roi Dodongo",
+            "es": "Derrota al Rey Dodongo",
+            "ar": "اهزم الديناصور الجهنمي الملك دودونغو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Infernal Dinosaur: King Dodongo — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre le Roi Dodongo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota al Rey Dodongo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم الديناصور الجهنمي الملك دودونغو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s36_spot_d2_dodongo",
+          "type": "interact",
+          "zone": "c7_d2_dodongo",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "stones": 2
+          },
+          "goal": {
+            "en": "Claim the Goron's Ruby (Spiritual Stone of Fire)",
+            "fr": "Récupérer le Rubis Goron",
+            "es": "Reclama el Rubí Goron",
+            "ar": "استلم ياقوتة غورون (حجر النار الروحي)"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Claim the Goron's Ruby (Spiritual Stone of Fire) — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Récupérer le Rubis Goron — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reclama el Rubí Goron — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استلم ياقوتة غورون (حجر النار الروحي) — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q4",
+      "act": 4,
+      "title": {
+        "en": "Act IV — The Deity of the Waters & Zora's Sapphire",
+        "fr": "Acte IV — La Divinité des Eaux & Le Saphir Zora",
+        "es": "Acto IV — La Deidad de las Aguas y el Zafiro Zora",
+        "ar": "الفصل الرابع — حارس المياه وياقوتة زورا الزرقاء"
+      },
+      "story": {
+        "en": "Part the Zora's River waterfall with Zelda's Lullaby, recover Ruto's Letter in Lake Hylia, rescue Princess Ruto inside Jabu-Jabu's Belly, and earn Zora's Sapphire.",
+        "fr": "Ouvrez la cascade de la Rivière Zora, sauvez la Princesse Ruto dans le Ventre de Jabu-Jabu et gagnez le Saphir Zora.",
+        "es": "Abre la cascada del Río Zora, rescata a la Princesa Ruto dentro de Jabu-Jabu y obtén el Zafiro Zora.",
+        "ar": "افتح شلال نهر زورا، وأنقذ الأميرة روتو داخل بطن جابو-جابو، واحصل على ياقوتة زورا الزرقاء."
+      },
+      "steps": [
+        {
+          "id": "c7_s37_reach_river",
+          "type": "reach",
+          "zone": "c7_river",
+          "n": 1,
+          "at": [
+            4.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Follow Zora's River east from Hyrule Field",
+            "fr": "Suivre la Rivière Zora",
+            "es": "Sigue el Río Zora hacia el este",
+            "ar": "اتبع نهر زورا شرق حقل هيرول"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Follow Zora's River east from Hyrule Field — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Suivre la Rivière Zora — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Sigue el Río Zora hacia el este — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اتبع نهر زورا شرق حقل هيرول — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s38_song_river",
+          "type": "interact",
+          "zone": "c7_river",
+          "spots": [
+            [
+              22.5,
+              11.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            11.5
+          ],
+          "goal": {
+            "en": "Play Zelda's Lullaby on the Zora Waterfall Crest to part the waters",
+            "fr": "Jouer la Berceuse de Zelda devant la cascade",
+            "es": "Toca la Nana de Zelda frente a la cascada",
+            "ar": "اعزف تهويدة زيلدا أمام الشلال لفتح المدخل"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play Zelda's Lullaby on the Zora Waterfall Crest to part the waters — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer la Berceuse de Zelda devant la cascade — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Nana de Zelda frente a la cascada — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف تهويدة زيلدا أمام الشلال لفتح المدخل — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s39_reach_zora",
+          "type": "reach",
+          "zone": "c7_zora",
+          "n": 1,
+          "at": [
+            4.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Enter Zora's Domain behind the cascading waterfall",
+            "fr": "Entrer dans le Domaine Zora",
+            "es": "Entra al Dominio Zora",
+            "ar": "ادخل مملكة زورا خلف الشلال"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter Zora's Domain behind the cascading waterfall — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Domaine Zora — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra al Dominio Zora — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل مملكة زورا خلف الشلال — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s40_spot_zora",
+          "type": "interact",
+          "zone": "c7_zora",
+          "spots": [
+            [
+              22.5,
+              23.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            23.5
+          ],
+          "goal": {
+            "en": "Complete the Zora Diving Waterfall trial to earn the Silver Scale",
+            "fr": "Plonger dans le bassin pour obtenir l'Écaille d'Argent",
+            "es": "Completa el salto de la cascada para ganar la Escama de Plata",
+            "ar": "أكمل تحدي الغوص في الشلال لنيل الحرشفة الفضية"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Complete the Zora Diving Waterfall trial to earn the Silver Scale — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Plonger dans le bassin pour obtenir l'Écaille d'Argent — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Completa el salto de la cascada para ganar la Escama de Plata — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أكمل تحدي الغوص في الشلال لنيل الحرشفة الفضية — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s41_spot_lake",
+          "type": "interact",
+          "zone": "c7_lake",
+          "spots": [
+            [
+              22.5,
+              20.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            20.5
+          ],
+          "goal": {
+            "en": "Dive in Lake Hylia to retrieve the Sunken Bottle containing Ruto's Letter",
+            "fr": "Plonger au Lac Hylia pour récupérer la Lettre de Ruto",
+            "es": "Bucea en el Lago Hylia para recuperar la Carta de Ruto",
+            "ar": "غُص في بحيرة هيليا لاستعادة زجاجة رسالة الأميرة روتو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Dive in Lake Hylia to retrieve the Sunken Bottle containing Ruto's Letter — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Plonger au Lac Hylia pour récupérer la Lettre de Ruto — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Bucea en el Lago Hylia para recuperar la Carta de Ruto — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "غُص في بحيرة هيليا لاستعادة زجاجة رسالة الأميرة روتو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s42_talk_zora",
+          "type": "talk",
+          "zone": "c7_zora",
+          "npc": "king_zora",
+          "n": 1,
+          "at": [
+            22.5,
+            13.5
+          ],
+          "goal": {
+            "en": "Show Ruto's Letter to King Zora XVI in Zora's Domain",
+            "fr": "Montrer la Lettre de Ruto au Roi Zora XVI",
+            "es": "Muestra la Carta de Ruto al Rey Zora XVI",
+            "ar": "أظهر رسالة روتو للملك زورا السادس عشر"
+          },
+          "say": {
+            "who": "king_zora",
+            "en": [
+              "Show Ruto's Letter to King Zora XVI in Zora's Domain — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Montrer la Lettre de Ruto au Roi Zora XVI — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Muestra la Carta de Ruto al Rey Zora XVI — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أظهر رسالة روتو للملك زورا السادس عشر — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s43_spot_zora",
+          "type": "interact",
+          "zone": "c7_zora",
+          "spots": [
+            [
+              22.5,
+              23.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            23.5
+          ],
+          "goal": {
+            "en": "Offer a sacred fish at Lord Jabu-Jabu's Feeding Dais to open his jaws",
+            "fr": "Offrir un poisson devant Jabu-Jabu",
+            "es": "Ofrece un pez ante Lord Jabu-Jabu",
+            "ar": "قدم سمكة مقدسة أمام اللورد جابو-جابو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Offer a sacred fish at Lord Jabu-Jabu's Feeding Dais to open his jaws — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Offrir un poisson devant Jabu-Jabu — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Ofrece un pez ante Lord Jabu-Jabu — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "قدم سمكة مقدسة أمام اللورد جابو-جابو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s44_reach_d3_jabu",
+          "type": "reach",
+          "zone": "c7_d3_jabu",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter Inside Jabu-Jabu's Belly",
+            "fr": "Entrer dans le Ventre de Jabu-Jabu",
+            "es": "Entra en la Tripa de Jabu-Jabu",
+            "ar": "ادخل إلى بطن جابو-جابو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter Inside Jabu-Jabu's Belly — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Ventre de Jabu-Jabu — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en la Tripa de Jabu-Jabu — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل إلى بطن جابو-جابو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s45_talk_d3_jabu",
+          "type": "talk",
+          "zone": "c7_d3_jabu",
+          "npc": "ruto",
+          "n": 1,
+          "at": [
+            22.5,
+            24.5
+          ],
+          "goal": {
+            "en": "Find Princess Ruto inside Jabu-Jabu's Belly",
+            "fr": "Trouver la Princesse Ruto dans Jabu-Jabu",
+            "es": "Encuentra a la Princesa Ruto dentro de Jabu-Jabu",
+            "ar": "اعثر على الأميرة روتو داخل بطن جابو-جابو"
+          },
+          "say": {
+            "who": "ruto",
+            "en": [
+              "Find Princess Ruto inside Jabu-Jabu's Belly — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Trouver la Princesse Ruto dans Jabu-Jabu — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Encuentra a la Princesa Ruto dentro de Jabu-Jabu — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعثر على الأميرة روتو داخل بطن جابو-جابو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s46_spot_d3_jabu",
+          "type": "interact",
+          "zone": "c7_d3_jabu",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Claim the Boomerang and sever the Parasitic Tentacle nerve",
+            "fr": "Obtenir le Boomerang et couper le tentacule",
+            "es": "Obtén el Bumerán y corta el tentáculo parásito",
+            "ar": "احصل على البوميرانغ واقطع المجس الطفيلي"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Claim the Boomerang and sever the Parasitic Tentacle nerve — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Obtenir le Boomerang et couper le tentacule — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Obtén el Bumerán y corta el tentáculo parásito — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على البوميرانغ واقطع المجس الطفيلي — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s47_boss_d3_jabu",
+          "type": "boss",
+          "zone": "c7_d3_jabu",
+          "boss": "barinade",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Bio-Electric Anemone: Barinade",
+            "fr": "Vaincre Barinade",
+            "es": "Derrota a Barinade",
+            "ar": "اهزم الوحش الكهربائي باريناد"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Bio-Electric Anemone: Barinade — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre Barinade — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a Barinade — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم الوحش الكهربائي باريناد — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s48_spot_d3_jabu",
+          "type": "interact",
+          "zone": "c7_d3_jabu",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "stones": 3
+          },
+          "goal": {
+            "en": "Receive Zora's Sapphire (Spiritual Stone of Water) from Princess Ruto",
+            "fr": "Recevoir le Saphir Zora",
+            "es": "Recibe el Zafiro Zora de la Princesa Ruto",
+            "ar": "استلم ياقوتة زورا الزرقاء من الأميرة روتو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Receive Zora's Sapphire (Spiritual Stone of Water) from Princess Ruto — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Recevoir le Saphir Zora — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Recibe el Zafiro Zora de la Princesa Ruto — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استلم ياقوتة زورا الزرقاء من الأميرة روتو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q5",
+      "act": 5,
+      "title": {
+        "en": "Act V — The Door of Time, The Master Sword & Forest Temple",
+        "fr": "Acte V — La Porte du Temps, l'Épée de Légende & Le Temple de la Forêt",
+        "es": "Acto V — La Puerta del Tiempo, la Espada Maestra y el Templo del Bosque",
+        "ar": "الفصل الخامس — بوابة الزمن والسيف الماستر ومعبد الغابة"
+      },
+      "story": {
+        "en": "Unite the Three Spiritual Stones at the Temple of Time, draw the Master Sword, awaken Rauru's Light Medallion, claim the Fairy Bow in the Forest Temple, and defeat Phantom Ganon.",
+        "fr": "Ouvrez la Porte du Temps, retirez l'Épée de Légende et libérez Saria au Temple de la Forêt.",
+        "es": "Abre la Puerta del Tiempo, empuña la Espada Maestra y libera el Templo del Bosque.",
+        "ar": "افتح بوابة الزمن، واسحب السيف الماستر، وحرر معبد الغابة من شبح غانون."
+      },
+      "steps": [
+        {
+          "id": "c7_s49_reach_castle",
+          "type": "reach",
+          "zone": "c7_castle",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Return to the Temple of Time in Hyrule Castle Town",
+            "fr": "Retourner au Temple du Temps",
+            "es": "Regresa al Templo del Tiempo",
+            "ar": "عد إلى معبد الزمن في مدينة قلعة هيرول"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Return to the Temple of Time in Hyrule Castle Town — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retourner au Temple du Temps — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Regresa al Templo del Tiempo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "عد إلى معبد الزمن في مدينة قلعة هيرول — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s50_song_castle",
+          "type": "interact",
+          "zone": "c7_castle",
+          "spots": [
+            [
+              22.5,
+              11.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            11.5
+          ],
+          "song": "song_of_time",
+          "set": {
+            "song": "song_of_time"
+          },
+          "goal": {
+            "en": "Place the 3 Spiritual Stones and play the Song of Time at the Altar",
+            "fr": "Poser les 3 Pierres Ancestrales et jouer le Chant du Temps",
+            "es": "Coloca las 3 Piedras Espirituales y toca la Canción del Tiempo",
+            "ar": "ضع الأحجار الروحية الثلاثة واعزف أغنية الزمن"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Place the 3 Spiritual Stones and play the Song of Time at the Altar — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Poser les 3 Pierres Ancestrales et jouer le Chant du Temps — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Coloca las 3 Piedras Espirituales y toca la Canción del Tiempo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ضع الأحجار الروحية الثلاثة واعزف أغنية الزمن — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s51_spot_castle",
+          "type": "interact",
+          "zone": "c7_castle",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "item": "link_costume"
+          },
+          "goal": {
+            "en": "Pull the Master Sword from the Pedestal of Time!",
+            "fr": "Retirer l'Épée de Légende du Piédestal du Temps !",
+            "es": "¡Extrae la Espada Maestra del Pedestal del Tiempo!",
+            "ar": "اسحب السيف الماستر من منصة الزمن!"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Pull the Master Sword from the Pedestal of Time! — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retirer l'Épée de Légende du Piédestal du Temps ! — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "¡Extrae la Espada Maestra del Pedestal del Tiempo! — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اسحب السيف الماستر من منصة الزمن! — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s52_talk_castle",
+          "type": "talk",
+          "zone": "c7_castle",
+          "npc": "rauru",
+          "n": 1,
+          "at": [
+            25.5,
+            9.5
+          ],
+          "goal": {
+            "en": "Speak with Rauru, Sage of Light, in the Chamber of Sages",
+            "fr": "Parler à Rauru, Sage de la Lumière",
+            "es": "Habla con Rauru, Sabio de la Luz",
+            "ar": "تحدث مع راورو حكيم النور"
+          },
+          "say": {
+            "who": "rauru",
+            "en": [
+              "Speak with Rauru, Sage of Light, in the Chamber of Sages — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Rauru, Sage de la Lumière — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Rauru, Sabio de la Luz — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع راورو حكيم النور — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s53_talk_castle",
+          "type": "talk",
+          "zone": "c7_castle",
+          "npc": "sheik",
+          "n": 1,
+          "at": [
+            22.5,
+            14.5
+          ],
+          "goal": {
+            "en": "Consult Sheik in the Temple of Time about the five remaining Sages",
+            "fr": "Consulter Sheik au Temple du Temps",
+            "es": "Consulta a Sheik en el Templo del Tiempo",
+            "ar": "تشاور مع شيك حول الحكماء الخمسة"
+          },
+          "say": {
+            "who": "sheik",
+            "en": [
+              "Consult Sheik in the Temple of Time about the five remaining Sages — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Consulter Sheik au Temple du Temps — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Consulta a Sheik en el Templo del Tiempo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تشاور مع شيك حول الحكماء الخمسة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s54_talk_kakariko",
+          "type": "talk",
+          "zone": "c7_kakariko",
+          "npc": "dampe",
+          "n": 1,
+          "at": [
+            33.5,
+            12.5
+          ],
+          "goal": {
+            "en": "Race Dampé's spirit in Kakariko Graveyard to acquire the Hookshot",
+            "fr": "Parler à Igor au Cimetière Cocorico pour obtenir le Grappin",
+            "es": "Habla con Dampé en el Cementerio para obtener el Gancho",
+            "ar": "تحدث مع دامبي في مقبرة كاكاريكو للحصول على الخطاف"
+          },
+          "say": {
+            "who": "dampe",
+            "en": [
+              "Race Dampé's spirit in Kakariko Graveyard to acquire the Hookshot — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Igor au Cimetière Cocorico pour obtenir le Grappin — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Dampé en el Cementerio para obtener el Gancho — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع دامبي في مقبرة كاكاريكو للحصول على الخطاف — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s55_song_kokiri",
+          "type": "interact",
+          "zone": "c7_kokiri",
+          "spots": [
+            [
+              35.5,
+              16.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            35.5,
+            16.5
+          ],
+          "song": "minuet_forest",
+          "set": {
+            "song": "minuet_forest"
+          },
+          "goal": {
+            "en": "Play the Minuet of Forest on the Sacred Meadow Triforce Pad",
+            "fr": "Jouer le Menuet des Bois au Bosquet Sacré",
+            "es": "Toca el Minueto del Bosque en el Prado Sagrado",
+            "ar": "اعزف لحن الغابة في المرج المقدس"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Minuet of Forest on the Sacred Meadow Triforce Pad — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Menuet des Bois au Bosquet Sacré — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca el Minueto del Bosque en el Prado Sagrado — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف لحن الغابة في المرج المقدس — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s56_reach_t1_forest",
+          "type": "reach",
+          "zone": "c7_t1_forest",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Grapple into the Forest Temple",
+            "fr": "Entrer dans le Temple de la Forêt",
+            "es": "Entra al Templo del Bosque",
+            "ar": "ادخل إلى معبد الغابة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Grapple into the Forest Temple — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Temple de la Forêt — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra al Templo del Bosque — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل إلى معبد الغابة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s57_spot_t1_forest",
+          "type": "interact",
+          "zone": "c7_t1_forest",
+          "spots": [
+            [
+              11.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            11.5,
+            17.5
+          ],
+          "set": {
+            "item": "fairy_bow"
+          },
+          "goal": {
+            "en": "Defeat the Stalfos knights and open the Fairy Bow chest",
+            "fr": "Ouvrir le coffre de l'Arc des Fées",
+            "es": "Abre el cofre del Arco de las Hadas",
+            "ar": "افتح صندوق قوس الجنيات في معبد الغابة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat the Stalfos knights and open the Fairy Bow chest — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre de l'Arc des Fées — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Abre el cofre del Arco de las Hadas — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "افتح صندوق قوس الجنيات في معبد الغابة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s58_spot_t1_forest",
+          "type": "interact",
+          "zone": "c7_t1_forest",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Extinguish the Four Poe Sisters' phantom flames to lower the elevator",
+            "fr": "Éteindre les flammes des Quatre Sœurs Poe",
+            "es": "Apaga las llamas de las Cuatro Hermanas Poe",
+            "ar": "أطفئ شعلات الأخوات الأشباح الأربع لتفعيل المصعد"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Extinguish the Four Poe Sisters' phantom flames to lower the elevator — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Éteindre les flammes des Quatre Sœurs Poe — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Apaga las llamas de las Cuatro Hermanas Poe — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أطفئ شعلات الأخوات الأشباح الأربع لتفعيل المصعد — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s59_boss_t1_forest",
+          "type": "boss",
+          "zone": "c7_t1_forest",
+          "boss": "phantom_ganon",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Evil Spirit from Beyond: Phantom Ganon",
+            "fr": "Vaincre Ganon Spectral",
+            "es": "Derrota al Ganon Fantasma",
+            "ar": "اهزم شبح غانون في معبد الغابة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Evil Spirit from Beyond: Phantom Ganon — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre Ganon Spectral — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota al Ganon Fantasma — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم شبح غانون في معبد الغابة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s60_spot_t1_forest",
+          "type": "interact",
+          "zone": "c7_t1_forest",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "medallions": 1,
+            "item": "master_sword"
+          },
+          "goal": {
+            "en": "Awaken Saria as Forest Sage and claim the Forest Medallion",
+            "fr": "Éveiller Saria et recevoir le Médaillon de la Forêt",
+            "es": "Despierta a Saria y reclama el Medallón del Bosque",
+            "ar": "أيقظ ساريا حكيمة الغابة واستلم ميدالية الغابة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Awaken Saria as Forest Sage and claim the Forest Medallion — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Éveiller Saria et recevoir le Médaillon de la Forêt — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despierta a Saria y reclama el Medallón del Bosque — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أيقظ ساريا حكيمة الغابة واستلم ميدالية الغابة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q6",
+      "act": 6,
+      "title": {
+        "en": "Act VI — The Subterranean Dragon & The Fire Temple",
+        "fr": "Acte VI — Le Dragon des Laves & Le Temple du Feu",
+        "es": "Acto VI — El Dragón Subterráneo y el Templo del Fuego",
+        "ar": "الفصل السادس — تنين الحمم البركانية ومعبد النار"
+      },
+      "story": {
+        "en": "Don the heat-resistant Goron Tunic, learn the Bolero of Fire with Sheik, free the imprisoned Gorons inside the Fire Temple, wield the Megaton Hammer, and slay Volvagia.",
+        "fr": "Revêtez la Tunique Goron, apprenez le Boléro du Feu, trouvez la Masse des Titans et terrassez Volvagia.",
+        "es": "Viste la Túnica Goron, aprende el Bolero del Fuego, obtén el Martillo Megatón y derrota a Volvagia.",
+        "ar": "ارتدِ سترة غورون، وتعلم بوليرو النار، واحصل على مطرقة الميغاتون، واهزم التنين فولفاجيا."
+      },
+      "steps": [
+        {
+          "id": "c7_s61_reach_goron",
+          "type": "reach",
+          "zone": "c7_goron",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Return to Goron City & Death Mountain Crater",
+            "fr": "Retourner au Village Goron",
+            "es": "Regresa a Ciudad Goron",
+            "ar": "عد إلى مدينة غورون وفوهة البركان"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Return to Goron City & Death Mountain Crater — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retourner au Village Goron — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Regresa a Ciudad Goron — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "عد إلى مدينة غورون وفوهة البركان — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s62_talk_goron",
+          "type": "talk",
+          "zone": "c7_goron",
+          "npc": "darunia",
+          "n": 1,
+          "at": [
+            22.5,
+            17.5
+          ],
+          "set": {
+            "item": "goron_tunic"
+          },
+          "goal": {
+            "en": "Speak with Darunia in Goron City to receive the fireproof Goron Tunic",
+            "fr": "Recevoir la Tunique Goron auprès de Darunia",
+            "es": "Habla con Darunia para recibir la Túnica Goron",
+            "ar": "تحدث مع دارونيا لاستلام سترة غورون المقاومة للنار"
+          },
+          "say": {
+            "who": "darunia",
+            "en": [
+              "Speak with Darunia in Goron City to receive the fireproof Goron Tunic — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Recevoir la Tunique Goron auprès de Darunia — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Darunia para recibir la Túnica Goron — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع دارونيا لاستلام سترة غورون المقاومة للنار — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s63_talk_goron",
+          "type": "talk",
+          "zone": "c7_goron",
+          "npc": "sheik",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Meet Sheik by the lava bridge in Death Mountain Crater",
+            "fr": "Rencontrer Sheik au Cratère du Péril",
+            "es": "Reúnete con Sheik en el Cráter de la Montaña",
+            "ar": "قابل شيك عند جسر الحمم في فوهة جبل الموت"
+          },
+          "say": {
+            "who": "sheik",
+            "en": [
+              "Meet Sheik by the lava bridge in Death Mountain Crater — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Rencontrer Sheik au Cratère du Péril — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reúnete con Sheik en el Cráter de la Montaña — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "قابل شيك عند جسر الحمم في فوهة جبل الموت — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s64_song_goron",
+          "type": "interact",
+          "zone": "c7_goron",
+          "spots": [
+            [
+              22.5,
+              19.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            19.5
+          ],
+          "song": "bolero_fire",
+          "set": {
+            "song": "bolero_fire"
+          },
+          "goal": {
+            "en": "Play the Bolero of Fire on the Death Mountain Crater Triforce Pad",
+            "fr": "Jouer le Boléro du Feu sur le piédestal du cratère",
+            "es": "Toca el Bolero del Fuego en el pedestal del cráter",
+            "ar": "اعزف بوليرو النار على منصة الترايفورس في الفوهة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Bolero of Fire on the Death Mountain Crater Triforce Pad — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Boléro du Feu sur le piédestal du cratère — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca el Bolero del Fuego en el pedestal del cráter — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف بوليرو النار على منصة الترايفورس في الفوهة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s65_reach_t2_fire",
+          "type": "reach",
+          "zone": "c7_t2_fire",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter the scorching halls of the Fire Temple",
+            "fr": "Entrer dans le Temple du Feu",
+            "es": "Entra en el Templo del Fuego",
+            "ar": "ادخل قاعات معبد النار الملتهبة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter the scorching halls of the Fire Temple — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Temple du Feu — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en el Templo del Fuego — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل قاعات معبد النار الملتهبة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s66_talk_t2_fire",
+          "type": "talk",
+          "zone": "c7_t2_fire",
+          "npc": "darunia",
+          "n": 1,
+          "at": [
+            22.5,
+            26.5
+          ],
+          "goal": {
+            "en": "Speak with Darunia before the Boss Sanctum seal inside the Fire Temple",
+            "fr": "Parler à Darunia dans le Temple du Feu",
+            "es": "Habla con Darunia dentro del Templo del Fuego",
+            "ar": "تحدث مع دارونيا داخل معبد النار"
+          },
+          "say": {
+            "who": "darunia",
+            "en": [
+              "Speak with Darunia before the Boss Sanctum seal inside the Fire Temple — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Darunia dans le Temple du Feu — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Darunia dentro del Templo del Fuego — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع دارونيا داخل معبد النار — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s67_spot_t2_fire",
+          "type": "interact",
+          "zone": "c7_t2_fire",
+          "spots": [
+            [
+              34.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            34.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Release the imprisoned Goron Elders from their volcanic cells",
+            "fr": "Libérer les Anciens Gorons emprisonnés",
+            "es": "Libera a los Ancianos Goron encarcelados",
+            "ar": "حرر شيوخ غورون المسجونين في زنازين البركان"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Release the imprisoned Goron Elders from their volcanic cells — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Libérer les Anciens Gorons emprisonnés — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Libera a los Ancianos Goron encarcelados — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "حرر شيوخ غورون المسجونين في زنازين البركان — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s68_kill_t2_fire",
+          "type": "kill",
+          "zone": "c7_t2_fire",
+          "foes": [
+            "flare_dancer"
+          ],
+          "n": 2,
+          "at": [
+            14.5,
+            22.5
+          ],
+          "goal": {
+            "en": "Extinguish 2 Flare Dancers guarding the upper Fire Temple spire ({n}/{m})",
+            "fr": "Vaincre 2 Danse-Flammes ({n}/{m})",
+            "es": "Derrota a 2 Bailarines de Fuego ({n}/{m})",
+            "ar": "اقضِ على راقصي اللهب في الطابق العلوي ({n}/{m})"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Extinguish 2 Flare Dancers guarding the upper Fire Temple spire — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre 2 Danse-Flammes — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a 2 Bailarines de Fuego — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اقضِ على راقصي اللهب في الطابق العلوي — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s69_spot_t2_fire",
+          "type": "interact",
+          "zone": "c7_t2_fire",
+          "spots": [
+            [
+              11.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            11.5,
+            17.5
+          ],
+          "set": {
+            "item": "megaton_hammer"
+          },
+          "goal": {
+            "en": "Cross the narrow fire rim and claim the Megaton Hammer!",
+            "fr": "Ouvrir le coffre de la Masse des Titans !",
+            "es": "¡Reclama el Martillo Megatón!",
+            "ar": "احصل على مطرقة الميغاتون الأسطورية!"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Cross the narrow fire rim and claim the Megaton Hammer! — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre de la Masse des Titans ! — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "¡Reclama el Martillo Megatón! — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على مطرقة الميغاتون الأسطورية! — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s70_spot_t2_fire",
+          "type": "interact",
+          "zone": "c7_t2_fire",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Smash the Central Fire Pillar Block with the Megaton Hammer",
+            "fr": "Fracasser le pilier central avec la Masse des Titans",
+            "es": "Aplasta el pilar central con el Martillo Megatón",
+            "ar": "حطم عمود النار المركزي بمطرقة الميغاتون"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Smash the Central Fire Pillar Block with the Megaton Hammer — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Fracasser le pilier central avec la Masse des Titans — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Aplasta el pilar central con el Martillo Megatón — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "حطم عمود النار المركزي بمطرقة الميغاتون — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s71_boss_t2_fire",
+          "type": "boss",
+          "zone": "c7_t2_fire",
+          "boss": "volvagia",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Subterranean Lava Dragon: Volvagia",
+            "fr": "Vaincre Volvagia, le Dragon des Laves",
+            "es": "Derrota a Volvagia, el Dragón Subterráneo",
+            "ar": "اهزم تنين الحمم البركانية فولفاجيا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Subterranean Lava Dragon: Volvagia — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre Volvagia, le Dragon des Laves — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a Volvagia, el Dragón Subterráneo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم تنين الحمم البركانية فولفاجيا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s72_spot_t2_fire",
+          "type": "interact",
+          "zone": "c7_t2_fire",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "medallions": 2,
+            "item": "megaton_hammer"
+          },
+          "goal": {
+            "en": "Awaken Darunia as Fire Sage and claim the Fire Medallion",
+            "fr": "Éveiller Darunia et recevoir le Médaillon du Feu",
+            "es": "Despierta a Darunia y reclama el Medallón del Fuego",
+            "ar": "أيقظ دارونيا حكيم النار واستلم ميدالية النار"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Awaken Darunia as Fire Sage and claim the Fire Medallion — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Éveiller Darunia et recevoir le Médaillon du Feu — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despierta a Darunia y reclama el Medallón del Fuego — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أيقظ دارونيا حكيم النار واستلم ميدالية النار — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q7",
+      "act": 7,
+      "title": {
+        "en": "Act VII — Frozen Domain & The Abyssal Water Temple",
+        "fr": "Acte VII — Domaine Gelé & Le Temple de l'Eau",
+        "es": "Acto VII — Dominio Helado y el Templo del Agua",
+        "ar": "الفصل السابع — المملكة المتجمدة ومعبد الماء السحيق"
+      },
+      "story": {
+        "en": "Claim the Iron Boots & Blue Fire in the Ice Cavern, thaw King Zora for the Zora Tunic, learn the Serenade of Water, duel Dark Link in the Water Temple, and defeat Morpha.",
+        "fr": "Trouvez les Bottes de Plomb, dégeler le Roi Zora, affrontez Dark Link dans le Temple de l'Eau et vainquez Morpha.",
+        "es": "Obtén las Botas de Hierro, descongela al Rey Zora, vence a Dark Link en el Templo del Agua y derrota a Morpha.",
+        "ar": "احصل على الحذاء الحديدي، وأذب الجليد عن الملك زورا، وواجه دارك لينك ومورفا في معبد الماء."
+      },
+      "steps": [
+        {
+          "id": "c7_s73_reach_zora",
+          "type": "reach",
+          "zone": "c7_zora",
+          "n": 1,
+          "at": [
+            4.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Return to frozen Zora's Domain & Sacred Fountain",
+            "fr": "Retourner au Domaine Zora gelé",
+            "es": "Regresa al Dominio Zora congelado",
+            "ar": "عد إلى مملكة زورا المتجمدة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Return to frozen Zora's Domain & Sacred Fountain — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retourner au Domaine Zora gelé — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Regresa al Dominio Zora congelado — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "عد إلى مملكة زورا المتجمدة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s74_spot_zora",
+          "type": "interact",
+          "zone": "c7_zora",
+          "spots": [
+            [
+              36.5,
+              16.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            36.5,
+            16.5
+          ],
+          "set": {
+            "item": "iron_boots"
+          },
+          "goal": {
+            "en": "Brave the Ice Cavern Sanctum to claim the Iron Boots and Blue Fire",
+            "fr": "Obtenir les Bottes de Plomb et le Feu Bleu dans la Caverne Polaire",
+            "es": "Reclama las Botas de Hierro y el Fuego Azul en la Caverna de Hielo",
+            "ar": "احصل على الحذاء الحديدي والنار الزرقاء من كهف الجليد"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Brave the Ice Cavern Sanctum to claim the Iron Boots and Blue Fire — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Obtenir les Bottes de Plomb et le Feu Bleu dans la Caverne Polaire — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reclama las Botas de Hierro y el Fuego Azul en la Caverna de Hielo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على الحذاء الحديدي والنار الزرقاء من كهف الجليد — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s75_talk_zora",
+          "type": "talk",
+          "zone": "c7_zora",
+          "npc": "king_zora",
+          "n": 1,
+          "at": [
+            22.5,
+            13.5
+          ],
+          "set": {
+            "item": "zora_tunic"
+          },
+          "goal": {
+            "en": "Melt the red ice around King Zora XVI with Blue Fire to receive the Zora Tunic",
+            "fr": "Dégeler le Roi Zora XVI et recevoir la Tunique Zora",
+            "es": "Descongela al Rey Zora XVI para recibir la Túnica Zora",
+            "ar": "أذب الجليد الأحمر عن الملك زورا لاستلام سترة زورا"
+          },
+          "say": {
+            "who": "king_zora",
+            "en": [
+              "Melt the red ice around King Zora XVI with Blue Fire to receive the Zora Tunic — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Dégeler le Roi Zora XVI et recevoir la Tunique Zora — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Descongela al Rey Zora XVI para recibir la Túnica Zora — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أذب الجليد الأحمر عن الملك زورا لاستلام سترة زورا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s76_reach_lake",
+          "type": "reach",
+          "zone": "c7_lake",
+          "n": 1,
+          "at": [
+            22.5,
+            4.5
+          ],
+          "goal": {
+            "en": "Travel south to Lake Hylia",
+            "fr": "Se rendre au Lac Hylia",
+            "es": "Viaja al Lago Hylia",
+            "ar": "سافر جنوباً إلى بحيرة هيليا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Travel south to Lake Hylia — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Se rendre au Lac Hylia — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Viaja al Lago Hylia — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "سافر جنوباً إلى بحيرة هيليا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s77_song_lake",
+          "type": "interact",
+          "zone": "c7_lake",
+          "spots": [
+            [
+              22.5,
+              20.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            20.5
+          ],
+          "song": "serenade_water",
+          "set": {
+            "song": "serenade_water"
+          },
+          "goal": {
+            "en": "Play the Serenade of Water with Sheik at the Lake Hylia Triforce Pad",
+            "fr": "Jouer la Sérénade de l'Eau au Lac Hylia",
+            "es": "Toca la Serenata del Agua en el Lago Hylia",
+            "ar": "اعزف سيريناد الماء مع شيك في بحيرة هيليا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Serenade of Water with Sheik at the Lake Hylia Triforce Pad — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer la Sérénade de l'Eau au Lac Hylia — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Serenata del Agua en el Lago Hylia — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف سيريناد الماء مع شيك في بحيرة هيليا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s78_reach_t3_water",
+          "type": "reach",
+          "zone": "c7_t3_water",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Sink with the Iron Boots into the abyssal Water Temple",
+            "fr": "Plonger dans le Temple de l'Eau",
+            "es": "Sumérgete en el Templo del Agua",
+            "ar": "غُص بالحذاء الحديدي إلى أعماق معبد الماء"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Sink with the Iron Boots into the abyssal Water Temple — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Plonger dans le Temple de l'Eau — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Sumérgete en el Templo del Agua — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "غُص بالحذاء الحديدي إلى أعماق معبد الماء — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s79_talk_t3_water",
+          "type": "talk",
+          "zone": "c7_t3_water",
+          "npc": "ruto",
+          "n": 1,
+          "at": [
+            22.5,
+            26.5
+          ],
+          "goal": {
+            "en": "Reunite with Princess Ruto inside the Water Temple tower",
+            "fr": "Retrouver la Princesse Ruto dans le Temple de l'Eau",
+            "es": "Reúnete con la Princesa Ruto en el Templo del Agua",
+            "ar": "التقِ بالأميرة روتو داخل برج معبد الماء"
+          },
+          "say": {
+            "who": "ruto",
+            "en": [
+              "Reunite with Princess Ruto inside the Water Temple tower — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retrouver la Princesse Ruto dans le Temple de l'Eau — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reúnete con la Princesa Ruto en el Templo del Agua — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "التقِ بالأميرة روتو داخل برج معبد الماء — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s80_song_t3_water",
+          "type": "interact",
+          "zone": "c7_t3_water",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "goal": {
+            "en": "Play Zelda's Lullaby at the Water Level Control Crest to shift the cistern tide",
+            "fr": "Jouer la Berceuse de Zelda pour changer le niveau de l'eau",
+            "es": "Toca la Nana de Zelda para cambiar el nivel del agua",
+            "ar": "اعزف تهويدة زيلدا لتغيير منسوب المياه في المعبد"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play Zelda's Lullaby at the Water Level Control Crest to shift the cistern tide — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer la Berceuse de Zelda pour changer le niveau de l'eau — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Nana de Zelda para cambiar el nivel del agua — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف تهويدة زيلدا لتغيير منسوب المياه في المعبد — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s81_kill_t3_water",
+          "type": "kill",
+          "zone": "c7_t3_water",
+          "foes": [
+            "dark_link"
+          ],
+          "n": 1,
+          "at": [
+            15.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Vanquish your shadow reflection: Dark Link in the Illusion Room! ({n}/{m})",
+            "fr": "Vaincre votre reflet d'ombre : Dark Link ! ({n}/{m})",
+            "es": "¡Derrota a tu reflejo oscuro: Dark Link! ({n}/{m})",
+            "ar": "اهزم انعكاس ظلك دارك لينك في غرفة الوهم! ({n}/{m})"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Vanquish your shadow reflection: Dark Link in the Illusion Room! — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre votre reflet d'ombre : Dark Link ! — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "¡Derrota a tu reflejo oscuro: Dark Link! — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم انعكاس ظلك دارك لينك في غرفة الوهم! — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s82_spot_t3_water",
+          "type": "interact",
+          "zone": "c7_t3_water",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Open the chest behind the Illusion Tree to claim the Longshot",
+            "fr": "Ouvrir le coffre du Super Grappin",
+            "es": "Abre el cofre del Supergancho",
+            "ar": "افتح الصندوق خلف شجرة الوهم للحصول على الخطاف الطويل"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Open the chest behind the Illusion Tree to claim the Longshot — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre du Super Grappin — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Abre el cofre del Supergancho — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "افتح الصندوق خلف شجرة الوهم للحصول على الخطاف الطويل — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s83_boss_t3_water",
+          "type": "boss",
+          "zone": "c7_t3_water",
+          "boss": "morpha",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Giant Aquatic Amoeba: Morpha",
+            "fr": "Vaincre Morpha",
+            "es": "Derrota a Morpha",
+            "ar": "اهزم الأميبا المائية العملاقة مورفا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Giant Aquatic Amoeba: Morpha — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre Morpha — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a Morpha — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم الأميبا المائية العملاقة مورفا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s84_spot_t3_water",
+          "type": "interact",
+          "zone": "c7_t3_water",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "medallions": 3,
+            "item": "iron_boots"
+          },
+          "goal": {
+            "en": "Awaken Princess Ruto as Water Sage and claim the Water Medallion",
+            "fr": "Éveiller Ruto et recevoir le Médaillon de l'Eau",
+            "es": "Despierta a Ruto y reclama el Medallón del Agua",
+            "ar": "أيقظ الأميرة روتو حكيمة الماء واستلم ميدالية الماء"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Awaken Princess Ruto as Water Sage and claim the Water Medallion — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Éveiller Ruto et recevoir le Médaillon de l'Eau — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despierta a Ruto y reclama el Medallón del Agua — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أيقظ الأميرة روتو حكيمة الماء واستلم ميدالية الماء — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q8",
+      "act": 8,
+      "title": {
+        "en": "Act VIII — Eye of Truth & The House of the Dead",
+        "fr": "Acte VIII — Le monocle de Vérité & Le Temple de l'Ombre",
+        "es": "Acto VIII — La Lupa de la Verdad y el Templo de las Sombras",
+        "ar": "الفصل الثامن — عدسة الحقيقة ومعبد الظل"
+      },
+      "story": {
+        "en": "Learn the Song of Storms at Kakariko Windmill, drain the Well for the Lens of Truth, play the Nocturne of Shadow, claim the Hover Boots, and defeat Bongo Bongo.",
+        "fr": "Apprenez le Chant des Tempêtes, trouvez le Monocle de Vérité, les Bottes des Airs et vainquez Bongo Bongo.",
+        "es": "Aprende la Canción de la Tormenta, obtén la Lupa de la Verdad, las Botas Voladoras y derrota a Bongo Bongo.",
+        "ar": "تعلم أغنية العواصف، واحصل على عدسة الحقيقة وحذاء التحليق، واهزم وحش الظل بونغو بونغو."
+      },
+      "steps": [
+        {
+          "id": "c7_s85_reach_kakariko",
+          "type": "reach",
+          "zone": "c7_kakariko",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Return to Kakariko Village as dark spirits stir in the well",
+            "fr": "Retourner au Village Cocorico",
+            "es": "Regresa a Kakariko",
+            "ar": "عد إلى قرية كاكاريكو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Return to Kakariko Village as dark spirits stir in the well — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retourner au Village Cocorico — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Regresa a Kakariko — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "عد إلى قرية كاكاريكو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s86_talk_kakariko",
+          "type": "talk",
+          "zone": "c7_kakariko",
+          "npc": "guru_guru",
+          "n": 1,
+          "at": [
+            14.5,
+            12.5
+          ],
+          "goal": {
+            "en": "Speak with Guru-Guru inside the Kakariko Windmill",
+            "fr": "Parler à Guru-Guru dans le Moulin",
+            "es": "Habla con Guru-Guru en el Molino",
+            "ar": "تحدث مع العازف غورو-غورو في طاحونة كاكاريكو"
+          },
+          "say": {
+            "who": "guru_guru",
+            "en": [
+              "Speak with Guru-Guru inside the Kakariko Windmill — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Guru-Guru dans le Moulin — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Guru-Guru en el Molino — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع العازف غورو-غورو في طاحونة كاكاريكو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s87_song_kakariko",
+          "type": "interact",
+          "zone": "c7_kakariko",
+          "spots": [
+            [
+              22.5,
+              22.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            22.5
+          ],
+          "song": "song_of_storms",
+          "set": {
+            "song": "song_of_storms"
+          },
+          "goal": {
+            "en": "Play the Song of Storms at the Windmill to drain Kakariko Well",
+            "fr": "Jouer le Chant des Tempêtes pour vider le puits",
+            "es": "Toca la Canción de la Tormenta para vaciar el pozo",
+            "ar": "اعزف أغنية العواصف لتفريغ بئر كاكاريكو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Song of Storms at the Windmill to drain Kakariko Well — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Chant des Tempêtes pour vider le puits — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Canción de la Tormenta para vaciar el pozo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف أغنية العواصف لتفريغ بئر كاكاريكو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s88_spot_kakariko",
+          "type": "interact",
+          "zone": "c7_kakariko",
+          "spots": [
+            [
+              38.5,
+              16.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            38.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Descend to the Bottom of the Well to claim the Lens of Truth",
+            "fr": "Récupérer le Monocle de Vérité au Fond du Puits",
+            "es": "Obtén la Lupa de la Verdad en el Fondo del Pozo",
+            "ar": "انزل إلى قاع البئر للحصول على عدسة الحقيقة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Descend to the Bottom of the Well to claim the Lens of Truth — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Récupérer le Monocle de Vérité au Fond du Puits — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Obtén la Lupa de la Verdad en el Fondo del Pozo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "انزل إلى قاع البئر للحصول على عدسة الحقيقة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s89_song_kakariko",
+          "type": "interact",
+          "zone": "c7_kakariko",
+          "spots": [
+            [
+              35.5,
+              11.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            35.5,
+            11.5
+          ],
+          "song": "nocturne_shadow",
+          "set": {
+            "song": "nocturne_shadow"
+          },
+          "goal": {
+            "en": "Learn the Nocturne of Shadow with Sheik and light the Graveyard torches",
+            "fr": "Jouer le Nocturne de l'Ombre au Cimetière Royal",
+            "es": "Toca el Nocturno de la Sombra en el Cementerio Real",
+            "ar": "اعزف لحن الظل وأشعل المشاعل لفتح معبد الظل"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Learn the Nocturne of Shadow with Sheik and light the Graveyard torches — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Nocturne de l'Ombre au Cimetière Royal — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca el Nocturno de la Sombra en el Cementerio Real — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف لحن الظل وأشعل المشاعل لفتح معبد الظل — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s90_reach_t4_shadow",
+          "type": "reach",
+          "zone": "c7_t4_shadow",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter the Shadow Temple — Hyrule's House of the Dead",
+            "fr": "Entrer dans le Temple de l'Ombre",
+            "es": "Entra en el Templo de las Sombras",
+            "ar": "ادخل معبد الظل — بيت الموتى"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter the Shadow Temple — Hyrule's House of the Dead — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Temple de l'Ombre — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en el Templo de las Sombras — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل معبد الظل — بيت الموتى — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s91_talk_t4_shadow",
+          "type": "talk",
+          "zone": "c7_t4_shadow",
+          "npc": "impa",
+          "n": 1,
+          "at": [
+            22.5,
+            26.5
+          ],
+          "goal": {
+            "en": "Speak with Impa at the entrance of the Shadow Temple",
+            "fr": "Parler à Impa dans le Temple de l'Ombre",
+            "es": "Habla con Impa en el Templo de las Sombras",
+            "ar": "تحدث مع إمبا عند مدخل معبد الظل"
+          },
+          "say": {
+            "who": "impa",
+            "en": [
+              "Speak with Impa at the entrance of the Shadow Temple — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à Impa dans le Temple de l'Ombre — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con Impa en el Templo de las Sombras — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع إمبا عند مدخل معبد الظل — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s92_kill_t4_shadow",
+          "type": "kill",
+          "zone": "c7_t4_shadow",
+          "foes": [
+            "dead_hand"
+          ],
+          "n": 1,
+          "at": [
+            14.5,
+            22.5
+          ],
+          "goal": {
+            "en": "Slay the grotesque Dead Hand in the catacomb sanctum ({n}/{m})",
+            "fr": "Vaincre le Poigneur dans les catacombes ({n}/{m})",
+            "es": "Derrota a Mano Muerta en las catacumbas ({n}/{m})",
+            "ar": "اقضِ على وحش اليد الميتة في السرداب ({n}/{m})"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Slay the grotesque Dead Hand in the catacomb sanctum — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre le Poigneur dans les catacombes — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a Mano Muerta en las catacumbas — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اقضِ على وحش اليد الميتة في السرداب — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s93_spot_t4_shadow",
+          "type": "interact",
+          "zone": "c7_t4_shadow",
+          "spots": [
+            [
+              11.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            11.5,
+            17.5
+          ],
+          "set": {
+            "item": "hover_boots"
+          },
+          "goal": {
+            "en": "Open the catacomb chest to claim the sacred Hover Boots",
+            "fr": "Ouvrir le coffre des Bottes des Airs",
+            "es": "Abre el cofre de las Botas Voladoras",
+            "ar": "افتح الصندوق للحصول على حذاء التحليق المقدس"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Open the catacomb chest to claim the sacred Hover Boots — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Ouvrir le coffre des Bottes des Airs — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Abre el cofre de las Botas Voladoras — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "افتح الصندوق للحصول على حذاء التحليق المقدس — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s94_song_t4_shadow",
+          "type": "interact",
+          "zone": "c7_t4_shadow",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Play Zelda's Lullaby on the Stygian Phantom Ferry Deck to cross the abyss",
+            "fr": "Jouer la Berceuse de Zelda sur le Navire Spectral",
+            "es": "Toca la Nana de Zelda en el Barco Fantasma",
+            "ar": "اعزف تهويدة زيلدا على متن السفينة الشبحية لعبور الهاوية"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play Zelda's Lullaby on the Stygian Phantom Ferry Deck to cross the abyss — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer la Berceuse de Zelda sur le Navire Spectral — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca la Nana de Zelda en el Barco Fantasma — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف تهويدة زيلدا على متن السفينة الشبحية لعبور الهاوية — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s95_boss_t4_shadow",
+          "type": "boss",
+          "zone": "c7_t4_shadow",
+          "boss": "bongo_bongo",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Phantom Shadow Beast: Bongo Bongo",
+            "fr": "Vaincre Bongo Bongo",
+            "es": "Derrota a Bongo Bongo",
+            "ar": "اهزم وحش الظل بونغو بونغو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Phantom Shadow Beast: Bongo Bongo — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre Bongo Bongo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a Bongo Bongo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم وحش الظل بونغو بونغو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s96_spot_t4_shadow",
+          "type": "interact",
+          "zone": "c7_t4_shadow",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "medallions": 4,
+            "item": "hover_boots"
+          },
+          "goal": {
+            "en": "Awaken Impa as Shadow Sage and claim the Shadow Medallion",
+            "fr": "Éveiller Impa et recevoir le Médaillon de l'Ombre",
+            "es": "Despierta a Impa y reclama el Medallón de la Sombra",
+            "ar": "أيقظ إمبا حكيمة الظل واستلم ميدالية الظل"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Awaken Impa as Shadow Sage and claim the Shadow Medallion — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Éveiller Impa et recevoir le Médaillon de l'Ombre — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despierta a Impa y reclama el Medallón de la Sombra — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أيقظ إمبا حكيمة الظل واستلم ميدالية الظل — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q9",
+      "act": 9,
+      "title": {
+        "en": "Act IX — Goddess of the Sand & The Spirit Temple",
+        "fr": "Acte IX — La Déesse des Sables & Le Temple de l'Esprit",
+        "es": "Acto IX — La Diosa de la Arena y el Templo del Espíritu",
+        "ar": "الفصل التاسع — إلهة الرمال ومعبد الروح"
+      },
+      "story": {
+        "en": "Leap Gerudo Canyon with Epona or Longshot, earn the Gerudo Token, cross the Haunted Wasteland, claim the Silver Gauntlets & Mirror Shield in the Spirit Temple, and defeat Twinrova.",
+        "fr": "Franchissez la Vallée Gerudo, traversez le Désert Hanté, trouvez le Bouclier Miroir et vainquez Twinrova.",
+        "es": "Cruza el Valle Gerudo y el Desierto Encantado, obtén el Escudo Espejo y derrota a Twinrova.",
+        "ar": "اعبر وادي غيرودو والصحراء المسكونة، واحصل على درع المرآة، واهزم الساحرتين توينروفا."
+      },
+      "steps": [
+        {
+          "id": "c7_s97_reach_gerudo",
+          "type": "reach",
+          "zone": "c7_gerudo",
+          "n": 1,
+          "at": [
+            41.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Ride west from Hyrule Field into Gerudo Valley",
+            "fr": "Chevaucher vers la Vallée Gerudo",
+            "es": "Cabalga hacia el Valle Gerudo",
+            "ar": "اتجه غرباً من حقل هيرول إلى وادي غيرودو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Ride west from Hyrule Field into Gerudo Valley — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Chevaucher vers la Vallée Gerudo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Cabalga hacia el Valle Gerudo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اتجه غرباً من حقل هيرول إلى وادي غيرودو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s98_spot_gerudo",
+          "type": "interact",
+          "zone": "c7_gerudo",
+          "spots": [
+            [
+              12.5,
+              14.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            12.5,
+            14.5
+          ],
+          "goal": {
+            "en": "Cross the Gerudo Canyon suspension bridge into Gerudo Fortress",
+            "fr": "Franchir le pont de la Vallée Gerudo",
+            "es": "Cruza el puente del cañón hacia la Fortaleza Gerudo",
+            "ar": "اعبر جسر وادي غيرودو إلى قلعة غيرودو"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Cross the Gerudo Canyon suspension bridge into Gerudo Fortress — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Franchir le pont de la Vallée Gerudo — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Cruza el puente del cañón hacia la Fortaleza Gerudo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعبر جسر وادي غيرودو إلى قلعة غيرودو — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s99_kill_gerudo",
+          "type": "kill",
+          "zone": "c7_gerudo",
+          "foes": [
+            "gerudo_thief"
+          ],
+          "n": 2,
+          "at": [
+            15.5,
+            13.5
+          ],
+          "goal": {
+            "en": "Best 2 Gerudo Fortress guards in honorable duel to free the carpenters ({n}/{m})",
+            "fr": "Vaincre 2 Gardes Gerudo en duel ({n}/{m})",
+            "es": "Vence a 2 Guardias Gerudo para liberar a los carpinteros ({n}/{m})",
+            "ar": "اهزم حارسين من قلعة غيرودو لتحرير النجارين ({n}/{m})"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Best 2 Gerudo Fortress guards in honorable duel to free the carpenters — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre 2 Gardes Gerudo en duel — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Vence a 2 Guardias Gerudo para liberar a los carpinteros — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم حارسين من قلعة غيرودو لتحرير النجارين — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s100_talk_gerudo",
+          "type": "talk",
+          "zone": "c7_gerudo",
+          "npc": "gerudo_capt",
+          "n": 1,
+          "at": [
+            14.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Receive the Gerudo Token pass from Captain Aveil",
+            "fr": "Recevoir la Carte Gerudo auprès d'Aveil",
+            "es": "Recibe el Pase Gerudo de la Capitana Aveil",
+            "ar": "استلم تصريح غيرودو من القائدة أفيل"
+          },
+          "say": {
+            "who": "gerudo_capt",
+            "en": [
+              "Receive the Gerudo Token pass from Captain Aveil — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Recevoir la Carte Gerudo auprès d'Aveil — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Recibe el Pase Gerudo de la Capitana Aveil — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استلم تصريح غيرودو من القائدة أفيل — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s101_reach_desert",
+          "type": "reach",
+          "zone": "c7_desert",
+          "n": 1,
+          "at": [
+            41.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Pass through the Desert Gate into the Haunted Wasteland",
+            "fr": "Traverser le Désert Hanté jusqu'au Colosse",
+            "es": "Cruza el Desierto Encantado hasta el Coloso",
+            "ar": "اعبر البوابة إلى الصحراء المسكونة وتمثال الصحراء"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Pass through the Desert Gate into the Haunted Wasteland — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Traverser le Désert Hanté jusqu'au Colosse — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Cruza el Desierto Encantado hasta el Coloso — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعبر البوابة إلى الصحراء المسكونة وتمثال الصحراء — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s102_spot_desert",
+          "type": "interact",
+          "zone": "c7_desert",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "goal": {
+            "en": "Follow the Haunted Wasteland Poe Guide Beacon with the Lens of Truth",
+            "fr": "Suivre le Spectre Guide dans la tempête de sable",
+            "es": "Sigue al Espectro Guía por la tormenta de arena",
+            "ar": "اتبع منارة الشبح المرشد عبر العاصفة الرملية"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Follow the Haunted Wasteland Poe Guide Beacon with the Lens of Truth — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Suivre le Spectre Guide dans la tempête de sable — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Sigue al Espectro Guía por la tormenta de arena — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اتبع منارة الشبح المرشد عبر العاصفة الرملية — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s103_song_desert",
+          "type": "interact",
+          "zone": "c7_desert",
+          "spots": [
+            [
+              26.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            26.5,
+            17.5
+          ],
+          "song": "requiem_spirit",
+          "set": {
+            "song": "requiem_spirit"
+          },
+          "goal": {
+            "en": "Play the Requiem of Spirit with Sheik at the Desert Colossus Pad",
+            "fr": "Jouer le Requiem de l'Esprit devant le Colosse du Désert",
+            "es": "Toca el Réquiem del Espíritu frente al Coloso del Desierto",
+            "ar": "اعزف لحن الروح مع شيك أمام تمثال الصحراء"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Requiem of Spirit with Sheik at the Desert Colossus Pad — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Requiem de l'Esprit devant le Colosse du Désert — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca el Réquiem del Espíritu frente al Coloso del Desierto — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف لحن الروح مع شيك أمام تمثال الصحراء — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s104_reach_t5_spirit",
+          "type": "reach",
+          "zone": "c7_t5_spirit",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Enter the Spirit Temple carved inside the Goddess of the Sand",
+            "fr": "Entrer dans le Temple de l'Esprit",
+            "es": "Entra en el Templo del Espíritu",
+            "ar": "ادخل معبد الروح المنحوت في تمثال الرمال"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Enter the Spirit Temple carved inside the Goddess of the Sand — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Temple de l'Esprit — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en el Templo del Espíritu — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "ادخل معبد الروح المنحوت في تمثال الرمال — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s105_spot_t5_spirit",
+          "type": "interact",
+          "zone": "c7_t5_spirit",
+          "spots": [
+            [
+              11.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            11.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Complete the west trial wing to claim the Silver Gauntlets",
+            "fr": "Obtenir les Gantelets d'Argent",
+            "es": "Reclama los Guanteletes de Plata",
+            "ar": "احصل على القفازات الفضية من الجناح الغربي"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Complete the west trial wing to claim the Silver Gauntlets — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Obtenir les Gantelets d'Argent — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reclama los Guanteletes de Plata — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على القفازات الفضية من الجناح الغربي — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s106_spot_t5_spirit",
+          "type": "interact",
+          "zone": "c7_t5_spirit",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "set": {
+            "item": "mirror_helm"
+          },
+          "goal": {
+            "en": "Complete the east trial wing to claim the Mirror Shield & Crest",
+            "fr": "Obtenir le Bouclier Miroir",
+            "es": "Reclama el Escudo Espejo",
+            "ar": "احصل على درع المرآة المقدس من الجناح الشرقي"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Complete the east trial wing to claim the Mirror Shield & Crest — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Obtenir le Bouclier Miroir — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Reclama el Escudo Espejo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على درع المرآة المقدس من الجناح الشرقي — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s107_boss_t5_spirit",
+          "type": "boss",
+          "zone": "c7_t5_spirit",
+          "boss": "twinrova",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Defeat Sorceress Sisters: Twinrova (Koume & Kotake)",
+            "fr": "Vaincre les Sœurs Sorcières Twinrova",
+            "es": "Derrota a las Hermanas Hechiceras Twinrova",
+            "ar": "اهزم الساحرتين التوأم توينروفا"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Defeat Sorceress Sisters: Twinrova (Koume & Kotake) — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre les Sœurs Sorcières Twinrova — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Derrota a las Hermanas Hechiceras Twinrova — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم الساحرتين التوأم توينروفا — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s108_spot_t5_spirit",
+          "type": "interact",
+          "zone": "c7_t5_spirit",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "medallions": 5,
+            "item": "mirror_helm"
+          },
+          "goal": {
+            "en": "Awaken Nabooru as Spirit Sage and claim the Spirit Medallion",
+            "fr": "Éveiller Nabooru et recevoir le Médaillon de l'Esprit",
+            "es": "Despierta a Nabooru y reclama el Medallón del Espíritu",
+            "ar": "أيقظ نابورو حكيمة الروح واستلم ميدالية الروح"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Awaken Nabooru as Spirit Sage and claim the Spirit Medallion — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Éveiller Nabooru et recevoir le Médaillon de l'Esprit — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Despierta a Nabooru y reclama el Medallón del Espíritu — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "أيقظ نابورو حكيمة الروح واستلم ميدالية الروح — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7_q10",
+      "act": 10,
+      "title": {
+        "en": "Act X — The Six Sages, Ganon's Tower & The Triforce of Courage",
+        "fr": "Acte X — Les Six Sages, La Tour de Ganon & La Triforce",
+        "es": "Acto X — Los Seis Sabios, la Torre de Ganon y la Trifuerza",
+        "ar": "الفصل العاشر — الحكماء الستة وبرج غانون والترايفورس"
+      },
+      "story": {
+        "en": "Learn the Prelude of Light, receive the Light Arrows from Princess Zelda, summon the Rainbow Bridge, dispel the 6 Barrier Trials in Ganon's Castle, and defeat Ganondorf & Beast Ganon!",
+        "fr": "Apprenez le Prélude de la Lumière, recevez les Flèches de Lumière, brisez les 6 Barrières et triomphez de Ganondorf et Ganon !",
+        "es": "¡Aprende el Preludio de la Luz, recibe las Flechas de Luz, rompe las 6 Barreras y derrota a Ganondorf y Ganon!",
+        "ar": "تعلم لحن النور، واستلم سهام النور من زيلدا، وحطم الحواجز الستة، واهزم غانوندورف والوحش غانون!"
+      },
+      "steps": [
+        {
+          "id": "c7_s109_reach_castle",
+          "type": "reach",
+          "zone": "c7_castle",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Return to the Temple of Time with all Six Sage Medallions",
+            "fr": "Retourner au Temple du Temps avec les Six Médaillons",
+            "es": "Regresa al Templo del Tiempo con los Seis Medallones",
+            "ar": "عد إلى معبد الزمن حاملاً ميداليات الحكماء الست"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Return to the Temple of Time with all Six Sage Medallions — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Retourner au Temple du Temps avec les Six Médaillons — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Regresa al Templo del Tiempo con los Seis Medallones — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "عد إلى معبد الزمن حاملاً ميداليات الحكماء الست — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s110_song_castle",
+          "type": "interact",
+          "zone": "c7_castle",
+          "spots": [
+            [
+              22.5,
+              11.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            11.5
+          ],
+          "song": "prelude_light",
+          "set": {
+            "song": "prelude_light"
+          },
+          "goal": {
+            "en": "Play the Prelude of Light at the Temple of Time Altar",
+            "fr": "Jouer le Prélude de la Lumière au Temple du Temps",
+            "es": "Toca el Preludio de la Luz en el Altar del Tiempo",
+            "ar": "اعزف لحن النور عند مذبح معبد الزمن"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Prelude of Light at the Temple of Time Altar — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer le Prélude de la Lumière au Temple du Temps — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Toca el Preludio de la Luz en el Altar del Tiempo — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف لحن النور عند مذبح معبد الزمن — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s111_talk_castle",
+          "type": "talk",
+          "zone": "c7_castle",
+          "npc": "zelda",
+          "n": 1,
+          "at": [
+            11.5,
+            10.5
+          ],
+          "set": {
+            "item": "zelda_costume"
+          },
+          "goal": {
+            "en": "Witness Sheik reveal herself as Princess Zelda and receive the Light Arrows!",
+            "fr": "Recevoir les Flèches de Lumière de la Princesse Zelda !",
+            "es": "¡Recibe las Flechas de Luz de la Princesa Zelda!",
+            "ar": "شاهد كشف هوية الأميرة زيلدا واستلم سهام النور المقدسة!"
+          },
+          "say": {
+            "who": "zelda",
+            "en": [
+              "Witness Sheik reveal herself as Princess Zelda and receive the Light Arrows! — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Recevoir les Flèches de Lumière de la Princesse Zelda ! — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "¡Recibe las Flechas de Luz de la Princesa Zelda! — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "شاهد كشف هوية الأميرة زيلدا واستلم سهام النور المقدسة! — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s112_spot_castle",
+          "type": "interact",
+          "zone": "c7_castle",
+          "spots": [
+            [
+              39.5,
+              16.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            39.5,
+            16.5
+          ],
+          "goal": {
+            "en": "Call upon the Six Sages to conjure the Rainbow Bridge across Ganon's chasm",
+            "fr": "Invoquer le Pont Arc-en-Ciel des Six Sages",
+            "es": "Invoca el Puente Arcoíris de los Seis Sabios",
+            "ar": "استدعِ الحكماء الستة لبناء جسر قوس قزح"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Call upon the Six Sages to conjure the Rainbow Bridge across Ganon's chasm — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Invoquer le Pont Arc-en-Ciel des Six Sages — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Invoca el Puente Arcoíris de los Seis Sabios — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "استدعِ الحكماء الستة لبناء جسر قوس قزح — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s113_reach_t6_castle",
+          "type": "reach",
+          "zone": "c7_t6_castle",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Cross the Rainbow Bridge into Ganon's Castle",
+            "fr": "Entrer dans le Château de Ganon",
+            "es": "Entra en el Castillo de Ganon",
+            "ar": "اعبر جسر قوس قزح إلى قلعة غانون"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Cross the Rainbow Bridge into Ganon's Castle — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Entrer dans le Château de Ganon — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Entra en el Castillo de Ganon — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعبر جسر قوس قزح إلى قلعة غانون — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s114_spot_t6_castle",
+          "type": "interact",
+          "zone": "c7_t6_castle",
+          "spots": [
+            [
+              22.5,
+              18.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            18.5
+          ],
+          "goal": {
+            "en": "Dispel the Forest, Fire & Water Barrier Seals with Light Arrows",
+            "fr": "Briser les barrières de la Forêt, du Feu et de l'Eau",
+            "es": "Rompe las barreras del Bosque, Fuego y Agua",
+            "ar": "حطم حواجز الغابة والنار والماء بسهام النور"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Dispel the Forest, Fire & Water Barrier Seals with Light Arrows — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Briser les barrières de la Forêt, du Feu et de l'Eau — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Rompe las barreras del Bosque, Fuego y Agua — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "حطم حواجز الغابة والنار والماء بسهام النور — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s115_spot_t6_castle",
+          "type": "interact",
+          "zone": "c7_t6_castle",
+          "spots": [
+            [
+              34.5,
+              17.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            34.5,
+            17.5
+          ],
+          "goal": {
+            "en": "Dispel the Shadow, Spirit & Light Barrier Seals with Light Arrows",
+            "fr": "Briser les barrières de l'Ombre, de l'Esprit et de la Lumière",
+            "es": "Rompe las barreras de la Sombra, Espíritu y Luz",
+            "ar": "حطم حواجز الظل والروح والنور بسهام النور"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Dispel the Shadow, Spirit & Light Barrier Seals with Light Arrows — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Briser les barrières de l'Ombre, de l'Esprit et de la Lumière — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Rompe las barreras de la Sombra, Espíritu y Luz — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "حطم حواجز الظل والروح والنور بسهام النور — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s116_spot_t6_castle",
+          "type": "interact",
+          "zone": "c7_t6_castle",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "item": "sages_staff"
+          },
+          "goal": {
+            "en": "Open the central reliquary to claim the Golden Gauntlets & Six Sages Staff",
+            "fr": "Obtenir les Gantelets d'Or et le Bâton des Six Sages",
+            "es": "Obtén los Guanteletes de Oro y el Bastón de los Seis Sabios",
+            "ar": "احصل على القفازات الذهبية وعصا الحكماء الستة"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Open the central reliquary to claim the Golden Gauntlets & Six Sages Staff — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Obtenir les Gantelets d'Or et le Bâton des Six Sages — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Obtén los Guanteletes de Oro y el Bastón de los Seis Sabios — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "احصل على القفازات الذهبية وعصا الحكماء الستة — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s117_reach_t7_tower",
+          "type": "reach",
+          "zone": "c7_t7_tower",
+          "n": 1,
+          "at": [
+            22.5,
+            30.5
+          ],
+          "goal": {
+            "en": "Ascend the blood-red stairs to Ganon's Tower Sanctum",
+            "fr": "Gravir la Tour de Ganon",
+            "es": "Asciende a la Torre de Ganon",
+            "ar": "اصعد الدرج الأحمر إلى قمة برج غانون"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Ascend the blood-red stairs to Ganon's Tower Sanctum — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Gravir la Tour de Ganon — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Asciende a la Torre de Ganon — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اصعد الدرج الأحمر إلى قمة برج غانون — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s118_boss_t7_tower",
+          "type": "boss",
+          "zone": "c7_t7_tower",
+          "boss": "ganondorf",
+          "n": 1,
+          "at": [
+            22.5,
+            10.5
+          ],
+          "goal": {
+            "en": "Vanquish Great King of Evil: Ganondorf & Beast Ganon (3-Phase Final Battle)!",
+            "fr": "Vaincre Ganondorf et Ganon (Combat Final en 3 Phases) !",
+            "es": "¡Derrota a Ganondorf y Ganon (Batalla Final de 3 Fases)!",
+            "ar": "اهزم ملك الشر غانوندورف والوحش غانون في معركة المراحل الثلاث!"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Vanquish Great King of Evil: Ganondorf & Beast Ganon (3-Phase Final Battle)! — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Vaincre Ganondorf et Ganon (Combat Final en 3 Phases) ! — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "¡Derrota a Ganondorf y Ganon (Batalla Final de 3 Fases)! — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اهزم ملك الشر غانوندورف والوحش غانون في معركة المراحل الثلاث! — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s119_talk_t7_tower",
+          "type": "talk",
+          "zone": "c7_t7_tower",
+          "npc": "zelda",
+          "n": 1,
+          "at": [
+            22.5,
+            26.5
+          ],
+          "goal": {
+            "en": "Speak with Princess Zelda as the Six Sages seal Ganon in the Sacred Realm",
+            "fr": "Parler à la Princesse Zelda après le sceau des Six Sages",
+            "es": "Habla con la Princesa Zelda tras sellar a Ganon",
+            "ar": "تحدث مع الأميرة زيلدا بعد ختم غانون"
+          },
+          "say": {
+            "who": "zelda",
+            "en": [
+              "Speak with Princess Zelda as the Six Sages seal Ganon in the Sacred Realm — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Parler à la Princesse Zelda après le sceau des Six Sages — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "Habla con la Princesa Zelda tras sellar a Ganon — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "تحدث مع الأميرة زيلدا بعد ختم غانون — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        },
+        {
+          "id": "c7_s120_spot_t7_tower",
+          "type": "interact",
+          "zone": "c7_t7_tower",
+          "spots": [
+            [
+              22.5,
+              8.5
+            ]
+          ],
+          "n": 1,
+          "at": [
+            22.5,
+            8.5
+          ],
+          "set": {
+            "medallions": 6,
+            "item": "sages_staff"
+          },
+          "goal": {
+            "en": "Play the Ocarina of Time at the Sacred Realm Triforce Altar to restore peace to Hyrule!",
+            "fr": "Jouer de l'Ocarina du Temps devant l'Autel de la Triforce !",
+            "es": "¡Toca la Ocarina del Tiempo en el Altar de la Trifuerza!",
+            "ar": "اعزف بأوكارينا الزمن أمام مذبح الترايفورس لإحلال السلام في هيرول!"
+          },
+          "say": {
+            "who": null,
+            "en": [
+              "Play the Ocarina of Time at the Sacred Realm Triforce Altar to restore peace to Hyrule! — The melody of the Ocarina of Time resonates across Hyrule!"
+            ],
+            "fr": [
+              "Jouer de l'Ocarina du Temps devant l'Autel de la Triforce ! — La mélodie de l'Ocarina du Temps résonne à travers Hyrule !"
+            ],
+            "es": [
+              "¡Toca la Ocarina del Tiempo en el Altar de la Trifuerza! — ¡La melodía de la Ocarina del Tiempo resuena en todo Hyrule!"
+            ],
+            "ar": [
+              "اعزف بأوكارينا الزمن أمام مذبح الترايفورس لإحلال السلام في هيرول! — يتردد صدى أوكارينا الزمن في أرجاء مملكة هيرول!"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

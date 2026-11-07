@@ -937,6 +937,7 @@ HM_CHAPTERS.def.ch6 = function (api) {
             if (api.Z.id !== 'c6_s1_clouds' && (o.sky || c.st >= 17)) ch.push({ label: u.c6travelSky || 'Kingdom 5: Koopa Sky Kingdom', fn: () => { api.closeDlg(); api.travel('c6_s1_clouds', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_d1_badlands' && (o.darkfire || c.st >= 21)) ch.push({ label: u.c6travelDarkfire || 'Kingdom 6: Bowser\'s Darkfire', fn: () => { api.closeDlg(); api.travel('c6_d1_badlands', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_village') ch.push({ label: u.c6travelHub || 'Return to Mushroom Kingdom Hub', fn: () => { api.closeDlg(); api.travel('c6_village', 22.5, 21.5); } });
+            ch.push({ label: u.c6sailCh7 || 'Voyage to Hyrule (Chapter 7: Ocarina of Time)', fn: () => { api.closeDlg(); if (api.playChapter7) api.playChapter7('c7_kokiri', 22.5, 26.5); else api.travel('c7_kokiri', 22.5, 26.5); } });
             if (id === 'salladhor') {
                 ch.push({ label: u.c6sailCh5 || 'Sail to Blood Kingdoms (Chapter 5)', fn: () => { api.closeDlg(); api.travel('c5_village', 22.5, 25.5); } });
             }
