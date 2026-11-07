@@ -272,7 +272,7 @@ window.HM_C6_MAPS = (function () {
             foes, boss,
             exits: [
                 { x: 21, y: 33, w: 3, h: 1, to: opts.prev, tx: 22.5, ty: 2.5 },
-                { x: 38, y: 6, w: 3, h: 2, to: 'c6_village', tx: 22.5, ty: 18.5 }
+                { x: 38, y: 6, w: 3, h: 2, to: 'c6_village', tx: 22.5, ty: 21.5 }
             ]
         };
     }
@@ -283,7 +283,7 @@ window.HM_C6_MAPS = (function () {
     function m1_fields() {
         return makeKingdomMap1({
             ground: 'meadow', music: 'c6_meadow', atmo: 'day', seed: 610, river: true, pipeCol: 'green',
-            prev: 'c6_village', prevX: 8.0, prevY: 2.5, next: 'c6_m2_village',
+            prev: 'c6_village', prevX: 8.5, prevY: 2.5, next: 'c6_m2_village',
             extraProps: [{ k: 'mush_house', x: 4, y: 10, w: 4, h: 3, col: 'red' }],
             foes: [
                 { t: 'goomba', x: 16, y: 24 }, { t: 'goomba', x: 28, y: 24 },
@@ -327,7 +327,7 @@ window.HM_C6_MAPS = (function () {
     function j1_jungle() {
         return makeKingdomMap1({
             ground: 'jungle', music: 'c6_jungle', atmo: 'spores', seed: 630, river: true, pipeCol: 'green',
-            prev: 'c6_village', prevX: 37.0, prevY: 2.5, next: 'c6_j2_gardens',
+            prev: 'c6_village', prevX: 37.5, prevY: 2.5, next: 'c6_j2_gardens',
             foes: [
                 { t: 'piranha', x: 15, y: 24 }, { t: 'nipper', x: 29, y: 24 },
                 { t: 'wiggler', x: 14, y: 18 }, { t: 'wiggler', x: 31, y: 18 },
@@ -366,7 +366,7 @@ window.HM_C6_MAPS = (function () {
     function b1_forest() {
         return makeKingdomMap1({
             ground: 'haunted', music: 'c6_haunted', atmo: 'mist', seed: 650, river: false, pipeCol: 'purple',
-            prev: 'c6_village', prevX: 2.5, prevY: 16.0, next: 'c6_b2_mansion',
+            prev: 'c6_village', prevX: 2.5, prevY: 16.5, next: 'c6_b2_mansion',
             foes: [
                 { t: 'boo', x: 15, y: 24 }, { t: 'boo', x: 29, y: 24 },
                 { t: 'dry_bones', x: 14, y: 18 }, { t: 'dry_bones', x: 31, y: 18 },
@@ -405,7 +405,7 @@ window.HM_C6_MAPS = (function () {
     function f1_valley() {
         return makeKingdomMap1({
             ground: 'snow', music: 'c6_frost', atmo: 'snow', seed: 670, river: true, pipeCol: 'blue',
-            prev: 'c6_village', prevX: 43.0, prevY: 16.0, next: 'c6_f2_caverns',
+            prev: 'c6_village', prevX: 43.5, prevY: 16.5, next: 'c6_f2_caverns',
             foes: [
                 { t: 'shy_guy', x: 15, y: 24 }, { t: 'shy_guy', x: 29, y: 24 },
                 { t: 'snow_pokey', x: 14, y: 18 }, { t: 'ice_bro', x: 31, y: 18 },
@@ -444,7 +444,7 @@ window.HM_C6_MAPS = (function () {
     function s1_clouds() {
         return makeKingdomMap1({
             ground: 'sky', music: 'c6_sky', atmo: 'starlight', seed: 690, river: true, pipeCol: 'gold',
-            prev: 'c6_village', prevX: 8.0, prevY: 31.0, next: 'c6_s2_airship',
+            prev: 'c6_village', prevX: 8.5, prevY: 31.5, next: 'c6_s2_airship',
             foes: [
                 { t: 'paratroopa', x: 15, y: 24 }, { t: 'lakitu', x: 29, y: 24 },
                 { t: 'hammer_bro', x: 14, y: 18 }, { t: 'buzzy_beetle', x: 31, y: 18 },
@@ -483,7 +483,7 @@ window.HM_C6_MAPS = (function () {
     function d1_badlands() {
         return makeKingdomMap1({
             ground: 'lava', music: 'c6_darkfire', atmo: 'ash', seed: 710, river: true, pipeCol: 'red',
-            prev: 'c6_village', prevX: 37.0, prevY: 31.0, next: 'c6_d2_fortress',
+            prev: 'c6_village', prevX: 37.5, prevY: 31.5, next: 'c6_d2_fortress',
             foes: [
                 { t: 'fire_bro', x: 15, y: 24 }, { t: 'koopa_guard', x: 29, y: 24 },
                 { t: 'chain_chomp', x: 14, y: 18 }, { t: 'hammer_bro', x: 31, y: 18 },

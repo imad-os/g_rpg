@@ -508,9 +508,14 @@ test('killFoe has no broken ST reference, dev_mod defaults to false, Ch1 10/10 d
   const dlPlayerIdx = gameCode.indexOf('else if (o.kind === 3) drawPlayer(o, cx, cy);');
   assert.ok(drawIdx > 0 && dlPlayerIdx > drawIdx, 'drawGuide(cx, cy) must run before drawPlayer so the arrow is under the hero feet');
 
-  // Verify shortened arrow shape and feet-level anchor
-  assert.ok(gameCode.includes('ctx.moveTo(9.5, 0);'), 'drawArrowShape must use shortened tip (9.5px)');
+  // Verify bigger orange arrow pointer shape and feet-level anchor
+  assert.ok(gameCode.includes("const mainCol = isSide ? '#2ee86c' : '#ff7a18';"), 'Main quest arrow must use vibrant orange (#ff7a18)');
+  assert.ok(gameCode.includes('ctx.moveTo(14.0, 0);'), 'drawArrowShape must use bigger pointer tip (14.0px)');
   assert.ok(gameCode.includes('hy = P[0].y - cy - 1'), 'renderQuestArrow must anchor at hero feet (P[0].y - cy - 1), not above head');
+
+  // Verify multiplayer screen-edge tether checks X and Y independently and only clamps when separation increases
+  assert.ok(gameCode.includes('newDx > maxSepX && newDx > oldDx'), 'Co-op X tether must only restrict movement that increases X separation beyond maxSepX');
+  assert.ok(gameCode.includes('newDy > maxSepY && newDy > oldDy'), 'Co-op Y tether must only restrict movement that increases Y separation beyond maxSepY');
 
   // Verify relaxed Dual Axes weapon stance beside thighs pointing downward
   assert.ok(gameCode.includes("if (st.kind === 'axes')"), 'drawHeroWeapon must handle axes specifically');

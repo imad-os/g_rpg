@@ -754,8 +754,27 @@
     }
 
     const NEAR = [[18, 0], [-18, 0], [0, 18], [0, -18], [14, 14], [-14, 14], [14, -14], [-14, -14]];
+    function findSafePlayerPos(px, py) {
+        if (!Z || !Z.tiles || !Z.cols || !feetSolid(px, py)) return [px, py];
+        const minX = TS, maxX = (Z.w || Z.cols * TS) - TS;
+        const minY = TS, maxY = (Z.h || Z.rows * TS) - TS;
+        for (let r = 12; r <= 288; r += 12) {
+            for (let k = 0; k < 16; k++) {
+                const a = (k * Math.PI) / 8;
+                const cx = Math.max(minX, Math.min(maxX, px + Math.cos(a) * r));
+                const cy = Math.max(minY, Math.min(maxY, py + Math.sin(a) * r));
+                if (!feetSolid(cx, cy)) return [cx, cy];
+            }
+        }
+        if (Z.def && Z.def.spawn) {
+            const sx = Z.def.spawn[0] * TS, sy = Z.def.spawn[1] * TS;
+            if (!feetSolid(sx, sy)) return [sx, sy];
+        }
+        return [px, py];
+    }
     function placePlayers(tx, ty) {
-        P[0].x = tx * TS; P[0].y = ty * TS;
+        const safe0 = findSafePlayerPos(tx * TS, ty * TS);
+        P[0].x = safe0[0]; P[0].y = safe0[1];
         let k = 0;
         for (let i = 1; i < MAXP; i++) {                    // the other heroes stand around hero 1
             P[i].x = P[0].x; P[i].y = P[0].y;
@@ -2425,7 +2444,7 @@
     function devGrantMaxGear() {
         S = prepareChapter5Save(S);
         S.lvl = 30; S.xp = 0; S.coins += 5000; S.iron += 100; S.potions = Math.max(S.potions, 15); S.big = Math.max(S.big, 10);
-        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror']) {
+        for (const m of ['horse', 'wolf', 'dragon', 'charger', 'shadowmane', 'frostfang', 'nightmare', 'bloodfang', 'bonecharger', 'nightterror', 'yoshi']) {
             if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
         }
         if (!S.mount) S.mount = 'nightterror';
@@ -2690,16 +2709,16 @@
     }
 
     function devMountPetScreen() {
-        const allMounts = ['nightterror', 'bonecharger', 'nightmare', 'bloodfang', 'frostfang', 'shadowmane', 'charger', 'dragon', 'wolf', 'horse'];
+        const allMounts = ['yoshi', 'nightterror', 'bonecharger', 'nightmare', 'bloodfang', 'frostfang', 'shadowmane', 'charger', 'dragon', 'wolf', 'horse'];
         listScreen({
             title: () => '🐎 Mounts & Pets Switcher',
             info: () => 'Mount: ' + (S.mount ? mountName(S.mount) : 'On Foot') + ' · Pet: ' + (S.pet ? petName(S.petKind || 'cat') : 'None'),
             rows: () => [
                 { label: '🐾 Open Companion Pets & Rename Menu ▸', sub: 'Pick which pet to spawn, dismiss, or give a custom name', right: '▸', fn: petScreen },
-                { label: '🔓 Unlock All 10 Mounts & All 3 Pets', fn: () => {
+                { label: '🔓 Unlock All 11 Mounts & All 3 Pets', fn: () => {
                     for (const m of allMounts) if (S.mounts.indexOf(m) < 0) S.mounts.push(m);
                     S.pet = '1'; if (!S.petKind) S.petKind = 'babydragon';
-                    save(); SND.fx('level'); toast('All 10 Mounts & Pets unlocked!'); renderList();
+                    save(); SND.fx('level'); toast('All 11 Mounts & Pets unlocked!'); renderList();
                 } },
                 { label: '🐾 Pet: ' + petName('cat') + ' (Cat)', mark: S.pet && S.petKind === 'cat', right: S.pet && S.petKind === 'cat' ? '✓' : '', fn: () => { setPetKind('cat'); renderList(); } },
                 { label: '🐺 Pet: ' + petName('direwolf') + ' (Direwolf)', mark: S.pet && S.petKind === 'direwolf', right: S.pet && S.petKind === 'direwolf' ? '✓' : '', fn: () => { setPetKind('direwolf'); renderList(); } },
@@ -3938,8 +3957,34 @@
             p.walk += 0.22 * (1 + p.st.spd);
             if (riding(p)) playMountStep(S.mount, tick + p.i * 7);
             if ((tick + p.i * 5) % (riding(p) ? 4 : 9) === 0) part(p.x - p.ax * 6, p.y, 1, -p.ax * 0.3, -p.ay * 0.2, 0.6, 22, Z.dust, riding(p) ? 4 : 3, 0.02);
-            if (nPlayers() > 1) {                          // co-op: nobody walks out of the screen (the camera sits in the middle of all heroes)
-                for (const o of P) if (o !== p && o.on && !o.down && (Math.abs(p.x - o.x) > W - TETHER_X || Math.abs(p.y - o.y) > H - TETHER_Y)) { p.x = ox; p.y = oy; break; }
+            if (nPlayers() > 1) {                          // co-op: per-axis tether so players at opposite edges never deadlock each other
+                const maxSepX = W - TETHER_X, maxSepY = H - TETHER_Y;
+                for (const o of P) if (o !== p && o.on && !o.down) {
+                    const oldDx = Math.abs(ox - o.x), newDx = Math.abs(p.x - o.x);
+                    if (newDx > maxSepX && newDx > oldDx) {
+                        if (!o.moving) {
+                            const pullX = (p.x > o.x ? 1 : -1) * Math.min(spd * 0.85, newDx - maxSepX);
+                            moveEnt(o, pullX, 0, 7, 4); o.sy = flying(o) ? o.y + 200 : o.y;
+                        }
+                        if (Math.abs(p.x - o.x) > maxSepX) {
+                            const limX = Math.max(maxSepX, Math.abs(ox - o.x));
+                            const cx = o.x + (p.x >= o.x ? limX : -limX);
+                            p.x = (!flyMove && feetSolid(cx, p.y)) ? ox : cx;
+                        }
+                    }
+                    const oldDy = Math.abs(oy - o.y), newDy = Math.abs(p.y - o.y);
+                    if (newDy > maxSepY && newDy > oldDy) {
+                        if (!o.moving) {
+                            const pullY = (p.y > o.y ? 1 : -1) * Math.min(spd * 0.85, newDy - maxSepY);
+                            moveEnt(o, 0, pullY, 7, 4); o.sy = flying(o) ? o.y + 200 : o.y;
+                        }
+                        if (Math.abs(p.y - o.y) > maxSepY) {
+                            const limY = Math.max(maxSepY, Math.abs(oy - o.y));
+                            const cy = o.y + (p.y >= o.y ? limY : -limY);
+                            p.y = (!flyMove && feetSolid(p.x, cy)) ? oy : cy;
+                        }
+                    }
+                }
             }
         } else p.walk = 0;
         if (riding(p) && p.i === 0) {
@@ -3949,7 +3994,18 @@
                 playMountAmbient(S.mount);
             }
         }
-        if (p.kx || p.ky) { flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false; p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0; }
+        if (p.kx || p.ky) {
+            const kox = p.x, koy = p.y;
+            flyMove = flying(p); moveEnt(p, p.kx, p.ky, 7, 4); flyMove = false;
+            if (nPlayers() > 1) {
+                const maxSepX = W - TETHER_X, maxSepY = H - TETHER_Y;
+                for (const o of P) if (o !== p && o.on && !o.down) {
+                    if (Math.abs(p.x - o.x) > maxSepX && Math.abs(p.x - o.x) > Math.abs(kox - o.x)) p.x = kox;
+                    if (Math.abs(p.y - o.y) > maxSepY && Math.abs(p.y - o.y) > Math.abs(koy - o.y)) p.y = koy;
+                }
+            }
+            p.kx *= 0.75; p.ky *= 0.75; if (Math.abs(p.kx) + Math.abs(p.ky) < 0.1) p.kx = p.ky = 0;
+        }
         p.sy = flying(p) ? p.y + 200 : p.y;                // in the air: drawn over the roofs and trees it passes
         // riding the wolf / frostfang (bite) or shadowmane (armored warhorse trample)
         if (riding(p) && (MOUNTS[S.mount].bite || (MOUNTS[S.mount].trample && p.moving)) && --p.bite <= 0) {
@@ -4922,18 +4978,19 @@
             ctx.beginPath(); ctx.ellipse(x, y - 1, Math.max(4, 10 - jz * 0.14), Math.max(2, 4.5 - jz * 0.06), 0, 0, 6.2832); ctx.fill();
             ctx.restore();
         }
+        const rideBob = (ride && !isDrake && p.moving) ? Math.abs(Math.sin(p.walk * 1.6)) * 1.4 : 0;
         const hy = (bonecharger ? y - z - (mdir === 2 ? 32 : mdir === 1 ? 36 : 38)
             : charger ? y - z - (mdir === 2 ? 30 : mdir === 1 ? 34 : 36)
             : isDrake ? y - z - (mdir === 2 ? 15 : mdir === 1 ? 23 : 29)
             : (shadow || nightmare) ? y - (mdir !== 2 ? 40 : 36)
             : horse && mdir !== 2 ? y - 36
-            : yoshiM ? y - 22
-            : ride ? y - (horse ? (MOUNTART.ready ? 33 : 29) : 19) : y) - jz, lean = p.lean / 8;
-        // where the rider sits: on the dragon's back (behind its neck), in the horse's or direwolf's saddle
+            : yoshiM ? y - (mdir === 2 ? 14 : mdir === 1 ? 16 : 15) - rideBob
+            : ride ? y - (horse ? (MOUNTART.ready ? 33 : 29) : 19) - rideBob : y) - jz, lean = p.lean / 8;
+        // where the rider sits: on the dragon's back (behind its neck), in the horse's, direwolf's, or Yoshi's saddle
         const rx = bonecharger ? x + (mdir === 2 ? mfx * 4 : 0)
             : charger ? x - (mdir === 2 ? mfx * 3 : 0)
             : isDrake ? x + (mdir === 2 ? (flip ? 7 : -7) : 0)
-            : yoshiM && mdir === 2 ? x - mfx * 4
+            : yoshiM && mdir === 2 ? x - mfx * 4.5
             : isSteed && MOUNTART.ready && mdir === 2 ? x - mfx * 3 : x;
         const tMount = tick + p.i * 5, biteF = p.bite > 38 ? 1 : 0;
         if (charger) { MOUNTART.charger(ctx, x, y, z, p.walk, mdir, mfx, 1.18, p.moving, tMount, heroLv() === 'low' ? null : glowSprite('#7ad8ff')); if (p.moving && (tick & 3) === 0 && heroLv() !== 'low') part(x - p.ax * 22, y - z - 20, 4, -p.ax * 0.5, -p.ay * 0.3, 0, 22, tick & 4 ? '#bff4ff' : '#5ab8f0', 2, 0); }
@@ -4957,14 +5014,39 @@
             } else drawHeroWeapon(p, rx, hy, dir, flip);
         };
         if (back) drawWep();
-        if (ride) {                                        // sitting: hide the legs, show one leg down the side
-            ctx.save(); ctx.beginPath(); ctx.rect(rx - 40 * mushScale, hy - 75 * mushScale, 80 * mushScale, 66 * mushScale); ctx.clip();
+        if (ride) {                                        // sitting in the saddle: clip standing legs at waist (hy - 13.5) and draw bent seated riding legs
+            ctx.save(); ctx.beginPath(); ctx.rect(rx - 40 * mushScale, hy - 75 * mushScale, 80 * mushScale, 61.5 * mushScale); ctx.clip();
             HEROART.draw(ctx, rx, hy, look, p.gear, dir, flip, 0, 0, p.inv > 50 && mode === 'play', mushScale);
             ctx.restore();
-            const ft = HEROART.FEET[p.gear.feet], side = dir >= 2 ? (flip ? 1 : -2) : 0;
+            const ft = HEROART.FEET[p.gear.feet];
             const cId = p.gear.costume, co = cId && HEROART.COSTUME ? HEROART.COSTUME[cId] : null;
-            ctx.fillStyle = co ? co.pants : look.pants; ctx.fillRect(rx + (-2 + side) * mushScale, hy - 10 * mushScale, 4 * mushScale, 9 * mushScale);
-            ctx.fillStyle = co ? co.shoes : (ft ? ft.main : look.shoes); ctx.fillRect(rx + (-2.5 + side) * mushScale, hy - 2 * mushScale, 5 * mushScale, 4 * mushScale);
+            const pantsCol = co ? co.pants : look.pants;
+            const shoeCol = co ? co.shoes : (ft ? ft.main : look.shoes);
+            if (dir >= 2) {
+                // Side view: seated bent thigh angled forward along saddle + lower shin & boot in stirrup
+                const fDir = flip ? -1 : 1;
+                ctx.fillStyle = pantsCol;
+                ctx.beginPath();
+                ctx.moveTo(rx - fDir * 2.5 * mushScale, hy - 14.2 * mushScale);
+                ctx.lineTo(rx + fDir * 5.2 * mushScale, hy - 11.2 * mushScale);
+                ctx.lineTo(rx + fDir * 4.2 * mushScale, hy - 8.2 * mushScale);
+                ctx.lineTo(rx - fDir * 3.0 * mushScale, hy - 11.2 * mushScale);
+                ctx.closePath();
+                ctx.fill();
+                // Lower shin hanging down from bent knee
+                ctx.fillRect(rx + (fDir > 0 ? 1.2 : -4.8) * mushScale, hy - 10.2 * mushScale, 3.6 * mushScale, 5.4 * mushScale);
+                // Stirrup & riding boot angled forward
+                ctx.fillStyle = shoeCol;
+                ctx.fillRect(rx + (fDir > 0 ? 1.0 : -6.2) * mushScale, hy - 5.4 * mushScale, 5.2 * mushScale, 3.4 * mushScale);
+            } else {
+                // Front / Back view: knees & boots straddling left and right sides of the saddle
+                ctx.fillStyle = pantsCol;
+                ctx.fillRect(rx - 8.5 * mushScale, hy - 13.2 * mushScale, 3.6 * mushScale, 5.2 * mushScale);
+                ctx.fillRect(rx + 4.9 * mushScale, hy - 13.2 * mushScale, 3.6 * mushScale, 5.2 * mushScale);
+                ctx.fillStyle = shoeCol;
+                ctx.fillRect(rx - 9.0 * mushScale, hy - 8.4 * mushScale, 4.2 * mushScale, 3.2 * mushScale);
+                ctx.fillRect(rx + 4.8 * mushScale, hy - 8.4 * mushScale, 4.2 * mushScale, 3.2 * mushScale);
+            }
         } else HEROART.draw(ctx, x, hy, look, p.gear, dir, flip, jz > 2 ? 1.2 : p.walk * 1.6, lean * (flip ? -0.7 : 0.7), p.inv > 50 && mode === 'play', mushScale);
         if (!back) drawWep();
         legendAura(p, rx, hy);
@@ -5423,51 +5505,51 @@
         GT.px = x * TS + 16; GT.py = y * TS + 16;
     }
 
-    // Draw a short, crisp directional ground arrow (drawn on the ground layer under the character's feet).
-    // Yellow (#ffd23f) for Main Quests, Green (#2ee86c) for Side Quests.
+    // Draw a bold, unmistakable directional ground arrow (drawn on the ground layer under the character's feet).
+    // Vibrant Orange (#ff7a18) for Main Quests, Green (#2ee86c) for Side Quests.
     function drawArrowShape(px, py, angle, isSide, scale) {
-        const mainCol = isSide ? '#2ee86c' : '#ffd23f';
-        const hiCol   = isSide ? '#c8ffd8' : '#fff8c4';
+        const mainCol = isSide ? '#2ee86c' : '#ff7a18';
+        const hiCol   = isSide ? '#c8ffd8' : '#ffe299';
         ctx.save();
         ctx.translate(px, py);
         ctx.rotate(angle);
         if (scale && scale !== 1) ctx.scale(scale, scale);
-        // Compact outer dark border for contrast over snow, grass, stone, and water (16px total length)
-        ctx.fillStyle = '#0c0a08';
+        // High-contrast dark outline with a large, wide pointer head
+        ctx.fillStyle = '#140a04';
         ctx.beginPath();
-        ctx.moveTo(9.5, 0);
-        ctx.lineTo(0.5, -6.5);
-        ctx.lineTo(2.4, -2.8);
-        ctx.lineTo(-6.5, -2.8);
-        ctx.lineTo(-4.4, 0);
-        ctx.lineTo(-6.5, 2.8);
-        ctx.lineTo(2.4, 2.8);
-        ctx.lineTo(0.5, 6.5);
+        ctx.moveTo(14.0, 0);
+        ctx.lineTo(-0.5, -9.0);
+        ctx.lineTo(2.0, -3.5);
+        ctx.lineTo(-7.5, -3.5);
+        ctx.lineTo(-5.0, 0);
+        ctx.lineTo(-7.5, 3.5);
+        ctx.lineTo(2.0, 3.5);
+        ctx.lineTo(-0.5, 9.0);
         ctx.closePath();
         ctx.fill();
-        // Main colored arrow body (short shaft + swept arrowhead)
+        // Main vibrant orange/green arrow body with oversized pointer barbs
         ctx.fillStyle = mainCol;
         ctx.beginPath();
-        ctx.moveTo(7.8, 0);
-        ctx.lineTo(1.4, -4.8);
-        ctx.lineTo(3.0, -1.8);
-        ctx.lineTo(-5.0, -1.8);
-        ctx.lineTo(-3.2, 0);
-        ctx.lineTo(-5.0, 1.8);
-        ctx.lineTo(3.0, 1.8);
-        ctx.lineTo(1.4, 4.8);
+        ctx.moveTo(11.8, 0);
+        ctx.lineTo(0.8, -7.0);
+        ctx.lineTo(3.0, -2.3);
+        ctx.lineTo(-5.8, -2.3);
+        ctx.lineTo(-3.6, 0);
+        ctx.lineTo(-5.8, 2.3);
+        ctx.lineTo(3.0, 2.3);
+        ctx.lineTo(0.8, 7.0);
         ctx.closePath();
         ctx.fill();
-        // Bright center spine & front tip chevron
+        // Bright inner pointer chevron & spine highlight
         ctx.fillStyle = hiCol;
         ctx.beginPath();
-        ctx.moveTo(6.4, 0);
-        ctx.lineTo(2.4, -3.0);
-        ctx.lineTo(3.4, -0.8);
-        ctx.lineTo(-2.5, -0.8);
-        ctx.lineTo(-2.5, 0.8);
-        ctx.lineTo(3.4, 0.8);
-        ctx.lineTo(2.4, 3.0);
+        ctx.moveTo(9.5, 0);
+        ctx.lineTo(2.2, -4.4);
+        ctx.lineTo(3.6, -1.1);
+        ctx.lineTo(-2.8, -1.1);
+        ctx.lineTo(-2.8, 1.1);
+        ctx.lineTo(3.6, 1.1);
+        ctx.lineTo(2.2, 4.4);
         ctx.closePath();
         ctx.fill();
         ctx.restore();
@@ -5476,16 +5558,16 @@
     function renderQuestArrow(cx, cy, tx, ty, px, py, isSide, avoidAngle) {
         const x = tx - cx, y = ty - cy - 1, m = 26;
         const onScreen = x > m && x < W - m && y > m && y < H - m;
-        const col = isSide ? '#2ee86c' : '#ffd23f';
+        const col = isSide ? '#2ee86c' : '#ff7a18';
         if (onScreen) {
             const b = Math.sin(tick * 0.15) * 2.5;
             // Pulsing target ring on the ground at the destination's feet
-            ctx.globalAlpha = 0.5 + Math.sin(tick * 0.15) * 0.15;
-            ctx.strokeStyle = col; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.ellipse(x, y, 12, 5, 0, 0, 6.2832); ctx.stroke();
+            ctx.globalAlpha = 0.58 + Math.sin(tick * 0.15) * 0.15;
+            ctx.strokeStyle = col; ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.ellipse(x, y, 13, 5.5, 0, 0, 6.2832); ctx.stroke();
             ctx.globalAlpha = 1;
-            // Compact ground-level pointer right at the destination ring
-            drawArrowShape(x, y - 12 + b, Math.PI * 0.5, isSide, 0.85);
+            // Ground-level pointer right at the destination ring
+            drawArrowShape(x, y - 14 + b, Math.PI * 0.5, isSide, 0.92);
         }
         // Smart ground-level directional arrow under the hero's feet (never on top of or hidden behind the character)
         if (!onScreen || dist(P[0].x, P[0].y, tx, ty) > 75) {
@@ -5494,16 +5576,16 @@
             if (avoidAngle !== null && Math.abs(Math.atan2(Math.sin(a - avoidAngle), Math.cos(a - avoidAngle))) < 0.35) {
                 a += 0.38;
             }
-            // Subtle compass ring under the hero's boots
-            ctx.globalAlpha = 0.28;
-            ctx.strokeStyle = col; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.ellipse(hx, hy + 1, 11.5, 4.8, 0, 0, 6.2832); ctx.stroke();
+            // Compass ring under the hero's boots
+            ctx.globalAlpha = 0.36;
+            ctx.strokeStyle = col; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.ellipse(hx, hy + 1, 12.5, 5.2, 0, 0, 6.2832); ctx.stroke();
             ctx.globalAlpha = 1;
-            const thrust = Math.sin(tick * 0.18) * 1.8;
-            const footBandY = P[0].y - cy + 11.5;
-            const ax = hx + Math.cos(a) * (12.5 + thrust * 0.75);
-            const ay = footBandY + Math.sin(a) * (3.8 + thrust * 0.35);
-            const pulse = 0.92 + Math.sin(tick * 0.15) * 0.06;
+            const thrust = Math.sin(tick * 0.18) * 2.2;
+            const footBandY = P[0].y - cy + 12.5;
+            const ax = hx + Math.cos(a) * (15.0 + thrust * 0.85);
+            const ay = footBandY + Math.sin(a) * (4.6 + thrust * 0.4);
+            const pulse = 1.0 + Math.sin(tick * 0.15) * 0.07;
             drawArrowShape(ax, ay, a, isSide, pulse);
             return a;
         }

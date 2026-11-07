@@ -930,13 +930,13 @@ HM_CHAPTERS.def.ch6 = function (api) {
         if (id === 'toad_smith') ch.push({ label: u.browseForge || 'Star Forge & Gear', fn: () => { api.closeDlg(); api.forgeScreen(); } });
         if (id === 'toad_shop') ch.push({ label: u.browsePotions || 'Super Mushrooms & Potions', fn: () => { api.closeDlg(); api.potionScreen(); } });
         if (id === 'capt_toad' || id === 'mario' || id === 'salladhor') {
-            if (api.Z.id !== 'c6_m1_fields') ch.push({ label: u.c6travelMeadows || 'Kingdom 1: Mushroom Meadows', fn: () => { api.closeDlg(); api.travel('c6_m1_fields', 4.5, 17.5); } });
+            if (api.Z.id !== 'c6_m1_fields') ch.push({ label: u.c6travelMeadows || 'Kingdom 1: Mushroom Meadows', fn: () => { api.closeDlg(); api.travel('c6_m1_fields', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_j1_jungle' && (o.jungle || c.st >= 5)) ch.push({ label: u.c6travelJungle || 'Kingdom 2: Jungle Bloom', fn: () => { api.closeDlg(); api.travel('c6_j1_jungle', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_b1_forest' && (o.boo || c.st >= 9)) ch.push({ label: u.c6travelBoo || 'Kingdom 3: Boo Haunted Kingdom', fn: () => { api.closeDlg(); api.travel('c6_b1_forest', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_f1_valley' && (o.frost || c.st >= 13)) ch.push({ label: u.c6travelFrost || 'Kingdom 4: Frostpeak Kingdom', fn: () => { api.closeDlg(); api.travel('c6_f1_valley', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_s1_clouds' && (o.sky || c.st >= 17)) ch.push({ label: u.c6travelSky || 'Kingdom 5: Koopa Sky Kingdom', fn: () => { api.closeDlg(); api.travel('c6_s1_clouds', 22.5, 29.5); } });
             if (api.Z.id !== 'c6_d1_badlands' && (o.darkfire || c.st >= 21)) ch.push({ label: u.c6travelDarkfire || 'Kingdom 6: Bowser\'s Darkfire', fn: () => { api.closeDlg(); api.travel('c6_d1_badlands', 22.5, 29.5); } });
-            if (api.Z.id !== 'c6_village') ch.push({ label: u.c6travelHub || 'Return to Mushroom Kingdom Hub', fn: () => { api.closeDlg(); api.travel('c6_village', 22.5, 24.5); } });
+            if (api.Z.id !== 'c6_village') ch.push({ label: u.c6travelHub || 'Return to Mushroom Kingdom Hub', fn: () => { api.closeDlg(); api.travel('c6_village', 22.5, 21.5); } });
             if (id === 'salladhor') {
                 ch.push({ label: u.c6sailCh5 || 'Sail to Blood Kingdoms (Chapter 5)', fn: () => { api.closeDlg(); api.travel('c5_village', 22.5, 25.5); } });
             }

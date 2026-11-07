@@ -300,5 +300,26 @@ test('game.js implements smart autonomous companion pet AI with world-space wayp
     assert.ok(gameCode.includes('hoverX') && gameCode.includes('hoverY'), 'Flying pets must gently hover around their perch');
 });
 
+test('game.js clips standing legs at waist (61.5 * mushScale) and draws bent seated riding legs on Yoshi and mounts', () => {
+    const gameCode = fs.readFileSync('js/game.js', 'utf8');
+    assert.ok(
+        gameCode.includes('ctx.rect(rx - 40 * mushScale, hy - 75 * mushScale, 80 * mushScale, 61.5 * mushScale); ctx.clip();'),
+        'drawPlayer must clip standing legs at waist (hy - 13.5) when riding so standing legs are hidden'
+    );
+    assert.ok(
+        gameCode.includes('yoshiM ? y - (mdir === 2 ? 14 : mdir === 1 ? 16 : 15) - rideBob'),
+        'Yoshi rider seat height must place hips inside Yoshi saddle rather than standing on top'
+    );
+    assert.ok(
+        gameCode.includes('// Side view: seated bent thigh angled forward along saddle + lower shin & boot in stirrup'),
+        'drawPlayer must render a bent seated thigh, lower shin, and stirrup boot in side view'
+    );
+    assert.ok(
+        gameCode.includes('// Front / Back view: knees & boots straddling left and right sides of the saddle'),
+        'drawPlayer must render straddling knees and boots on left and right in front/back view'
+    );
+});
+
+
 
 

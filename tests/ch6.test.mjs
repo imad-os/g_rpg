@@ -362,3 +362,105 @@ test('All 19 Chapter 6 maps build cleanly, Question Blocks pop Super Mushrooms, 
     assert.equal(S.c6.rescued[p], 1, `Princess ${p} must be marked rescued`);
   }
 });
+
+test('All Chapter 6 NPC fast-travel destinations, map exits, and spawns land on walkable non-water tiles', () => {
+  const ctx = loadBrowserEnv();
+  ctx.setTimeout = () => 0;
+  ctx.clearTimeout = () => {};
+  vm.createContext(ctx);
+  ctx.HM_C6_QUESTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'chapters/ch6/quests.json'), 'utf8'));
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch6/text.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch6/maps.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch6/art.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'chapters/ch6/chapter.js'), 'utf8'), ctx);
+
+  const MAPS = ctx.HM_C6_MAPS;
+  const TS = 32;
+  const BLOCK_CHARS = new Set(['^', '#', 'T', 'r', '~', 'B', 'K', 'C', 'L']);
+
+  function buildZone(zid) {
+    const def = MAPS[zid];
+    assert.ok(def, `Zone ${zid} must exist`);
+    const cols = def.rows[0].length, rows = def.rows.length;
+    const block = new Uint8Array(rows * cols);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        if (BLOCK_CHARS.has(def.rows[y][x])) block[y * cols + x] = 1;
+      }
+    }
+    const Z = {
+      id: zid, def, cols, rows, block,
+      lights: [], pots: [], chests: [], npcs: []
+    };
+    const dummyApi = {
+      TS, S: { c6: { st: 24, open: { jungle: 1, boo: 1, frost: 1, sky: 1, darkfire: 1 }, blocks: {}, rescued: {} }, opened: {} },
+      L: 'en', TEXT: ctx.HM_C6_TEXT, T: () => ctx.HM_C6_TEXT.en, Z,
+      addStatic: (k, img, x, y, base, w, h, extra) => Object.assign({ k, img, x, y, base, dw: w, dh: h }, extra || {}),
+      blockOf: (ch) => BLOCK_CHARS.has(ch) ? 1 : 0,
+      glow: () => ctx.document.createElement('canvas')
+    };
+    const ch6 = ctx.HM_CHAPTERS.def.ch6(dummyApi);
+    ch6.build(Z, def);
+    return Z;
+  }
+
+  function isFeetSolid(Z, px, py) {
+    for (const [ox, oy] of [[-6, -3], [6, -3], [-6, 3], [6, 3]]) {
+      const tx = Math.floor((px + ox) / TS), ty = Math.floor((py + oy) / TS);
+      if (tx < 0 || ty < 0 || tx >= Z.cols || ty >= Z.rows) return true;
+      if (Z.block[ty * Z.cols + tx]) return true;
+    }
+    return false;
+  }
+
+  // 1. Check every map spawn and exit in Chapter 6
+  for (const [zid, def] of Object.entries(MAPS)) {
+    const Z = buildZone(zid);
+    const [sx, sy] = def.spawn;
+    assert.equal(isFeetSolid(Z, sx * TS, sy * TS), false, `Spawn [${sx}, ${sy}] in ${zid} must not be solid/water`);
+    for (const ex of def.exits || []) {
+      if (MAPS[ex.to]) {
+        const destZ = buildZone(ex.to);
+        const tileCh = destZ.def.rows[Math.floor(ex.ty)][Math.floor(ex.tx)];
+        assert.notEqual(tileCh, '~', `Exit from ${zid} to ${ex.to} (${ex.tx}, ${ex.ty}) must not land on water ('~')`);
+        assert.equal(isFeetSolid(destZ, ex.tx * TS, ex.ty * TS), false, `Exit from ${zid} to ${ex.to} (${ex.tx}, ${ex.ty}) must be walkable`);
+      }
+    }
+  }
+
+  // 2. Check all NPC fast-travel choices from Captain Toad, Mario, and Salladhor Saan
+  const travelCalls = [];
+  const dummyApi = {
+    TS,
+    S: { c6: { st: 24, open: { jungle: 1, boo: 1, frost: 1, sky: 1, darkfire: 1 }, blocks: {}, rescued: {} }, opened: {} },
+    L: 'en',
+    TEXT: ctx.HM_C6_TEXT,
+    T: () => ctx.HM_C6_TEXT.en,
+    Z: { id: 'c6_village' },
+    closeDlg: () => {},
+    travel: (to, tx, ty) => { travelCalls.push({ to, tx, ty }); }
+  };
+  const ch6 = ctx.HM_CHAPTERS.def.ch6(dummyApi);
+  for (const fromZone of ['c6_village', 'c6_m1_fields']) {
+    dummyApi.Z.id = fromZone;
+    for (const npcId of ['capt_toad', 'mario', 'salladhor']) {
+      const ch = [];
+      ch6.extras(npcId, ch);
+      for (const opt of ch) opt.fn();
+    }
+  }
+  assert.ok(travelCalls.length >= 7, 'NPC travel menus must expose all 6 Kingdoms + Hub');
+  for (const t of travelCalls) {
+    if (MAPS[t.to]) {
+      const destZ = buildZone(t.to);
+      const tileCh = destZ.def.rows[Math.floor(t.ty)][Math.floor(t.tx)];
+      assert.notEqual(tileCh, '~', `NPC travel to ${t.to} (${t.tx}, ${t.ty}) must not land in water ('~')`);
+      assert.equal(isFeetSolid(destZ, t.tx * TS, t.ty * TS), false, `NPC travel to ${t.to} (${t.tx}, ${t.ty}) must land on a walkable tile`);
+    }
+  }
+
+  // 3. Verify js/game.js defines findSafePlayerPos in placePlayers
+  const gameCode = fs.readFileSync(path.join(ROOT, 'js/game.js'), 'utf8');
+  assert.ok(gameCode.includes('function findSafePlayerPos('), 'js/game.js must define findSafePlayerPos safeguard in placePlayers');
+});
+
